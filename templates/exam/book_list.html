@@ -1,0 +1,110 @@
+{# templates/exam/book_list.html #}
+{% extends "base.html" %}
+
+{% block title %}Sách luyện JLPT | DailyFluent{% endblock %}
+{% block main_classes %}max-w-4xl mx-auto px-4 py-8 sm:py-12{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+  Sách luyện & Bộ đề JLPT
+</h1>
+
+<div class="space-y-6">
+  {% for book in books %}
+    <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-white">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-semibold text-slate-900">
+            {{ book.title }}
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">
+            Slug: <code class="bg-slate-50 px-1 rounded">{{ book.slug }}</code>
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2 text-xs">
+          {% if book.level %}
+            <span class="inline-flex items-center px-2 py-1 rounded-full bg-slate-100 text-slate-800 font-medium">
+              Level:
+              {% if book.get_level_display %}
+                <span class="ml-1">{{ book.get_level_display }}</span>
+              {% else %}
+                <span class="ml-1">JLPT {{ book.level }}</span>
+              {% endif %}
+            </span>
+          {% endif %}
+          {% if book.category %}
+            <span class="inline-flex items-center px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium">
+              {% if book.get_category_display %}
+                {{ book.get_category_display }}
+              {% else %}
+                {{ book.category }}
+              {% endif %}
+            </span>
+          {% endif %}
+          {% if book.total_lessons %}
+            <span class="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium">
+              {{ book.total_lessons }} bài
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if book.description %}
+        <p class="text-sm text-slate-600 mb-4">
+          {{ book.description }}
+        </p>
+      {% endif %}
+
+      {# Danh sách ExamTemplate thuộc Book này #}
+      {% with templates=book.examtemplate_set.all %}
+        {% if templates %}
+          <div class="border border-slate-100 rounded-xl divide-y divide-slate-100">
+            {% for t in templates %}
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-3 py-3">
+                <div>
+                  <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1">
+                    {% if t.lesson_index %}
+                      Bài {{ t.lesson_index }}
+                    {% else %}
+                      Đề #{{ t.id }}
+                    {% endif %}
+                  </p>
+                  <p class="text-sm font-semibold text-slate-900">
+                    {{ t.name|default:t.title }}
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    JLPT {{ t.level }}
+                    ・ {{ t.questions.count }} câu
+                    ・
+                    {% if t.duration_minutes %}
+                      {{ t.duration_minutes }} phút
+                    {% elif t.time_limit_minutes %}
+                      {{ t.time_limit_minutes }} phút
+                    {% else %}
+                      không giới hạn
+                    {% endif %}
+                  </p>
+                </div>
+
+                <a href="{% url 'exam:start_exam' t.slug %}"
+                   class="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800">
+                  Làm bài
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-sm text-slate-500 italic">
+            Chưa có đề nào cho book này.
+          </p>
+        {% endif %}
+      {% endwith %}
+    </div>
+  {% empty %}
+    <p class="text-slate-600">
+      Chưa có Book nào. Hãy seed dữ liệu (ví dụ: Power Drill Mojigoi N2) trước.
+    </p>
+  {% endfor %}
+</div>
+{% endblock %}

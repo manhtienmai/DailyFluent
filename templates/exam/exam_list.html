@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Đề luyện JLPT | DailyFluent{% endblock %}
+{% block main_classes %}max-w-4xl mx-auto px-4 py-8 sm:py-12{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">Đề luyện JLPT</h1>
+
+<div class="mb-4">
+  <form method="get" class="flex items-center gap-2 text-sm">
+    <span class="text-slate-600">Level:</span>
+    <select name="level" class="border rounded-lg px-2 py-1" onchange="this.form.submit()">
+        <option value="">Tất cả</option>
+        {% for code in levels %}
+            <option value="{{ code }}" {% if selected_level == code %}selected{% endif %}>
+            {{ code }}
+            </option>
+        {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div class="space-y-4">
+  {% for exam in templates %}
+  <div class="border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Mã đề</p>
+      <h2 class="font-semibold text-slate-900">{{ exam.name }}</h2>
+      <p class="text-sm text-slate-600">
+        JLPT {{ exam.level }} ・ {{ exam.questions.count }} câu ・ {{ exam.duration_minutes }} phút
+      </p>
+    </div>
+    <a href="{% url 'exam:start_exam' exam.slug %}"
+       class="inline-flex items-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
+      Bắt đầu
+    </a>
+  </div>
+  {% empty %}
+  <p class="text-slate-600">Chưa có đề thi nào.</p>
+  {% endfor %}
+</div>
+{% endblock %}

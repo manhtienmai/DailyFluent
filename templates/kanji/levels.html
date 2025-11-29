@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Kanji Levels | DailyFluent{% endblock %}
+{% block main_classes %}max-w-5xl mx-auto px-4 py-8{% endblock %}
+
+{% block content %}
+  <h1 class="text-xl font-semibold text-slate-900 mb-4">
+    Hán tự theo level
+  </h1>
+
+  {% for level, kanji_list in levels %}
+    <div class="mt-6">
+      <h2 class="text-sm font-semibold text-slate-600 mb-3">
+        Level {{ level }}
+      </h2>
+      <div class="flex flex-wrap gap-3">
+        {% for k in kanji_list %}
+          <a href="{% url 'kanji:detail' k.char %}"
+             class="inline-flex flex-col items-center justify-center
+                    w-20 h-20 rounded-xl bg-sky-500 text-white text-sm
+                    shadow-sm hover:bg-sky-600">
+            <span class="text-2xl font-bold leading-none mb-1">{{ k.char }}</span>
+            <span class="text-[11px] leading-tight text-center px-1">
+              {{ k.keyword|default:k.sino_vi }}
+            </span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-sm text-slate-500">
+      Chưa có Hán tự nào. Hãy thêm trong admin trước nhé.
+    </p>
+  {% endfor %}
+{% endblock %}

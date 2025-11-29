@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ kanji.char }} | Kanji Detail{% endblock %}
+{% block main_classes %}max-w-4xl mx-auto px-4 py-8{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 md:grid-cols-[1fr,2fr]">
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-center">
+    <div class="text-5xl font-bold mb-3">{{ kanji.char }}</div>
+    <div class="text-sm text-slate-500 mb-1">
+      Level {{ kanji.level }}{% if kanji.jlpt_level %} · JLPT {{ kanji.jlpt_level }}{% endif %}
+    </div>
+    {% if kanji.keyword %}
+      <div class="text-base font-semibold text-slate-900 mb-1">
+        {{ kanji.keyword }}
+      </div>
+    {% endif %}
+    {% if kanji.sino_vi %}
+      <div class="text-sm text-slate-600 mb-2">
+        Âm Hán Việt: <span class="font-medium">{{ kanji.sino_vi }}</span>
+      </div>
+    {% endif %}
+    {% if kanji.onyomi or kanji.kunyomi %}
+      <div class="text-xs text-slate-500">
+        On: {{ kanji.onyomi|default:"-" }} · Kun: {{ kanji.kunyomi|default:"-" }}
+      </div>
+    {% endif %}
+    {% if kanji.note %}
+      <hr class="my-4 border-slate-200">
+      <p class="text-xs text-slate-600 text-left whitespace-pre-line">
+        {{ kanji.note }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2 class="text-sm font-semibold text-slate-700 mb-2">
+      Từ vựng dùng chữ {{ kanji.char }}
+    </h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+          <tr>
+            <th class="px-4 py-2 text-left">Từ</th>
+            <th class="px-4 py-2 text-left">Nghĩa</th>
+            <th class="px-4 py-2 text-left">JLPT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in vocab_list %}
+            <tr class="border-t border-slate-100 hover:bg-slate-50">
+              <td class="px-4 py-2">
+                <div class="font-semibold">
+                  {{ v.jp_kanji|default:v.jp_kana }}
+                </div>
+                <div class="text-xs text-slate-500">
+                  {{ v.jp_kana }}
+                </div>
+              </td>
+              <td class="px-4 py-2">
+                {{ v.vi_meaning }}
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-600">
+                {{ v.jlpt_level|default:"-" }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="px-4 py-4 text-center text-sm text-slate-500">
+                Chưa có từ vựng nào gắn với Hán tự này.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

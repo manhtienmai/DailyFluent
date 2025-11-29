@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Từ vựng | DailyFluent{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">Từ vựng</h1>
+    <p class="text-xs text-slate-500">
+      Danh sách từ vựng dùng để luyện flashcard.
+    </p>
+  </div>
+  <a href="{% url 'vocab:flashcards' %}"
+     class="px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+    Luyện flashcard
+  </a>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+      <tr>
+        <th class="px-4 py-2 text-left">Tiếng Nhật</th>
+        <th class="px-4 py-2 text-left">Nghĩa tiếng Việt</th>
+        <th class="px-4 py-2 text-left">JLPT</th>
+        <th class="px-4 py-2 text-left">Chủ đề</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for w in words %}
+        <tr class="border-t border-slate-100 hover:bg-slate-50">
+          <td class="px-4 py-2">
+            <div class="font-semibold">{{ w.jp_kana }}</div>
+            {% if w.jp_kanji %}
+              <div class="text-xs text-slate-500">{{ w.jp_kanji }}</div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-2">{{ w.vi_meaning }}</td>
+          <td class="px-4 py-2 text-xs text-slate-600">
+            {{ w.jlpt_level|default:"-" }}
+          </td>
+          <td class="px-4 py-2 text-xs text-slate-600">
+            {{ w.topic|default:"-" }}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+            Chưa có từ vựng nào. Hãy thêm từ trong admin trước nhé.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

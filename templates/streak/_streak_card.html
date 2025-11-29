@@ -1,0 +1,48 @@
+{# templates/streak/_streak_card.html #}
+<div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 flex items-center gap-4">
+  <div class="flex-shrink-0">
+    <div class="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
+      <span class="text-2xl">🔥</span>
+    </div>
+  </div>
+  <div class="flex-1">
+    {% if streak.current_streak > 0 %}
+      <p class="text-sm text-gray-500">Current streak</p>
+      <p class="text-2xl font-semibold text-gray-900" id="streak-number" data-streak="{{ streak.current_streak }}">
+        {{ streak.current_streak }}
+      </p>
+      <p class="text-xs text-gray-500 mt-1">
+        Longest streak:
+        <span class="font-medium">{{ streak.longest_streak }} ngày</span>
+      </p>
+    {% else %}
+      <p class="text-sm text-gray-700 font-medium">
+        Bắt đầu streak đầu tiên của bạn hôm nay! 🎯
+      </p>
+      <p class="text-xs text-gray-500 mt-1">
+        Hoàn thành ít nhất 1 bài học để có ngày streak đầu tiên.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('streak-number');
+  if (!el) return;
+
+  const target = parseInt(el.dataset.streak, 10) || 0;
+  let current = 0;
+  const duration = 600; // ms
+  const start = performance.now();
+
+  function animate(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    current = Math.round(progress * target);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+});
+</script>

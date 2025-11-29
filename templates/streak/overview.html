@@ -1,0 +1,11 @@
+{# templates/streak/overview.html #}
+{% extends "base.html" %} {# hoặc template base của bạn #}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-8">
+  <h1 class="text-2xl font-bold mb-4">Streak của bạn</h1>
+
+  {% include "streak/_streak_card.html" %}
+
+</div>
+{% endblock %}

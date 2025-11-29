@@ -1,0 +1,163 @@
+{% extends "video/base_video.html" %}
+
+{% block video_title %}Japanese Videos{% endblock %}
+
+{% block video_content %}
+  {# =================== FILTER CHIPS =================== #}
+  <div class="mb-6">
+    <div class="flex flex-wrap gap-2 overflow-x-auto pb-2">
+      <a
+        href="{% url 'video:list' %}"
+        class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium
+               {% if not active_category %}bg-emerald-500 text-white border-emerald-500
+               {% else %}bg-white text-slate-700 border-slate-200 hover:bg-slate-50{% endif %}"
+      >
+        全部
+      </a>
+
+      {% for category in categories %}
+        <a
+          href="{% url 'video:list' %}?category={{ category.slug }}"
+          class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium
+                 {% if active_category and active_category.pk == category.pk %}
+                 bg-emerald-500 text-white border-emerald-500
+                 {% else %}
+                 bg-white text-slate-700 border-slate-200 hover:bg-slate-50
+                 {% endif %}"
+        >
+          {{ category.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# =================== TITLE ROW =================== #}
+  <div class="mb-4 flex items-baseline justify-between">
+    <h1 class="text-2xl font-bold tracking-tight">
+      N5 - N4
+    </h1>
+    <p class="text-xs text-slate-500">{{ videos.count }} videos</p>
+  </div>
+
+    {# =================== GRID OF CARDS =================== #}
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for video in videos %}
+      <a
+        href="{{ video.get_absolute_url }}"
+        class="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition
+               hover:-translate-y-1 hover:shadow-xl"
+      >
+        {# ---------- THUMBNAIL FULL CARD TOP ---------- #}
+        <div class="relative">
+          {% if video.thumbnail %}
+            <img
+              src="{{ video.thumbnail.url }}"
+              alt="{{ video.title }}"
+              class="h-52 w-full object-cover md:h-56"
+            />
+          {% else %}
+            <div
+              class="flex h-52 w-full items-center justify-center bg-slate-200 text-slate-500 md:h-56"
+            >
+              No thumbnail
+            </div>
+          {% endif %}
+
+          {# View count pill (bottom-left) #}
+          <div class="absolute bottom-3 left-3">
+            <span
+              class="inline-flex items-center gap-1 rounded-full bg-black px-2.5 py-1
+                     text-xs font-semibold text-white shadow-lg"
+            >
+              <span
+                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500"
+              >
+                {# headphone icon #}
+                <svg
+                  viewBox="0 0 24 24"
+                  class="h-3 w-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M4 14v2a3 3 0 0 0 3 3h1v-6H7a3 3 0 0 0-3 3z"></path>
+                  <path d="M20 14v2a3 3 0 0 1-3 3h-1v-6h1a3 3 0 0 1 3 3z"></path>
+                  <path d="M4 14V12a8 8 0 0 1 16 0v2"></path>
+                </svg>
+              </span>
+              <span>{{ video.view_count }}</span>
+            </span>
+          </div>
+
+          {# Duration pill (bottom-right) #}
+          <div class="absolute bottom-3 right-3">
+            <span
+              class="inline-flex items-center gap-1 rounded-full bg-black px-2.5 py-1
+                     text-xs font-semibold text-white shadow-lg"
+            >
+              <span
+                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500"
+              >
+                {# clock icon #}
+                <svg
+                  viewBox="0 0 24 24"
+                  class="h-3 w-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7v5l3 2"></path>
+                </svg>
+              </span>
+              <span>{{ video.duration_label }}</span>
+            </span>
+          </div>
+        </div>
+
+        {# ---------- TEXT AREA ---------- #}
+        <div class="flex flex-1 flex-col justify-between px-4 py-3">
+          <div class="space-y-2">
+            <h2
+              class="line-clamp-2 text-sm font-semibold leading-snug text-slate-900
+                     group-hover:text-indigo-600"
+            >
+              {{ video.title }}
+            </h2>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between text-xs">
+            <span
+              class="inline-flex items-center rounded-xl bg-indigo-600 px-3 py-1
+                     font-semibold text-white shadow-sm"
+            >
+              Podcast
+            </span>
+
+            <span class="inline-flex items-center gap-1 text-slate-500">
+              <span
+                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
+              >
+                {# small clock icon #}
+                <svg
+                  viewBox="0 0 24 24"
+                  class="h-3 w-3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7v5l3 2"></path>
+                </svg>
+              </span>
+              <span>{{ video.created_at|timesince }} ago</span>
+            </span>
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-sm text-slate-500">No videos yet.</p>
+    {% endfor %}
+  </div>
+
+{% endblock %}

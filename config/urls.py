@@ -1,0 +1,17 @@
+from django.contrib import admin
+from django.urls import path, include
+from core.views import home
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', home, name='home'),
+    path('vocab/', include('vocab.urls', namespace='vocab')),
+    path('accounts/', include('allauth.urls')),
+    path("kanji/", include("kanji.urls", namespace="kanji")),
+    path("videos/", include("video.urls", namespace="video")),
+    path("exam/", include("exam.urls", namespace="exam")),
+    path("streak/", include("streak.urls", namespace="streak")),
+]

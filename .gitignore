@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual env
+venv/
+.env/
+
+# Django build
+staticfiles/
+media/
+
+# IDE / editor
+.vscode/
+.idea/

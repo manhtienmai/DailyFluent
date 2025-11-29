@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Kết quả {{ template_obj.title }} | DailyFluent{% endblock %}
+{% block main_classes %}max-w-4xl mx-auto px-4 py-6 sm:py-10{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <p class="text-xs uppercase tracking-wide text-slate-500">Kết quả</p>
+    <h1 class="text-2xl font-bold text-slate-900">{{ template_obj.title }}</h1>
+
+    {% if template_obj.subtitle %}
+      <p class="text-sm text-slate-700">{{ template_obj.subtitle }}</p>
+    {% endif %}
+    {% if template_obj.book %}
+      <p class="text-xs text-slate-500 mt-1">
+        Thuộc sách: {{ template_obj.book.title }}
+      </p>
+    {% endif %}
+
+    <p class="text-sm text-slate-600 mt-2">
+      JLPT {{ template_obj.level }} ・ {{ session.correct_count }} / {{ session.total_questions }} câu đúng
+    </p>
+  </div>
+  <div class="text-right">
+    <p class="text-xs text-slate-500 mb-1">Đánh giá</p>
+    <p class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+       {% if session.rating_label == 'TỐT' %}
+         bg-emerald-100 text-emerald-700
+       {% elif session.rating_label == 'TRUNG BÌNH' %}
+         bg-amber-100 text-amber-700
+       {% else %}
+         bg-rose-100 text-rose-700
+       {% endif %}
+    ">
+      {{ session.rating_label }}
+    </p>
+  </div>
+</div>
+
+<div class="grid sm:grid-cols-3 gap-3 mb-8">
+  <div class="rounded-xl border border-slate-200 p-4">
+    <p class="text-xs text-slate-500 mb-1">Đúng</p>
+    <p class="text-2xl font-bold text-emerald-600">{{ session.correct_count }}</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 p-4">
+    <p class="text-xs text-slate-500 mb-1">Sai</p>
+    <p class="text-2xl font-bold text-rose-500">{{ wrong_count }}</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 p-4">
+    <p class="text-xs text-slate-500 mb-1">Tỉ lệ đúng</p>
+    <p class="text-2xl font-bold text-slate-900">{{ session.score_percent }}%</p>
+  </div>
+</div>
+
+{% regroup answers by question.mondai as grouped_answers %}
+
+<div class="space-y-6">
+  {% for group in grouped_answers %}
+  <section class="border border-slate-200 rounded-2xl p-4 sm:p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-slate-700">
+        {% if group.grouper %}Mondai {{ group.grouper }}{% else %}Phần{% endif %}
+      </h2>
+      {# nếu có custom template filter lấy stats_by_mondai[group.grouper] thì hiển thị thêm ở đây #}
+    </div>
+
+    <div class="space-y-4">
+      {% for ans in group.list %}
+      {% with q=ans.question %}
+      <div class="border border-slate-100 rounded-xl p-3 sm:p-4">
+        <p class="text-sm font-medium text-slate-900 mb-2">
+          {{ forloop.counter }}. {{ q.text|linebreaksbr }}
+        </p>
+
+        <div class="space-y-1 text-sm">
+          {% if q.question_type == "MCQ" %}
+            {% for opt in q.mcq_choices %}
+            {% with key=opt.key selected=ans.raw_answer.selected_key %}
+              {% if key == q.correct_answer %}
+              <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5">
+                <span class="font-semibold">Đáp án đúng: {{ opt.text }}</span>
+                {% if selected == key %}
+                  <span class="text-emerald-700 text-xs ml-2">(bạn chọn đúng)</span>
+                {% endif %}
+              </div>
+              {% elif selected == key %}
+              <div class="rounded-lg bg-rose-50 border border-rose-200 px-3 py-1.5">
+                <span class="font-semibold">Bạn chọn: {{ opt.text }}</span>
+              </div>
+              {% endif %}
+            {% endwith %}
+            {% endfor %}
+          {% else %}
+            {# TODO: hiển thị kiểu khác cho ORDER/FILL... #}
+            <p class="text-xs text-slate-500">Loại câu chưa hỗ trợ hiển thị chi tiết.</p>
+          {% endif %}
+        </div>
+
+        {% if q.explanation_vi %}
+        <p class="mt-2 text-xs text-slate-600 whitespace-pre-line">
+          {{ q.explanation_vi }}
+        </p>
+        {% endif %}
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+
+<div class="mt-8">
+  <a href="{% url 'exam:exam_list' %}"
+     class="inline-flex items-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
+    ← Quay lại danh sách đề
+  </a>
+</div>
+{% endblock %}

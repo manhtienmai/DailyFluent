@@ -1,0 +1,284 @@
+{% extends "video/base_video.html" %}
+
+{% block video_title %}{{ video.title }} | Japanese Podcast{% endblock %}
+
+{% block video_content %}
+  {# ===================== TOP TABS ===================== #}
+  <div class="mb-4">
+    <div class="inline-flex flex-wrap gap-1 rounded-full bg-slate-100 p-1 text-xs font-medium">
+      {# TAB: VIDEO (ACTIVE) #}
+      <button
+        id="tab-video"
+        class="tab-button inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-1.5 text-white shadow-sm"
+        data-target="panel-video"
+      >
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+          {# icon camera #}
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="6" width="13" height="12" rx="2"></rect>
+            <path d="M16 10l4-3v10l-4-3z"></path>
+          </svg>
+        </span>
+        <span>Video</span>
+      </button>
+
+      {# TAB: CHÉP CHÍNH TẢ (TRANSCRIPT) #}
+      <button
+        id="tab-transcript"
+        class="tab-button inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-slate-700"
+        data-target="panel-transcript"
+      >
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white">
+          {# icon text / subtitle #}
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <path d="M7 10h7"></path>
+            <path d="M7 14h4"></path>
+          </svg>
+        </span>
+        <span>Chép chính tả</span>
+      </button>
+
+      {# TAB: PHÁT ÂM (DISABLED) #}
+      <button
+        class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-slate-400 cursor-default"
+        disabled
+      >
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white">
+          {# icon mic #}
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path>
+            <path d="M5 11a7 7 0 0 0 14 0"></path>
+            <path d="M12 18v3"></path>
+          </svg>
+        </span>
+        <span>Phát âm</span>
+      </button>
+
+      {# TAB: BÀI TẬP (DISABLED) #}
+      <button
+        class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-slate-400 cursor-default"
+        disabled
+      >
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white">
+          {# icon question mark #}
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9.5 9.5a2.5 2.5 0 0 1 5 0c0 1.5-2 2-2 3"></path>
+            <path d="M12 17h.01"></path>
+          </svg>
+        </span>
+        <span>Bài tập</span>
+      </button>
+
+      {# TAB: SƠ ĐỒ (DISABLED) #}
+      <button
+        class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-slate-400 cursor-default"
+        disabled
+      >
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white">
+          {# icon share / nodes #}
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="6" cy="12" r="2"></circle>
+            <circle cx="18" cy="6" r="2"></circle>
+            <circle cx="18" cy="18" r="2"></circle>
+            <path d="M8 11l8-4"></path>
+            <path d="M8 13l8 4"></path>
+          </svg>
+        </span>
+        <span>Sơ đồ</span>
+      </button>
+    </div>
+  </div>
+
+  {# ===================== MAIN LAYOUT ===================== #}
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    {# ---------- LEFT: VIDEO ----------- #}
+    <section id="panel-video" class="tab-panel space-y-4">
+      <div class="overflow-hidden rounded-2xl bg-white shadow">
+        <div class="aspect-video">
+            <!-- container của YouTube player, chiếm full khung 16:9 -->
+            <div id="player" class="h-full w-full"></div>
+        </div>
+      </div>
+
+
+      {# INFO dưới video #}
+      <div class="space-y-2">
+        <h1 class="text-xl font-bold leading-tight">{{ video.title }}</h1>
+        <div class="flex flex-wrap gap-2 text-xs">
+          <span class="rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700">
+            {{ video.level }}
+          </span>
+          {% if video.category %}
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
+              {{ video.category.name }}
+            </span>
+          {% endif %}
+          <span class="rounded-full bg-indigo-50 px-2 py-0.5 font-medium text-indigo-700">
+            Podcast
+          </span>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-slate-500">
+          <span>{{ video.view_count }} views</span>
+          <span>•</span>
+          <span>{{ video.created_at|date:"M d, Y" }}</span>
+        </div>
+      </div>
+
+      {% if video.description %}
+        <div class="rounded-2xl bg-white p-4 text-sm text-slate-700 shadow-sm">
+          {{ video.description|linebreaks }}
+        </div>
+      {% endif %}
+    </section>
+
+    {# ---------- RIGHT: TRANSCRIPT ----------- #}
+    <aside
+      id="panel-transcript"
+      class="tab-panel hidden rounded-2xl bg-white p-4 shadow-sm lg:block"
+    >
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-slate-800">Phụ đề</h2>
+        <button
+          id="scroll-top-btn"
+          type="button"
+          class="text-[11px] text-slate-500 hover:text-slate-800"
+        >
+          Lên đầu
+        </button>
+      </div>
+
+      <div
+        id="transcript-container"
+        class="space-y-3 overflow-y-auto text-sm leading-relaxed text-slate-800"
+        style="max-height: 520px"
+      >
+        {% for line in video.transcript_lines.all %}
+          <div
+            class="flex gap-3 rounded-xl px-2 py-1 hover:bg-emerald-50 cursor-pointer transcript-line"
+            data-time="{{ line.start_time }}"
+          >
+            <button
+              type="button"
+              class="mt-1 inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-[11px]"
+            >
+              {# icon play #}
+              <svg viewBox="0 0 24 24" class="h-3 w-3" fill="currentColor">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+            </button>
+            <div>
+              <p>{{ line.text }}</p>
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-xs text-slate-500">
+            Chưa có phụ đề.
+          </p>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+
+  {# ===================== SCRIPTS ===================== #}
+
+  {# YouTube IFrame API #}
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    let player;
+
+    // YouTube gọi hàm này khi API sẵn sàng
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player("player", {
+            width: "100%",
+            height: "100%",
+            videoId: "{{ video.youtube_id }}",
+            playerVars: {
+            controls: 1,      // hiện control mặc định
+            rel: 0,
+            modestBranding: 1,
+            playsinline: 1,
+            },
+            events: {
+            onReady: onPlayerReady,
+            },
+        });
+    }
+
+
+    function onPlayerReady(event) {
+        // bảo iframe fill full khung
+        const iframe = event.target.getIframe();
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+
+        setupTranscriptInteractions();
+    }
+
+
+    function setupTranscriptInteractions() {
+      // click vào dòng transcript để tua tới
+      document.querySelectorAll(".transcript-line").forEach((el) => {
+        el.addEventListener("click", () => {
+          const seconds = Number(el.dataset.time || 0);
+          if (player && !Number.isNaN(seconds)) {
+            player.seekTo(seconds, true);
+            player.playVideo();
+          }
+        });
+      });
+
+      // nút lên đầu transcript
+      const topBtn = document.getElementById("scroll-top-btn");
+      const transcriptContainer = document.getElementById("transcript-container");
+      if (topBtn && transcriptContainer) {
+        topBtn.addEventListener("click", () => {
+          transcriptContainer.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+    }
+
+    // ----------------- TABS (Video / Chép chính tả) -----------------
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    function setTabsForScreen() {
+      if (window.innerWidth >= 1024) {
+        // desktop: luôn show cả 2 panel
+        panels.forEach((p) => p.classList.remove("hidden"));
+      } else {
+        // mobile: chỉ show panel-video lúc đầu
+        panels.forEach((p) =>
+          p.id === "panel-video"
+            ? p.classList.remove("hidden")
+            : p.classList.add("hidden")
+        );
+      }
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.target;
+        if (!target) return; // các nút disabled không có data-target
+
+        // đổi màu active tab
+        tabButtons.forEach((b) =>
+          b.classList.remove("bg-emerald-500", "text-white", "shadow-sm")
+        );
+        btn.classList.add("bg-emerald-500", "text-white", "shadow-sm");
+
+        // trên mobile: chỉ hiển thị panel tương ứng
+        if (window.innerWidth < 1024) {
+          panels.forEach((panel) => {
+            panel.classList.toggle("hidden", panel.id !== target);
+          });
+        }
+      });
+    });
+
+    window.addEventListener("resize", setTabsForScreen);
+    setTabsForScreen();
+  </script>
+{% endblock %}

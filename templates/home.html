@@ -1,0 +1,139 @@
+{# templates/home.html #}
+{% extends "base.html" %}
+
+{% block title %}DailyFluent - Dashboard{% endblock %}
+
+{% block main_classes %}max-w-4xl mx-auto px-4 py-8{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- HEADER DASHBOARD -->
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-400">Dashboard</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+        Xin chào{% if user.is_authenticated and user.email %}, {{ user.email }}{% endif %} 👋
+      </h1>
+      <p class="text-sm text-slate-600 mt-1">
+        Theo dõi chuỗi ngày học tiếng Nhật liên tục của bạn.
+      </p>
+    </div>
+
+    {% if user.is_authenticated %}
+      <div class="hidden sm:block text-right text-xs text-slate-500">
+        <p>Đã đăng nhập</p>
+        <p class="font-medium text-slate-700">Tiếp tục giữ nhịp mỗi ngày nhé!</p>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated %}
+    <!-- CARD STREAK CHÍNH -->
+    <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+            <span class="text-2xl">🔥</span>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              Chuỗi ngày học liên tục
+            </p>
+
+            {% if streak and streak.current_streak > 0 %}
+              <p class="text-3xl font-bold text-slate-900" id="streak-number" data-streak="{{ streak.current_streak }}">
+                {{ streak.current_streak }}
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Kỷ lục dài nhất:
+                <span class="font-semibold text-slate-800">{{ streak.longest_streak }} ngày</span>
+              </p>
+            {% else %}
+              <p class="text-sm text-slate-700 mt-1">
+                Bạn chưa có streak nào. Bắt đầu ngay hôm nay bằng cách hoàn thành 1 bài học hoặc ôn từ vựng. ✨
+              </p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex flex-col items-start sm:items-end gap-2">
+          <p class="text-xs text-slate-500">
+            Mục tiêu gợi ý: ít nhất <span class="font-semibold">10–15 phút</span> học mỗi ngày.
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <a href="{% url 'vocab:list' %}"
+               class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">
+              Ôn từ vựng ngay
+            </a>
+            <a href="{% url 'video:list' %}"
+               class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-slate-200 text-xs text-slate-700 hover:bg-slate-50">
+              Xem video luyện nghe
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% if streak and streak.current_streak > 0 %}
+        <div class="mt-5 grid sm:grid-cols-2 gap-3 text-xs">
+          <div class="bg-slate-50 rounded-2xl p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Trạng thái hiện tại</p>
+            <p class="text-sm font-semibold text-slate-800">
+              Bạn đang giữ chuỗi {{ streak.current_streak }} ngày liên tục. Đừng để bị ngắt nhé!
+            </p>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Gợi ý hôm nay</p>
+            <p class="text-sm text-slate-800">
+              Hoàn thành 1 video hoặc 1 bộ từ vựng là đủ để giữ streak. Không cần học quá nhiều một lúc.
+            </p>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+  {% else %}
+    <!-- CHƯA ĐĂNG NHẬP: GỢI Ý LOGIN -->
+    <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-6 text-center">
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">
+        Đăng nhập để xem dashboard học tập của bạn
+      </h2>
+      <p class="text-sm text-slate-600 mb-4">
+        Bạn sẽ xem được chuỗi ngày học liên tục (streak), tiến độ và gợi ý bài học mỗi ngày.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <a href="{% url 'account_login' %}"
+           class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+          Đăng nhập
+        </a>
+        <a href="{% url 'account_signup' %}"
+           class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50">
+          Tạo tài khoản mới
+        </a>
+      </div>
+    </section>
+  {% endif %}
+</div>
+
+{% if user.is_authenticated and streak and streak.current_streak > 0 %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('streak-number');
+    if (!el) return;
+    const target = parseInt(el.dataset.streak, 10) || 0;
+    let current = 0;
+    const duration = 600;
+    const start = performance.now();
+
+    function animate(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      current = Math.round(progress * target);
+      el.textContent = current;
+      if (progress < 1) requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,176 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}DailyFluent - Học tiếng Nhật{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'logo_teal.svg' %}" />
+
+  {# CSS từ django-tailwind (theme) #}
+  {% tailwind_css %}
+</head>
+<body class="bg-slate-100 text-slate-900 antialiased">
+  <!-- TOP BAR -->
+  <header class="border-b border-slate-200 bg-white/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-6">
+        <!-- Logo -->
+        <div class="flex items-center gap-2">
+        <div class="w-[2.6rem] h-[2.6rem] flex items-center justify-center">
+            <img src="{% static 'logo_teal.svg' %}" alt="DailyFluent logo" class="w-full h-full object-contain">
+        </div>
+        <div>
+            <div class="font-semibold text-slate-900">DailyFluent</div>
+            <div class="text-xs text-slate-500">日本語を毎日少しずつ</div>
+        </div>
+        </div>
+
+        <!-- NAVBAR -->
+        <nav class="hidden sm:flex items-center gap-4 text-sm">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'home' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Trang chủ
+            </a>
+            <a href="{% url 'video:list' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Video
+            </a>
+            <a href="{% url 'exam:exam_list' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Đề thi
+            </a>
+            <a href="{% url 'exam:book_list' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Sách
+            </a>
+            <a href="{% url 'vocab:list' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Từ vựng
+            </a>
+            <a href="{% url 'kanji:levels' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Kanji
+            </a>
+            <a href="{% url 'vocab:progress' %}"
+            class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+            Tiến độ
+            </a>
+
+            {% if user.is_authenticated %}
+            <a href="#"
+                class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800">
+                Lộ trình của tôi
+            </a>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+            <!-- Avatar + dropdown -->
+            <div class="flex items-center gap-3 ml-6">
+            <div class="relative">
+                <button
+                id="accountMenuButton"
+                type="button"
+                class="flex items-center justify-center focus:outline-none"
+                >
+                <span class="sr-only">Mở menu tài khoản</span>
+                <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+                    {# Chữ cái đầu từ email, nếu có; nếu không thì DF #}
+                    {% if user.email %}
+                    {{ user.email|slice:":1"|upper }}
+                    {% else %}
+                    DF
+                    {% endif %}
+                </div>
+                </button>
+
+                <div
+                id="accountMenu"
+                class="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 text-sm hidden z-20"
+                >
+                <div class="px-3 py-2 border-b border-slate-100">
+                    <p class="text-[11px] text-slate-500 uppercase tracking-wide">
+                    Tài khoản
+                    </p>
+                    {% if user.email %}
+                    <p class="text-xs text-slate-700 truncate">
+                        {{ user.email }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <a href="#"
+                    class="block px-3 py-2 hover:bg-slate-50">
+                    Trang cá nhân (sắp có)
+                </a>
+                <a href="#"
+                    class="block px-3 py-2 hover:bg-slate-50">
+                    Cài đặt tài khoản (sắp có)
+                </a>
+
+                <form method="post"
+                        action="{% url 'account_logout' %}"
+                        class="border-t border-slate-100 mt-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="w-full text-left px-3 py-2 hover:bg-slate-50 text-red-600">
+                    Đăng xuất
+                    </button>
+                </form>
+                </div>
+            </div>
+            </div>
+        {% else %}
+            <!-- Khi chưa đăng nhập -->
+            <div class="flex items-center gap-3 ml-6">
+            <a href="{% url 'account_login' %}"
+                class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-medium hover:bg-slate-200">
+                Đăng nhập
+            </a>
+            <a href="{% url 'account_signup' %}"
+                class="px-3 py-1.5 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700">
+                Đăng ký
+            </a>
+            </div>
+        {% endif %}
+        </nav>
+    </div>
+    </header>
+
+
+  <!-- MAIN -->
+  <main class="{% block main_classes %}max-w-6xl mx-auto px-4 py-8{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200 mt-8">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-xs text-slate-500 flex justify-between">
+      <span>&copy; 2025 DailyFluent.</span>
+      <span>Xây dựng với Django + Tailwind</span>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const btn  = document.getElementById('accountMenuButton');
+      const menu = document.getElementById('accountMenu');
+
+      if (!btn || !menu) return;
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', function () {
+        menu.classList.add('hidden');
+      });
+
+      menu.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+    });
+  </script>
+</body>
+</html>
