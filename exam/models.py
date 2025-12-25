@@ -1,12 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.utils.text import slugify
+from utils.slug import to_romaji_slug
 
-
-# ======================
-#  ENUM / CHOICES
-# ======================
 
 class ExamLevel(models.TextChoices):
     N5 = "N5", "JLPT N5"
@@ -19,6 +15,8 @@ class ExamLevel(models.TextChoices):
 class ExamCategory(models.TextChoices):
     MOJIGOI = "MOJI", "Moji・Goi"
     BUNPOU = "BUN", "Bunpou"
+    DOKKAI = "DOKKAI", "Dokkai"
+    CHOUKAI = "CHOUKAI", "Choukai"
     MIX = "MIX", "Mixed"
 
 
@@ -38,23 +36,38 @@ class QuestionType(models.TextChoices):
     PARAGRAPH = "PARA", "Đoạn văn"
 
 
+# ============
+#  ĐỌC HIỂU
+# ============
+
+class ReadingFormat(models.TextChoices):
+    """Kiểu unit đọc hiểu (1 passage + các câu hỏi)."""
+    SHORT = "SHORT", "短文"          # đoạn ngắn
+    MIDDLE = "MIDDLE", "中文"        # đoạn trung văn
+    LONG = "LONG", "長文"            # trường văn
+    MAIL = "MAIL", "メール文"        # email / tin nhắn
+    INFO = "INFO", "情報検索"        # đọc hiểu tìm kiếm thông tin
+
+
 # ======================
 #  EXAM BOOK / TEMPLATE
 # ======================
 
 class ExamBook(models.Model):
-    """1 quyển sách / series, ví dụ:
-    - Power Drill Mojigoi N2
-    - Power Drill Bunpou N2
-    - JLPT MOGI N2
-    """
-
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=120, blank=True)
     level = models.CharField(max_length=2, choices=ExamLevel.choices)
     category = models.CharField(max_length=10, choices=ExamCategory.choices)
 
     description = models.TextField(blank=True)
+
+    # Ảnh bìa sách (optional)
+    cover_image = models.ImageField(
+        upload_to="exam/book_covers/",
+        blank=True,
+        null=True,
+        help_text="Ảnh bìa sách hiển thị trên UI (tùy chọn).",
+    )
 
     # Dùng cho UI filter: tổng số bài (day / pattern) trong sách
     total_lessons = models.PositiveIntegerField(
@@ -65,22 +78,28 @@ class ExamBook(models.Model):
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        return super().save(*args, **kwargs)
+        if not self.slug and self.title:
+            self.slug = to_romaji_slug(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
 
 
 class ExamTemplate(models.Model):
-    """1 bài test / set bài tập.
+    """
+    1 bài test / set bài tập.
 
     - Có thể thuộc 1 ExamBook (bài trong sách)
     - Hoặc đứng 1 mình: đề MOGI / bài lẻ.
+
+    Với DOKKAI:
+    - MỖI ExamTemplate chính là 1 “unit đọc hiểu”:
+        + 1 ReadingPassage (order=1) = đoạn văn
+        + N ExamQuestion gắn với passage đó
     """
 
-    # Liên kết (optional) tới book
+    # Liên kết (optional) tới book (nguồn, ví dụ Power Drill N2 Dokkai)
     book = models.ForeignKey(
         ExamBook,
         related_name="tests",
@@ -90,9 +109,9 @@ class ExamTemplate(models.Model):
         help_text="Để trống nếu là bài lẻ / đề MOGI",
     )
 
-    # Tên bài
+    # Tên bài / unit
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=120, blank=True)
 
     # Mô tả thêm nếu cần
     description = models.TextField(blank=True)
@@ -123,6 +142,21 @@ class ExamTemplate(models.Model):
         help_text="Loại câu chính của bài (nếu đồng nhất)",
     )
 
+    # ===== Định nghĩa rõ unit đọc hiểu =====
+    # Chỉ dùng cho category = DOKKAI hoặc MIX
+    # 1 template = 1 unit đọc hiểu nếu reading_format != "" và có đúng 1 passage chính (order=1).
+    reading_format = models.CharField(
+        max_length=10,
+        choices=ReadingFormat.choices,
+        blank=True,
+        help_text="Dùng cho đọc hiểu: 短文 / 中文 / 長文 / メール / 情報検索",
+    )
+    dokkai_skill = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Tag skill đọc hiểu (VD: 内容理解 / 情報検索 / 主旨把握...)",
+    )
+
     # Giới hạn thời gian
     time_limit_minutes = models.PositiveIntegerField(
         null=True,
@@ -138,10 +172,38 @@ class ExamTemplate(models.Model):
     class Meta:
         ordering = ["book_id", "group_type", "lesson_index", "id"]
 
+    def _slug_base(self) -> str:
+        # gộp title sách + title bài để slug dễ đọc và ít trùng
+        if self.book:
+            return f"{self.book.title} {self.title}"
+        return self.title
+
     def save(self, *args, **kwargs):
-        if not self.slug:
-            base = self.title if not self.book else f"{self.book.title}-{self.title}"
-            self.slug = slugify(base)
+        """
+        - Khi tạo mới (pk is None) hoặc slug đang rỗng → generate slug từ romaji.
+        - Đảm bảo unique: nếu trùng thì thêm -2, -3, ...
+        - Không tự động đổi slug khi update (chỉ set lúc tạo).
+        """
+        # Tạo slug khi tạo mới hoặc khi slug đang trống
+        if not self.pk or not self.slug:
+            base = self._slug_base()
+            self.slug = to_romaji_slug(base)
+
+        # Đảm bảo slug là unique (nếu lỡ trùng do title giống nhau)
+        original = self.slug
+        counter = 2
+
+        qs = self.__class__.objects.filter(slug=self.slug)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+
+        while qs.exists():
+            self.slug = f"{original}-{counter}"
+            counter += 1
+            qs = self.__class__.objects.filter(slug=self.slug)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -152,7 +214,54 @@ class ExamTemplate(models.Model):
     @property
     def total_questions(self):
         return self.questions.count()
-    
+
+    @property
+    def is_reading_unit(self) -> bool:
+        """
+        Helper: cho UI/filter.
+        1 template là unit đọc hiểu nếu:
+        - category là DOKKAI hoặc MIX
+        - có reading_format
+        """
+        return self.category in {ExamCategory.DOKKAI, ExamCategory.MIX} and bool(
+            self.reading_format
+        )
+
+
+class ReadingPassage(models.Model):
+    """
+    Đoạn văn gắn với 1 ExamTemplate.
+
+    Với đọc hiểu:
+    - Bạn nên thiết kế 1 template chỉ có 1 passage chính (order=1) để đúng nghĩa 1 unit.
+    - Nếu thật sự cần nhiều passage (multi-passage set) thì vẫn hỗ trợ, nhưng
+      concept “unit đọc hiểu” nên map 1-1 với ExamTemplate.
+    """
+    template = models.ForeignKey(
+        ExamTemplate,
+        related_name="passages",
+        on_delete=models.CASCADE,
+        help_text="Passage thuộc bài test nào",
+    )
+    order = models.PositiveIntegerField(default=1, help_text="Thứ tự passage trong bài")
+    title = models.CharField(max_length=255, blank=True)
+    text = models.TextField(help_text="Đoạn văn JP đầy đủ")
+
+    image = models.ImageField(
+        upload_to="exam/dokkai_passages/",
+        blank=True,
+        null=True,
+        help_text="Ảnh poster / bảng thông tin cho dokkai (nếu có).",
+    )
+    # Chỗ này tùy nhu cầu: audio, chú thích, highlight...
+    data = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["template_id", "order", "id"]
+
+    def __str__(self):
+        return self.title or f"Passage {self.order} – {self.template}"
+
 
 # ======================
 #  EXAM QUESTION
@@ -166,6 +275,30 @@ class ExamQuestion(models.Model):
         related_name="questions",
         on_delete=models.CASCADE,
     )
+
+    # Nếu là dokkai thì bắt buộc có passage;
+    # nếu là moji/goi bình thường thì để trống.
+    passage = models.ForeignKey(
+        ReadingPassage,
+        related_name="questions",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="Nếu là câu dokkai thì gắn với passage tương ứng",
+    )
+
+    audio = models.FileField(
+        upload_to="exam/listening/",
+        blank=True,
+        null=True,
+        help_text="File audio cho câu hỏi nghe (nếu có).",
+    )
+    audio_meta = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='VD: {"cd": "CD1", "track": "03"}',
+    )
+
     order = models.PositiveIntegerField(default=1)
 
     question_type = models.CharField(
@@ -174,9 +307,10 @@ class ExamQuestion(models.Model):
         default=QuestionType.MCQ,
     )
 
-    # Câu hỏi JP
+    # Câu hỏi JP     text = câu hỏi JP, KHÔNG phải passage
     text = models.TextField(
-        help_text="Câu hỏi JP. Với sắp xếp câu có thể dùng ( ) (＊) để minh hoạ."
+        help_text="Câu hỏi JP. Với sắp xếp câu có thể dùng ( ) (＊) để minh hoạ.",
+        blank=True,
     )
     explanation_vi = models.TextField(blank=True)
 
@@ -202,13 +336,6 @@ class ExamQuestion(models.Model):
         help_text="VD: '01', '02'...",
     )
     order_in_mondai = models.PositiveIntegerField(default=1)
-
-    # Liên kết với vocab app hiện tại (giống code cũ)
-    vocab_items = models.ManyToManyField(
-        "vocab.Vocabulary",
-        blank=True,
-        related_name="exam_questions",
-    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

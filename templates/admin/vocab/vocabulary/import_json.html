@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Import Vocabulary JSON{% endblock %}
+
+{% block content %}
+<div id="content-main" class="app-vocab vocabulary-import">
+  <h1 class="page-title">{% trans "Import Vocabulary from JSON" %}</h1>
+
+  <p class="help">
+    {% trans "Paste JSON array or single object. Required fields: jp_kana, vi_meaning. Optional: jp_kanji, sino_vi, jlpt_level, topic, example_jp, example_vi, is_active." %}
+  </p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+      <div class="form-row">
+        <label for="id_payload" class="required">{% trans "JSON data" %}</label>
+        <textarea name="payload" id="id_payload" rows="14" style="width: 100%; font-family: monospace;">{{ payload|default:"" }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="id_default_jlpt">{% trans "Default JLPT (optional)" %}</label>
+        <input type="text" name="default_jlpt" id="id_default_jlpt" value="{{ default_jlpt|default:"" }}" placeholder="N5 / N4 / N3 / N2 / N1">
+      </div>
+
+      <div class="form-row">
+        <label for="id_default_topic">{% trans "Default topic (optional)" %}</label>
+        <input type="text" name="default_topic" id="id_default_topic" value="{{ default_topic|default:"" }}" placeholder="Gia đình, Mua sắm...">
+      </div>
+
+      <div class="form-row">
+        <label for="id_default_active">{% trans "Set active" %}</label>
+        <select name="default_active" id="id_default_active">
+          <option value="true" {% if default_active != "false" %}selected{% endif %}>{% trans "True" %}</option>
+          <option value="false" {% if default_active == "false" %}selected{% endif %}>{% trans "False" %}</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <div class="submit-row">
+      <input type="submit" value="{% trans 'Import' %}" class="default">
+      <a class="button cancel-link" href="{% url 'admin:vocab_vocabulary_changelist' %}">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+
+  <details style="margin-top: 1rem;">
+    <summary>{% trans "Sample JSON" %}</summary>
+    <pre style="white-space: pre-wrap; background: #f8fafc; padding: 12px; border: 1px solid #e5e7eb;">
+[
+  {
+    "jp_kana": "ありがとう",
+    "jp_kanji": "",
+    "vi_meaning": "Cảm ơn",
+    "sino_vi": "",
+    "jlpt_level": "N5",
+    "topic": "Chào hỏi",
+    "example_jp": "ありがとう ございます",
+    "example_vi": "Xin cảm ơn"
+  },
+  {
+    "jp_kana": "食べる",
+    "jp_kanji": "食べる",
+    "vi_meaning": "Ăn",
+    "sino_vi": "Thực",
+    "jlpt_level": "N5",
+    "topic": "Động từ",
+    "example_jp": "ご飯を食べる",
+    "example_vi": "Ăn cơm"
+  }
+]
+    </pre>
+  </details>
+</div>
+{% endblock %}
+

@@ -1,0 +1,178 @@
+{
+  "book": {
+    "title": "Power Drill JLPT N3 聴解 demo",
+    "level": "N3",
+    "category": "CHOUKAI",
+    "description": "Ví dụ data choukai N3 (DailyFluent).",
+    "total_lessons": 1
+  },
+  "templates": [
+    {
+      "title": "Day 01 – 聴解 Mondai 1",
+      "description": "Nghe hội thoại / tình huống ngắn.",
+      "level": "N3",
+      "category": "CHOUKAI",
+      "group_type": "DAY",
+      "lesson_index": 1,
+      "subtitle": "Day 01 – 聴解・Mondai 1",
+      "main_question_type": "MCQ",
+      "time_limit_minutes": 10,
+
+      "questions": [
+        {
+          "order": 1,
+          "question_type": "MCQ",
+          "mondai": "1",
+          "order_in_mondai": 1,
+
+          "text": "",
+
+          "audio_meta": {
+            "cd": "CD1",
+            "track": "03",
+            "ban": 1
+          },
+
+          "data": {
+            "choices": [
+              {
+                "key": "1",
+                "text": "<ruby><rb>大学院</rb><rt>だいがくいん</rt></ruby>へ<ruby><rb>行</rb><rt>い</rt></ruby>く"
+              },
+              {
+                "key": "2",
+                "text": "<ruby><rb>留学</rb><rt>りゅうがく</rt></ruby>の<ruby><rb>費用</rb><rt>ひよう</rt></ruby>をためる"
+              },
+              {
+                "key": "3",
+                "text": "<ruby><rb>親</rb><rt>おや</rt></ruby>に<ruby><rb>相談</rb><rt>そうだん</rt></ruby>する"
+              },
+              {
+                "key": "4",
+                "text": "<ruby><rb>就職</rb><rt>しゅうしょく</rt></ruby>の<ruby><rb>準備</rb><rt>じゅんび</rt></ruby>をする"
+              }
+            ]
+          },
+
+          "correct_answer": "2",
+          "source": "Sample N3 Choukai Day 01"
+        },
+
+        {
+          "order": 2,
+          "question_type": "MCQ",
+          "mondai": "1",
+          "order_in_mondai": 2,
+
+          "text": "",
+
+          "audio_meta": {
+            "cd": "CD1",
+            "track": "04",
+            "ban": 2
+          },
+
+          "data": {
+            "choices": [
+              {
+                "key": "1",
+                "text": "<ruby><rb>バラ</rb><rt>ばら</rt></ruby>を<ruby><rb>庭</rb><rt>にわ</rt></ruby>に<ruby><rb>植</rb><rt>う</rt></ruby>える"
+              },
+              {
+                "key": "2",
+                "text": "<ruby><rb>梅</rb><rt>うめ</rt></ruby>の<ruby><rb>枝</rb><rt>えだ</rt></ruby>を<ruby><rb>片</rb><rt>かた</rt></ruby>づける"
+              },
+              {
+                "key": "3",
+                "text": "<ruby><rb>新</rb><rt>あたら</rt></ruby>しい<ruby><rb>土</rb><rt>つち</rt></ruby>を<ruby><rb>作</rb><rt>つく</rt></ruby>る"
+              },
+              {
+                "key": "4",
+                "text": "<ruby><rb>梅</rb><rt>うめ</rt></ruby>の<ruby><rb>枝</rb><rt>えだ</rt></ruby>を<ruby><rb>切</rb><rt>き</rt></ruby>る"
+              }
+            ]
+          },
+
+          "correct_answer": "4",
+          "source": "Sample N3 Choukai Day 01"
+        },
+
+        {
+          "order": 3,
+          "question_type": "MCQ",
+          "mondai": "1",
+          "order_in_mondai": 3,
+
+          "text": "",
+
+          "audio_meta": {
+            "cd": "CD1",
+            "track": "05",
+            "ban": 3
+          },
+
+          "data": {
+            "images": [
+              {
+                "key": "ア",
+                "static_path": "exam/choukai/cd1_05_a.png",
+                "alt": "A: đôi giày"
+              },
+              {
+                "key": "イ",
+                "static_path": "exam/choukai/cd1_05_i.png",
+                "alt": "I: áo phông"
+              },
+              {
+                "key": "ウ",
+                "static_path": "exam/choukai/cd1_05_u.png",
+                "alt": "U: sách English"
+              },
+              {
+                "key": "エ",
+                "static_path": "exam/choukai/cd1_05_e.png",
+                "alt": "E: vở ghi"
+              }
+            ],
+            "choices": [
+              { "key": "1", "text": "アウ" },
+              { "key": "2", "text": "アウエ" },
+              { "key": "3", "text": "アイウ" },
+              { "key": "4", "text": "アエ" }
+            ]
+          },
+
+          "correct_answer": "1",
+          "source": "Sample N3 Choukai Day 01 (picture question)"
+        },
+
+        {
+          "order": 4,
+          "question_type": "MCQ",
+          "mondai": "1",
+          "order_in_mondai": 4,
+
+          "text": "",
+
+          "audio_meta": {
+            "cd": "CD1",
+            "track": "06",
+            "ban": 4
+          },
+
+          "data": {
+            "choices": [
+              { "key": "1", "text": "" },
+              { "key": "2", "text": "" },
+              { "key": "3", "text": "" },
+              { "key": "4", "text": "" }
+            ]
+          },
+
+          "correct_answer": "3",
+          "source": "Sample N3 Choukai Day 01 (no text options)"
+        }
+      ]
+    }
+  ]
+}

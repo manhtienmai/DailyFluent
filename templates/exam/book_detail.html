@@ -1,0 +1,422 @@
+{# templates/exam/book_detail.html #}
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} | DailyFluent{% endblock %}
+{% block main_classes %}max-w-7xl mx-auto px-4 py-6 sm:py-10{% endblock %}
+
+{% block content %}
+{# Breadcrumb #}
+<nav class="mb-6">
+  <a href="{% url 'exam:book_list' %}"
+     class="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Danh sách sách
+  </a>
+</nav>
+
+{# HEADER: Book info + CTA #}
+<div class="mb-8">
+  <div class="flex flex-col sm:flex-row gap-6 items-start">
+    {# Book Cover #}
+    <div class="w-32 sm:w-40 flex-shrink-0">
+      {% if book.cover_image %}
+        <img src="{{ book.cover_image.url }}"
+             alt="{{ book.title }}"
+             class="w-full aspect-[3/4] object-cover rounded-lg shadow-lg border border-slate-200">
+      {% else %}
+        <div class="w-full aspect-[3/4] bg-gradient-to-br from-sky-500 via-indigo-500 to-slate-900 rounded-lg shadow-lg flex items-center justify-center p-3">
+          <span class="text-xs font-bold text-white text-center leading-tight">
+            {{ book.title }}
+          </span>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Book Info #}
+    <div class="flex-1 min-w-0">
+      {# Tags #}
+      <div class="flex flex-wrap gap-2 mb-3">
+        {% if book.level %}
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-lime-50 border border-lime-200 text-lime-700 text-xs font-semibold">
+            JLPT {{ book.level }}
+          </span>
+        {% endif %}
+        {% if book.category %}
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium">
+            {% if book.get_category_display %}
+              {{ book.get_category_display }}
+            {% else %}
+              {{ book.category }}
+            {% endif %}
+          </span>
+        {% endif %}
+      </div>
+
+      {# Title #}
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+        {{ book.title }}
+      </h1>
+
+      {# Description #}
+      {% if book.description %}
+        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+          {{ book.description }}
+        </p>
+      {% endif %}
+
+      {# Stats #}
+      <div class="flex flex-wrap gap-4 text-sm text-slate-600 mb-5">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span class="font-semibold">{{ tests_total }}</span> bài test
+        </div>
+        {% if book.total_lessons %}
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          ~ {{ book.total_lessons }} bài dự kiến
+        </div>
+        {% endif %}
+      </div>
+
+      {# CTA Button #}
+      <div class="flex flex-wrap items-center gap-3">
+        {% if first_day_test %}
+          <a href="{% url 'exam:start_exam' first_day_test.slug %}"
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition shadow-sm">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Bắt đầu Day 01
+          </a>
+        {% elif first_any_test %}
+          <a href="{% url 'exam:start_exam' first_any_test.slug %}"
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition shadow-sm">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Làm bài đầu tiên
+          </a>
+        {% else %}
+          <p class="text-sm text-slate-500 italic">
+            Chưa có bài test nào cho sách này.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# SMALL INFO BAR: cách học #}
+<section class="mb-6">
+  <div class="grid gap-3 sm:grid-cols-3 text-xs sm:text-[13px]">
+    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+      <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+        <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M5 11h14M5 19h14M5 5h.01M19 5h.01M5 15h.01M19 15h.01"/>
+        </svg>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-800">Học theo ngày</p>
+        <p class="text-slate-500">Day 01 → Day 30, 1 bài nhỏ mỗi ngày.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+      <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+        <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h12M9 12h12M9 19h12M4 5h.01M4 12h.01M4 19h.01"/>
+        </svg>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-800">Luyện theo dạng câu</p>
+        <p class="text-slate-500">Kanji, từ ghép, từ cận nghĩa, cách dùng từ...</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+      <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+        <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-800">Đề lẻ / mix</p>
+        <p class="text-slate-500">Làm nhanh 1 đề tổng hợp (nếu có).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# MAIN CONTENT: 1) theo dạng câu, 2) theo ngày, 3) đề lẻ #}
+<section class="space-y-8">
+
+  {# 1) Luyện theo dạng câu / Mondai / Pattern #}
+  <div>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+        1. Luyện theo dạng câu (Mondai / Pattern)
+      </h2>
+      <span class="text-xs text-slate-500">
+        {{ pattern_groups|length }} dạng câu
+      </span>
+    </div>
+    <p class="text-xs sm:text-sm text-slate-600 mb-4">
+      Mỗi dạng gồm nhiều bài nhỏ. Chọn dạng trước, sau đó chọn bài muốn làm.
+    </p>
+
+    {% if pattern_groups %}
+      <div class="space-y-3">
+        {% for group in pattern_groups %}
+          <article class="bg-white border border-slate-200 rounded-xl px-4 py-3 hover:border-slate-300 hover:shadow-sm transition">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Dạng {{ group.lesson_index }}
+                </p>
+                <h3 class="text-sm font-semibold text-slate-900 line-clamp-2">
+                  {{ group.title }}
+                </h3>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  {{ group.tests|length }} bài nhỏ・mỗi bài ~ {{ group.tests.0.questions.count }} câu (xấp xỉ)
+                </p>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-semibold flex-shrink-0">
+                Mondai
+              </span>
+            </div>
+
+            {# Pills cho từng bài test trong dạng này + trạng thái đã làm #}
+            <div class="flex flex-col gap-1.5 mt-1">
+              {% for t in group.tests %}
+                <div class="flex flex-wrap items-center gap-2">
+                  {# Nút làm bài / làm lại #}
+                  <a href="{% url 'exam:start_exam' t.slug %}"
+                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                    <span>
+                      Bài {{ forloop.counter }}
+                    </span>
+                    <span class="text-[10px] text-slate-200">
+                      ({{ t.questions.count }} câu)
+                    </span>
+                    {% if t.user_attempts %}
+                      <span class="ml-1 text-[10px] text-emerald-200">
+                        · Làm lại
+                      </span>
+                    {% endif %}
+                  </a>
+
+                  {# Nếu đã làm, hiện score + nút xem lại #}
+                  {% if t.user_attempts %}
+                    {% with last=t.user_attempts.0 %}
+                      <a href="{% url 'exam:exam_result' last.id %}"
+                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 text-[11px] text-slate-700 hover:bg-slate-50 transition">
+                        <span>Đã làm:</span>
+                        <span class="font-semibold">
+                          {{ last.correct_count }}/{{ last.total_questions }}
+                        </span>
+                        <span class="hidden sm:inline text-[10px] uppercase tracking-wide text-slate-500">
+                          · {{ last.rating_label }}
+                        </span>
+                      </a>
+                    {% endwith %}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-sm text-slate-500 italic">
+        Chưa có bài luyện theo dạng câu cho sách này.
+      </p>
+    {% endif %}
+  </div>
+
+  {# 2) Học theo ngày (Day 01 → Day 30) #}
+  <div>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+        2. Học theo ngày (Daily lesson)
+      </h2>
+      <span class="text-xs text-slate-500">
+        {{ day_tests|length }} bài theo ngày
+      </span>
+    </div>
+    <p class="text-xs sm:text-sm text-slate-600 mb-4">
+      Lộ trình 1 ngày 1 bài nhỏ. Mỗi Day ~ 15–20 câu, trộn Kanji & Từ vựng.
+    </p>
+
+    {% if day_tests %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {% for t in day_tests %}
+          <article class="bg-white border border-slate-200 rounded-xl px-3 py-3 flex items-center justify-between gap-3 hover:border-slate-300 hover:shadow-sm transition">
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Day {{ t.lesson_index|default:forloop.counter|stringformat:"02d" }}
+              </p>
+              <p class="text-sm font-semibold text-slate-900 truncate">
+                {{ t.title }}
+              </p>
+              <p class="text-[11px] text-slate-500 mt-0.5">
+                {{ t.questions.count }} câu
+                {% if t.time_limit_minutes %}
+                  ・ {{ t.time_limit_minutes }} phút
+                {% endif %}
+              </p>
+
+              {# Nếu đã làm, hiện kết quả #}
+              {% if t.user_attempts %}
+                {% with last=t.user_attempts.0 %}
+                  <div class="mt-1 flex items-center gap-2 text-[11px] text-slate-500">
+                    <div class="inline-flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      <span>Đã làm:</span>
+                      <span class="font-semibold text-slate-700">
+                        {{ last.correct_count }}/{{ last.total_questions }} câu
+                      </span>
+                    </div>
+                    <span class="uppercase tracking-wide text-[10px] font-semibold text-slate-500">
+                      {{ last.rating_label }}
+                    </span>
+                  </div>
+                {% endwith %}
+              {% endif %}
+            </div>
+
+            <div class="flex flex-col gap-1 flex-shrink-0">
+              <a href="{% url 'exam:start_exam' t.slug %}"
+                 class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                {% if t.user_attempts %}
+                  Làm lại
+                {% else %}
+                  Làm bài
+                {% endif %}
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+
+              {% if t.user_attempts %}
+                {% with last=t.user_attempts.0 %}
+                  <a href="{% url 'exam:exam_result' last.id %}"
+                     class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">
+                    Xem lại
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0l3-3m-3 3l3 3M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                    </svg>
+                  </a>
+                {% endwith %}
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-sm text-slate-500 italic">
+        Chưa setup bài học theo ngày cho sách này.
+      </p>
+    {% endif %}
+  </div>
+
+  {# 3) Đề lẻ / MOGI nếu có #}
+  {% if standalone_tests %}
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          3. Đề lẻ / đề MOGI
+        </h2>
+        <span class="text-xs text-slate-500">
+          {{ standalone_tests|length }} đề lẻ
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4">
+        Những đề độc lập, có thể làm xen kẽ để kiểm tra tổng hợp.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for t in standalone_tests %}
+          <article class="group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md hover:border-slate-300 transition flex flex-col">
+            <h3 class="text-sm font-semibold text-slate-900 mb-1 group-hover:text-slate-700 line-clamp-2">
+              {{ t.title }}
+            </h3>
+            {% if t.description %}
+              <p class="text-[11px] text-slate-500 mb-2 line-clamp-2">
+                {{ t.description }}
+              </p>
+            {% endif %}
+            <div class="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ t.questions.count }} câu
+              </span>
+              {% if t.time_limit_minutes %}
+                <span class="flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  {{ t.time_limit_minutes }}p
+                </span>
+              {% endif %}
+            </div>
+
+            {# Nếu đã làm, hiện kết quả và 2 nút #}
+            {% if t.user_attempts %}
+              {% with last=t.user_attempts.0 %}
+                <div class="mb-2 flex items-center justify-between text-[11px] text-slate-500">
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Đã làm:</span>
+                    <span class="font-semibold text-slate-700">
+                      {{ last.correct_count }}/{{ last.total_questions }} câu
+                    </span>
+                  </div>
+                  <span class="uppercase tracking-wide text-[10px] font-semibold text-slate-500">
+                    {{ last.rating_label }}
+                  </span>
+                </div>
+
+                <div class="mt-auto flex gap-2">
+                  <a href="{% url 'exam:start_exam' t.slug %}"
+                     class="inline-flex flex-1 items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                    Làm lại
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </a>
+                  <a href="{% url 'exam:exam_result' last.id %}"
+                     class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">
+                    Xem lại
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m0 0l3-3m-3 3l3 3M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                    </svg>
+                  </a>
+                </div>
+              {% endwith %}
+            {% else %}
+              <a href="{% url 'exam:start_exam' t.slug %}"
+                 class="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                Làm đề này
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

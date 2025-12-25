@@ -1,0 +1,21 @@
+:root {
+  /* màu brand chính, chỉnh 1 chỗ là áp toàn site */
+  --df-primary: #0071F9;
+  --df-primary-soft: rgba(0, 113, 249, 0.06);
+}
+
+/* pill active / default dùng chung cho mọi nơi */
+.df-pill-active {
+  background-color: var(--df-primary);
+  border-color: var(--df-primary);
+}
+
+.df-pill-default {
+  background-color: #ffffff;
+  border-color: rgb(226 232 240);
+}
+
+.df-pill-default:hover {
+  background-color: var(--df-primary-soft);
+  border-color: rgb(203 213 225);
+}

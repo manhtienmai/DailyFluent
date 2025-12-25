@@ -7,50 +7,139 @@
   <div>
     <h1 class="text-xl font-semibold text-slate-900">Từ vựng</h1>
     <p class="text-xs text-slate-500">
-      Danh sách từ vựng dùng để luyện flashcard.
+      {% if q %}
+        Kết quả cho “{{ q }}”: {{ total_count }} từ
+      {% else %}
+        Danh sách từ vựng dùng để luyện flashcard. ({{ total_count }} từ)
+      {% endif %}
     </p>
   </div>
-  <a href="{% url 'vocab:flashcards' %}"
-     class="px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
-    Luyện flashcard
-  </a>
+  <div class="flex flex-wrap gap-2 justify-end">
+    <a href="{% url 'vocab:flashcards' %}"
+       class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+      Luyện flashcard
+    </a>
+    <a href="{% url 'vocab:typing' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      Gõ Hiragana
+    </a>
+    <a href="{% url 'vocab:study_status' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      Trạng thái học
+    </a>
+    <a href="{% url 'vocab:progress' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      Tiến độ (FSRS)
+    </a>
+    <a href="{% url 'vocab:phrases' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      Cụm từ cố định
+    </a>
+  </div>
 </div>
+
+<form id="searchForm" method="get" class="mb-4">
+  <div class="flex items-center gap-2">
+    <input
+      type="text"
+      name="q"
+      value="{{ q|default:'' }}"
+      placeholder="Tìm kanji hoặc hiragana..."
+      class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+    />
+    <button
+      type="submit"
+      class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800"
+    >
+      Tìm
+    </button>
+    {% if q %}
+      <a
+        href="{% url 'vocab:list' %}"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+      >
+        Xoá
+      </a>
+    {% endif %}
+  </div>
+</form>
 
 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs uppercase text-slate-500">
       <tr>
-        <th class="px-4 py-2 text-left">Tiếng Nhật</th>
+        <th class="px-4 py-2 text-left">Kanji</th>
+        <th class="px-4 py-2 text-left">Hiragana</th>
+        <th class="px-4 py-2 text-left">Hán Việt</th>
         <th class="px-4 py-2 text-left">Nghĩa tiếng Việt</th>
         <th class="px-4 py-2 text-left">JLPT</th>
-        <th class="px-4 py-2 text-left">Chủ đề</th>
       </tr>
     </thead>
-    <tbody>
-      {% for w in words %}
-        <tr class="border-t border-slate-100 hover:bg-slate-50">
-          <td class="px-4 py-2">
-            <div class="font-semibold">{{ w.jp_kana }}</div>
-            {% if w.jp_kanji %}
-              <div class="text-xs text-slate-500">{{ w.jp_kanji }}</div>
-            {% endif %}
-          </td>
-          <td class="px-4 py-2">{{ w.vi_meaning }}</td>
-          <td class="px-4 py-2 text-xs text-slate-600">
-            {{ w.jlpt_level|default:"-" }}
-          </td>
-          <td class="px-4 py-2 text-xs text-slate-600">
-            {{ w.topic|default:"-" }}
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
-            Chưa có từ vựng nào. Hãy thêm từ trong admin trước nhé.
-          </td>
-        </tr>
-      {% endfor %}
+    <tbody id="wordsTbody">
+      {% include "vocab/partials/vocab_list_rows.html" with words=words %}
     </tbody>
   </table>
 </div>
+
+<div id="paginationContainer">
+  {% include "vocab/partials/vocab_list_pagination.html" with page_obj=page_obj page_items=page_items q=q %}
+</div>
+
+<script>
+  (() => {
+    const tbody = document.getElementById('wordsTbody');
+    const pagination = document.getElementById('paginationContainer');
+    const form = document.getElementById('searchForm');
+
+    async function loadPage(page) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', String(page));
+      url.searchParams.set('partial', '1');
+
+      const resp = await fetch(url.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      tbody.innerHTML = data.rows_html;
+      pagination.innerHTML = data.pagination_html;
+
+      // update URL (no reload)
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.set('page', String(page));
+      cleanUrl.searchParams.delete('partial');
+      history.pushState({ page }, '', cleanUrl.toString());
+    }
+
+    // Delegate pagination clicks
+    pagination.addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-page]');
+      if (!a) return;
+      e.preventDefault();
+      const page = Number(a.dataset.page);
+      if (!Number.isFinite(page)) return;
+      loadPage(page);
+    });
+
+    // Back/forward support
+    window.addEventListener('popstate', (e) => {
+      const page = e.state?.page || Number(new URL(window.location.href).searchParams.get('page') || 1);
+      loadPage(page);
+    });
+
+    // Optional: AJAX search (still keeps normal GET fallback)
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const url = new URL(window.location.href);
+        const q = new FormData(form).get('q') || '';
+        url.searchParams.set('q', String(q));
+        url.searchParams.set('page', '1');
+        history.pushState({ page: 1 }, '', url.toString());
+        loadPage(1);
+      });
+    }
+  })();
+</script>
 {% endblock %}

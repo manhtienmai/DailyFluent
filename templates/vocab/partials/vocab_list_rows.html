@@ -1,0 +1,30 @@
+{% for w in words %}
+  <tr class="border-t border-slate-100 hover:bg-slate-50">
+    <td class="px-4 py-2">
+      <a class="font-semibold text-2xl text-slate-900 hover:underline underline-offset-4"
+         href="{% url 'vocab:detail' w.id %}">
+        {{ w.jp_kanji|default:"-" }}
+      </a>
+    </td>
+    <td class="px-4 py-2">
+      <a class="font-semibold text-lg text-slate-900 hover:underline underline-offset-4"
+         href="{% url 'vocab:detail' w.id %}">
+        {{ w.jp_kana }}
+      </a>
+    </td>
+    <td class="px-4 py-2 text-sm text-slate-700">
+      {{ w.sino_vi|default:"-" }}
+    </td>
+    <td class="px-4 py-2">{{ w.vi_meaning }}</td>
+    <td class="px-4 py-2 text-xs text-slate-600">
+      {{ w.jlpt_level|default:"-" }}
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
+      Chưa có từ vựng nào. Hãy thêm từ trong admin trước nhé.
+    </td>
+  </tr>
+{% endfor %}
+

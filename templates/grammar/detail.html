@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ point.title }} | Ngữ pháp{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <p class="text-sm text-slate-500 mb-1">JLPT {{ point.level }}</p>
+    <h1 class="text-3xl font-bold text-slate-900">{{ point.title }}</h1>
+  </div>
+  <a href="{% url 'grammar:list' %}" class="text-sm text-slate-600 hover:text-slate-800">&larr; Danh sách</a>
+</div>
+
+{% if point.summary %}
+  <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+    <p class="text-slate-800">{{ point.summary }}</p>
+  </div>
+{% endif %}
+
+{% if point.details %}
+  <div class="prose prose-slate max-w-none mb-6">
+    {{ point.details|linebreaks }}
+  </div>
+{% endif %}
+
+{% if examples %}
+  <div class="space-y-2">
+    <h2 class="text-lg font-semibold text-slate-900">Ví dụ</h2>
+    <ul class="list-disc list-inside space-y-1 text-slate-800">
+      {% for ex in examples %}
+        <li>{{ ex }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}
+

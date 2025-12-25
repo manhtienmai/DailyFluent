@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Ngữ pháp | DailyFluent{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Ngữ pháp</h1>
+    <p class="text-sm text-slate-600">Lọc theo cấp độ JLPT và xem chi tiết.</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="flex items-center gap-2 mb-4">
+  <a href="{% url 'grammar:list' %}" class="px-3 py-1.5 rounded-full text-sm {% if not level %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700{% endif %}">Tất cả</a>
+  {% for lv in levels %}
+    <a href="?level={{ lv }}" class="px-3 py-1.5 rounded-full text-sm {% if level == lv %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700{% endif %}">JLPT {{ lv }}</a>
+  {% endfor %}
+</div>
+
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm">
+  {% if points %}
+    <ul class="divide-y divide-slate-100">
+      {% for p in points %}
+        <li class="p-4 hover:bg-slate-50">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <a href="{% url 'grammar:detail' p.slug %}" class="text-lg font-semibold text-slate-900 hover:text-slate-700">{{ p.title }}</a>
+              {% if p.summary %}
+                <p class="text-sm text-slate-600 mt-1 line-clamp-2">{{ p.summary }}</p>
+              {% endif %}
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">JLPT {{ p.level }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="p-6 text-center text-slate-500">Chưa có mục ngữ pháp nào.</div>
+  {% endif %}
+</div>
+{% endblock %}
+

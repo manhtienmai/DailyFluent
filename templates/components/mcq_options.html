@@ -1,0 +1,34 @@
+{# templates/components/mcq_options.html #}
+{# Reusable UI cho tất cả MCQ (dokkai / choukai / moji-goi / bunpou) #}
+{# Expect:
+   - question: object có .id và .mcq_choices
+   - safe_text (optional, bool): dùng |safe cho opt.text
+   - use_index_label (optional, bool): vòng tròn hiển thị 1/2/3/4 thay vì opt.key
+#}
+
+<div class="choices-block">
+  {% for opt in question.mcq_choices %}
+    <label class="choice-label"
+           data-label="{% if use_index_label %}{{ forloop.counter }}{% else %}{{ opt.key }}{% endif %}">
+      <input type="radio"
+             name="q{{ question.id }}"
+             value="{{ opt.key }}">
+      <span class="choice-text jp-choice">
+        <span class="choice-key font-medium mr-1">
+          {% if use_index_label %}
+            {{ forloop.counter }}.
+          {% else %}
+            {{ opt.key }}.
+          {% endif %}
+        </span>
+        <span>
+          {% if safe_text %}
+            {{ opt.text|safe }}
+          {% else %}
+            {{ opt.text }}
+          {% endif %}
+        </span>
+      </span>
+    </label>
+  {% endfor %}
+</div>

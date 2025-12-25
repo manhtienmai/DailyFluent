@@ -7,7 +7,22 @@
 {% block content %}
 <div class="mb-6">
   <div class="flex items-center justify-between mb-2">
-    <h1 class="text-2xl font-bold text-slate-900">Luyện flashcard</h1>
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Luyện flashcard</h1>
+      {% if stats %}
+        <div class="mt-1 flex flex-wrap items-center gap-2 text-xs">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+            Learning: <span class="font-semibold">{{ stats.learning_count }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+            Review: <span class="font-semibold">{{ stats.review_count }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+            New: <span class="font-semibold">{{ stats.new_count }}</span>
+          </span>
+        </div>
+      {% endif %}
+    </div>
     <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
       <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -17,6 +32,24 @@
       </span>
     </div>
   </div>
+
+  <!-- Realtime goal ring (10 phút) -->
+  <div class="flex justify-end">
+    <div class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div class="relative w-12 h-12">
+        <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="6" class="text-slate-200"></circle>
+          <circle id="goal-ring" cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="6" class="text-emerald-500"
+                  stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="113.1"></circle>
+        </svg>
+        <div id="goal-label" class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-700">0%</div>
+      </div>
+      <div class="text-xs text-slate-600 leading-tight">
+        <div class="font-semibold text-slate-800">Mục tiêu 10 phút</div>
+        <div id="goal-minutes" class="text-slate-500">0/10 phút</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% if states %}
@@ -24,24 +57,15 @@
     {% csrf_token %}
   </form>
 
-  <div id="flashcard-container"
-       data-cards='[{% for s in states %}
-         {
-           "state_id": {{ s.id }},
-           "vocab_id": {{ s.vocab.id }},
-           "jp_kana": "{{ s.vocab.jp_kana|escapejs }}",
-           "jp_kanji": "{{ s.vocab.jp_kanji|default_if_none:''|escapejs }}",
-           "sino_vi": "{{ s.vocab.sino_vi|default_if_none:''|escapejs }}",
-           "vi_meaning": "{{ s.vocab.vi_meaning|escapejs }}",
-           "example_jp": "{{ s.vocab.example_jp|default_if_none:''|escapejs }}",
-           "example_vi": "{{ s.vocab.example_vi|default_if_none:''|escapejs }}"
-         }{% if not forloop.last %},{% endif %}
-       {% endfor %}]'>
+  <script id="flashcards-data" type="application/json">{{ cards_data_json|safe }}</script>
+
+  <div id="flashcard-container">
 
     <!-- Progress Bar -->
     <div class="mb-5 bg-slate-100 rounded-full h-2 overflow-hidden">
       <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500 ease-out" style="width: 0%"></div>
     </div>
+    <div id="flashcard-error" class="hidden mb-4 text-sm text-red-600"></div>
 
     <!-- Flashcard -->
     <div class="perspective-1000" id="card-wrapper">
@@ -50,14 +74,12 @@
         <!-- Front Side -->
         <div class="p-8 min-h-[320px] flex flex-col justify-center" id="card-front">
           <div class="text-center">
-            <!-- Main Word (Kanji) - Made larger -->
             <div class="relative inline-block">
-              <p class="text-8xl font-bold text-slate-900" id="card-main-word"></p>
+              <p class="japanese-font text-9xl md:text-[12rem] font-bold text-slate-900 leading-none transition-all duration-300" id="card-main-word"></p>
               <div class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-20"></div>
             </div>
           </div>
 
-          <!-- Flip Button -->
           <div class="mt-12 flex justify-center">
             <button id="toggle-button" type="button"
                     class="group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95">
@@ -74,8 +96,9 @@
           <div class="space-y-4">
             <!-- Main Word & Reading (Compact) -->
             <div class="text-center pb-3 border-b-2 border-slate-100">
-              <p class="text-3xl font-bold text-slate-900 mb-0.5" id="card-main-word-back"></p>
-              <p class="text-sm text-slate-600" id="card-reading-back"></p>
+              <p class="japanese-font text-9xl font-bold text-slate-900 mb-3 leading-none" id="card-main-word-back"></p>
+              <!-- Hiragana/Katakana reading: bigger and spaced from kanji -->
+              <p class="japanese-font text-2xl text-slate-600 leading-snug" id="card-reading-back"></p>
             </div>
 
             <!-- Sino Vietnamese -->
@@ -83,7 +106,7 @@
               <div class="inline-flex items-center gap-2 px-2.5 py-0.5 bg-orange-50 rounded-full mb-1">
                 <span class="text-xs font-bold text-orange-600 uppercase tracking-wide">Âm Hán Việt</span>
               </div>
-              <p class="text-sm font-medium text-slate-700" id="card-sino-vi"></p>
+              <p class="vi-font text-sm font-medium text-slate-700" id="card-sino-vi"></p>
             </div>
 
             <!-- Vietnamese Meaning -->
@@ -91,7 +114,7 @@
               <div class="inline-flex items-center gap-2 px-2.5 py-0.5 bg-emerald-50 rounded-full mb-1">
                 <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">Nghĩa</span>
               </div>
-              <p class="text-xl font-semibold text-slate-900" id="card-vi-meaning"></p>
+              <p class="vi-font text-xl font-semibold text-slate-900" id="card-vi-meaning"></p>
             </div>
 
             <!-- Example Sentences - Made larger -->
@@ -101,35 +124,44 @@
                   <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
                 </svg>
                 <div class="flex-1 space-y-1.5">
-                  <p class="text-base font-medium text-slate-800 leading-relaxed" id="card-example-jp"></p>
-                  <p class="text-base text-slate-600 leading-relaxed" id="card-example-vi"></p>
+                  <p class="japanese-font text-base font-medium text-slate-800 leading-relaxed" id="card-example-jp"></p>
+                  <p class="vi-font text-base text-slate-600 leading-relaxed" id="card-example-vi"></p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Grade Buttons - Made smaller -->
-          <div id="grade-buttons" class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div id="grade-buttons" class="mt-6 grid grid-cols-4 gap-2">
+            
             <button data-rating="again" type="button"
-                    class="group flex flex-col items-center gap-1 px-2 py-2 rounded-lg bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 hover:border-red-300 transition-all hover:shadow-md active:scale-95">
+                    class="group flex flex-col items-center gap-1 px-1 py-2 rounded-lg bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 hover:border-red-300 transition-all hover:shadow-md active:scale-95">
               <span class="text-lg">😵</span>
-              <span class="text-xs font-bold text-red-700">Quên</span>
+              <span class="text-[10px] sm:text-xs font-bold text-red-700 uppercase">Quên</span>
+              <span class="text-[10px] text-slate-500" data-interval="again"></span>
             </button>
+
             <button data-rating="hard" type="button"
-                    class="group flex flex-col items-center gap-1 px-2 py-2 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 hover:border-amber-300 transition-all hover:shadow-md active:scale-95">
+                    class="group flex flex-col items-center gap-1 px-1 py-2 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 hover:border-amber-300 transition-all hover:shadow-md active:scale-95">
               <span class="text-lg">😣</span>
-              <span class="text-xs font-bold text-amber-700">Khó</span>
+              <span class="text-[10px] sm:text-xs font-bold text-amber-700 uppercase">Khó</span>
+              <span class="text-[10px] text-slate-500" data-interval="hard"></span>
             </button>
+
             <button data-rating="good" type="button"
-                    class="group flex flex-col items-center gap-1 px-2 py-2 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-200 hover:border-emerald-300 transition-all hover:shadow-md active:scale-95">
+                    class="group flex flex-col items-center gap-1 px-1 py-2 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-200 hover:border-emerald-300 transition-all hover:shadow-md active:scale-95">
               <span class="text-lg">🙂</span>
-              <span class="text-xs font-bold text-emerald-700">Tốt</span>
+              <span class="text-[10px] sm:text-xs font-bold text-emerald-700 uppercase">Tốt</span>
+              <span class="text-[10px] text-slate-500" data-interval="good"></span>
             </button>
+
             <button data-rating="easy" type="button"
-                    class="group flex flex-col items-center gap-1 px-2 py-2 rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-200 hover:border-sky-300 transition-all hover:shadow-md active:scale-95">
+                    class="group flex flex-col items-center gap-1 px-1 py-2 rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-200 hover:border-sky-300 transition-all hover:shadow-md active:scale-95">
               <span class="text-lg">😌</span>
-              <span class="text-xs font-bold text-sky-700">Dễ</span>
+              <span class="text-[10px] sm:text-xs font-bold text-sky-700 uppercase">Dễ</span>
+              <span class="text-[10px] text-slate-500" data-interval="easy"></span>
             </button>
+            
           </div>
         </div>
 
@@ -143,10 +175,14 @@
     <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full mb-4">
       <span class="text-4xl">🎉</span>
     </div>
-    <h2 class="text-2xl font-bold text-slate-900 mb-2">Xuất sắc!</h2>
-    <p class="text-slate-600 max-w-md mx-auto">
-      Bạn đã hoàn thành tất cả flashcard hôm nay. Hãy quay lại khi đến giờ ôn tập tiếp theo.
+    <h2 class="text-2xl font-bold text-slate-900 mb-2">Hết thẻ trong phiên này</h2>
+    <p class="text-slate-600 max-w-md mx-auto mb-4">
+      Bạn đã hoàn thành {{ states|length }} thẻ của phiên hiện tại. Muốn tiếp tục ôn nữa không?
     </p>
+    <a href="{% url 'vocab:flashcards' %}"
+       class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+      Tiếp tục học thêm
+    </a>
   </div>
 
 {% else %}
@@ -168,8 +204,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const container = document.getElementById('flashcard-container');
   if (!container) return;
 
-  const cards = JSON.parse(container.dataset.cards);
-  let index = 0;
+  const cardsScript = document.getElementById('flashcards-data');
+  const initialCards = cardsScript ? JSON.parse(cardsScript.textContent || '[]') : [];
+  let queue = [...initialCards];
+  let current = null;
+  let completed = 0;
+  let locked = false;
 
   const cardMain = document.getElementById('card-main-word');
   const cardMainBack = document.getElementById('card-main-word-back');
@@ -187,25 +227,166 @@ document.addEventListener('DOMContentLoaded', function () {
   const progressBar = document.getElementById('progress-bar');
   const noMore = document.getElementById('no-more-cards');
   const cardWrapper = document.getElementById('card-wrapper');
+  const gradeButtons = document.getElementById('grade-buttons');
+  const intervalSpans = cardBack ? cardBack.querySelectorAll('[data-interval]') : [];
+  const errorBox = document.getElementById('flashcard-error');
 
   const csrfInput = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]');
   const csrfToken = csrfInput ? csrfInput.value : '';
 
-  function updateProgress() {
-    const progress = (index / cards.length) * 100;
-    progressBar.style.width = progress + '%';
+  // === Study time tracking (better): active time + idle detection + server sync ===
+  const goalMs = 10 * 60 * 1000; // daily goal for streak
+  let baseMs = 0;      // already recorded on server today
+  let pendingMs = 0;   // accumulated in this session not yet sent
+  let lastInteractionAt = Date.now();
+  let lastSentAt = Date.now();
+  const IDLE_MS = 30 * 1000;      // if no interaction for 30s -> pause counting
+  const SEND_EVERY_MS = 15 * 1000; // send chunks every 15s
+  const ring = document.getElementById('goal-ring');
+  const ringCirc = 2 * Math.PI * 18; // r=18
+  const goalLabel = document.getElementById('goal-label');
+  const goalMinutesLabel = document.getElementById('goal-minutes');
+
+  async function initGoalFromStatus() {
+    try {
+      const resp = await fetch("{% url 'streak:status_api' %}", { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+      if (!resp.ok) return;
+      const data = await resp.json();
+      // Use seconds for better precision
+      const doneMs = Math.max(0, (data.seconds_today || 0) * 1000);
+      baseMs = doneMs;
+      updateGoalUI();
+    } catch (err) {
+      // silent
+    }
   }
 
-  function renderCard() {
-    if (index >= cards.length) {
-      cardWrapper.classList.add('hidden');
-      noMore.classList.remove('hidden');
-      remainingSpan.textContent = "0";
-      progressBar.style.width = '100%';
+  function updateGoalUI() {
+    if (!ring) return;
+    const totalMs = baseMs + pendingMs;
+    const pct = Math.min(1, totalMs / goalMs);
+    const offset = ringCirc * (1 - pct);
+    ring.style.strokeDashoffset = offset.toFixed(2);
+    if (goalLabel) goalLabel.textContent = `${Math.round(pct * 100)}%`;
+    if (goalMinutesLabel) {
+      const mins = Math.floor((baseMs + pendingMs) / 60000);
+      goalMinutesLabel.textContent = `${Math.min(10, mins)}/10 phút`;
+    }
+  }
+
+  // init ring
+  if (ring) {
+    ring.setAttribute('stroke-dasharray', ringCirc.toFixed(2));
+    ring.setAttribute('stroke-dashoffset', ringCirc.toFixed(2));
+  }
+  initGoalFromStatus();
+
+  function isActiveNow() {
+    if (document.hidden) return false;
+    return (Date.now() - lastInteractionAt) <= IDLE_MS;
+  }
+
+  async function flushTime(force = false) {
+    const now = Date.now();
+    if (!force && (now - lastSentAt) < SEND_EVERY_MS) return;
+
+    const seconds = Math.floor(pendingMs / 1000);
+    if (seconds <= 0) return;
+
+    // Keep sub-second remainder locally
+    pendingMs -= seconds * 1000;
+    lastSentAt = now;
+    updateGoalUI();
+
+    try {
+      const resp = await fetch("{% url 'streak:log_flashcard_minutes' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ seconds: String(seconds) }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        // Sync baseMs from server response to avoid drift
+        baseMs = Math.max(0, (data.seconds_today || 0) * 1000);
+        updateGoalUI();
+      }
+    } catch (e) {
+      // if failed, restore pending time
+      pendingMs += seconds * 1000;
+    }
+  }
+
+  function tickTimer(deltaMs) {
+    if (!isActiveNow()) return;
+    pendingMs += deltaMs;
+    updateGoalUI();
+    flushTime(false);
+  }
+
+  // Track user interaction so we don't count idle time
+  ['click', 'keydown', 'touchstart', 'scroll'].forEach((evt) => {
+    window.addEventListener(evt, () => { lastInteractionAt = Date.now(); }, { passive: true });
+  });
+  window.addEventListener('mousemove', () => { lastInteractionAt = Date.now(); }, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) lastInteractionAt = Date.now();
+  });
+
+  // Flush when leaving page (best-effort)
+  window.addEventListener('beforeunload', () => {
+    const seconds = Math.floor(pendingMs / 1000);
+    if (seconds <= 0) return;
+    try {
+      const data = new URLSearchParams({ seconds: String(seconds) });
+      navigator.sendBeacon("{% url 'streak:log_flashcard_minutes' %}", data);
+    } catch (e) {}
+  });
+
+  let lastTs = performance.now();
+  function rafLoop(now) {
+    const delta = now - lastTs;
+    lastTs = now;
+    tickTimer(delta);
+    requestAnimationFrame(rafLoop);
+  }
+  requestAnimationFrame(rafLoop);
+
+  function remainingCount() {
+    return queue.length + (current ? 1 : 0);
+  }
+
+  function updateProgress() {
+    const remaining = remainingCount();
+    const denom = completed + remaining;
+    const progress = denom ? (completed / denom) * 100 : 100;
+    progressBar.style.width = progress.toFixed(2) + '%';
+  }
+
+  function setIntervals(c) {
+    if (!intervalSpans || intervalSpans.length === 0) return;
+    intervalSpans.forEach((el) => {
+      const k = el.getAttribute('data-interval');
+      const v = (c && c.intervals && k && c.intervals[k]) ? c.intervals[k] : '';
+      el.textContent = v ? `(${v})` : '';
+    });
+  }
+
+  function showEmpty() {
+    cardWrapper.classList.add('hidden');
+    noMore.classList.remove('hidden');
+    remainingSpan.textContent = "0";
+    progressBar.style.width = '100%';
+  }
+
+  function renderCard(c) {
+    if (!c) {
+      showEmpty();
       return;
     }
 
-    const c = cards[index];
     const mainWord = c.jp_kanji || c.jp_kana;
     
     // Front side - chỉ hiển thị kanji hoặc kana
@@ -237,48 +418,100 @@ document.addEventListener('DOMContentLoaded', function () {
     cardFront.classList.remove('hidden');
     cardBack.classList.add('hidden');
     
-    remainingSpan.textContent = (cards.length - index).toString();
+    setIntervals(c);
+    remainingSpan.textContent = String(remainingCount());
     updateProgress();
+  }
+
+  function nextCard() {
+    if (locked) return;
+    if (queue.length === 0) {
+      current = null;
+      renderCard(null);
+      return;
+    }
+    current = queue.shift();
+    renderCard(current);
   }
 
   // Flip card button
   toggleBtn.addEventListener('click', function () {
-    cardFront.classList.add('hidden');
-    cardBack.classList.remove('hidden');
+    if (locked) return;
+    const isFront = !cardFront.classList.contains('hidden');
+    cardFront.classList.toggle('hidden', isFront);
+    cardBack.classList.toggle('hidden', !isFront);
   });
+
+  async function gradeCurrent(ratingKey) {
+    if (!current || locked) return;
+    locked = true;
+    if (errorBox) errorBox.classList.add('hidden');
+
+    try {
+      const resp = await fetch("{% url 'vocab:flashcard_grade' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": csrfToken,
+        },
+        body: new URLSearchParams({
+          state_id: String(current.state_id),
+          rating: String(ratingKey),
+          is_new: (current.card_state === 0) ? "true" : "false",
+        }),
+      });
+
+      if (!resp.ok) {
+        throw new Error("Không thể chấm điểm (lỗi mạng hoặc server). Vui lòng thử lại.");
+      }
+
+      const data = await resp.json();
+
+      // Keep client-side card metadata updated (interval previews/state)
+      if (data && data.new_intervals) current.intervals = data.new_intervals;
+      if (data && typeof data.card_state === "number") current.card_state = data.card_state;
+
+      // Respect Anki-like requeue behavior for learning/relearning
+      if (data && data.requeue) {
+        const snapshot = { ...current };
+        const delay = Math.max(0, Number(data.requeue_delay_ms || 0));
+        setTimeout(() => {
+          queue.push(snapshot);
+          remainingSpan.textContent = String(remainingCount());
+          updateProgress();
+        }, delay);
+      }
+
+      completed += 1;
+      locked = false;
+      setTimeout(() => nextCard(), 150);
+    } catch (err) {
+      locked = false;
+      if (errorBox) {
+        errorBox.textContent = (err && err.message) ? err.message : "Có lỗi xảy ra. Vui lòng thử lại.";
+        errorBox.classList.remove('hidden');
+      }
+    }
+  }
 
   // Click để chấm điểm
-  cardBack.addEventListener('click', function (e) {
-    const btn = e.target.closest('button[data-rating]');
-    if (!btn) return;
-
-    const ratingKey = btn.dataset.rating;
-    const currentCard = cards[index];
-
-    // Visual feedback
-    btn.classList.add('scale-95', 'opacity-50');
-    
-    fetch("/vocab/flashcard/grade/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": csrfToken,
-      },
-      body: new URLSearchParams({
-        state_id: currentCard.state_id,
-        rating: ratingKey,
-      }),
-    }).finally(() => {
-      setTimeout(() => {
-        index += 1;
-        renderCard();
-      }, 150);
+  if (gradeButtons) {
+    gradeButtons.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-rating]');
+      if (!btn) return;
+      if (cardBack.classList.contains('hidden')) return; // only grade on back
+      const ratingKey = btn.dataset.rating;
+      if (!ratingKey) return;
+      btn.classList.add('scale-95', 'opacity-50');
+      gradeCurrent(ratingKey).finally(() => {
+        btn.classList.remove('scale-95', 'opacity-50');
+      });
     });
-  });
+  }
 
   // Keyboard shortcuts: 1 2 3 4
   document.addEventListener('keydown', function (e) {
-    if (index >= cards.length) return;
+    if (!current) return;
 
     // Nếu đang ở mặt trước, bấm Space hoặc Enter để lật
     if (!cardFront.classList.contains('hidden') &&
@@ -303,16 +536,31 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
 
     const btn = cardBack.querySelector(`button[data-rating="${ratingKey}"]`);
-    if (btn) {
-      btn.click();
-    }
+    if (btn) btn.click();
   });
 
-  renderCard();
+  // init
+  remainingSpan.textContent = String(queue.length);
+  updateProgress();
+  nextCard();
 });
 </script>
 
 <style>
+.japanese-font {
+  /* Force Japanese text to Noto Sans JP (loaded in base.html) */
+  font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.vi-font {
+  /* Vietnamese-friendly UI font stack */
+  font-family: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .perspective-1000 {
   perspective: 1000px;
 }

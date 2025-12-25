@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Trạng thái học từ vựng | DailyFluent{% endblock %}
+
+{% block main_classes %}max-w-6xl mx-auto px-4 py-6{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Trạng thái học từ vựng</h1>
+    <p class="text-sm text-slate-600">Xem nhanh các từ chưa học, đang học, đang ôn và đã thuộc.</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'vocab:flashcards' %}"
+       class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+      Ôn flashcard
+    </a>
+    <a href="{% url 'vocab:list' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      Danh sách từ
+    </a>
+  </div>
+</div>
+
+<div class="space-y-4">
+  {% include "vocab/partials/study_status_section.html" with title="Đang học (learning/relearning)" items=learning_states %}
+  {% include "vocab/partials/study_status_section.html" with title="Đang ôn (review)" items=review_states %}
+  {% include "vocab/partials/study_status_section.html" with title="Đã thuộc (mature)" items=mature_states %}
+
+  <section class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-slate-800">Chưa học</h2>
+      <span class="text-xs text-slate-500">{{ not_started|length }} mục (giới hạn 200 mới nhất)</span>
+    </div>
+    {% if not_started %}
+      <div class="grid md:grid-cols-2 gap-3">
+        {% for v in not_started %}
+          <div class="border border-slate-100 rounded-xl p-3 hover:bg-slate-50">
+            <div class="text-lg font-bold text-slate-900">{{ v.jp_kanji|default:v.jp_kana }}</div>
+            <div class="text-sm text-slate-600">{{ v.jp_kana }}</div>
+            <div class="text-sm text-slate-700 mt-1">{{ v.vi_meaning }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-sm text-slate-500">Không còn từ mới chưa học.</p>
+    {% endif %}
+  </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,142 @@
+{# templates/components/audio_player.html #}
+{# YÊU CẦU: truyền biến audio_url khi include #}
+
+<div class="df-audio-player w-full md:max-w-2xl" data-audio-player>
+  <audio src="{{ audio_url }}" preload="metadata"></audio>
+
+  <div class="flex items-center gap-3">
+    <!-- Lùi / play / tiến 10s -->
+    <div class="flex items-center gap-1.5">
+      <!-- back 10s -->
+      <button type="button"
+            class="df-audio-skip-btn"
+            data-audio-skip="-10"
+            aria-label="Lùi 10 giây">
+        <span class="df-skip-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M14 4.25C19.3848 4.25 23.75 8.61522 23.75 14C23.75 19.3848 19.3848 23.75 14 23.75C8.61522 23.75 4.25 19.3848 4.25 14C4.25 13.5858 3.91421 13.25 3.5 13.25C3.08579 13.25 2.75 13.5858 2.75 14C2.75 20.2132 7.7868 25.25 14 25.25C20.2132 25.25 25.25 20.2132 25.25 14C25.25 7.7868 20.2132 2.75 14 2.75C10.689 2.75 7.7127 4.18059 5.65471 6.45556V3.5C5.65471 3.08579 5.31893 2.75 4.90471 2.75C4.4905 2.75 4.15471 3.08579 4.15471 3.5V8.75C4.15471 9.16421 4.4905 9.5 4.90471 9.5H10.0625C10.4767 9.5 10.8125 9.16421 10.8125 8.75C10.8125 8.33579 10.4767 8 10.0625 8H6.31413C8.09941 5.71632 10.8788 4.25 14 4.25Z"
+                fill="currentColor"/>
+            <path d="M11.3047 18.1025C10.8701 18.1025 10.5723 17.8096 10.5723 17.3652V12.3213H10.543L9.5127 13.0391C9.37598 13.1367 9.27344 13.1709 9.12207 13.1709C8.82422 13.1709 8.60449 12.9561 8.60449 12.6436C8.60449 12.4189 8.69238 12.2529 8.92188 12.0918L10.3184 11.125C10.6602 10.8906 10.8945 10.8467 11.1973 10.8467C11.7197 10.8467 12.0322 11.1641 12.0322 11.6719V17.3652C12.0322 17.8096 11.7393 18.1025 11.3047 18.1025Z"
+                fill="currentColor"/>
+            <path d="M16.4023 18.1562C14.6152 18.1562 13.5264 16.7451 13.5264 14.4648C13.5264 12.1895 14.625 10.793 16.4023 10.793C18.1797 10.793 19.2734 12.1846 19.2734 14.46C19.2734 16.7354 18.1895 18.1562 16.4023 18.1562ZM16.4023 16.9746C17.2715 16.9746 17.7744 16.0811 17.7744 14.4648C17.7744 12.8584 17.2666 11.9746 16.4023 11.9746C15.543 11.9746 15.0254 12.8633 15.0254 14.4648C15.0254 16.0811 15.5332 16.9746 16.4023 16.9746Z"
+                fill="currentColor"/>
+        </svg>
+        </span>
+    </button>
+
+      <!-- play / pause -->
+      <button type="button"
+              class="df-audio-play-btn"
+              data-audio-play
+              aria-label="Play / pause">
+        <span class="df-icon-play">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l10-7z" />
+          </svg>
+        </span>
+        <span class="df-icon-pause hidden">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
+          </svg>
+        </span>
+      </button>
+
+      <!-- forward 10s -->
+      <button type="button"
+            class="df-audio-skip-btn"
+            data-audio-skip="10"
+            aria-label="Tiến 10 giây">
+        <span class="df-skip-icon">
+        {# dùng lại cùng 1 SVG #}
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <!-- 3 path y như trên, vẫn fill="currentColor" -->
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M14 4.25C19.3848 4.25 23.75 8.61522 23.75 14C23.75 19.3848 19.3848 23.75 14 23.75C8.61522 23.75 4.25 19.3848 4.25 14C4.25 13.5858 3.91421 13.25 3.5 13.25C3.08579 13.25 2.75 13.5858 2.75 14C2.75 20.2132 7.7868 25.25 14 25.25C20.2132 25.25 25.25 20.2132 25.25 14C25.25 7.7868 20.2132 2.75 14 2.75C10.689 2.75 7.7127 4.18059 5.65471 6.45556V3.5C5.65471 3.08579 5.31893 2.75 4.90471 2.75C4.4905 2.75 4.15471 3.08579 4.15471 3.5V8.75C4.15471 9.16421 4.4905 9.5 4.90471 9.5H10.0625C10.4767 9.5 10.8125 9.16421 10.8125 8.75C10.8125 8.33579 10.4767 8 10.0625 8H6.31413C8.09941 5.71632 10.8788 4.25 14 4.25Z"
+                fill="currentColor"/>
+            <path d="M11.3047 18.1025C10.8701 18.1025 10.5723 17.8096 10.5723 17.3652V12.3213H10.543L9.5127 13.0391C9.37598 13.1367 9.27344 13.1709 9.12207 13.1709C8.82422 13.1709 8.60449 12.9561 8.60449 12.6436C8.60449 12.4189 8.69238 12.2529 8.92188 12.0918L10.3184 11.125C10.6602 10.8906 10.8945 10.8467 11.1973 10.8467C11.7197 10.8467 12.0322 11.1641 12.0322 11.6719V17.3652C12.0322 17.8096 11.7393 18.1025 11.3047 18.1025Z"
+                fill="currentColor"/>
+            <path d="M16.4023 18.1562C14.6152 18.1562 13.5264 16.7451 13.5264 14.4648C13.5264 12.1895 14.625 10.793 16.4023 10.793C18.1797 10.793 19.2734 12.1846 19.2734 14.46C19.2734 16.7354 18.1895 18.1562 16.4023 18.1562ZM16.4023 16.9746C17.2715 16.9746 17.7744 16.0811 17.7744 14.4648C17.7744 12.8584 17.2666 11.9746 16.4023 11.9746C15.543 11.9746 15.0254 12.8633 15.0254 14.4648C15.0254 16.0811 15.5332 16.9746 16.4023 16.9746Z"
+                fill="currentColor"/>
+        </svg>
+        </span>
+    </button>
+    </div>
+
+    <!-- Thanh progress + thời gian + volume + speed -->
+    <div class="flex-1 flex items-center gap-3">
+      <input type="range"
+             min="0" max="100" value="0" step="0.1"
+             class="df-audio-progress-range"
+             data-audio-range>
+
+      <div class="flex items-center gap-2 text-xs text-slate-700 tabular-nums">
+        <span class="df-time-display">
+          <span data-audio-current>00:00</span>/
+          <span data-audio-duration>00:00</span>
+        </span>
+
+        <!-- Volume -->
+        <div class="relative">
+          <button type="button"
+                  class="df-icon-button"
+                  data-audio-volume-btn
+                  aria-label="Âm lượng">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path d="M11 5L7 9H4v6h3l4 4z" />
+              <path d="M15.5 8.5a4 4 0 010 6" />
+              <path d="M17.5 6.5a7 7 0 010 11" />
+            </svg>
+          </button>
+          <div class="df-popover df-popover-volume"
+               data-audio-popover="volume">
+            <input type="range"
+                   min="0" max="1" step="0.02" value="1"
+                   class="df-volume-slider"
+                   data-audio-volume>
+          </div>
+        </div>
+
+        <!-- Speed -->
+        <div class="relative">
+          <button type="button"
+                  class="df-icon-button"
+                  data-audio-settings-btn
+                  aria-label="Tốc độ phát">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.7 1.7 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.39 1.1V22a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-.39-1.1 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.39H3a2 2 0 0 1 0-4h.09a1.7 1.7 0 0 0 1.1-.39 1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .39-1.1V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 .39 1.1 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.39H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.1.39 1.7 1.7 0 0 0-.41 1.22z" />
+            </svg>
+          </button>
+          <div class="df-popover df-popover-speed"
+                data-audio-popover="speed">
+            <button type="button"
+                    class="df-speed-option"
+                    data-audio-speed="0.5">0.5x</button>
+            <button type="button"
+                    class="df-speed-option"
+                    data-audio-speed="0.75">0.75x</button>
+            <button type="button"
+                    class="df-speed-option df-speed-active"
+                    data-audio-speed="1">1x</button>
+            <button type="button"
+                    class="df-speed-option"
+                    data-audio-speed="1.25">1.25x</button>
+            <button type="button"
+                    class="df-speed-option"
+                    data-audio-speed="1.5">1.5x</button>
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

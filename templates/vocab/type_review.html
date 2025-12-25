@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Gõ Hiragana | DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Gõ Hiragana</h1>
+      <p class="text-sm text-slate-600">Một chế độ review khác để đỡ nhàm chán. Kết quả được chấm vào cùng SRS với flashcard.</p>
+    </div>
+    <div class="text-xs text-slate-500">
+      Tổng hàng chờ: {{ total_count|default:0 }}
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-4">
+    <div id="cardArea" class="text-center py-4">
+      <div id="kanjiText" class="text-4xl font-bold text-slate-900 tracking-wide"></div>
+      <div id="meaningText" class="mt-2 text-sm text-slate-600"></div>
+    </div>
+
+    <form id="answerForm" class="space-y-3">
+      <div class="flex items-center gap-3">
+        <input
+          id="answerInput"
+          name="answer"
+          autocomplete="off"
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+          placeholder="Nhập hiragana..."
+        />
+        <button
+          type="submit"
+          class="px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+        >
+          Kiểm tra
+        </button>
+      </div>
+      <div id="answerReveal" class="hidden text-center py-2">
+        <div class="text-xs text-slate-500 mb-1">Đáp án:</div>
+        <div id="answerText" class="text-2xl font-semibold text-slate-700"></div>
+      </div>
+      <div class="flex items-center justify-center">
+        <button
+          id="showAnswerBtn"
+          type="button"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
+        >
+          Hiện đáp án (Space / S, hoặc Ctrl+S khi đang gõ)
+        </button>
+      </div>
+      <div id="feedback" class="text-sm"></div>
+    </form>
+
+    <div class="flex items-center justify-between">
+      <button
+        id="nextBtn"
+        type="button"
+        class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+      >
+        Next
+      </button>
+      <div id="queueInfo" class="text-xs text-slate-500"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const cards = JSON.parse('{{ cards_data_json|escapejs }}');
+    const gradeUrl = "{% url 'vocab:flashcard_grade' %}";
+
+    const KEEP_VISIBLE_MS = 1800;       // giữ Kanji lại sau khi đúng
+    const FAST_MS = 3500;               // ngưỡng nhanh
+    const SLOW_MS = 8000;               // ngưỡng chậm
+    const ALLOW_EASY = false;           // set true nếu muốn dùng Easy
+
+    const kanjiEl = document.getElementById('kanjiText');
+    const meaningEl = document.getElementById('meaningText');
+    const answerInput = document.getElementById('answerInput');
+    const feedbackEl = document.getElementById('feedback');
+    const queueInfoEl = document.getElementById('queueInfo');
+    const nextBtn = document.getElementById('nextBtn');
+    const form = document.getElementById('answerForm');
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    const answerReveal = document.getElementById('answerReveal');
+    const answerText = document.getElementById('answerText');
+
+    let queue = [...cards];
+    let current = null;
+    let startedAt = null;
+    let locked = false;
+    let answerRevealed = false;
+
+    function katakanaToHiragana(str) {
+      return str.replace(/[\u30a1-\u30f6]/g, ch =>
+        String.fromCharCode(ch.charCodeAt(0) - 0x60)
+      );
+    }
+
+    function normalizeKana(str) {
+      return katakanaToHiragana(str || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '');
+    }
+
+    function chooseRating(elapsedMs, wasCorrect) {
+      if (!wasCorrect) return 'again';
+      if (!ALLOW_EASY) {
+        if (elapsedMs <= FAST_MS) return 'good';
+        if (elapsedMs <= SLOW_MS) return 'hard';
+        return 'hard';
+      }
+      if (elapsedMs <= FAST_MS * 0.6) return 'easy';
+      if (elapsedMs <= FAST_MS) return 'good';
+      if (elapsedMs <= SLOW_MS) return 'hard';
+      return 'hard';
+    }
+
+    function updateQueueInfo() {
+      queueInfoEl.textContent = `Còn ${queue.length} từ trong hàng chờ`;
+    }
+
+    // Showing the answer counts as "Again" (don't remember) and then auto-next.
+    async function showAnswer() {
+      if (!current || locked || answerRevealed) return;
+
+      answerRevealed = true;
+      locked = true;
+
+      // Reveal answer first (so user can see it briefly)
+      answerText.textContent = current.hiragana;
+      answerReveal.classList.remove('hidden');
+      showAnswerBtn.disabled = true;
+      showAnswerBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      feedbackEl.textContent = 'Đã hiện đáp án (chấm Again).';
+      feedbackEl.className = 'text-sm text-amber-700';
+
+      try {
+        const result = await gradeCard(current, 'again', current.total_reviews === 0);
+        current.total_reviews += 1;
+
+        // Respect FSRS requeue logic (learning/relearning cards)
+        if (result.requeue) {
+          setTimeout(() => queue.push({ ...current }), result.requeue_delay_ms || 0);
+        }
+      } catch (err) {
+        feedbackEl.textContent = err.message;
+        feedbackEl.className = 'text-sm text-red-600';
+      }
+
+      // Move on after a short delay (keep Kanji visible as requested)
+      setTimeout(() => {
+        locked = false;
+        nextCard();
+      }, KEEP_VISIBLE_MS);
+    }
+
+    function renderCard(card) {
+      kanjiEl.textContent = card.kanji || '—';
+      meaningEl.textContent = card.meaning || '';
+      answerInput.value = '';
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'text-sm';
+      answerReveal.classList.add('hidden');
+      answerRevealed = false;
+      showAnswerBtn.disabled = false;
+      showAnswerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      answerInput.focus();
+      startedAt = performance.now();
+      locked = false;
+    }
+
+    function showEmpty() {
+      kanjiEl.textContent = 'Hết từ cần ôn 🎉';
+      meaningEl.textContent = '';
+      feedbackEl.textContent = 'Bạn đã hoàn thành hàng chờ hiện tại.';
+      feedbackEl.className = 'text-sm text-green-600';
+      answerInput.disabled = true;
+      nextBtn.disabled = true;
+    }
+
+    function nextCard() {
+      if (locked) return;
+      if (queue.length === 0) {
+        current = null;
+        showEmpty();
+        updateQueueInfo();
+        return;
+      }
+      current = queue.shift();
+      renderCard(current);
+      updateQueueInfo();
+    }
+
+    async function gradeCard(card, rating, isNew) {
+      const formData = new FormData();
+      formData.append('state_id', card.state_id);
+      formData.append('rating', rating);
+      formData.append('is_new', isNew ? 'true' : 'false');
+
+      const resp = await fetch(gradeUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData,
+      });
+      if (!resp.ok) {
+        throw new Error('Lỗi khi chấm điểm');
+      }
+      return resp.json();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!current || locked) return;
+
+      const userAnswer = normalizeKana(answerInput.value);
+      const correct = normalizeKana(current.hiragana);
+      const isCorrect = userAnswer === correct;
+      const elapsed = performance.now() - startedAt;
+      const rating = chooseRating(elapsed, isCorrect);
+
+      locked = true;
+      feedbackEl.textContent = isCorrect
+        ? 'Chính xác! Giữ lại vài giây...'
+        : 'Sai rồi, thử lại nhé (đã chấm Again).';
+      feedbackEl.className = isCorrect
+        ? 'text-sm text-green-600'
+        : 'text-sm text-red-600';
+
+      try {
+        const result = await gradeCard(current, rating, current.total_reviews === 0);
+        current.total_reviews += 1;
+
+        if (result.requeue) {
+          setTimeout(() => queue.push({ ...current }), result.requeue_delay_ms || 0);
+        }
+      } catch (err) {
+        feedbackEl.textContent = err.message;
+        feedbackEl.className = 'text-sm text-red-600';
+      }
+
+      if (isCorrect) {
+        setTimeout(() => {
+          locked = false;
+          nextCard();
+        }, KEEP_VISIBLE_MS);
+      } else {
+        locked = false;
+        answerInput.focus();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      nextCard();
+    });
+
+    showAnswerBtn.addEventListener('click', () => {
+      showAnswer();
+    });
+
+    // Keyboard shortcuts:
+    // - When NOT typing in the input: Space or S shows answer
+    // - When typing in the input: use Ctrl+S / Cmd+S / Alt+S (doesn't interfere with typing)
+    document.addEventListener('keydown', (e) => {
+      if (locked) return;
+
+      const isInputFocused = document.activeElement === answerInput;
+      const isS = e.key === 's' || e.key === 'S';
+      const isSpace = e.key === ' ' || e.key === 'Space';
+      const hasModifier = e.ctrlKey || e.metaKey || e.altKey;
+
+      // Allow shortcut while staying in the input box
+      if (isInputFocused && isS && hasModifier) {
+        e.preventDefault(); // prevent browser "Save page" on Ctrl/Cmd+S
+        if (!answerRevealed && current) showAnswer();
+        return;
+      }
+
+      // Outside input: quick shortcuts
+      if (!isInputFocused && (isSpace || isS)) {
+        e.preventDefault();
+        if (!answerRevealed && current) showAnswer();
+      }
+    });
+
+    // init
+    updateQueueInfo();
+    nextCard();
+  })();
+</script>
+{% endblock %}

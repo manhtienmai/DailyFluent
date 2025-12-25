@@ -1,0 +1,217 @@
+.df-audio-player {
+  font-size: 13px;
+}
+
+/* progress ngang */
+.df-audio-progress-range {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: #eef1f7;
+  cursor: pointer;
+}
+.df-audio-progress-range:focus {
+  outline: none;
+}
+.df-audio-progress-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background-color: #2563eb;
+  box-shadow: 0 0 0 2px #ffffff;
+  margin-top: -5px;
+}
+.df-audio-progress-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background-color: #2563eb;
+  border: 2px solid #ffffff;
+}
+.df-audio-progress-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background-color: #eef1f7;
+}
+
+/* play / skip */
+.df-audio-play-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background-color: #2563eb;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25); 
+}
+.df-audio-play-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.df-audio-skip-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.df-audio-skip-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: #374151;              /* màu icon */
+}
+
+.df-skip-icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.df-audio-skip-btn:hover {
+  color: #111827;              /* hover đậm hơn chút */
+}
+
+
+
+
+
+
+/* icon button: volume, settings */
+.df-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  color: #111827;
+}
+.df-icon-button:hover {
+  background-color: #e5e7eb;
+}
+
+
+/* popover chung: mặc định ẨN (opacity 0) */
+.df-popover {
+  position: absolute;
+  right: 0;
+  top: 2.1rem;
+  background: #f9fafb;
+  border-radius: 0.9rem;
+  padding: 0.5rem 0.6rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+  border: 1px solid #e5e7eb;
+  z-index: 20;
+
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+
+/* khi mở */
+.df-popover.df-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* popover volume: khung trắng dọc */
+.df-popover-volume {
+  height: 130px;
+  width: 44px;
+  border-radius: 1rem;
+  padding: 0.4rem 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.df-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 2.5px;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  cursor: pointer;
+}
+
+
+.df-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: #2563eb;
+  box-shadow: 0 0 0 2px #f9fafb;
+  margin-top: -5px;
+}
+.df-volume-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: #2563eb;
+  border: 2px solid #f9fafb;
+}
+.df-volume-slider::-moz-range-track {
+  height: 3px;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+}
+
+/* speed list */
+.df-popover-speed {
+  top: 2.1rem;             /* rơi xuống dưới */
+  bottom: auto;            /* bỏ bottom kế thừa */
+  min-width: 90px;
+  max-height: 180px;
+  border-radius: 0.9rem;
+  padding: 0.25rem 0;
+  overflow-y: auto;
+}
+
+.df-speed-option {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 1rem;
+  font-size: 13px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #111827;
+}
+
+.df-speed-option:hover {
+  background-color: #e5edff;   /* nền xanh nhạt khi hover */
+}
+
+.df-speed-option.df-speed-active {
+  color: #2563eb;              /* text xanh */
+  font-weight: 600;
+}
+
+.df-time-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  white-space: nowrap;  /* luôn cùng một dòng */
+}

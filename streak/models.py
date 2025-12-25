@@ -12,6 +12,7 @@ class DailyActivity(models.Model):
     date = models.DateField()  # Ngày theo timezone hệ thống (TIME_ZONE) hoặc user
     lessons_completed = models.PositiveIntegerField(default=0)
     minutes_studied = models.PositiveIntegerField(default=0)
+    seconds_studied = models.PositiveIntegerField(default=0)
     points_earned = models.PositiveIntegerField(default=0)
 
     class Meta:

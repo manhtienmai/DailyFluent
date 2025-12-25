@@ -1,0 +1,31 @@
+<section class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-sm font-semibold text-slate-800">{{ title }}</h2>
+    <span class="text-xs text-slate-500">{{ items|length }} mục</span>
+  </div>
+
+  {% if items %}
+    <div class="grid md:grid-cols-2 gap-3">
+      {% for s in items %}
+        <div class="border border-slate-100 rounded-xl p-3 hover:bg-slate-50">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-bold text-slate-900">
+              {{ s.vocab.jp_kanji|default:s.vocab.jp_kana }}
+            </div>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              {{ s.total_reviews }} lần
+            </span>
+          </div>
+          <div class="text-sm text-slate-600">{{ s.vocab.jp_kana }}</div>
+          <div class="text-sm text-slate-700 mt-1">{{ s.vocab.vi_meaning }}</div>
+          {% if s.vocab.sino_vi %}
+            <div class="text-[12px] text-slate-500 mt-1">Hán Việt: {{ s.vocab.sino_vi }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-sm text-slate-500">Chưa có mục nào.</p>
+  {% endif %}
+</section>
+

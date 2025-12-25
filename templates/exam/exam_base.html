@@ -1,0 +1,205 @@
+{# exam_base.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ template_obj.title }} | DailyFluent{% endblock %}
+{% block main_classes %}max-w-4xl mx-auto px-4 py-8{% endblock %}
+
+{# Ẩn top navbar mặc định #}
+{% block site_header %}{% endblock %}
+
+{% block content %}
+<!-- EXAM HEADER -->
+<div class="mb-8">
+  <div class="flex items-center justify-between gap-4">
+    <!-- Left: back + logo -->
+    <div class="flex items-center gap-3">
+      <a href="javascript:history.back()"
+         class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-slate-100">
+        <span class="sr-only">Quay lại</span>
+        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 19l-7-7 7-7" />
+        </svg>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-2xl bg-slate-900 flex items-center justify-center">
+          <span class="text-xs font-semibold text-white">DF</span>
+        </div>
+        <span class="text-sm font-semibold text-slate-800">DailyFluent</span>
+      </div>
+    </div>
+
+    <!-- Center: timer + title -->
+    <div class="flex-1 flex flex-col items-center gap-2 min-w-0">
+      {% block exam_timer %}
+      <div id="exam-timer"
+           data-start="{{ session.started_at|date:'c' }}"
+           data-limit-minutes="{{ template_obj.time_limit_minutes|default_if_none:'' }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-600 text-white shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="exam-timer-text" class="font-semibold tabular-nums text-sm">
+          --:--:--
+        </span>
+      </div>
+      {% endblock exam_timer %}
+
+      {% block exam_title %}
+      <p class="text-sm font-semibold text-slate-900 truncate max-w-xl text-center">
+        {% if template_obj.subtitle %}
+          {{ template_obj.subtitle }}
+        {% else %}
+          {{ template_obj.title }}
+        {% endif %}
+      </p>
+      {% endblock exam_title %}
+    </div>
+
+    <!-- Right: actions -->
+    <div class="flex items-center gap-3">
+      {% block exam_actions %}
+      <!-- Gửi bài -->
+      <button type="submit"
+              form="exam-form"
+              name="action"
+              value="submit_exam"
+              class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Gửi bài
+      </button>
+
+      <!-- Menu 3 chấm -->
+      <div class="relative">
+        <button type="button"
+                id="exam-more-btn"
+                class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50">
+          <span class="sr-only">Mở menu tùy chọn</span>
+          <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm2 2a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+        </button>
+
+        <!-- Dropdown -->
+        <div id="exam-more-menu"
+             class="hidden absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-lg py-1 text-sm z-20">
+          <button type="button"
+                  class="w-full flex items-center gap-2 px-3 py-2 text-rose-600 hover:bg-rose-50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
+            </svg>
+            <span>Báo lỗi đề thi</span>
+          </button>
+        </div>
+      </div>
+      {% endblock exam_actions %}
+    </div>
+  </div>
+
+  {% block exam_meta %}
+  <!-- Info row dưới header -->
+  <div class="flex flex-wrap gap-4 text-sm text-slate-600 mt-4">
+    <span class="flex items-center gap-1.5">
+      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      Level {{ template_obj.level }}
+    </span>
+    <span>•</span>
+    <span class="flex items-center gap-1.5">
+      <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      {{ questions|length }} câu
+    </span>
+    <span>•</span>
+    <span class="flex items-center gap-1.5">
+      <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {% if template_obj.time_limit_minutes %}
+        {{ template_obj.time_limit_minutes }} phút
+      {% else %}
+        Không giới hạn
+      {% endif %}
+    </span>
+  </div>
+  {% endblock exam_meta %}
+</div>
+
+{# ========= BODY CỦA TRANG THI (form câu hỏi, review, v.v.) ========= #}
+{% block exam_body %}{% endblock %}
+
+{# Script chung cho mọi trang exam #}
+<script>
+(function () {
+  // Timer pill ở header
+  const timerEl = document.getElementById('exam-timer');
+  const timerText = document.getElementById('exam-timer-text');
+
+  if (timerEl && timerText) {
+    const startStr = timerEl.dataset.start;
+    const limitStr = timerEl.dataset.limitMinutes;
+
+    const start = startStr ? new Date(startStr) : null;
+    const limitMinutes = limitStr ? parseInt(limitStr, 10) : null;
+
+    function format(ms) {
+      ms = Math.max(ms, 0);
+      const totalSeconds = Math.floor(ms / 1000);
+      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSeconds % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function tick() {
+      const now = new Date();
+
+      if (start && !isNaN(start.getTime()) && limitMinutes) {
+        const end = new Date(start.getTime() + limitMinutes * 60 * 1000);
+        const diff = end - now;
+        timerText.textContent = format(diff);
+
+        if (diff <= 0) {
+          timerEl.classList.remove('bg-rose-600');
+          timerEl.classList.add('bg-slate-900');
+        }
+      } else {
+        // fallback: chỉ hiển thị giờ hiện tại
+        timerText.textContent = now.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // Dropdown 3 chấm
+  const moreBtn = document.getElementById('exam-more-btn');
+  const menu = document.getElementById('exam-more-menu');
+
+  if (moreBtn && menu) {
+    moreBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+    });
+
+    menu.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function () {
+      menu.classList.add('hidden');
+    });
+  }
+})();
+</script>
+{% endblock content %}

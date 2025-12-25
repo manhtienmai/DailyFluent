@@ -81,6 +81,17 @@
             <p class="text-sm font-semibold text-slate-800">
               Bạn đang giữ chuỗi {{ streak.current_streak }} ngày liên tục. Đừng để bị ngắt nhé!
             </p>
+            {% if minutes_today is not None %}
+            <p class="text-[11px] text-slate-500 mt-1">
+              Hôm nay bạn đã học <span class="font-semibold text-slate-800">{{ minutes_today }}</span> phút flashcard.
+            </p>
+            {% endif %}
+            {% if cards_today is not None %}
+            <p class="text-[11px] text-slate-500 mt-1">
+              Hôm nay bạn đã ôn <span class="font-semibold text-slate-800">{{ cards_today }}</span> thẻ
+              <span class="text-slate-400">(mới: {{ new_cards_today }}, ôn: {{ reviews_today }})</span>.
+            </p>
+            {% endif %}
           </div>
           <div class="bg-slate-50 rounded-2xl p-3">
             <p class="text-[11px] text-slate-500 mb-1">Gợi ý hôm nay</p>
@@ -91,6 +102,12 @@
         </div>
       {% endif %}
     </section>
+
+    <!-- Daily goal + Heatmap -->
+    <div class="grid md:grid-cols-2 gap-4 mt-4">
+      {% include "streak/_daily_goal.html" %}
+      {% include "streak/_heatmap.html" %}
+    </div>
 
   {% else %}
     <!-- CHƯA ĐĂNG NHẬP: GỢI Ý LOGIN -->

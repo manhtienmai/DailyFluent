@@ -14,4 +14,8 @@ urlpatterns = [
     path("videos/", include("video.urls", namespace="video")),
     path("exam/", include("exam.urls", namespace="exam")),
     path("streak/", include("streak.urls", namespace="streak")),
+    path("grammar/", include("grammar.urls", namespace="grammar")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

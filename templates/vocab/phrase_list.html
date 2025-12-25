@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Cụm từ cố định | DailyFluent{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">Cụm từ cố định</h1>
+    <p class="text-xs text-slate-500">
+      {% if q %}
+        Kết quả cho “{{ q }}”: {{ total_count }} cụm từ
+      {% else %}
+        Danh sách cụm từ cố định. ({{ total_count }} cụm từ)
+      {% endif %}
+    </p>
+  </div>
+  <div class="flex flex-wrap gap-2 justify-end">
+    <a href="{% url 'vocab:list' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      ← Từ vựng
+    </a>
+  </div>
+</div>
+
+<form method="get" class="mb-4">
+  <div class="flex items-center gap-2">
+    <input
+      type="text"
+      name="q"
+      value="{{ q|default:'' }}"
+      placeholder="Tìm cụm từ (kanji/kana)..."
+      class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+    />
+    <button
+      type="submit"
+      class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800"
+    >
+      Tìm
+    </button>
+    {% if q %}
+      <a
+        href="{% url 'vocab:phrases' %}"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+      >
+        Xoá
+      </a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+      <tr>
+        <th class="px-4 py-2 text-left">Cụm từ</th>
+        <th class="px-4 py-2 text-left">Hiragana</th>
+        <th class="px-4 py-2 text-left">Nghĩa</th>
+        <th class="px-4 py-2 text-left">Đã kiểm tra</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in phrases %}
+        <tr class="border-t border-slate-100 hover:bg-slate-50">
+          <td class="px-4 py-2">
+            <div class="font-semibold text-lg text-slate-900" lang="ja">{{ p.jp_text }}</div>
+          </td>
+          <td class="px-4 py-2 text-slate-700" lang="ja">{{ p.jp_kana|default:"-" }}</td>
+          <td class="px-4 py-2 text-slate-800">{{ p.vi_meaning|default:p.en_meaning|default:"-" }}</td>
+          <td class="px-4 py-2">
+            {% if p.is_verified %}
+              <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">OK</span>
+            {% else %}
+              <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">Chưa</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+            Chưa có cụm từ nào.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <div class="mt-4 flex items-center justify-between">
+    <div class="text-xs text-slate-500">
+      Hiển thị {{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ total_count }}
+    </div>
+    <div class="flex items-center gap-2">
+      {% if page_obj.has_previous %}
+        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+           href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">‹</a>
+      {% else %}
+        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">‹</span>
+      {% endif %}
+
+      {% for p in page_items %}
+        {% if p %}
+          {% if p == page_obj.number %}
+            <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white text-sm font-semibold">{{ p }}</span>
+          {% else %}
+            <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+               href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ p }}">{{ p }}</a>
+          {% endif %}
+        {% else %}
+          <span class="w-10 h-10 inline-flex items-center justify-center text-slate-400">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+           href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">›</a>
+      {% else %}
+        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">›</span>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+

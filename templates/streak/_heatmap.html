@@ -1,0 +1,138 @@
+<div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4 space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Heatmap 60 ngày</p>
+      <p class="text-sm text-slate-600">Số phút học / ngày (phong cách GitHub)</p>
+    </div>
+    <div class="flex items-center gap-2 text-[11px] text-slate-500">
+      <span>Ít</span>
+      <div class="flex items-center gap-1">
+        <span class="w-4 h-4 rounded-sm" style="background:#e2e8f0"></span>
+        <span class="w-4 h-4 rounded-sm" style="background:#cbd5e1"></span>
+        <span class="w-4 h-4 rounded-sm" style="background:#93c5fd"></span>
+        <span class="w-4 h-4 rounded-sm" style="background:#60a5fa"></span>
+        <span class="w-4 h-4 rounded-sm" style="background:#2563eb"></span>
+      </div>
+      <span>Nhiều</span>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <div id="heatmapMonths" class="flex items-center gap-1 text-[11px] text-slate-500"></div>
+    <div class="flex items-start gap-1 text-[10px]">
+      <div class="flex flex-col justify-between text-slate-400 pr-1 text-[10px] leading-4">
+        <span>CN</span><span></span><span></span><span></span><span></span><span></span><span>T7</span>
+      </div>
+      <div id="heatmapGrid" class="flex items-start gap-1"></div>
+    </div>
+    <div id="heatmapEmpty" class="hidden text-xs text-slate-500">Chưa có dữ liệu học.</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const grid = document.getElementById('heatmapGrid');
+  const monthsBar = document.getElementById('heatmapMonths');
+  const empty = document.getElementById('heatmapEmpty');
+  if (!grid) return;
+
+  const colors = [
+    '#e2e8f0', // 0
+    '#cbd5e1', // 1-9
+    '#93c5fd', // 10-19
+    '#60a5fa', // 20-29
+    '#2563eb', // 30+
+  ];
+
+  function colorForMinutes(m) {
+    if (m <= 0) return colors[0];
+    if (m < 10) return colors[1];
+    if (m < 20) return colors[2];
+    if (m < 30) return colors[3];
+    return colors[4];
+  }
+
+  function isoToDate(iso) {
+    return new Date(iso + 'T00:00:00');
+  }
+
+  function buildMatrix(days, startIso, endIso) {
+    const start = isoToDate(startIso);
+    const end = isoToDate(endIso);
+    const map = new Map();
+    days.forEach(d => map.set(d.date, d.minutes || 0));
+
+    const msPerDay = 86400000;
+    const daysCount = Math.floor((end - start) / msPerDay) + 1;
+    const weeks = Math.ceil(daysCount / 7);
+
+    const columns = [];
+    for (let w = 0; w < weeks; w++) {
+      const col = [];
+      for (let r = 0; r < 7; r++) {
+        const idx = w * 7 + r;
+        const dt = new Date(start.getTime() + idx * msPerDay);
+        if (dt > end) break;
+        const iso = dt.toISOString().slice(0, 10);
+        const minutes = map.get(iso) || 0;
+        col.push({ iso, minutes, dateObj: dt });
+      }
+      columns.push(col);
+    }
+    return columns;
+  }
+
+  function buildMonthLabels(columns) {
+    if (!monthsBar) return;
+    monthsBar.innerHTML = '';
+    let lastMonth = null;
+    columns.forEach((col, idx) => {
+      const firstDay = col[0];
+      if (!firstDay) return;
+      const month = firstDay.dateObj.getMonth(); // 0-11
+      const monthName = firstDay.dateObj.toLocaleString('default', { month: 'short' });
+      if (month !== lastMonth) {
+        const label = document.createElement('div');
+        label.className = 'text-[11px] text-slate-500';
+        label.style.marginLeft = idx === 0 ? '0' : '6px';
+        label.textContent = monthName;
+        monthsBar.appendChild(label);
+        lastMonth = month;
+      }
+    });
+  }
+
+  async function loadHeatmap() {
+    const resp = await fetch("{% url 'streak:heatmap_api' %}", { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const days = data.days || [];
+    grid.innerHTML = '';
+    if (monthsBar) monthsBar.innerHTML = '';
+
+    if (!days.length) {
+      if (empty) empty.classList.remove('hidden');
+      return;
+    }
+    if (empty) empty.classList.add('hidden');
+
+    const columns = buildMatrix(days, data.start, data.end);
+    buildMonthLabels(columns);
+
+    columns.forEach((col) => {
+      const colEl = document.createElement('div');
+      colEl.className = 'flex flex-col gap-1';
+      col.forEach((cell) => {
+        const el = document.createElement('div');
+        el.className = 'w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-sm';
+        el.style.backgroundColor = colorForMinutes(cell.minutes);
+        el.title = `${cell.iso}: ${cell.minutes || 0} phút`;
+        colEl.appendChild(el);
+      });
+      grid.appendChild(colEl);
+    });
+  }
+
+  loadHeatmap();
+})();
+</script>

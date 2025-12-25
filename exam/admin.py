@@ -13,8 +13,6 @@ class ExamBookAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "level", "category", "total_lessons", "is_active")
     list_filter = ("level", "category", "is_active")
     search_fields = ("title", "description")
-    prepopulated_fields = {"slug": ("title",)}
-
 
 class ExamQuestionInline(admin.TabularInline):
     model = ExamQuestion
@@ -51,7 +49,6 @@ class ExamTemplateAdmin(admin.ModelAdmin):
         "is_active",
     )
     search_fields = ("title", "subtitle", "description")
-    prepopulated_fields = {"slug": ("title",)}
     inlines = [ExamQuestionInline]
 
 
@@ -76,7 +73,6 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         "mondai",
     )
     search_fields = ("text",)
-    filter_horizontal = ("vocab_items",)
 
     def short_text(self, obj):
         return (obj.text or "")[:60]

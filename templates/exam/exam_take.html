@@ -1,83 +1,710 @@
+{# exam_take.html #}
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}{{ template_obj.title }} | DailyFluent{% endblock %}
-{% block main_classes %}max-w-4xl mx-auto px-4 py-6 sm:py-10{% endblock %}
+{% block main_classes %}w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 lg:py-6{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
-  <div>
-    <p class="text-xs uppercase tracking-wide text-slate-500">Mã đề thi</p>
-    <h1 class="text-2xl font-bold text-slate-900">
-      {{ template_obj.title }}
-    </h1>
+<div class="space-y-4">
 
-    {% if template_obj.subtitle %}
-      <p class="text-sm text-slate-700">{{ template_obj.subtitle }}</p>
-    {% endif %}
-    {% if template_obj.book %}
-      <p class="text-xs text-slate-500 mt-1">
-        Thuộc sách: {{ template_obj.book.title }}
-      </p>
-    {% endif %}
+  {# ===== HEADER TRANG THI ===== #}
+  <div class="flex items-center justify-between gap-4 pb-3 border-b border-slate-200">
+    <div class="min-w-0">
+      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 truncate">
+        {% if template_obj.subtitle %}
+          {{ template_obj.subtitle }}
+        {% else %}
+          {{ template_obj.title }}
+        {% endif %}
+      </h1>
+    </div>
 
-    <p class="text-sm text-slate-600 mt-2">
-      JLPT {{ template_obj.level }} ・ {{ questions|length }} câu
-      {% if template_obj.time_limit_minutes %}
-        ・ {{ template_obj.time_limit_minutes }} phút
-      {% else %}
-        ・ Không giới hạn thời gian
-      {% endif %}
-    </p>
+    <div class="flex items-center gap-2">
+      <button type="button"
+              onclick="window.history.back()"
+              class="inline-flex items-center justify-center px-3 py-1.5 text-xs sm:text-sm rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50">
+        Thoát
+      </button>
+    </div>
   </div>
-  <div class="text-right text-xs text-slate-500">
-    <p>Bắt đầu lúc</p>
-    <p class="font-mono">{{ session.started_at|date:"H:i" }}</p>
+
+  {# ===== MAIN GRID: Trái là đề, phải là sidebar ===== #}
+  <div class="mt-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-8">
+
+    {# ==== CỘT TRÁI: FORM CÂU HỎI ==== #}
+    <div>
+      <form id="exam-form" method="post" class="space-y-10 exam-content">
+        {% csrf_token %}
+
+        {# mondai_groups được build sẵn trong view #}
+        {% for group in mondai_groups %}
+          <section class="mondai-section {% if group.is_dokkai %}mondai-dokkai{% else %}pb-10 border-b border-slate-200 last:border-b-0 last:pb-0{% endif %}">
+            <div class="flex items-baseline justify-between mb-4">
+              <h2 class="text-lg font-semibold text-slate-900 tracking-[0.08em]">
+                {% if group.mondai %}
+                  Mondai {{ group.mondai }}
+                {% else %}
+                  Câu hỏi
+                {% endif %}
+              </h2>
+              {% if group.is_dokkai %}
+                <span class="text-xs font-medium tracking-wide text-slate-500 uppercase">
+                  読解・内容理解
+                </span>
+              {% endif %}
+            </div>
+
+            {# ============ DOKKAI (CÓ PASSAGE) ============ #}
+            {% if group.is_dokkai %}
+              <div class="space-y-8">
+                {% for pg in group.passage_groups %}
+                  <div class="space-y-4">
+                    {% with pdata=pg.passage.data %}
+                      {% if pdata.instruction %}
+                        <p class="text-sm text-slate-700 mb-2 jp-body">
+                          {{ pdata.instruction|safe }}
+                        </p>
+                      {% endif %}
+
+                      {% if pdata.layout == "mail" %}
+                        <p class="jp-body jp-passage mb-2">
+                          {{ pg.passage.text|safe }}
+                        </p>
+
+                        <div class="mail-block jp-body border border-slate-400 rounded-md bg-white px-5 py-4 text-[14px]">
+                          {{ pdata.mail_html|safe }}
+                        </div>
+                      {% else %}
+                        <div class="jp-body passage-text jp-passage">
+                          {{ pg.passage.text|safe }}
+                        </div>
+                      {% endif %}
+
+                      {% if pdata.notes_html %}
+                        <div class="jp-notes mt-2 text-xs text-slate-600">
+                          {{ pdata.notes_html|safe }}
+                        </div>
+                      {% endif %}
+
+                      {% if pdata.footer_html %}
+                        <p class="mt-2 text-xs text-slate-500 text-right">
+                          {{ pdata.footer_html|safe }}
+                        </p>
+                      {% endif %}
+                    {% endwith %}
+
+                    <div class="space-y-6 pt-1">
+                      {% for q in pg.questions %}
+                        <div class="exam-question-block"
+                             data-question-id="{{ q.id }}"
+                             data-question-order="{{ q.order }}">
+                          <p class="flex items-start gap-3 text-slate-900 font-medium jp-body mb-3">
+                            <span class="question-number-badge">
+                              {{ q.order }}
+                            </span>
+                            <span>{{ q.text|safe }}</span>
+                          </p>
+
+                          <div class="choices-block">
+                            {% for opt in q.mcq_choices %}
+                              <label class="choice-label">
+                                <input type="radio"
+                                       name="q{{ q.id }}"
+                                       value="{{ opt.key }}"
+                                       class="choice-input">
+                                <span class="choice-content jp-choice">
+                                  <span class="choice-key">{{ opt.key }}.</span>
+                                  <span class="choice-text">{{ opt.text|safe }}</span>
+                                </span>
+                              </label>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+
+                {# Câu không có passage (hiếm) #}
+                {% for q in group.non_passage_questions %}
+                  <div class="space-y-3 pt-2 exam-question-block"
+                       data-question-id="{{ q.id }}"
+                       data-question-order="{{ q.order }}">
+                    <p class="flex items-start gap-3 text-slate-900 jp-body font-medium mb-3">
+                      <span class="question-number-badge">
+                        {{ q.order }}
+                      </span>
+                      <span>{{ q.text|linebreaksbr }}</span>
+                    </p>
+
+                    <div class="choices-block">
+                      {% for opt in q.mcq_choices %}
+                        <label class="choice-label">
+                          <input type="radio"
+                                 name="q{{ q.id }}"
+                                 value="{{ opt.key }}"
+                                 class="choice-input">
+                          <span class="choice-content jp-choice">
+                            <span class="choice-key">{{ opt.key }}.</span>
+                            <span class="choice-text">{{ opt.text }}</span>
+                          </span>
+                        </label>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+            {# ============ THƯỜNG (MOJI / GOI / BUNPOU / CHOUKAI) ============ #}
+            {% else %}
+              {# === CHOUKAI === #}
+              {% if template_obj.category == "CHOUKAI" %}
+                <div class="space-y-6">
+                  {% for q in group.non_passage_questions %}
+                    <div class="exam-question-block"
+                         data-question-id="{{ q.id }}"
+                         data-question-order="{{ q.order }}">
+                      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-2 text-sm text-slate-600">
+                          <span class="question-number-badge">
+                            {{ q.order }}
+                          </span>
+                          <span class="text-sm tracking-[0.18em]">
+                            番
+                          </span>
+                        </div>
+
+                        {% if q.audio %}
+                          {% include "components/audio_player.html" with audio_url=q.audio.url %}
+                        {% endif %}
+                      </div>
+
+                      {% if q.text %}
+                        <p class="jp-body text-slate-900 mb-3">
+                          {{ q.text|safe }}
+                        </p>
+                      {% endif %}
+
+                      <div class="choices-block">
+                        {% for opt in q.mcq_choices %}
+                          <label class="choice-label">
+                            <input type="radio"
+                                   name="q{{ q.id }}"
+                                   value="{{ opt.key }}"
+                                   class="choice-input">
+                            <span class="choice-content jp-choice">
+                              <span class="choice-key">{{ opt.key }}.</span>
+                              <span class="choice-text">{{ opt.text|safe }}</span>
+                            </span>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+
+              {# === MOJI / GOI / BUNPOU === #}
+              {% else %}
+                <div class="space-y-6">
+                  {% for q in group.non_passage_questions %}
+                    <div class="exam-question-block"
+                         data-question-id="{{ q.id }}"
+                         data-question-order="{{ q.order }}">
+                      <p class="flex items-start gap-3 text-slate-900 mb-4 leading-relaxed font-medium">
+                        <span class="question-number-badge">
+                          {{ q.order }}
+                        </span>
+                        <span>{{ q.text|linebreaksbr }}</span>
+                      </p>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% for opt in q.mcq_choices %}
+                          <label class="choice-label">
+                            <input type="radio"
+                                   name="q{{ q.id }}"
+                                   value="{{ opt.key }}"
+                                   class="choice-input">
+                            <span class="choice-content">
+                              <span class="choice-key">{{ forloop.counter }}.</span>
+                              <span class="choice-text">{{ opt.text }}</span>
+                            </span>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endif %}
+
+          </section>
+        {% endfor %}
+
+        <div class="pt-6 border-t border-slate-200 mt-4">
+          <button type="submit"
+                  name="action"
+                  value="submit_exam"
+                  class="inline-flex items-center gap-2 px-8 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Nộp bài
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {# ==== CỘT PHẢI: SIDEBAR (Thời gian + tổng quan câu) ==== #}
+    <aside class="mt-6 lg:mt-0">
+      <div class="sticky top-24 space-y-4">
+
+        {# Timer với progress ring #}
+        <div id="exam-timer"
+             data-start="{{ session.started_at|date:'c' }}"
+             data-limit-minutes="{{ template_obj.time_limit_minutes|default_if_none:'' }}"
+             class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            Thời gian làm bài
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="relative w-14 h-14 flex-shrink-0">
+              <svg viewBox="0 0 36 36" class="w-full h-full">
+                <circle class="timer-ring-bg" cx="18" cy="18" r="16" />
+                <circle id="exam-timer-ring"
+                        class="timer-ring-progress"
+                        cx="18" cy="18" r="16" />
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span id="exam-timer-text"
+                      class="text-sm font-mono font-semibold text-slate-900">
+                  --:--
+                </span>
+              </div>
+            </div>
+
+            <div class="flex-1 text-[11px] text-slate-500 space-y-0.5">
+              {% if template_obj.time_limit_minutes %}
+                <p>Giới hạn: <span class="font-semibold text-slate-700">{{ template_obj.time_limit_minutes }} phút</span></p>
+              {% else %}
+                <p>Không giới hạn thời gian cho bài thi này.</p>
+              {% endif %}
+              <p>Thời gian được tính từ khi bạn mở bài thi.</p>
+            </div>
+          </div>
+
+          <button type="submit"
+                  form="exam-form"
+                  name="action"
+                  value="submit_exam"
+                  class="mt-3 w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-[var(--df-primary)] text-white text-sm font-semibold hover:brightness-110">
+            Nộp bài
+          </button>
+        </div>
+
+        {# Tổng quan câu hỏi + mini navigator #}
+        <div id="sidebar-question-overview"
+             data-total-questions="{{ questions|length }}"
+             class="bg-white border border-slate-200 rounded-xl p-3 space-y-3 hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-600">Tổng quan câu hỏi</span>
+            <span class="text-[11px] text-slate-500">
+              <span id="sidebar-answered-count">0</span> / {{ questions|length }} câu
+            </span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div id="sidebar-answered-bar"
+                 class="h-full w-0 bg-[var(--df-primary)] transition-all"></div>
+          </div>
+          <p class="mt-1 text-[11px] text-slate-500">
+            Bấm vào số câu để chuyển nhanh tới câu đó.
+          </p>
+          <div id="mini-question-nav"
+               class="mini-nav-grid flex flex-wrap gap-2 mt-1"
+               data-nav-list></div>
+        </div>
+
+      </div>
+    </aside>
   </div>
 </div>
 
-<form method="post" class="space-y-8">
-  {% csrf_token %}
+<style>
+  /* ========= EXAM LAYOUT ========= */
+  .exam-content {
+    font-size: 16px;
+    line-height: 1.8;
+  }
 
-  {# group theo mondai nếu có #}
-  {% regroup questions by mondai as grouped_questions %}
+  .mondai-section {
+    margin-bottom: 2.5rem;
+  }
+  .mondai-section:last-of-type {
+    margin-bottom: 0;
+  }
+  .mondai-dokkai {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+    padding: 1.75rem 1.75rem 2rem;
+  }
 
-  {% for group in grouped_questions %}
-  <section class="border border-slate-200 rounded-2xl p-4 sm:p-6">
-    <h2 class="text-sm font-semibold text-slate-700 mb-3">
-      {% if group.grouper %}Mondai {{ group.grouper }}{% else %}Phần{% endif %}
-    </h2>
+  /* ========= QUESTION CARD ========= */
+  .exam-question-block {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+    padding: 1rem 1.1rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  }
+  .exam-question-block + .exam-question-block {
+    margin-top: 1rem;
+  }
 
-    <div class="space-y-4">
-      {% for q in group.list %}
-      <div class="border border-slate-100 rounded-xl p-3 sm:p-4">
-        <p class="text-sm font-medium text-slate-900 mb-2">
-          Câu {{ forloop.counter }}. {{ q.text|linebreaksbr }}
-        </p>
+  .question-number-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 9999px;
+    background-color: var(--df-primary-soft);
+    color: var(--df-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
 
-        <div class="grid gap-2">
-          {% for opt in q.mcq_choices %}
-          <label class="flex items-start gap-2 text-sm text-slate-800 cursor-pointer">
-            <input type="radio"
-                   name="q{{ q.id }}"
-                   value="{{ opt.key }}"
-                   class="mt-1">
-            <span>
-              <span class="font-semibold mr-1">{{ forloop.counter }}.</span>
-              {{ opt.text }}
-            </span>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endfor %}
+  /* ========= JAPANESE TEXT ========= */
+  .jp-body {
+    line-height: 2.0;
+    letter-spacing: 0.04em;
+  }
 
-  <div class="flex justify-end pt-2">
-    <button type="submit"
-      class="inline-flex items-center px-6 py-2.5 rounded-full bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500">
-      Nộp bài
-    </button>
-  </div>
-</form>
+  .jp-passage {
+    font-size: 17px;
+    line-height: 2.0;
+    letter-spacing: 0.04em;
+    max-width: none;
+    margin-inline: auto;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+    white-space: pre-line;
+  }
+  @media (min-width: 640px) {
+    .jp-passage { font-size: 18px; }
+  }
+  @media (min-width: 768px) {
+    .jp-passage { font-size: 19px; }
+  }
+
+  .passage-text {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .jp-notes {
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+    padding-left: 1.5rem;
+  }
+
+  /* ========= CHOICES ========= */
+  .choices-block > * + * {
+    margin-top: 0.35rem;
+  }
+
+  .choice-label {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226, 232, 240);
+    background-color: #ffffff;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      transform 80ms ease;
+  }
+
+  .choice-label:hover,
+  .choice-label:focus-within {
+    background-color: rgb(248, 250, 252);
+    border-color: rgb(203, 213, 225);
+  }
+
+  .choice-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .choice-content {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.15rem;
+  }
+
+  .choice-key {
+    font-weight: 600;
+    margin-right: 0.25rem;
+    color: rgb(51, 65, 85);
+  }
+
+  .choice-text {
+    color: rgb(71, 85, 105);
+  }
+
+  .choice-label:has(.choice-input:checked) {
+    background-color: var(--df-primary-soft);
+    border-color: var(--df-primary);
+    box-shadow:
+      0 0 0 1px rgba(0, 113, 249, 0.15),
+      0 6px 18px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .choice-label:has(.choice-input:checked) .choice-key {
+    color: var(--df-primary);
+  }
+
+  .choice-label:has(.choice-input:checked) .choice-text {
+    color: rgb(15, 23, 42);
+  }
+
+  /* ========= FURIGANA ========= */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 0.7em;
+    color: rgb(100 116 139);
+  }
+
+  /* ========= MAIL BLOCK ========= */
+  .mail-block {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui,
+      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 2.0;
+    letter-spacing: 0.04em;
+  }
+  .mail-block hr {
+    border: 0;
+    border-top: 1px solid rgb(148 163 184);
+    margin-top: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* ========= TIMER RING ========= */
+  .timer-ring-bg {
+    fill: none;
+    stroke: #e5e7eb;
+    stroke-width: 3.5;
+  }
+
+  .timer-ring-progress {
+    fill: none;
+    stroke: var(--df-primary);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.3s linear;
+  }
+
+  /* ========= MINI QUESTION NAV ========= */
+  .mini-nav-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(226, 232, 240);
+    background-color: rgb(241, 245, 249);
+    font-size: 0.75rem;
+    color: rgb(100, 116, 139);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease,
+      box-shadow 120ms ease,
+      transform 80ms ease;
+  }
+
+  .mini-nav-btn:hover {
+    background-color: rgb(226, 232, 240);
+    border-color: rgb(203, 213, 225);
+  }
+
+  .mini-nav-btn-answered {
+    background-color: var(--df-primary);
+    border-color: var(--df-primary);
+    color: #ffffff;
+  }
+
+  .mini-nav-btn-active {
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.25);
+    transform: translateY(-1px);
+  }
+
+  .mini-nav-btn-review {
+    background-color: #fef3c7;
+    border-color: #facc15;
+    color: #92400e;
+  }
+</style>
+
+<script>
+(function () {
+  /* ===== TIMER + PROGRESS RING ===== */
+  const timerRoot = document.getElementById('exam-timer');
+  const timerText = document.getElementById('exam-timer-text');
+  const timerRing = document.getElementById('exam-timer-ring');
+  const FULL_DASH = 100;
+
+  if (timerRoot && timerText) {
+    const startStr = timerRoot.dataset.start;
+    const limitStr = timerRoot.dataset.limitMinutes;
+    const start = startStr ? new Date(startStr) : null;
+    const limitMinutes = limitStr ? parseInt(limitStr, 10) : null;
+    const totalMs = limitMinutes ? limitMinutes * 60 * 1000 : null;
+
+    function format(ms) {
+      ms = Math.max(ms, 0);
+      const totalSeconds = Math.floor(ms / 1000);
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      if (h > 0) {
+        const hh = String(h).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+      }
+      return `${mm}:${ss}`;
+    }
+
+    function tick() {
+      const now = new Date();
+
+      if (start && !isNaN(start.getTime()) && totalMs) {
+        const end = new Date(start.getTime() + totalMs);
+        const diff = end - now;
+        timerText.textContent = format(diff);
+
+        const ratio = Math.max(0, Math.min(1, diff / totalMs));
+        if (timerRing) {
+          const offset = (1 - ratio) * FULL_DASH;
+          timerRing.style.strokeDashoffset = String(offset);
+        }
+
+        if (diff <= 0) {
+          timerRoot.classList.add('border-rose-500');
+        }
+      } else {
+        timerText.textContent = now.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        if (timerRing) {
+          timerRing.style.strokeDashoffset = '0';
+        }
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ===== MINI QUESTION NAVIGATOR ===== */
+  const questionBlocks = Array.from(document.querySelectorAll('.exam-question-block'));
+  const overview = document.getElementById('sidebar-question-overview');
+
+  if (!overview || questionBlocks.length <= 1) {
+    return; // không cần nếu chỉ có 0–1 câu
+  }
+
+  const list = overview.querySelector('[data-nav-list]');
+  const answeredCountEl = document.getElementById('sidebar-answered-count');
+  const answeredBar = document.getElementById('sidebar-answered-bar');
+  const total = parseInt(overview.dataset.totalQuestions || questionBlocks.length, 10) || questionBlocks.length;
+
+  // Tạo nút cho từng câu
+  questionBlocks.forEach(function (block, index) {
+    const order = block.dataset.questionOrder || (index + 1).toString();
+    const id = block.dataset.questionId || (index + 1).toString();
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = order;
+    btn.className = 'mini-nav-btn';
+    btn.dataset.targetQuestionId = id;
+    list.appendChild(btn);
+  });
+
+  const buttons = Array.from(list.querySelectorAll('button[data-target-question-id]'));
+
+  function updateAnsweredState() {
+    let answered = 0;
+
+    buttons.forEach(function (btn) {
+      const qid = btn.dataset.targetQuestionId;
+      const inputs = document.querySelectorAll('input[name="q' + qid + '"]');
+      let hasAnswer = false;
+      inputs.forEach(function (input) {
+        if (input.checked) hasAnswer = true;
+      });
+
+      btn.classList.toggle('mini-nav-btn-answered', hasAnswer);
+      if (hasAnswer) answered += 1;
+    });
+
+    if (answeredCountEl) {
+      answeredCountEl.textContent = String(answered);
+    }
+    if (answeredBar) {
+      const ratio = total > 0 ? Math.min(answered / total, 1) : 0;
+      answeredBar.style.width = (ratio * 100).toFixed(0) + '%';
+    }
+  }
+
+  function scrollToQuestion(id) {
+    const block = document.querySelector('.exam-question-block[data-question-id="' + id + '"]');
+    if (!block) return;
+    block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  list.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-target-question-id]');
+    if (!btn) return;
+
+    const id = btn.dataset.targetQuestionId;
+    scrollToQuestion(id);
+
+    buttons.forEach(function (b) {
+      b.classList.remove('mini-nav-btn-active');
+    });
+    btn.classList.add('mini-nav-btn-active');
+  });
+
+  document.addEventListener('change', function (e) {
+    if (e.target.matches('input[type="radio"]')) {
+      updateAnsweredState();
+    }
+  });
+
+  // Khởi tạo
+  updateAnsweredState();
+  overview.classList.remove('hidden');
+})();
+</script>
 {% endblock %}

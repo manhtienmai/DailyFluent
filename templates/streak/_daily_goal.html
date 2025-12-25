@@ -1,0 +1,58 @@
+<div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4 space-y-3">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Mục tiêu ngày</p>
+      <p class="text-sm text-slate-700">Học tối thiểu <span class="font-semibold">10 phút</span> flashcard</p>
+    </div>
+    <div id="goal-badge" class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600">Đang cập nhật...</div>
+  </div>
+
+  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+    <div id="goal-progress" class="h-full bg-emerald-500 transition-all duration-500" style="width:0%"></div>
+  </div>
+  <div class="flex items-center justify-between text-xs text-slate-500">
+    <span id="goal-label">0 / 10 phút</span>
+    <span id="goal-status">Chưa đạt</span>
+  </div>
+
+  <div class="text-[11px] text-slate-500">
+    <span id="goal-cards">Hôm nay: 0 thẻ (mới: 0, ôn: 0)</span>
+  </div>
+</div>
+
+<script>
+(() => {
+  async function fetchGoal() {
+    const resp = await fetch("{% url 'streak:status_api' %}", { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const goal = data.goal_minutes || 10;
+    const done = data.minutes_today || 0;
+    const pct = Math.min(100, Math.round((done / goal) * 100));
+
+    document.getElementById('goal-progress').style.width = pct + '%';
+    document.getElementById('goal-label').textContent = `${done} / ${goal} phút`;
+    const statusEl = document.getElementById('goal-status');
+    const badge = document.getElementById('goal-badge');
+    if (done >= goal) {
+      statusEl.textContent = 'Hoàn thành';
+      badge.textContent = 'Đã đạt';
+      badge.className = 'text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-700';
+    } else {
+      statusEl.textContent = 'Chưa đạt';
+      badge.textContent = 'Đang học';
+      badge.className = 'text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-700';
+    }
+
+    const cards = data.cards_today || 0;
+    const newCards = data.new_cards_today || 0;
+    const reviews = data.reviews_today || 0;
+    const cardsEl = document.getElementById('goal-cards');
+    if (cardsEl) cardsEl.textContent = `Hôm nay: ${cards} thẻ (mới: ${newCards}, ôn: ${reviews})`;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) fetchGoal();
+  });
+  fetchGoal();
+})();
+</script>

@@ -1,0 +1,460 @@
+{
+  "book": {
+    "slug": "power-drill-mojigoi-n2",
+    "title": "Power Drill Mojigoi N2",
+    "level": "N2",
+    "category": "MOJI",
+    "total_lessons": 30,
+    "description": "Power Drill Mojigoi N2 – sách luyện Kanji / Từ vựng JLPT N2.",
+    "is_active": true
+  },
+
+  "days": [
+    {
+      "day": 1,
+      "slug": "power-mojigoi-n2-day-01",
+      "title": "DAY 01 – Kanji & Từ vựng",
+      "subtitle": "Day 01 – Kanji đọc + từ vựng",
+      "group_type": "DAY",
+      "lesson_index": 1,
+      "time_limit_minutes": 25,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "questions": [
+        {
+          "order": 1,
+          "mondai": "01",
+          "order_in_mondai": 1,
+          "text": "私は遠くから彼女が働く（姿）をみていた。",
+          "choices": ["すかた", "すがた", "すはた", "すはだ"],
+          "correct_key": "2",
+          "explanation_vi": "私は遠くから彼女が働く（姿）をみていた。\n\nTừ xa tôi đã thấy bóng dáng cô ấy làm việc.\n\n姿（すがた）: hình dáng, dáng vẻ."
+        },
+        {
+          "order": 2,
+          "mondai": "01",
+          "order_in_mondai": 2,
+          "text": "スポーツをする時は、ときどき水分を（補った）ほうがいい。",
+          "choices": ["とった", "あたった", "たもった", "おぎなった"],
+          "correct_key": "4",
+          "explanation_vi": "スポーツをする時は、ときどき水分を（補った）ほうがいい。\n\nKhi chơi thể thao, thỉnh thoảng nên bổ sung nước.\n\n補う（おぎなう）: bổ sung, bù đắp."
+        },
+        {
+          "order": 3,
+          "mondai": "01",
+          "order_in_mondai": 3,
+          "text": "３人に一人の（割合）で、その試験に合格している。",
+          "choices": ["かつあい", "かっこう", "わりあい", "わりごう"],
+          "correct_key": "3",
+          "explanation_vi": "３人に一人の（割合）で、その試験に合格している。\n\nĐậu kỳ thi đó với tỉ lệ trong 3 người có 1 người đỗ.\n\n割合（わりあい）: tỷ lệ."
+        },
+        {
+          "order": 4,
+          "mondai": "02",
+          "order_in_mondai": 1,
+          "text": "では、明日の３時にそちらに（うかがいます）。",
+          "choices": ["司います", "何います", "伺います", "荷いて"],
+          "correct_key": "3",
+          "explanation_vi": "では、明日の３時にそちらに（うかがいます）。\n\nVậy thì, tôi sẽ ghé qua vào lúc 3 giờ chiều mai.\n\n伺います（うかがいます）: khiêm nhường ngữ của 行きます／聞きます."
+        },
+        {
+          "order": 5,
+          "mondai": "02",
+          "order_in_mondai": 2,
+          "text": "最近は（れいぎ）を知らない人が多いように思う。",
+          "choices": ["礼義", "礼儀", "礼議", "礼偽"],
+          "correct_key": "2",
+          "explanation_vi": "最近は（れいぎ）を知らない人が多いように思う。\n\nGần đây, tôi cảm thấy có nhiều người không biết lễ nghi.\n\n礼儀（れいぎ）: lễ nghi, phép lịch sự."
+        },
+        {
+          "order": 6,
+          "mondai": "02",
+          "order_in_mondai": 3,
+          "text": "（しゅうい）に迷惑がかからないように、静かに話してください。",
+          "choices": ["周固", "周囲", "週周", "週囲"],
+          "correct_key": "2",
+          "explanation_vi": "（しゅうい）に迷惑がかからないように、静かに話してください。\n\nHãy nói chuyện nhỏ nhẹ để không làm phiền người xung quanh.\n\n周囲（しゅうい）: xung quanh, vùng lân cận."
+        },
+        {
+          "order": 7,
+          "mondai": "03",
+          "order_in_mondai": 1,
+          "text": "この計画が失敗したのは、リーダーである私の（　　）です。",
+          "choices": ["義務", "成果", "責任", "任務"],
+          "correct_key": "3",
+          "explanation_vi": "この計画が失敗したのは、リーダーである私の（責任）です。\n\nViệc kế hoạch này thất bại là trách nhiệm của tôi.\n\n責任（せきにん）: trách nhiệm."
+        },
+        {
+          "order": 8,
+          "mondai": "03",
+          "order_in_mondai": 2,
+          "text": "いくら忙しくても、（　　）日曜日くらいは休みたい。",
+          "choices": ["せめて", "やっと", "けっこう", "どうやら"],
+          "correct_key": "1",
+          "explanation_vi": "いくら忙しくても、（せめて）日曜日くらいは休みたい。\n\nDù bận đến mấy, tôi cũng muốn nghỉ ít nhất là vào ngày Chủ nhật.\n\nせめて: ít nhất."
+        },
+        {
+          "order": 9,
+          "mondai": "03",
+          "order_in_mondai": 3,
+          "text": "会議が始まるまで３０分以上あるから、新聞でも読んで時間を（　　）。",
+          "choices": ["もとう", "かけよう", "つぶそう", "とめとう"],
+          "correct_key": "3",
+          "explanation_vi": "会議が始まるまで３０分以上あるから、新聞でも読んで時間を（つぶそう）。\n\nCòn hơn 30 phút nữa mới bắt đầu cuộc họp, nên hãy đọc báo để giết thời gian.\n\n時間をつぶす: giết thời gian."
+        },
+        {
+          "order": 10,
+          "mondai": "03",
+          "order_in_mondai": 4,
+          "text": "明日、来週の旅行の（　　）をしましょう。",
+          "choices": ["見合い", "言い合い", "打ち合わせ", "待ち合わせ"],
+          "correct_key": "3",
+          "explanation_vi": "明日、来週の旅行の（打ち合わせ）をしましょう。\n\nNgày mai, chúng ta hãy họp để bàn về chuyến đi tuần sau.\n\n打ち合わせ（うちあわせ）: cuộc họp, bàn bạc."
+        },
+        {
+          "order": 11,
+          "mondai": "04",
+          "order_in_mondai": 1,
+          "text": "この問題を解くのに（　　）一日かかった。",
+          "choices": ["完", "全", "本", "丸"],
+          "correct_key": "4",
+          "explanation_vi": "この問題を解くのに（丸）一日かかった。\n\nTôi mất cả một ngày tròn để giải quyết vấn đề này.\n\n丸一日（まるいちにち）: cả một ngày."
+        },
+        {
+          "order": 12,
+          "mondai": "04",
+          "order_in_mondai": 2,
+          "text": "履歴（　　）にはかならず写真を貼ってください。",
+          "choices": ["紙", "書", "証", "状"],
+          "correct_key": "2",
+          "explanation_vi": "履歴（書）にはかならず写真を貼ってください。\n\nNhất định phải dán ảnh vào bản lý lịch.\n\n履歴書（りれきしょ）: sơ yếu lý lịch, CV."
+        },
+        {
+          "order": 13,
+          "mondai": "04",
+          "order_in_mondai": 3,
+          "text": "ボランティア活動に積極（　　）に参加している。",
+          "choices": ["気", "感", "性", "的"],
+          "correct_key": "4",
+          "explanation_vi": "ボランティア活動に積極（的）に参加している。\n\nTôi đang tích cực tham gia vào các hoạt động tình nguyện.\n\n積極的（せっきょくてき）: tích cực."
+        },
+        {
+          "order": 14,
+          "mondai": "05",
+          "order_in_mondai": 1,
+          "text": "この寒さだと（おそらく）明日は雪が降るだろう。",
+          "choices": ["たぶん", "絶対に", "次第に", "たしかに"],
+          "correct_key": "1",
+          "explanation_vi": "この寒さだと（おそらく）明日は雪が降るだろう。\n\nVới cái lạnh này, có lẽ ngày mai sẽ tuyết rơi.\n\nおそらく ≒ たぶん: có lẽ."
+        },
+        {
+          "order": 15,
+          "mondai": "05",
+          "order_in_mondai": 2,
+          "text": "（やむをえない）事情で大学をやめることになった。",
+          "choices": ["くやしい", "はずかしい", "しかたがない", "もったいない"],
+          "correct_key": "3",
+          "explanation_vi": "（やむをえない）事情で大学をやめることになった。\n\nTôi phải thôi đại học vì lý do không thể tránh khỏi.\n\nやむをえない ≒ しかたがない: không còn cách nào khác."
+        },
+        {
+          "order": 16,
+          "mondai": "05",
+          "order_in_mondai": 3,
+          "text": "デパートで小学校の同級生に（ばったり）会った。",
+          "choices": ["偶然", "自然に", "部合よく", "久しぶりに"],
+          "correct_key": "1",
+          "explanation_vi": "デパートで小学校の同級生に（ばったり）会った。\n\nTôi đã tình cờ gặp bạn học tiểu học ở trung tâm thương mại.\n\nばったり ≒ 偶然（ぐうぜん）: tình cờ, bất ngờ gặp."
+        },
+        {
+          "order": 17,
+          "mondai": "06",
+          "order_in_mondai": 1,
+          "text": "「等しい（ひとしい）」: bằng nhau, ngang nhau. Chọn câu dùng đúng.",
+          "choices": [
+            "この二つの三角形の面積は（等しい）。",
+            "私は毎日（等しい）道を通って通勤している。",
+            "チーム全員が（等しい）気持ちで試合に挑んだ。",
+            "私と彼は、小学校から高校まで学校が（等しい）。"
+          ],
+          "correct_key": "1",
+          "explanation_vi": "等しい（ひとしい）: bằng nhau, ngang nhau, như nhau.\n\n① この二つの三角形の面積は（等しい）。✔\n→ Diện tích của hai tam giác này bằng nhau.\n\nCác câu còn lại tự nhiên hơn với 同じ."
+        },
+        {
+          "order": 18,
+          "mondai": "06",
+          "order_in_mondai": 2,
+          "text": "「あいにく」: không may, thật đáng tiếc. Chọn câu dùng đúng.",
+          "choices": [
+            "（あいにく）なので、コーヒーでもいかがですか。",
+            "（あいにく）その日は予定があって参加できません。",
+            "（あいにく）の天気で、海に行くのにちょうどいいですね。",
+            "（あいにく）部長は席におりますので、少々お待ちください。"
+          ],
+          "correct_key": "2",
+          "explanation_vi": "あいにく【生憎】: không may, thật đáng tiếc.\n\n② （あいにく）その日は予定があって参加できません。✔\n→ Thật tiếc là hôm đó tôi có lịch nên không tham gia được."
+        }
+      ]
+    },
+
+    {
+      "day": 2,
+      "slug": "power-mojigoi-n2-day-02",
+      "title": "DAY 02 – Kanji & Từ vựng",
+      "subtitle": "Day 02 – Kanji & Từ vựng",
+      "group_type": "DAY",
+      "lesson_index": 2,
+      "time_limit_minutes": 25,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "questions": [
+        {
+          "order": 1,
+          "mondai": "01",
+          "order_in_mondai": 1,
+          "text": "台風が関東地方に（接近）しているそうだ。",
+          "choices": ["せきん", "せいきん", "せつきん", "せっきん"],
+          "correct_key": "4",
+          "explanation_vi": "台風が関東地方に（接近）しているそうだ。\n\nNghe nói bão đang tiến gần đến khu vực Kanto.\n\n接近（せっきん）: tiếp cận, lại gần."
+        },
+        {
+          "order": 2,
+          "mondai": "01",
+          "order_in_mondai": 2,
+          "text": "それでは、来月の（中旬）にまたご連絡します。",
+          "choices": ["なかば", "なかごろ", "ちゅうかん", "ちゅうじゅん"],
+          "correct_key": "4",
+          "explanation_vi": "それでは、来月の（中旬）にまたご連絡します。\n\nVậy thì, tôi sẽ liên lạc lại với bạn vào giữa tháng sau.\n\n中旬（ちゅうじゅん）: trung tuần, giữa tháng."
+        },
+        {
+          "order": 3,
+          "mondai": "01",
+          "order_in_mondai": 3,
+          "text": "病気やけがに（備えて）、保健に入っておいたほうがいい。",
+          "choices": ["ささえて", "そなえて", "そろえて", "ひかえて"],
+          "correct_key": "2",
+          "explanation_vi": "病気やけがに（備えて）、保健に入っておいたほうがいい。\n\nĐể phòng bệnh hoặc chấn thương, tốt hơn bạn nên tham gia bảo hiểm.\n\n備える（そなえる）: chuẩn bị, phòng bị."
+        },
+        {
+          "order": 4,
+          "mondai": "02",
+          "order_in_mondai": 1,
+          "text": "すみません、この（あたり）に銀行はありませんか。",
+          "choices": ["当たり", "周り", "辺り", "返り"],
+          "correct_key": "3",
+          "explanation_vi": "すみません、この（あたり）に銀行はありませんか。\n\nXin lỗi, có ngân hàng nào ở khu vực này không?\n\n辺り（あたり）: vùng, khu vực xung quanh."
+        },
+        {
+          "order": 5,
+          "mondai": "02",
+          "order_in_mondai": 2,
+          "text": "家族のため、父は（けんめい）に働いた。",
+          "choices": ["賢名", "賢命", "懸名", "懸命"],
+          "correct_key": "4",
+          "explanation_vi": "家族のため、父は（けんめい）に働いた。\n\nVì gia đình, cha tôi đã làm việc rất chăm chỉ.\n\n懸命（けんめい）: cố gắng hết sức."
+        },
+        {
+          "order": 6,
+          "mondai": "02",
+          "order_in_mondai": 3,
+          "text": "その町のチームが勝って、観客はとても（よろこん）でいた。",
+          "choices": ["喜で", "喜んで", "喜こんで", "喜ろこんで"],
+          "correct_key": "2",
+          "explanation_vi": "その町のチームが勝って、観客はとても（よろこん）でいた。\n\nĐội của thị trấn đó đã thắng và khán giả rất vui mừng.\n\n喜んで（よろこんで）: vui mừng, vui vẻ."
+        },
+        {
+          "order": 7,
+          "mondai": "03",
+          "order_in_mondai": 1,
+          "text": "１時間も遅れてきたのに謝らない友達に（　　）が立った。",
+          "choices": ["足", "心", "腹", "頭"],
+          "correct_key": "3",
+          "explanation_vi": "１時間も遅れてきたのに謝らない友達に（腹）が立った。\n\nTôi rất tức giận với bạn vì đến muộn một tiếng mà không xin lỗi.\n\n腹（はら）が立つ: tức giận."
+        },
+        {
+          "order": 8,
+          "mondai": "03",
+          "order_in_mondai": 2,
+          "text": "その話は本当だ。（　　）私はその事故を見たのだから。",
+          "choices": ["いまに", "げんに", "じつに", "まさに"],
+          "correct_key": "2",
+          "explanation_vi": "その話は本当だ。（げんに）私はその事故を見たのだから。\n\nCâu chuyện đó là sự thật. Thực tế là tôi đã chứng kiến vụ tai nạn đó.\n\nげんに: thực sự, thực tế là."
+        },
+        {
+          "order": 9,
+          "mondai": "03",
+          "order_in_mondai": 3,
+          "text": "（　　）を使ってみて、とてもよかったので、この洗剤を買うことにした。",
+          "choices": ["リスト", "カタログ", "サンプル", "パンフレット"],
+          "correct_key": "3",
+          "explanation_vi": "（サンプル）を使ってみて、とてもよかったので、この洗剤を買うことにした。\n\nSau khi thử mẫu, tôi thấy rất tốt nên quyết định mua loại bột giặt này.\n\nサンプル: mẫu, hàng mẫu."
+        },
+        {
+          "order": 10,
+          "mondai": "03",
+          "order_in_mondai": 4,
+          "text": "A：明日から北海道へ行ってきます。\nB：いいですね。（　　）、森さんも行くと言っていましたよ。",
+          "choices": ["そういえば", "そうすると", "それにしても", "それはそれは"],
+          "correct_key": "1",
+          "explanation_vi": "A：明日から北海道へ行ってきます。\nB：いいですね。（そういえば）、森さんも行くと言っていましたよ。\n\nA: Tôi sẽ đi Hokkaido từ ngày mai.\nB: Được đấy nhỉ. Nhân tiện, tôi nghe nói anh Mori cũng sẽ đi.\n\nそういえば: nói mới nhớ, nhân tiện nói."
+        },
+        {
+          "order": 11,
+          "mondai": "04",
+          "order_in_mondai": 1,
+          "text": "コンピューターが突然原因不明の（　　）作動を起こした。",
+          "choices": ["不", "違", "誤", "失"],
+          "correct_key": "3",
+          "explanation_vi": "コンピューターが突然原因不明の（誤）作動を起こした。\n\nMáy tính đột nhiên gặp sự cố hoạt động không rõ nguyên nhân.\n\n誤作動（ごさどう）: hoạt động sai, trục trặc."
+        },
+        {
+          "order": 12,
+          "mondai": "04",
+          "order_in_mondai": 2,
+          "text": "作曲（　　）になるため、音楽大学に進んだ。",
+          "choices": ["手", "者", "家", "師"],
+          "correct_key": "3",
+          "explanation_vi": "作曲（家）になるため、音楽大学に進んだ。\n\nĐể trở thành nhạc sĩ, tôi đã học lên đại học âm nhạc.\n\n作曲家（さっきょくか）: nhà soạn nhạc."
+        },
+        {
+          "order": 13,
+          "mondai": "04",
+          "order_in_mondai": 3,
+          "text": "彼ははじめから責任（　　）が強い。",
+          "choices": ["観", "感", "心", "性"],
+          "correct_key": "2",
+          "explanation_vi": "彼ははじめから責任（感）が強い。\n\nAnh ấy ngay từ đầu đã có ý thức trách nhiệm rất mạnh.\n\n責任感（せきにんかん）: cảm giác trách nhiệm."
+        },
+        {
+          "order": 14,
+          "mondai": "05",
+          "order_in_mondai": 1,
+          "text": "そのニュースは（たちまち）世界中に広まった。",
+          "choices": ["すぐに", "ついに", "だんだん", "ようやく"],
+          "correct_key": "1",
+          "explanation_vi": "そのニュースは（たちまち）世界中に広まった。\n\nTin tức đó đã nhanh chóng lan ra khắp thế giới.\n\nたちまち ≒ すぐに: ngay lập tức."
+        },
+        {
+          "order": 15,
+          "mondai": "05",
+          "order_in_mondai": 2,
+          "text": "彼はノートに（せっせと）何かを書いていた。",
+          "choices": ["速く", "熱心に", "上手に", "楽しそうに"],
+          "correct_key": "2",
+          "explanation_vi": "彼はノートに（せっせと）何かを書いていた。\n\nAnh ấy đã chăm chỉ viết gì đó vào sổ tay.\n\nせっせと ≒ 熱心に: siêng năng, chăm chỉ."
+        },
+        {
+          "order": 16,
+          "mondai": "05",
+          "order_in_mondai": 3,
+          "text": "課長は今（ミーティング）中で、ここにはおりません。",
+          "choices": ["会議", "出張", "研修", "休暇"],
+          "correct_key": "1",
+          "explanation_vi": "課長は今（ミーティング）中で、ここにはおりません。\n\nTrưởng phòng đang trong cuộc họp và không ở đây lúc này.\n\nミーティング: cuộc họp. 会議（かいぎ）: cuộc họp, hội nghị."
+        },
+        {
+          "order": 17,
+          "mondai": "06",
+          "order_in_mondai": 1,
+          "text": "わざと: Chọn câu dùng đúng.",
+          "choices": [
+            "その選手はお金のために、（わざと）試合に負けた。",
+            "お忙しいところ、（わざと）来てくださってありがとうございます。",
+            "この着物は、結婚式のために（わざと）作ってもらった特別なものだ。",
+            "母は、１０円でも安かったら遠くのスーパーまで（わざと）買いに行く。"
+          ],
+          "correct_key": "1",
+          "explanation_vi": "わざと（態と）: cố ý, cố tình.\n\n① その選手はお金のために、（わざと）試合に負けた。✔\n→ Tuyển thủ đó cố tình thua trận vì tiền."
+        },
+        {
+          "order": 18,
+          "mondai": "06",
+          "order_in_mondai": 2,
+          "text": "引き返す: Chọn câu dùng đúng.",
+          "choices": [
+            "借りたCDを友達に（引き返し）た。",
+            "肉が焼けてきたら、（引き返して）裏も焼いてください。",
+            "使った道具は、すぐに元の場所に（引き返し）てください。",
+            "忘れ物をしたので、急いで家に（引き返し）た。"
+          ],
+          "correct_key": "4",
+          "explanation_vi": "引き返す（ひきかえす）: quay trở lại nơi ban đầu.\n\n④ 忘れ物をしたので、急いで家に（引き返し）た。✔\n→ Tôi đã để quên đồ nên vội vã quay về nhà."
+        }
+      ]
+    }
+  ],
+
+  "patterns": [
+    {
+      "key": "M01",
+      "slug": "power-mojigoi-n2-m01-kanji-yomi",
+      "title": "N2 Mojigoi – Kanji: Cách đọc (Mondai 01)",
+      "subtitle": "Kanji: Cách đọc",
+      "group_type": "PATTERN",
+      "lesson_index": 1,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["01"]
+    },
+    {
+      "key": "M02",
+      "slug": "power-mojigoi-n2-m02-kanji-select",
+      "title": "N2 Mojigoi – Kanji: Chọn kanji đúng (Mondai 02)",
+      "subtitle": "Kanji: Chọn chữ đúng",
+      "group_type": "PATTERN",
+      "lesson_index": 2,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["02"]
+    },
+    {
+      "key": "M03",
+      "slug": "power-mojigoi-n2-m03-vocab-gap",
+      "title": "N2 Mojigoi – Từ vựng: Điền chỗ trống (Mondai 03)",
+      "subtitle": "Từ vựng: Điền chỗ trống",
+      "group_type": "PATTERN",
+      "lesson_index": 3,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["03"]
+    },
+    {
+      "key": "M04",
+      "slug": "power-mojigoi-n2-m04-vocab-compound",
+      "title": "N2 Mojigoi – Từ vựng: Từ ghép (Mondai 04)",
+      "subtitle": "Từ vựng: Từ ghép",
+      "group_type": "PATTERN",
+      "lesson_index": 4,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["04"]
+    },
+    {
+      "key": "M05",
+      "slug": "power-mojigoi-n2-m05-vocab-near-syn",
+      "title": "N2 Mojigoi – Từ vựng: Từ cận nghĩa (Mondai 05)",
+      "subtitle": "Từ vựng: Từ cận nghĩa",
+      "group_type": "PATTERN",
+      "lesson_index": 5,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["05"]
+    },
+    {
+      "key": "M06",
+      "slug": "power-mojigoi-n2-m06-vocab-usage",
+      "title": "N2 Mojigoi – Từ vựng: Cách dùng từ (Mondai 06)",
+      "subtitle": "Từ vựng: Cách dùng từ",
+      "group_type": "PATTERN",
+      "lesson_index": 6,
+      "time_limit_minutes": 15,
+      "main_question_type": "MCQ",
+      "is_active": true,
+      "mondai_in": ["06"]
+    }
+  ]
+}

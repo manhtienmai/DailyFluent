@@ -1,11 +1,16 @@
 from pathlib import Path
 import os 
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# DEBUG = os.getenv("DEBUG", "False") == "True"
+# DEBUG = os.getenv("DEBUG", "0") == "1"
 DEBUG = True
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+
 STATIC_URL = 'static/'
 
 
@@ -19,7 +24,7 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "changeme")
 
-ALLOWED_HOSTS = []
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # Render sẽ cung cấp hostname kiểu: your-service-name.onrender.com
 RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
     'tailwind',
     'theme',
@@ -56,6 +62,7 @@ INSTALLED_APPS = [
     'exam',
     'streak',
     'import_export',
+    'grammar',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -128,6 +135,27 @@ AUTHENTICATION_BACKENDS = [
     # backend của allauth
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+SOCIALACCOUNT_ADAPTER = "core.adapters.SocialAccountAdapter"
+
+# Cấu hình Google OAuth
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+        },
+        # Tin cậy email đã verify từ Google để gộp tài khoản cùng email
+        "VERIFIED_EMAIL": True,
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+        },
+    }
+}
 
 LANGUAGE_CODE = 'en-us'
 

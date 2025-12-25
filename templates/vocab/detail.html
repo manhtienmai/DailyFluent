@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết từ vựng | DailyFluent{% endblock %}
+
+{% block main_classes %}max-w-4xl mx-auto px-4 py-6{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center gap-3">
+    <a href="{% url 'vocab:list' %}"
+       class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      ← Quay lại
+    </a>
+    <div>
+      <div class="text-xs text-slate-500">Chi tiết từ vựng (read-only)</div>
+      <div class="text-lg font-semibold text-slate-900">
+        {{ vocab.jp_kanji|default:vocab.jp_kana }}
+      </div>
+    </div>
+  </div>
+
+  {% if user.is_staff %}
+    <a href="{% url 'admin:vocab_vocabulary_change' vocab.id %}"
+       target="_blank" rel="noopener"
+       class="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
+      Mở Admin để sửa
+    </a>
+  {% endif %}
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
+  <div class="text-center">
+    <div class="text-5xl font-bold text-slate-900" lang="ja">
+      {{ vocab.jp_kanji|default:"" }}
+    </div>
+    <div class="mt-2 text-2xl text-slate-600" lang="ja">
+      {{ vocab.jp_kana }}
+    </div>
+    {% if vocab.sino_vi %}
+      <div class="mt-2 text-sm text-slate-600">
+        <span class="font-semibold">Hán Việt:</span> {{ vocab.sino_vi }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="bg-slate-50 rounded-xl p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Nghĩa (VI)</div>
+      <div class="mt-1 text-lg font-semibold text-slate-900">{{ vocab.vi_meaning }}</div>
+    </div>
+
+    <div class="bg-slate-50 rounded-xl p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Meaning (EN)</div>
+      <div class="mt-1 text-slate-800">
+        {{ vocab.en_meaning|default:"-" }}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="text-sm font-semibold text-slate-900 mb-2">Ví dụ</div>
+    {% if examples %}
+      <div class="space-y-3">
+        {% for ex in examples %}
+          <div class="rounded-xl border border-slate-200 p-4">
+            {% if ex.jp %}
+              <div class="text-base font-medium text-slate-900" lang="ja">{{ ex.jp }}</div>
+            {% endif %}
+            {% if ex.vi %}
+              <div class="mt-1 text-sm text-slate-600">{{ ex.vi }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-sm text-slate-500">Chưa có ví dụ.</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="text-sm font-semibold text-slate-900 mb-2">Ghi chú / giải thích</div>
+    {% if vocab.notes %}
+      <div class="whitespace-pre-line text-sm text-slate-700">{{ vocab.notes }}</div>
+    {% else %}
+      <div class="text-sm text-slate-500">Chưa có ghi chú.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

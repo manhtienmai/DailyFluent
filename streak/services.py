@@ -29,6 +29,7 @@ def register_study_activity(user, lessons=0, minutes=0, points=0):
         defaults={
             'lessons_completed': lessons,
             'minutes_studied': minutes,
+            'seconds_studied': minutes * 60,
             'points_earned': points,
         }
     )
@@ -37,12 +38,58 @@ def register_study_activity(user, lessons=0, minutes=0, points=0):
         # Cộng dồn hoạt động trong ngày
         activity.lessons_completed += lessons
         activity.minutes_studied += minutes
+        activity.seconds_studied += minutes * 60
         activity.points_earned += points
         activity.save()
 
     # Sau khi cập nhật activity, kiểm tra điều kiện để tính streak
     _update_streak_for_user(user, today, activity)
 
+
+def register_flashcard_time(user, seconds=0, threshold_minutes=10):
+    """
+    Log thời gian học flashcard theo giây (chính xác hơn).
+    Tự đồng bộ minutes_studied = seconds_studied // 60.
+    Khi tổng phút trong ngày >= threshold_minutes và chưa có lesson được tính,
+    sẽ tự tăng lessons_completed lên 1 để kích hoạt streak.
+    """
+    if seconds <= 0:
+        return None
+
+    today = get_today_for_user(user)
+    activity, created = DailyActivity.objects.get_or_create(
+        user=user,
+        date=today,
+        defaults={
+            'lessons_completed': 0,
+            'minutes_studied': 0,
+            'seconds_studied': seconds,
+            'points_earned': 0,
+        }
+    )
+
+    if not created:
+        activity.seconds_studied += seconds
+
+    # Sync minutes from seconds
+    activity.minutes_studied = activity.seconds_studied // 60
+
+    # Nếu vượt ngưỡng lần đầu trong ngày, cộng 1 lesson để tính streak
+    if activity.lessons_completed == 0 and activity.minutes_studied >= threshold_minutes:
+        activity.lessons_completed = 1
+
+    activity.save()
+    _update_streak_for_user(user, today, activity)
+    return activity
+
+
+def register_flashcard_minutes(user, minutes=0, threshold_minutes=10):
+    """
+    Backwards-compatible wrapper (minutes -> seconds).
+    """
+    if minutes <= 0:
+        return None
+    return register_flashcard_time(user, seconds=minutes * 60, threshold_minutes=threshold_minutes)
 
 def _update_streak_for_user(user, today, activity: DailyActivity):
     """
