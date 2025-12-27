@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main_classes %}max-w-6xl mx-auto px-4 py-6{% endblock %}
+
+{% block content %}
+<div class="grid gap-5 md:grid-cols-[18rem,1fr] items-start">
+  {% include "courses/_sidebar.html" %}
+
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    {% block course_content %}{% endblock %}
+  </section>
+</div>
+{% endblock %}
+
+

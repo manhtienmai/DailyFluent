@@ -1,0 +1,23 @@
+{% extends "courses/base_course.html" %}
+
+{% block title %}{{ lesson.title }} | {{ course.title }}{% endblock %}
+
+{% block course_content %}
+  <div class="mb-4">
+    <div class="text-xs text-slate-500 uppercase tracking-wide">Lesson</div>
+    <h1 class="text-2xl font-bold text-slate-900">{{ lesson.title }}</h1>
+    {% if lesson.section %}
+      <p class="mt-1 text-sm text-slate-600">
+        {{ lesson.section.title }} · {{ course.title }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="prose prose-slate max-w-none">
+    <p class="text-slate-600">
+      (Trang lesson này là “khung UI” để bạn phát triển nội dung sau: gắn vocab/grammar theo lesson, flashcard theo lesson, v.v.)
+    </p>
+  </div>
+{% endblock %}
+
+

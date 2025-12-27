@@ -1,0 +1,33 @@
+{% extends "courses/base_course.html" %}
+
+{% block title %}{{ course.title }} | DailyFluent{% endblock %}
+
+{% block course_content %}
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <div class="text-xs text-slate-500 uppercase tracking-wide">Course</div>
+      <h1 class="text-2xl font-bold text-slate-900">{{ course.title }}</h1>
+      <p class="mt-1 text-sm text-slate-600">Chọn section/lesson ở sidebar để bắt đầu.</p>
+    </div>
+    <a href="{% url 'core:course_list' %}"
+       class="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+      ← Tất cả courses
+    </a>
+  </div>
+
+  {% if lesson %}
+    <div class="mt-6 border-t border-slate-200 pt-5">
+      <div class="text-xs text-slate-500 uppercase tracking-wide">Gợi ý bắt đầu</div>
+      <a class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+         href="{% url 'core:lesson_detail' course.slug lesson.slug %}">
+        Mở lesson đầu tiên: {{ lesson.title }}
+      </a>
+    </div>
+  {% else %}
+    <div class="mt-6 border-t border-slate-200 pt-5 text-slate-600">
+      Course này chưa có lesson nào.
+    </div>
+  {% endif %}
+{% endblock %}
+
+

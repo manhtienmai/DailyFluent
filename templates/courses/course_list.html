@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Courses | DailyFluent{% endblock %}
+{% block main_classes %}max-w-6xl mx-auto px-4 py-6{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+  <h1 class="text-2xl font-bold text-slate-900">Courses</h1>
+  <p class="text-sm text-slate-600">Chọn một course để xem các section/lesson ở sidebar bên trái.</p>
+</div>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for c in courses %}
+    <a href="{% url 'core:course_detail' c.slug %}"
+       class="block bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition">
+      <div class="text-xs text-slate-500 uppercase tracking-wide">Course</div>
+      <div class="mt-1 text-lg font-semibold text-slate-900">{{ c.title }}</div>
+    </a>
+  {% empty %}
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 text-slate-600">
+      Chưa có course nào. Hãy tạo trong admin trước nhé.
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+

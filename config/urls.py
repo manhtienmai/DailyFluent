@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
+    path('', include('core.urls', namespace='core')),
     path('vocab/', include('vocab.urls', namespace='vocab')),
     path('accounts/', include('allauth.urls')),
     path("kanji/", include("kanji.urls", namespace="kanji")),

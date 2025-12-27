@@ -4,22 +4,50 @@ from dotenv import load_dotenv
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+
+ENV_FILE = os.getenv("ENV_FILE")
+if ENV_FILE and Path(ENV_FILE).exists():
+    load_dotenv(ENV_FILE)
+else:
+    shared_env = Path("/home/mtmanh/apps/DailyFluent/shared/.env")
+    if shared_env.exists():
+        load_dotenv(shared_env)
+    else:
+        load_dotenv(BASE_DIR / ".env") 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev")
-# DEBUG = os.getenv("DEBUG", "0") == "1"
-DEBUG = True
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+def env_bool(name: str, default: bool = False) -> bool:
+    return os.getenv(name, "1" if default else "0").lower() in ("1", "true", "yes", "on")
+
+DEBUG = env_bool("DEBUG", default=False)
+
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"] if DEBUG else []
 
 csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "")
-CSRF_TRUSTED_ORIGINS = [x for x in csrf.split(",") if x]
+CSRF_TRUSTED_ORIGINS = [x.strip() for x in csrf.split(",") if x.strip()]
+
+AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "")
+AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
+AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = Path(os.getenv("STATIC_ROOT", "/home/mtmanh/apps/DailyFluent/shared/staticfiles"))
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+STORAGES = {
+    "default": {"BACKEND": "config.storage_backends.AzureMediaStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
+if not DEBUG and (not AZURE_ACCOUNT_NAME or not AZURE_ACCOUNT_KEY):
+    raise RuntimeError("Azure storage env missing (AZURE_ACCOUNT_NAME/AZURE_ACCOUNT_KEY)")
+
+MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/"
 
 # Application definition
 INSTALLED_APPS = [
@@ -58,11 +86,11 @@ TAILWIND_APP_NAME = 'theme'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     # BẮT BUỘC cho django-allauth (bản mới)
     'allauth.account.middleware.AccountMiddleware',
@@ -91,39 +119,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is missing. Check /home/mtmanh/apps/DailyFluent/shared/.env")
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'dailyfluent'),
-        'USER': os.getenv('DB_USER', 'dailyfluent_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-    }
-}
-
-
-# DATABASES = {
-#     "default": dj_database_url.parse(
-#         os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR/'db.sqlite3'}"),
-#         conn_max_age=600,
-#     )
-# }
-
-
-
-AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "")
-AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
-AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
-
-STORAGES = {
-    "default": {"BACKEND": "config.storage_backends.AzureMediaStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
-}
-
-
-MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -171,7 +171,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Asia/Bangkok"
 USE_I18N = True
 USE_TZ = True
 SITE_ID = 1
@@ -180,16 +180,18 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
-# Đăng nhập bằng email
-ACCOUNT_AUTHENTICATION_METHOD = "email"  
-ACCOUNT_EMAIL_REQUIRED = True             # bắt buộc có email
-ACCOUNT_USERNAME_REQUIRED = False         # không cần username
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"  
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = os.getenv("ACCOUNT_DEFAULT_HTTP_PROTOCOL", "http")
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[DailyFluent] "
+# Đăng nhập bằng email (allauth >= 65.4)
+ACCOUNT_LOGIN_METHODS = {"email"} 
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"] 
 
-# === Email settings (SMTP thật) === 
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True      
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = os.getenv("ACCOUNT_DEFAULT_HTTP_PROTOCOL", "http") 
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[DailyFluent] " :contentReference[oaicite:6]{index=6}
+
+
+# === Email settings === 
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
     "django.core.mail.backends.smtp.EmailBackend",

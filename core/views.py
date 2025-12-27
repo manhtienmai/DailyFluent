@@ -1,8 +1,10 @@
 # core/views.py
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from streak.models import StreakStat, DailyActivity
 from vocab.models import UserStudySettings
+
+from .models import Course, Lesson, Section
 
 
 def home(request):
@@ -36,3 +38,54 @@ def home(request):
         "reviews_today": reviews_today,
     }
     return render(request, "home.html", context)
+
+
+def course_list(request):
+    courses = Course.objects.filter(is_active=True).order_by("order", "title")
+    return render(request, "courses/course_list.html", {"courses": courses})
+
+
+def course_detail(request, course_slug: str):
+    course = get_object_or_404(Course, slug=course_slug, is_active=True)
+    sections = (
+        Section.objects.filter(course=course, is_active=True)
+        .prefetch_related("lessons")
+        .order_by("order", "title")
+    )
+    # Pick first lesson to show on the right by default (if any)
+    first_lesson = (
+        Lesson.objects.filter(section__course=course, is_active=True)
+        .select_related("section", "section__course")
+        .order_by("section__order", "order", "title")
+        .first()
+    )
+
+    return render(request, "courses/course_detail.html", {
+        "course": course,
+        "sections": sections,
+        "active_section": None,
+        "active_lesson": None,
+        "lesson": first_lesson,
+    })
+
+
+def lesson_detail(request, course_slug: str, lesson_slug: str):
+    course = get_object_or_404(Course, slug=course_slug, is_active=True)
+    lesson = get_object_or_404(
+        Lesson.objects.select_related("section", "section__course"),
+        slug=lesson_slug,
+        section__course=course,
+        is_active=True,
+    )
+    sections = (
+        Section.objects.filter(course=course, is_active=True)
+        .prefetch_related("lessons")
+        .order_by("order", "title")
+    )
+    return render(request, "courses/course_lesson.html", {
+        "course": course,
+        "sections": sections,
+        "active_section": lesson.section,
+        "active_lesson": lesson,
+        "lesson": lesson,
+    })
