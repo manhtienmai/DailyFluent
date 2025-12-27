@@ -17,6 +17,28 @@ class GrammarPoint(models.Model):
     summary = models.TextField(blank=True, help_text="Mô tả ngắn / ý chính")
     details = models.TextField(blank=True, help_text="Giải thích chi tiết (plain text hoặc Markdown)")
     examples = models.TextField(blank=True, help_text="Ví dụ, mỗi dòng một câu")
+    # Gán theo khóa/bài (optional)
+    course = models.ForeignKey(
+        "core.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="grammar_points",
+    )
+    section = models.ForeignKey(
+        "core.Section",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="grammar_points",
+    )
+    lesson = models.ForeignKey(
+        "core.Lesson",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="grammar_points",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

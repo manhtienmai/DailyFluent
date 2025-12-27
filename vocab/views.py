@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware, is_naive
 from django.views.decorators.http import require_POST
 
-from .models import Vocabulary, FixedPhrase, FsrsCardState, UserStudySettings
+from .models import Vocabulary, FixedPhrase, FsrsCardState, UserStudySettings, EnglishVocabulary
 from .fsrs_bridge import (
     create_new_card_state, 
     review_card,
@@ -204,6 +204,40 @@ def phrase_list(request):
         "page_obj": page_obj,
         "page_items": page_items,
         "total_count": total_count,
+        "q": q,
+    })
+
+
+@login_required
+def english_list(request):
+    """
+    Danh sách từ vựng tiếng Anh (basic list + search + pagination).
+    """
+    qs = EnglishVocabulary.objects.filter(is_active=True)
+
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        qs = qs.filter(
+            Q(en_word__icontains=q)
+            | Q(phonetic__icontains=q)
+            | Q(vi_meaning__icontains=q)
+            | Q(en_definition__icontains=q)
+        )
+
+    qs = qs.order_by("en_word", "id")
+    total_count = qs.count()
+
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(qs, 50)
+    page_obj = paginator.get_page(page_number)
+    page_items = _pagination_items(paginator, page_obj.number)
+
+    return render(request, "vocab/english_list.html", {
+        "words": page_obj,
+        "page_obj": page_obj,
+        "paginator": paginator,
+        "total_count": total_count,
+        "page_items": page_items,
         "q": q,
     })
 

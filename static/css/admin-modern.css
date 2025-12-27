@@ -1,0 +1,153 @@
+/* Lightweight modern admin tweaks (compatible with Django admin).
+   Tailwind is loaded via templates/admin/base_site.html, but admin HTML itself
+   doesn't use utility classes, so we improve it via CSS overrides. */
+
+:root {
+  --df-bg: #f8fafc;        /* slate-50 */
+  --df-panel: #ffffff;
+  --df-border: #e2e8f0;    /* slate-200 */
+  --df-text: #0f172a;      /* slate-900 */
+  --df-muted: #64748b;     /* slate-500 */
+  --df-primary: #2563eb;   /* blue-600 */
+}
+
+body.df-admin {
+  background: var(--df-bg) !important;
+  color: var(--df-text);
+}
+
+#header {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: 1px solid var(--df-border);
+  backdrop-filter: blur(10px);
+}
+
+#branding h1, #branding h1 a {
+  color: var(--df-text) !important;
+  font-weight: 700;
+}
+
+/* Panels */
+.module, .inline-group, .dashboard .module {
+  background: var(--df-panel) !important;
+  border: 1px solid var(--df-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+/* Tables */
+#changelist table {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  border-radius: 12px !important;
+}
+
+.button.default, input[type=submit].default {
+  background: var(--df-primary) !important;
+  border-color: var(--df-primary) !important;
+}
+
+/* Inputs */
+input[type=text], input[type=password], input[type=email], input[type=url], input[type=number],
+textarea, select {
+  border-radius: 12px !important;
+  border-color: var(--df-border) !important;
+}
+
+/* Help text */
+.help, p.help, .help-tooltip, .help a {
+  color: var(--df-muted) !important;
+}
+
+/* ===== Dark mode (follow system/browser) ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --df-bg: #0b1220;       /* deep slate */
+    --df-panel: #0f172a;    /* slate-900 */
+    --df-border: #223047;   /* custom border */
+    --df-text: #e5e7eb;     /* slate-200 */
+    --df-muted: #94a3b8;    /* slate-400 */
+    --df-primary: #60a5fa;  /* blue-400 */
+  }
+
+  body.df-admin {
+    background: var(--df-bg) !important;
+    color: var(--df-text) !important;
+  }
+
+  /* Admin header */
+  #header {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-bottom-color: var(--df-border) !important;
+  }
+
+  /* Links */
+  a, a:visited {
+    color: #93c5fd;
+  }
+  a:hover {
+    color: #bfdbfe;
+  }
+
+  /* Panels */
+  .module, .inline-group, .dashboard .module {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Tables */
+  #changelist table,
+  #changelist table thead th,
+  #changelist table tbody td,
+  #changelist table tbody th {
+    border-color: var(--df-border) !important;
+  }
+  #changelist table thead th {
+    background: rgba(148, 163, 184, 0.10) !important;
+    color: var(--df-muted) !important;
+  }
+
+  /* Buttons */
+  .button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: rgba(148, 163, 184, 0.10) !important;
+    border-color: var(--df-border) !important;
+    color: var(--df-text) !important;
+  }
+  .button.default, input[type=submit].default {
+    background: var(--df-primary) !important;
+    border-color: var(--df-primary) !important;
+    color: #0b1220 !important;
+  }
+
+  /* Inputs */
+  input[type=text], input[type=password], input[type=email], input[type=url], input[type=number],
+  textarea, select {
+    background: rgba(148, 163, 184, 0.08) !important;
+    color: var(--df-text) !important;
+    border-color: var(--df-border) !important;
+  }
+
+  /* Help text */
+  .help, p.help, .help-tooltip, .help a {
+    color: var(--df-muted) !important;
+  }
+
+  /* Tailwind utility classes used inside our custom admin pages (import screens).
+     Force them to behave in dark mode without depending on Tailwind 'dark:' config. */
+  body.df-admin .bg-white { background-color: var(--df-panel) !important; }
+  body.df-admin .bg-slate-50 { background-color: rgba(148, 163, 184, 0.08) !important; }
+  body.df-admin .border-slate-200 { border-color: var(--df-border) !important; }
+  body.df-admin .text-slate-900 { color: var(--df-text) !important; }
+  body.df-admin .text-slate-800 { color: var(--df-text) !important; }
+  body.df-admin .text-slate-700 { color: #cbd5e1 !important; }
+  body.df-admin .text-slate-600 { color: var(--df-muted) !important; }
+  body.df-admin .text-slate-500 { color: var(--df-muted) !important; }
+  body.df-admin .shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important; }
+}
+
+

@@ -4,37 +4,24 @@ from dotenv import load_dotenv
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
+SECRET_KEY = os.getenv("SECRET_KEY", "dev")
 # DEBUG = os.getenv("DEBUG", "0") == "1"
 DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
-STATIC_URL = 'static/'
+csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [x for x in csrf.split(",") if x]
 
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-load_dotenv(BASE_DIR / ".env")
-
-SECRET_KEY = os.getenv("SECRET_KEY", "changeme")
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-# Render sẽ cung cấp hostname kiểu: your-service-name.onrender.com
-RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
-else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-
 # Application definition
-
 INSTALLED_APPS = [
     # Default Django apps
     'django.contrib.admin',
@@ -43,6 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'storages',
 
     # must have for django-allauth
     'django.contrib.sites',
@@ -73,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     # BẮT BUỘC cho django-allauth (bản mới)
     'allauth.account.middleware.AccountMiddleware',
@@ -112,6 +102,28 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
+
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR/'db.sqlite3'}"),
+#         conn_max_age=600,
+#     )
+# }
+
+
+
+AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "")
+AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
+AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
+
+STORAGES = {
+    "default": {"BACKEND": "config.storage_backends.AzureMediaStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
+
+MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -157,18 +169,13 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 SITE_ID = 1
-# ======= QUAN TRỌNG: MEDIA =======
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
 
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"

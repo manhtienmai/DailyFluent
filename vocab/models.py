@@ -6,9 +6,6 @@ import math
 
 
 class UserStudySettings(models.Model):
-    """
-    Cài đặt học tập cho từng user (giống Anki deck options).
-    """
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -47,22 +44,18 @@ class UserStudySettings(models.Model):
             self.save(update_fields=['new_cards_today', 'reviews_today', 'last_study_date'])
     
     def can_study_new(self) -> bool:
-        """Có thể học từ mới không?"""
         self.reset_daily_counts_if_needed()
         return self.new_cards_today < self.new_cards_per_day
     
     def can_review(self) -> bool:
-        """Có thể ôn tập không?"""
         self.reset_daily_counts_if_needed()
         return self.reviews_today < self.reviews_per_day
     
     def remaining_new(self) -> int:
-        """Số từ mới còn lại hôm nay."""
         self.reset_daily_counts_if_needed()
         return max(0, self.new_cards_per_day - self.new_cards_today)
     
     def remaining_reviews(self) -> int:
-        """Số lượt ôn còn lại hôm nay."""
         self.reset_daily_counts_if_needed()
         return max(0, self.reviews_per_day - self.reviews_today)
 
@@ -116,6 +109,29 @@ class Vocabulary(models.Model):
         help_text="Ví dụ: Chào hỏi, Gia đình, Mua sắm..."
     )
 
+    # Gán theo khóa/bài (optional)
+    course = models.ForeignKey(
+        "core.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="jp_vocab_items",
+    )
+    section = models.ForeignKey(
+        "core.Section",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="jp_vocab_items",
+    )
+    lesson = models.ForeignKey(
+        "core.Lesson",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="jp_vocab_items",
+    )
+
     example_jp = models.TextField("Ví dụ tiếng Nhật", blank=True)
     example_vi = models.TextField("Nghĩa câu ví dụ", blank=True)
 
@@ -150,6 +166,81 @@ class Vocabulary(models.Model):
     def __str__(self):
         return f"{self.jp_kana} - {self.vi_meaning}"
 
+
+class EnglishVocabulary(models.Model):
+    """
+    Từ vựng tiếng Anh (tách riêng khỏi Vocabulary tiếng Nhật).
+    """
+    en_word = models.CharField("Từ vựng tiếng Anh", max_length=200)
+    phonetic = models.CharField("Phiên âm", max_length=200, blank=True)
+    vi_meaning = models.CharField("Nghĩa tiếng Việt", max_length=255)
+    en_definition = models.TextField("Định nghĩa tiếng Anh", blank=True)
+    example_en = models.TextField("Câu ví dụ tiếng Anh", blank=True)
+    example_vi = models.TextField("Nghĩa câu ví dụ (VI)", blank=True)
+    notes = models.TextField("Ghi chú", blank=True)
+
+    # Không bắt buộc, để nhóm theo bài/khóa (text legacy)
+    lesson = models.CharField("Lesson", max_length=100, blank=True)
+    course = models.CharField("Course", max_length=100, blank=True)
+
+    # Gán theo khóa/bài (optional, dropdown trong admin)
+    course_ref = models.ForeignKey(
+        "core.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="en_vocab_items",
+    )
+    section = models.CharField("Section/Part", max_length=100, blank=True)
+    section_ref = models.ForeignKey(
+        "core.Section",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="en_vocab_items",
+    )
+    lesson_ref = models.ForeignKey(
+        "core.Lesson",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="en_vocab_items",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Từ vựng tiếng Anh"
+        verbose_name_plural = "Từ vựng tiếng Anh"
+        ordering = ["en_word"]
+
+    def __str__(self):
+        return self.en_word
+
+
+class EnglishVocabularyExample(models.Model):
+    """
+    Nhiều câu ví dụ cho từ vựng tiếng Anh (EN + VI).
+    """
+    vocab = models.ForeignKey(
+        EnglishVocabulary,
+        on_delete=models.CASCADE,
+        related_name="examples",
+    )
+    order = models.PositiveIntegerField(default=0)
+    en = models.TextField("Câu ví dụ tiếng Anh")
+    vi = models.TextField("Dịch tiếng Việt", blank=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Ví dụ EN"
+        verbose_name_plural = "Ví dụ EN"
+
+    def __str__(self):
+        return f"EN Example for {self.vocab_id} ({self.order})"
 
 class VocabularyExample(models.Model):
     """
@@ -296,3 +387,36 @@ class FsrsCardState(models.Model):
         retrievability = max(0.0, min(retrievability, 1.0))
         
         return int(retrievability * 100)
+
+
+class FsrsCardStateEn(models.Model):
+    """
+    Trạng thái FSRS cho từng cặp (user, EnglishVocabulary).
+    Tách riêng để không ảnh hưởng bảng tiếng Nhật hiện có.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="fsrs_cards_en",
+    )
+    vocab = models.ForeignKey(
+        EnglishVocabulary,
+        on_delete=models.CASCADE,
+        related_name="fsrs_states_en",
+    )
+
+    card_json = models.JSONField()
+    due = models.DateTimeField(default=timezone.now)
+    last_reviewed = models.DateTimeField(null=True, blank=True)
+
+    total_reviews = models.PositiveIntegerField(default=0)
+    successful_reviews = models.PositiveIntegerField(default=0)
+    last_rating = models.CharField(max_length=10, blank=True)
+
+    class Meta:
+        unique_together = ("user", "vocab")
+        verbose_name = "FSRS EN"
+        verbose_name_plural = "FSRS EN"
+
+    def __str__(self):
+        return f"{self.user} - {self.vocab} (due: {self.due})"

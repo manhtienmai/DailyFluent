@@ -5,6 +5,7 @@ app_name = "vocab"
 
 urlpatterns = [
     path("", views.vocab_list, name="list"),
+    path("english/", views.english_list, name="english_list"),
     path("phrases/", views.phrase_list, name="phrases"),
     path("flashcards/", views.flashcard_session, name="flashcards"),
     path("flashcards/grade/", views.flashcard_grade, name="flashcard_grade"),
