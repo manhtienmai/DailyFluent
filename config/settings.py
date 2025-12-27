@@ -188,7 +188,7 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True      
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = os.getenv("ACCOUNT_DEFAULT_HTTP_PROTOCOL", "http") 
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[DailyFluent] " :contentReference[oaicite:6]{index=6}
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[DailyFluent] "
 
 
 # === Email settings === 
