@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<style>
+    .import-container {
+        max-width: 800px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+    }
+
+    .form-row label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .help {
+        color: #666;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .submit-row {
+        margin-top: 20px;
+        text-align: right;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url 'admin:core_dictationexercise_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; <a href="{% url 'admin:core_dictationexercise_change' exercise.pk %}">{{ exercise.title }}</a>
+    &rsaquo; Import Segments
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="import-container">
+    <h1>Import Segments cho: {{ exercise.title }}</h1>
+
+    {% if messages %}
+    <ul class="messagelist">{% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message|capfirst }}</li>
+            {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <label>Cách 1: Upload file JSON</label>
+            <input type="file" name="json_file" accept=".json">
+            <div class="help">Chọn file .json chứa danh sách segments.</div>
+        </div>
+
+        <div class="form-row">
+            <label>Cách 2: Paste nội dung JSON</label>
+            <textarea name="json_text" rows="10"
+                style="width: 100%; font-family: monospace; border: 1px solid #ccc; padding: 10px;" placeholder='[
+  {
+    "start_time": 0.0,
+    "end_time": 5.0,
+    "correct_text": "Hello world"
+  }
+]'></textarea>
+            <div class="help">
+                Paste trực tiếp nội dung JSON vào đây. Format yêu cầu:<br>
+                <code>[{"start_time": float, "end_time": float, "correct_text": "string", "hint": "optional"}]</code>
+            </div>
+        </div>
+
+        <div class="submit-row">
+            <input type="submit" value="Import Segments" class="default"
+                style="padding: 10px 20px; background: #417690; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,431 @@
+<aside class="df-course-sidebar" id="course-sidebar">
+  {# Toggle button - nhô ra menu #}
+  <button type="button" id="sidebar-toggle-btn" class="df-sidebar-toggle-btn" aria-label="Đóng/Mở menu">
+    <span class="df-sidebar-toggle-icon">‹</span>
+    <span class="df-sidebar-toggle-text">DailyFluent</span>
+  </button>
+
+  <div class="df-course-sidebar-inner bg-white">
+    {# Top gradient header (Modern design) #}
+    <div class="df-sidebar-header">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="text-[11px] opacity-80 truncate uppercase tracking-wider">{{ course.title }}</div>
+          <div class="text-sm font-bold truncate mt-0.5" id="sidebar-title">
+            {% if active_section %}
+            {{ active_section.title }}
+            {% elif lesson %}
+            {{ lesson.title }}
+            {% else %}
+            Chọn bài học
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% url 'core:course_list' %}" class="df-sidebar-back-btn" title="Tất cả courses">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    {# Course View: All Sections with Dropdown #}
+    <div id="course-view" class="{% if active_section %}hidden{% endif %}">
+      <div class="p-2 space-y-2">
+        <div>
+          <div class="df-side-section-title mb-1">Nội dung khóa học</div>
+          <div class="space-y-2">
+            {% for s in sections %}
+            <div class="df-section-item rounded-xl border border-slate-200 bg-white overflow-hidden"
+              data-section-id="{{ s.id }}" data-section-slug="{{ s.slug }}">
+              <button type="button"
+                class="df-section-toggle w-full px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-50 flex items-center justify-between hover:bg-slate-100 transition-colors">
+                <span class="truncate flex-1 text-left">{{ s.title }}</span>
+                <div class="flex items-center gap-2 ml-2">
+                  <span class="text-[11px] text-slate-400">{{ s.lessons.all|length }} bài</span>
+                  <svg class="df-section-arrow w-4 h-4 text-slate-400 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </button>
+              <div class="df-section-lessons hidden px-2 py-1 space-y-1">
+                {% for l in s.lessons.all %}
+                <a href="{% url 'core:lesson_detail' course.slug l.slug %}?mode={{ mode|default:'vocab' }}"
+                  class="df-side-item text-sm {% if active_lesson and active_lesson.id == l.id %}df-side-item-active{% endif %}">
+                  <span class="df-side-icon">L</span>
+                  {{ l.title }}
+                </a>
+                {% empty %}
+                <div class="px-3 py-2 text-xs text-slate-500">Chưa có lesson</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="px-3 py-3 text-sm text-slate-500">Chưa có section nào.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Section View: Lessons + Modes (shown when section is selected) #}
+    <div id="section-view" class="{% if not active_section %}hidden{% endif %}">
+      {# Mode menu - only show if section has vocabulary or if lesson is selected #}
+      <div class="p-2 border-b border-slate-200 bg-slate-50/70" id="section-mode-menu">
+        {% if lesson %}
+        <nav class="space-y-1 text-[13px]">
+          {% if mode == 'grammar' %}
+          {# When in grammar mode, only show grammar option #}
+          <a class="df-side-item text-[13px] df-side-item-active"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=grammar">
+            <span class="df-side-icon">📚</span>
+            <span class="font-semibold">Ngữ pháp</span>
+          </a>
+          {% else %}
+          {# When not in grammar mode, show vocabulary options #}
+          <a class="df-side-item text-[13px] {% if mode == 'vocab' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=vocab">
+            <span class="df-side-icon">A</span>
+            <span class="font-semibold">Từ vựng</span>
+          </a>
+          <a class="df-side-item text-[13px] {% if mode == 'mcq' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=mcq">
+            <span class="df-side-icon">✓</span>
+            <span><span class="font-semibold">Luyện tập:</span> Trắc nghiệm từ vựng</span>
+          </a>
+
+          <a class="df-side-item text-[13px] {% if mode == 'matching' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=matching">
+            <span class="df-side-icon">⇄</span>
+            <span><span class="font-semibold">Luyện tập:</span> Tìm cặp</span>
+          </a>
+
+          <a class="df-side-item text-[13px] {% if mode == 'listening' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=listening">
+            <span class="df-side-icon">♫</span>
+            <span><span class="font-semibold">Luyện tập:</span> Nghe từ vựng</span>
+          </a>
+
+          <a class="df-side-item text-[13px] {% if mode == 'fill' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=fill">
+            <span class="df-side-icon">✎</span>
+            <span><span class="font-semibold">Luyện tập:</span> Dịch nghĩa / Điền từ</span>
+          </a>
+
+          <a class="df-side-item text-[13px] {% if mode == 'dictation' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=dictation">
+            <span class="df-side-icon">✍</span>
+            <span><span class="font-semibold">Luyện tập:</span> Nghe chính tả</span>
+          </a>
+
+          <a class="df-side-item text-[13px] {% if mode == 'grammar' %}df-side-item-active{% endif %}"
+            href="{% url 'core:lesson_detail' course.slug lesson.slug %}?mode=grammar">
+            <span class="df-side-icon">📚</span>
+            <span class="font-semibold">Ngữ pháp</span>
+          </a>
+          {% endif %}
+        </nav>
+        {% elif active_section and active_section.id in section_ids_with_vocab %}
+        {% with first_lesson=active_section.lessons.all|first %}
+        {% if first_lesson %}
+        <nav class="space-y-1 text-[13px]">
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=vocab">
+            <span class="df-side-icon">A</span>
+            <span class="font-semibold">Từ vựng</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=mcq">
+            <span class="df-side-icon">✓</span>
+            <span><span class="font-semibold">Luyện tập:</span> Trắc nghiệm từ vựng</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=matching">
+            <span class="df-side-icon">⇄</span>
+            <span><span class="font-semibold">Luyện tập:</span> Tìm cặp</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=listening">
+            <span class="df-side-icon">♫</span>
+            <span><span class="font-semibold">Luyện tập:</span> Nghe từ vựng</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=fill">
+            <span class="df-side-icon">✎</span>
+            <span><span class="font-semibold">Luyện tập:</span> Dịch nghĩa / Điền từ</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=dictation">
+            <span class="df-side-icon">✍</span>
+            <span><span class="font-semibold">Luyện tập:</span> Nghe chính tả</span>
+          </a>
+          <a class="df-side-item text-[13px]"
+            href="{% url 'core:lesson_detail' course.slug first_lesson.slug %}?mode=grammar">
+            <span class="df-side-icon">📚</span>
+            <span class="font-semibold">Ngữ pháp</span>
+          </a>
+        </nav>
+        {% else %}
+        <div class="px-3 py-2 text-sm text-slate-600">
+          Chọn lesson để xem từ vựng và luyện tập.
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% else %}
+        <div class="px-3 py-2 text-sm text-slate-600">
+          Hãy chọn lesson ở danh sách bên dưới để bắt đầu.
+        </div>
+        {% endif %}
+      </div>
+
+      {# Lessons in selected section #}
+      <div class="p-2 space-y-2">
+        <div>
+          <div class="df-side-section-title mb-1">Bài học</div>
+          <div class="space-y-2" id="section-lessons-list">
+            {% if active_section %}
+            {% for l in active_section.lessons.all %}
+            <a href="{% url 'core:lesson_detail' course.slug l.slug %}?mode={{ mode|default:'vocab' }}"
+              class="df-side-item text-sm {% if active_lesson and active_lesson.id == l.id %}df-side-item-active{% endif %}">
+              <span class="df-side-icon">L</span>
+              {{ l.title }}
+            </a>
+            {% empty %}
+            <div class="px-3 py-2 text-xs text-slate-500">Chưa có lesson</div>
+            {% endfor %}
+            {% elif lesson %}
+            {# Show lessons from the same section as current lesson #}
+            {% for l in lesson.section.lessons.all %}
+            <a href="{% url 'core:lesson_detail' course.slug l.slug %}?mode={{ mode|default:'vocab' }}"
+              class="df-side-item text-sm {% if active_lesson and active_lesson.id == l.id %}df-side-item-active{% endif %}">
+              <span class="df-side-icon">L</span>
+              {{ l.title }}
+            </a>
+            {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200">
+          <button type="button" id="back-to-course-btn"
+            class="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
+            <span class="text-lg">←</span> Quay lại khóa học
+          </button>
+
+          {% if next_lesson %}
+          <div class="mt-4">
+            <div class="df-side-section-title mb-1">Bài học tiếp theo</div>
+            <a class="df-side-item text-sm"
+              href="{% url 'core:lesson_detail' course.slug next_lesson.slug %}?mode={{ mode|default:'vocab' }}">
+              <span class="df-side-icon">→</span>
+              {{ next_lesson.title }}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script>
+  (function () {
+    // Section data from template
+    const sectionsData = {
+    {% for s in sections %}
+    { { s.id } }: {
+      id: { { s.id } },
+      slug: "{{ s.slug }}",
+        title: "{{ s.title|escapejs }}",
+          hasVocab: {% if s.id in section_ids_with_vocab %} true{% else %} false{% endif %},
+      lessons: [
+        {% for l in s.lessons.all %}
+    {
+      id: { { l.id } },
+      slug: "{{ l.slug|escapejs }}",
+        title: "{{ l.title|escapejs }}"
+    } {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+      ]
+  }{% if not forloop.last %}, {% endif %}
+  {% endfor %}
+  };
+
+  const courseSlug = "{{ course.slug }}";
+  const currentMode = "{{ mode|default:'vocab' }}";
+  const sectionIdsWithVocab = new Set([{% for sid in section_ids_with_vocab %}{ { sid } } {% if not forloop.last %}, {% endif %} {% endfor %}]);
+
+  // Toggle section dropdown
+  document.querySelectorAll('.df-section-toggle').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const sectionItem = this.closest('.df-section-item');
+      const lessonsDiv = sectionItem.querySelector('.df-section-lessons');
+      const arrow = sectionItem.querySelector('.df-section-arrow');
+
+      // Toggle this section
+      lessonsDiv.classList.toggle('hidden');
+      arrow.classList.toggle('rotate-180');
+
+      // Close other sections (optional - remove if you want multiple open)
+      document.querySelectorAll('.df-section-item').forEach(item => {
+        if (item !== sectionItem) {
+          item.querySelector('.df-section-lessons').classList.add('hidden');
+          item.querySelector('.df-section-arrow').classList.remove('rotate-180');
+        }
+      });
+    });
+  });
+
+  // Click on section header (not toggle button) to switch to section view
+  document.querySelectorAll('.df-section-item').forEach(item => {
+    const sectionId = parseInt(item.dataset.sectionId);
+    const sectionData = sectionsData[sectionId];
+
+    if (!sectionData) return;
+
+    // Make the section title area clickable to switch to section view
+    const sectionTitle = item.querySelector('.df-section-toggle span.truncate');
+    if (sectionTitle) {
+      sectionTitle.style.cursor = 'pointer';
+      sectionTitle.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        switchToSectionView(sectionData);
+      });
+    }
+  });
+
+  // Back to course view button
+  document.getElementById('back-to-course-btn')?.addEventListener('click', function () {
+    switchToCourseView();
+  });
+
+  function switchToSectionView(sectionData) {
+    // Update header title
+    document.getElementById('sidebar-title').textContent = sectionData.title;
+
+    // Hide course view, show section view
+    document.getElementById('course-view').classList.add('hidden');
+    document.getElementById('section-view').classList.remove('hidden');
+
+    // Update mode menu - show vocab modes if section has vocabulary
+    const modeMenu = document.getElementById('section-mode-menu');
+    if (modeMenu) {
+      if (sectionData.hasVocab && sectionData.lessons.length > 0) {
+        const firstLesson = sectionData.lessons[0];
+        modeMenu.innerHTML = `
+          <nav class="space-y-1 text-[13px]">
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=vocab">
+              <span class="df-side-icon">A</span>
+              <span class="font-semibold">Từ vựng</span>
+            </a>
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=mcq">
+              <span class="df-side-icon">✓</span>
+              <span><span class="font-semibold">Luyện tập:</span> Trắc nghiệm từ vựng</span>
+            </a>
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=matching">
+              <span class="df-side-icon">⇄</span>
+              <span><span class="font-semibold">Luyện tập:</span> Tìm cặp</span>
+            </a>
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=listening">
+              <span class="df-side-icon">♫</span>
+              <span><span class="font-semibold">Luyện tập:</span> Nghe từ vựng</span>
+            </a>
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=fill">
+              <span class="df-side-icon">✎</span>
+              <span><span class="font-semibold">Luyện tập:</span> Dịch nghĩa / Điền từ</span>
+            </a>
+            <a class="df-side-item text-[13px]" href="/courses/${courseSlug}/lessons/${firstLesson.slug}/?mode=dictation">
+              <span class="df-side-icon">✍</span>
+              <span><span class="font-semibold">Luyện tập:</span> Nghe chính tả</span>
+            </a>
+          </nav>
+        `;
+        modeMenu.style.display = 'block';
+      } else {
+        modeMenu.innerHTML = '<div class="px-3 py-2 text-sm text-slate-600">Hãy chọn lesson ở danh sách bên dưới để bắt đầu.</div>';
+        modeMenu.style.display = 'block';
+      }
+    }
+
+    // Update lessons list
+    const lessonsList = document.getElementById('section-lessons-list');
+    if (lessonsList && sectionData.lessons.length > 0) {
+      lessonsList.innerHTML = sectionData.lessons.map(lesson => {
+        return `<a href="/courses/${courseSlug}/lessons/${lesson.slug}/?mode=${currentMode}" 
+                    class="df-side-item text-sm">
+                  <span class="df-side-icon">L</span>
+                  ${lesson.title}
+                </a>`;
+      }).join('');
+    } else {
+      lessonsList.innerHTML = '<div class="px-3 py-2 text-xs text-slate-500">Chưa có lesson</div>';
+    }
+
+    // Update URL without reload
+    const newUrl = `/courses/${courseSlug}/?section=${sectionData.slug}`;
+    window.history.pushState({ section: sectionData.slug }, '', newUrl);
+  }
+
+  function switchToCourseView() {
+    // Update header title
+    document.getElementById('sidebar-title').textContent = 'Chọn bài học';
+
+    // Show course view, hide section view
+    document.getElementById('course-view').classList.remove('hidden');
+    document.getElementById('section-view').classList.add('hidden');
+
+    // Update URL
+    const newUrl = `/courses/${courseSlug}/`;
+    window.history.pushState({}, '', newUrl);
+  }
+
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', function (e) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sectionSlug = urlParams.get('section');
+
+    if (sectionSlug) {
+      // Find section by slug
+      const sectionData = Object.values(sectionsData).find(s => s.slug === sectionSlug);
+      if (sectionData) {
+        switchToSectionView(sectionData);
+      }
+    } else {
+      switchToCourseView();
+    }
+  });
+
+  // Check URL on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const sectionSlug = urlParams.get('section');
+  if (sectionSlug) {
+    const sectionData = Object.values(sectionsData).find(s => s.slug === sectionSlug);
+    if (sectionData) {
+      switchToSectionView(sectionData);
+    }
+  }
+
+  // Sidebar toggle functionality
+  const sidebar = document.getElementById('course-sidebar');
+  const toggleBtn = document.getElementById('sidebar-toggle-btn');
+
+  if (sidebar && toggleBtn) {
+    // Restore sidebar state from localStorage
+    const sidebarState = localStorage.getItem('sidebar-collapsed');
+    if (sidebarState === 'true') {
+      sidebar.classList.add('collapsed');
+    }
+
+    // Toggle sidebar on button click
+    toggleBtn.addEventListener('click', function () {
+      sidebar.classList.toggle('collapsed');
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      localStorage.setItem('sidebar-collapsed', isCollapsed.toString());
+    });
+  }
+}) ();
+</script>

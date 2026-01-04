@@ -1,0 +1,110 @@
+name: Deploy to Production (Blue/Green)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+concurrency:
+  group: prod-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: dailyfluent
+      REMOTE_APP_DIR: /home/mtmanh/apps/DailyFluent
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ===== Build assets on CI to save VM RAM =====
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ===== Tailwind build (chỉnh theo project của bạn) =====
+      # Nếu bạn dùng django-tailwind với theme/static_src:
+      - name: Build Tailwind (npm)
+        run: |
+          if [ -f "theme/static_src/package.json" ]; then
+            cd theme/static_src
+            npm ci
+            npm run build
+          else
+            echo "No theme/static_src/package.json, skipping npm build"
+          fi
+
+      # (Optional) Tests (nếu bạn có test chạy được)
+      # - name: Run tests
+      #   env:
+      #     DEBUG: "1"
+      #     SECRET_KEY: "ci"
+      #     DATABASE_URL: "sqlite:///./ci.sqlite3"
+      #   run: |
+      #     python manage.py test
+
+      - name: Package artifact
+        run: |
+          ARTIFACT="${{ env.APP_NAME }}_${{ github.sha }}.tar.gz"
+          tar -czf "$ARTIFACT" \
+            --exclude=".git" \
+            --exclude="venv" \
+            --exclude="__pycache__" \
+            --exclude="*.pyc" \
+            --exclude=".env" \
+            .
+          echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VM_SSH_KEY }}
+
+      - name: Add VM to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.VM_PORT }}" -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload artifact to VM
+        run: |
+          scp -P "${{ secrets.VM_PORT }}" "$ARTIFACT" \
+            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/tmp/$ARTIFACT"
+
+      - name: Deploy on VM (extract -> release -> blue/green switch)
+        run: |
+          ssh -p "${{ secrets.VM_PORT }}" "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" 'bash -s' <<'EOF'
+          set -euo pipefail
+
+          APP_DIR="/home/mtmanh/apps/DailyFluent"
+          RELEASES_DIR="$APP_DIR/releases"
+
+          ARTIFACT_FILE="$(ls -1t /tmp/dailyfluent_*.tar.gz | head -n1)"
+          SHA="$(basename "$ARTIFACT_FILE" | sed -E 's/dailyfluent_([0-9a-f]+)\.tar\.gz/\1/')"
+          TS="$(date +%Y%m%d_%H%M%S)"
+          REL="$RELEASES_DIR/${TS}_${SHA:0:7}"
+
+          mkdir -p "$REL"
+          tar -xzf "$ARTIFACT_FILE" -C "$REL"
+
+          # owner
+          chown -R mtmanh:mtmanh "$REL"
+
+          # run deploy script
+          HEALTH_PATH=/health "$APP_DIR/deploy_bg.sh" "$REL"
+
+          rm -f "$ARTIFACT_FILE"
+          EOF

@@ -1,0 +1,507 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Upload Image - Question {{ question.id }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+.df-upload-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.df-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+}
+
+.df-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.df-upload-zone.dragover {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.df-upload-zone-icon {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.df-upload-zone-text {
+  font-size: 1.125rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.df-upload-zone-hint {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.df-upload-preview {
+  margin-top: 2rem;
+  display: none;
+}
+
+.df-upload-preview.active {
+  display: block;
+}
+
+.df-upload-preview img {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.df-upload-progress {
+  margin-top: 1rem;
+  display: none;
+}
+
+.df-upload-progress.active {
+  display: block;
+}
+
+.df-upload-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.df-upload-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.df-upload-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.df-btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.df-btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.df-btn-primary:hover {
+  background: #2563eb;
+}
+
+.df-btn-secondary {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.df-btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.df-alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.df-alert.active {
+  display: block;
+}
+
+.df-alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.df-alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.df-question-info {
+  background: #f1f5f9;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.df-question-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  color: #1e293b;
+}
+
+.df-question-info p {
+  margin: 0.25rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .df-upload-container {
+    background: var(--df-panel, #334155) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-container h1 {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-zone {
+    background: rgba(51, 65, 85, 0.3) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-zone:hover {
+    background: rgba(51, 65, 85, 0.5) !important;
+    border-color: var(--df-primary, #3b82f6) !important;
+  }
+
+  .df-upload-zone.dragover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: var(--df-primary, #3b82f6) !important;
+  }
+
+  .df-upload-zone-icon {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-upload-zone-text {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-zone-hint {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-upload-progress-bar {
+    background: rgba(71, 85, 105, 0.4) !important;
+  }
+
+  .df-btn-secondary {
+    background: rgba(71, 85, 105, 0.4) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-btn-secondary:hover {
+    background: rgba(71, 85, 105, 0.6) !important;
+  }
+
+  .df-question-info {
+    background: rgba(51, 65, 85, 0.3) !important;
+    border: 1px solid var(--df-border, #475569) !important;
+  }
+
+  .df-question-info h3 {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-question-info p {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-question-info a {
+    color: var(--df-primary, #3b82f6) !important;
+  }
+
+  #progress-text {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  #preview-url {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-upload-preview h3 {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-upload-container">
+  <h1>Upload Image for Question #{{ question.id }}</h1>
+  
+  <div class="df-question-info">
+    <h3>Question Information</h3>
+    <p><strong>Template:</strong> {{ question.template.title }}</p>
+    <p><strong>Order:</strong> {{ question.order }}</p>
+    <p><strong>Part:</strong> {{ question.get_toeic_part_display|default:"N/A" }}</p>
+    {% if question.image %}
+    <p><strong>Current Image:</strong> <a href="{{ question.image.url }}" target="_blank">View</a></p>
+    {% endif %}
+  </div>
+  
+  <div class="df-alert df-alert-success" id="success-alert">
+    <strong>Success!</strong> <span id="success-message"></span>
+  </div>
+  
+  <div class="df-alert df-alert-error" id="error-alert">
+    <strong>Error!</strong> <span id="error-message"></span>
+  </div>
+  
+  <div class="df-upload-zone" id="upload-zone">
+    <div class="df-upload-zone-icon">📁</div>
+    <div class="df-upload-zone-text">Click to upload, drag and drop, or paste (Ctrl+V)</div>
+    <div class="df-upload-zone-hint">PNG, JPG, GIF up to 10MB</div>
+    <input type="file" id="file-input" accept="image/*" style="display: none;">
+  </div>
+  
+  <div class="df-upload-progress" id="progress-container">
+    <div class="df-upload-progress-bar">
+      <div class="df-upload-progress-fill" id="progress-fill"></div>
+    </div>
+    <p style="text-align: center; margin-top: 0.5rem; color: #64748b; font-size: 0.875rem;">
+      Uploading... <span id="progress-text">0%</span>
+    </p>
+  </div>
+  
+  <div class="df-upload-preview" id="preview-container">
+    <h3>Preview</h3>
+    <img id="preview-image" src="" alt="Preview">
+    <p id="preview-url" style="margin-top: 1rem; word-break: break-all; color: #64748b; font-size: 0.875rem;"></p>
+  </div>
+  
+  <div class="df-upload-actions">
+    <button class="df-btn df-btn-secondary" onclick="window.location.href='{% url 'admin:exam_examquestion_change' question.id %}'">
+      Back to Question
+    </button>
+    <button class="df-btn df-btn-primary" id="save-btn" style="display: none;" onclick="saveImage()">
+      Save Image
+    </button>
+  </div>
+</div>
+
+<script>
+const questionId = {{ question.id }};
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+const previewContainer = document.getElementById('preview-container');
+const previewImage = document.getElementById('preview-image');
+const previewUrl = document.getElementById('preview-url');
+const progressContainer = document.getElementById('progress-container');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const successAlert = document.getElementById('success-alert');
+const errorAlert = document.getElementById('error-alert');
+const successMessage = document.getElementById('success-message');
+const errorMessage = document.getElementById('error-message');
+const saveBtn = document.getElementById('save-btn');
+
+let uploadedImageUrl = null;
+
+// Click to upload
+uploadZone.addEventListener('click', () => {
+  fileInput.click();
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) {
+    handleFile(e.target.files[0]);
+  }
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  
+  if (e.dataTransfer.files.length > 0) {
+    handleFile(e.dataTransfer.files[0]);
+  }
+});
+
+// Paste image from clipboard
+document.addEventListener('paste', (e) => {
+  const items = e.clipboardData.items;
+  
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    
+    // Check if item is an image
+    if (item.type.indexOf('image') !== -1) {
+      e.preventDefault();
+      
+      // Get image as blob
+      const blob = item.getAsFile();
+      
+      // Convert blob to File object
+      const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+        type: blob.type || 'image/png'
+      });
+      
+      // Handle the file
+      handleFile(file);
+      break;
+    }
+  }
+});
+
+function handleFile(file) {
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    showError('Please select an image file');
+    return;
+  }
+  
+  // Validate file size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showError('File size must be less than 10MB');
+    return;
+  }
+  
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+    previewContainer.classList.add('active');
+    saveBtn.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  
+  // Upload file
+  uploadFile(file);
+}
+
+function uploadFile(file) {
+  // Get CSRF token from cookie
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('question_id', questionId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  
+  // Show progress
+  progressContainer.classList.add('active');
+  progressFill.style.width = '0%';
+  progressText.textContent = '0%';
+  
+  // Hide alerts
+  hideAlerts();
+  
+  const xhr = new XMLHttpRequest();
+  
+  // Track upload progress
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+      progressText.textContent = percent + '%';
+    }
+  });
+  
+  xhr.addEventListener('load', () => {
+    progressContainer.classList.remove('active');
+    
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        uploadedImageUrl = response.image_url;
+        previewUrl.textContent = 'URL: ' + uploadedImageUrl;
+        showSuccess('Image uploaded successfully! URL: ' + uploadedImageUrl);
+        // Auto-save after upload
+        setTimeout(() => {
+          window.location.href = '{% url "admin:exam_examquestion_change" question.id %}';
+        }, 1500);
+      } else {
+        showError(response.error || 'Upload failed');
+      }
+    } else {
+      const response = JSON.parse(xhr.responseText);
+      showError(response.error || 'Upload failed');
+    }
+  });
+  
+  xhr.addEventListener('error', () => {
+    progressContainer.classList.remove('active');
+    showError('Network error. Please try again.');
+  });
+  
+  xhr.open('POST', '{% url "admin:exam_examquestion_upload_image_api" %}');
+  xhr.send(formData);
+}
+
+function saveImage() {
+  if (uploadedImageUrl) {
+    window.location.href = '{% url "admin:exam_examquestion_change" question.id %}';
+  }
+}
+
+function showSuccess(message) {
+  successMessage.textContent = message;
+  successAlert.classList.add('active');
+  errorAlert.classList.remove('active');
+}
+
+function showError(message) {
+  errorMessage.textContent = message;
+  errorAlert.classList.add('active');
+  successAlert.classList.remove('active');
+}
+
+function hideAlerts() {
+  successAlert.classList.remove('active');
+  errorAlert.classList.remove('active');
+}
+</script>
+{% endblock %}
+

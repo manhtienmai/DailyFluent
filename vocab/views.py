@@ -155,16 +155,20 @@ def vocab_list(request):
     paginator = Paginator(qs, 50)
     page_obj = paginator.get_page(page_number)
     page_items = _pagination_items(paginator, page_obj.number)
+    qs_params = request.GET.copy()
+    qs_params.pop("page", None)
+    base_qs = qs_params.urlencode()
 
     # AJAX pagination: return HTML fragments for table + pagination
     if request.GET.get("partial") == "1":
         rows_html = render_to_string("vocab/partials/vocab_list_rows.html", {"words": page_obj})
+        range_text = f"Hiển thị {page_obj.start_index()}-{page_obj.end_index()} / {total_count}"
         pagination_html = render_to_string("vocab/partials/vocab_list_pagination.html", {
             "page_obj": page_obj,
             "page_items": page_items,
-            "q": q,
+            "base_qs": base_qs,
+            "range_text": range_text,
         })
-        range_text = f"Hiển thị {page_obj.start_index()}-{page_obj.end_index()} / {total_count}"
         return JsonResponse({
             "rows_html": rows_html,
             "pagination_html": pagination_html,
@@ -178,6 +182,7 @@ def vocab_list(request):
         "total_count": total_count,
         "page_items": page_items,
         "q": q,
+        "base_qs": base_qs,
     })
 
 
@@ -198,6 +203,9 @@ def phrase_list(request):
     paginator = Paginator(qs, 50)
     page_obj = paginator.get_page(page_number)
     page_items = _pagination_items(paginator, page_obj.number)
+    qs_params = request.GET.copy()
+    qs_params.pop("page", None)
+    base_qs = qs_params.urlencode()
 
     return render(request, "vocab/phrase_list.html", {
         "phrases": page_obj,
@@ -205,6 +213,7 @@ def phrase_list(request):
         "page_items": page_items,
         "total_count": total_count,
         "q": q,
+        "base_qs": base_qs,
     })
 
 
@@ -231,6 +240,9 @@ def english_list(request):
     paginator = Paginator(qs, 50)
     page_obj = paginator.get_page(page_number)
     page_items = _pagination_items(paginator, page_obj.number)
+    qs_params = request.GET.copy()
+    qs_params.pop("page", None)
+    base_qs = qs_params.urlencode()
 
     return render(request, "vocab/english_list.html", {
         "words": page_obj,
@@ -239,6 +251,7 @@ def english_list(request):
         "total_count": total_count,
         "page_items": page_items,
         "q": q,
+        "base_qs": base_qs,
     })
 
 

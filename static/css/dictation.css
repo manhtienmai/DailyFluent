@@ -1,0 +1,72 @@
+/* =========================
+   Dictation Exercise Styles
+   ========================= */
+
+.dictation-segment {
+  transition: all 0.3s ease;
+}
+
+.dictation-segment:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.segment-input {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.segment-input:focus {
+  outline: none;
+}
+
+.segment-input:read-only {
+  background-color: #f8fafc;
+  cursor: not-allowed;
+}
+
+#dictation-audio {
+  width: 100%;
+  max-width: 600px;
+}
+
+#progress-bar {
+  transition: width 0.3s ease;
+}
+
+.btn-play-segment {
+  transition: all 0.2s;
+}
+
+.btn-play-segment:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .dictation-segment {
+    padding: 1rem;
+  }
+
+  #dictation-audio {
+    width: 100%;
+  }
+}
+
+/* Diff Feedback Styles */
+del {
+  text-decoration: none;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+ins {
+  text-decoration: none;
+  background-color: #dcfce7;
+  color: #15803d;
+  padding: 0 2px;
+  border-radius: 2px;
+}

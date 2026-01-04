@@ -2,13 +2,13 @@
 
 {% block title %}Luyện flashcard | DailyFluent{% endblock %}
 
-{% block main_classes %}max-w-3xl mx-auto px-4 py-6{% endblock %}
+{% block main_classes %}df-page-container-sm{% endblock %}
 
 {% block content %}
 <div class="mb-6">
   <div class="flex items-center justify-between mb-2">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900">Luyện flashcard</h1>
+    <h1 class="text-2xl font-bold text-slate-900">Luyện flashcard</h1>
       {% if stats %}
         <div class="mt-1 flex flex-wrap items-center gap-2 text-xs">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
@@ -176,7 +176,7 @@
       <span class="text-4xl">🎉</span>
     </div>
     <h2 class="text-2xl font-bold text-slate-900 mb-2">Hết thẻ trong phiên này</h2>
-    <p class="text-slate-600 max-w-md mx-auto mb-4">
+    <p class="text-slate-600 max-w-md mb-4">
       Bạn đã hoàn thành {{ states|length }} thẻ của phiên hiện tại. Muốn tiếp tục ôn nữa không?
     </p>
     <a href="{% url 'vocab:flashcards' %}"
@@ -193,7 +193,7 @@
       </svg>
     </div>
     <h2 class="text-xl font-semibold text-slate-900 mb-2">Chưa có thẻ nào</h2>
-    <p class="text-slate-600 max-w-md mx-auto">
+    <p class="text-slate-600 max-w-md">
       Hiện chưa có thẻ nào đến hạn để ôn. Hãy thêm từ vựng mới hoặc quay lại sau.
     </p>
   </div>
@@ -375,10 +375,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function showEmpty() {
-    cardWrapper.classList.add('hidden');
-    noMore.classList.remove('hidden');
-    remainingSpan.textContent = "0";
-    progressBar.style.width = '100%';
+      cardWrapper.classList.add('hidden');
+      noMore.classList.remove('hidden');
+      remainingSpan.textContent = "0";
+      progressBar.style.width = '100%';
   }
 
   function renderCard(c) {
@@ -449,16 +449,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
       const resp = await fetch("{% url 'vocab:flashcard_grade' %}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRFToken": csrfToken,
-        },
-        body: new URLSearchParams({
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": csrfToken,
+      },
+      body: new URLSearchParams({
           state_id: String(current.state_id),
           rating: String(ratingKey),
           is_new: (current.card_state === 0) ? "true" : "false",
-        }),
+      }),
       });
 
       if (!resp.ok) {
@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (data && data.requeue) {
         const snapshot = { ...current };
         const delay = Math.max(0, Number(data.requeue_delay_ms || 0));
-        setTimeout(() => {
+      setTimeout(() => {
           queue.push(snapshot);
           remainingSpan.textContent = String(remainingCount());
           updateProgress();
@@ -505,8 +505,8 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.add('scale-95', 'opacity-50');
       gradeCurrent(ratingKey).finally(() => {
         btn.classList.remove('scale-95', 'opacity-50');
-      });
     });
+  });
   }
 
   // Keyboard shortcuts: 1 2 3 4

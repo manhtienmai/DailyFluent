@@ -32,6 +32,7 @@ CSRF_TRUSTED_ORIGINS = [x.strip() for x in csrf.split(",") if x.strip()]
 AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "")
 AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
 AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
+AZURE_AUDIO_CONTAINER = os.getenv("AZURE_AUDIO_CONTAINER", "audio")
 
 STATIC_URL = '/static/'
 STATIC_ROOT = Path(os.getenv("STATIC_ROOT", "/home/mtmanh/apps/DailyFluent/shared/staticfiles"))
@@ -48,6 +49,8 @@ if not DEBUG and (not AZURE_ACCOUNT_NAME or not AZURE_ACCOUNT_KEY):
     raise RuntimeError("Azure storage env missing (AZURE_ACCOUNT_NAME/AZURE_ACCOUNT_KEY)")
 
 MEDIA_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/"
+# Audio files are stored in a separate container
+AUDIO_BASE_URL = f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_AUDIO_CONTAINER}/"
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,6 +75,7 @@ INSTALLED_APPS = [
 
     'tailwind',
     'theme',
+    'common',  # Common components and utilities
     'core',
     'vocab',
     'kanji',
@@ -80,6 +84,8 @@ INSTALLED_APPS = [
     'streak',
     'import_export',
     'grammar',
+    'todos',
+    'payment',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -112,6 +118,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'common.context_processors.navigation_items',  # Navigation menu items
+                'common.context_processors.footer_data',  # Footer data
+                'common.context_processors.landing_page_data',  # Landing page data
             ],
         },
     },
@@ -212,4 +221,15 @@ DEFAULT_FROM_EMAIL = os.getenv(
     EMAIL_HOST_USER or "no-reply@dailyfluent.local",
 )
 
+# Payment Settings
+# Bank Transfer
+BANK_ACCOUNT_NAME = os.getenv("BANK_ACCOUNT_NAME", "CONG TY TNHH DAILYFLUENT")
+BANK_ACCOUNT_NUMBER = os.getenv("BANK_ACCOUNT_NUMBER", "")
+BANK_NAME = os.getenv("BANK_NAME", "Vietcombank")
+BANK_BRANCH = os.getenv("BANK_BRANCH", "")
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Increase limits for huge forms (TOEIC full tests with 200 questions)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760 # 10MB

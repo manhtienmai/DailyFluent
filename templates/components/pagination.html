@@ -1,0 +1,58 @@
+{% if page_obj.paginator.num_pages > 1 %}
+  <div class="mt-4 space-y-3">
+    {% if range_text %}
+      <div class="text-xs text-slate-500 text-center" {% if range_info_id %}id="{{ range_info_id }}"{% endif %}>
+        {{ range_text }}
+      </div>
+    {% endif %}
+
+    <nav class="flex items-center justify-center gap-2" aria-label="Pagination">
+      {# Prev #}
+      {% if page_obj.has_previous %}
+        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+           href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.previous_page_number }}"
+           {% if ajax %}data-page="{{ page_obj.previous_page_number }}"{% endif %}>
+          ‹
+        </a>
+      {% else %}
+        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">
+          ‹
+        </span>
+      {% endif %}
+
+      {# Page numbers #}
+      {% for p in page_items %}
+        {% if p %}
+          {% if p == page_obj.number %}
+            <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white text-sm font-semibold">
+              {{ p }}
+            </span>
+          {% else %}
+            <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+               href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ p }}"
+               {% if ajax %}data-page="{{ p }}"{% endif %}>
+              {{ p }}
+            </a>
+          {% endif %}
+        {% else %}
+          <span class="w-10 h-10 inline-flex items-center justify-center text-slate-400">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {# Next #}
+      {% if page_obj.has_next %}
+        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
+           href="?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page_obj.next_page_number }}"
+           {% if ajax %}data-page="{{ page_obj.next_page_number }}"{% endif %}>
+          ›
+        </a>
+      {% else %}
+        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">
+          ›
+        </span>
+      {% endif %}
+    </nav>
+  </div>
+{% endif %}
+
+

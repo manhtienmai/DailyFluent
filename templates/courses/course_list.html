@@ -1,27 +1,54 @@
 {% extends "base.html" %}
 
 {% block title %}Courses | DailyFluent{% endblock %}
-{% block main_classes %}max-w-6xl mx-auto px-4 py-6{% endblock %}
+{% block main_classes %}df-page-container-lg{% endblock %}
 
 {% block content %}
-<div class="mb-5">
-  <h1 class="text-2xl font-bold text-slate-900">Courses</h1>
-  <p class="text-sm text-slate-600">Chọn một course để xem các section/lesson ở sidebar bên trái.</p>
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-900 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text">Courses</h1>
+  <p class="text-sm text-slate-600 mt-1">Chọn một course để xem các section/lesson ở sidebar bên trái.</p>
 </div>
 
-<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
   {% for c in courses %}
-    <a href="{% url 'core:course_detail' c.slug %}"
-       class="block bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition">
-      <div class="text-xs text-slate-500 uppercase tracking-wide">Course</div>
-      <div class="mt-1 text-lg font-semibold text-slate-900">{{ c.title }}</div>
-    </a>
-  {% empty %}
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 text-slate-600">
-      Chưa có course nào. Hãy tạo trong admin trước nhé.
+  <div class="df-course-card group">
+    {% if c.image %}
+    <div class="df-course-card-image">
+      <img src="{{ c.image.url }}" alt="{{ c.title }}"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+      <div class="df-course-card-overlay"></div>
     </div>
+    {% else %}
+    <div class="df-course-card-placeholder">
+      <svg class="w-16 h-16 text-blue-400 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    </div>
+    {% endif %}
+    <div class="p-5">
+      <div class="text-xs text-blue-600 uppercase tracking-wider font-semibold mb-2">Course</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{{ c.title }}</h3>
+      {% if c.description %}
+      <p class="text-sm text-slate-600 mb-4 line-clamp-2">{{ c.description|truncatewords:15 }}</p>
+      {% endif %}
+      <a href="{% url 'core:course_detail' c.slug %}" class="df-course-card-btn">
+        <span>Học ngay</span>
+        <svg class="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-slate-600 text-center">
+    <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    </svg>
+    <p>Chưa có course nào. Hãy tạo trong admin trước nhé.</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}
-
-

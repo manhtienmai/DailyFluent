@@ -1,118 +1,672 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Kết quả {{ template_obj.title }} | DailyFluent{% endblock %}
-{% block main_classes %}max-w-4xl mx-auto px-4 py-6 sm:py-10{% endblock %}
+{% block main_classes %}df-page-container-lg{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/exam-result.css' %}?v=20251227">
+{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
-  <div>
-    <p class="text-xs uppercase tracking-wide text-slate-500">Kết quả</p>
-    <h1 class="text-2xl font-bold text-slate-900">{{ template_obj.title }}</h1>
-
-    {% if template_obj.subtitle %}
-      <p class="text-sm text-slate-700">{{ template_obj.subtitle }}</p>
-    {% endif %}
-    {% if template_obj.book %}
-      <p class="text-xs text-slate-500 mt-1">
-        Thuộc sách: {{ template_obj.book.title }}
-      </p>
-    {% endif %}
-
-    <p class="text-sm text-slate-600 mt-2">
-      JLPT {{ template_obj.level }} ・ {{ session.correct_count }} / {{ session.total_questions }} câu đúng
-    </p>
-  </div>
-  <div class="text-right">
-    <p class="text-xs text-slate-500 mb-1">Đánh giá</p>
-    <p class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-       {% if session.rating_label == 'TỐT' %}
-         bg-emerald-100 text-emerald-700
-       {% elif session.rating_label == 'TRUNG BÌNH' %}
-         bg-amber-100 text-amber-700
-       {% else %}
-         bg-rose-100 text-rose-700
-       {% endif %}
-    ">
-      {{ session.rating_label }}
-    </p>
-  </div>
-</div>
-
-<div class="grid sm:grid-cols-3 gap-3 mb-8">
-  <div class="rounded-xl border border-slate-200 p-4">
-    <p class="text-xs text-slate-500 mb-1">Đúng</p>
-    <p class="text-2xl font-bold text-emerald-600">{{ session.correct_count }}</p>
-  </div>
-  <div class="rounded-xl border border-slate-200 p-4">
-    <p class="text-xs text-slate-500 mb-1">Sai</p>
-    <p class="text-2xl font-bold text-rose-500">{{ wrong_count }}</p>
-  </div>
-  <div class="rounded-xl border border-slate-200 p-4">
-    <p class="text-xs text-slate-500 mb-1">Tỉ lệ đúng</p>
-    <p class="text-2xl font-bold text-slate-900">{{ session.score_percent }}%</p>
-  </div>
-</div>
-
-{% regroup answers by question.mondai as grouped_answers %}
-
 <div class="space-y-6">
-  {% for group in grouped_answers %}
-  <section class="border border-slate-200 rounded-2xl p-4 sm:p-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-sm font-semibold text-slate-700">
-        {% if group.grouper %}Mondai {{ group.grouper }}{% else %}Phần{% endif %}
-      </h2>
-      {# nếu có custom template filter lấy stats_by_mondai[group.grouper] thì hiển thị thêm ở đây #}
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-slate-900">Kết quả thi: {{ template_obj.title }}</h1>
+    <div class="flex gap-3">
+      <button type="button" id="btn-view-answers" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700">
+        Xem đáp án
+      </button>
+      <a href="{% url 'exam:exam_detail' template_obj.slug %}" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50">
+        Quay về trang đề thi
+      </a>
     </div>
+  </div>
 
-    <div class="space-y-4">
-      {% for ans in group.list %}
-      {% with q=ans.question %}
-      <div class="border border-slate-100 rounded-xl p-3 sm:p-4">
-        <p class="text-sm font-medium text-slate-900 mb-2">
-          {{ forloop.counter }}. {{ q.text|linebreaksbr }}
-        </p>
-
-        <div class="space-y-1 text-sm">
-          {% if q.question_type == "MCQ" %}
-            {% for opt in q.mcq_choices %}
-            {% with key=opt.key selected=ans.raw_answer.selected_key %}
-              {% if key == q.correct_answer %}
-              <div class="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5">
-                <span class="font-semibold">Đáp án đúng: {{ opt.text }}</span>
-                {% if selected == key %}
-                  <span class="text-emerald-700 text-xs ml-2">(bạn chọn đúng)</span>
-                {% endif %}
-              </div>
-              {% elif selected == key %}
-              <div class="rounded-lg bg-rose-50 border border-rose-200 px-3 py-1.5">
-                <span class="font-semibold">Bạn chọn: {{ opt.text }}</span>
-              </div>
-              {% endif %}
-            {% endwith %}
-            {% endfor %}
-          {% else %}
-            {# TODO: hiển thị kiểu khác cho ORDER/FILL... #}
-            <p class="text-xs text-slate-500">Loại câu chưa hỗ trợ hiển thị chi tiết.</p>
-          {% endif %}
+  <!-- Performance Summary -->
+  <div class="df-exam-result-summary">
+    <!-- Left Card: Main Stats -->
+    <div class="df-exam-result-left bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-4">Kết quả làm bài</h3>
+      <div class="space-y-3">
+        <div>
+          <p class="text-xs text-slate-500 mb-1">Kết quả làm bài</p>
+          <p class="text-2xl font-bold text-slate-900">{{ session.correct_count }}/{{ session.total_questions }}</p>
         </div>
-
-        {% if q.explanation_vi %}
-        <p class="mt-2 text-xs text-slate-600 whitespace-pre-line">
-          {{ q.explanation_vi }}
-        </p>
+        <div>
+          <p class="text-xs text-slate-500 mb-1">Độ chính xác (#đúng/#tổng)</p>
+          <p class="text-2xl font-bold text-slate-900">{{ session.score_percent }}%</p>
+        </div>
+        {% if time_taken %}
+        <div>
+          <p class="text-xs text-slate-500 mb-1">Thời gian hoàn thành</p>
+          <p class="text-xl font-bold text-slate-900">{{ time_taken }}</p>
+        </div>
         {% endif %}
       </div>
-      {% endwith %}
-      {% endfor %}
     </div>
-  </section>
-  {% endfor %}
+
+    <!-- Right Cards: 4 Stats -->
+    <div class="df-exam-result-right grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Correct -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-1">Trả lời đúng</p>
+        <p class="text-xl font-bold text-emerald-600">{{ session.correct_count }} câu hỏi</p>
+      </div>
+
+      <!-- Wrong -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-1">Trả lời sai</p>
+        <p class="text-xl font-bold text-rose-600">{{ wrong_count }} câu hỏi</p>
+      </div>
+
+      <!-- Skipped -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-1">Bỏ qua</p>
+        <p class="text-xl font-bold text-blue-600">{{ skipped_count }} câu hỏi</p>
+      </div>
+
+      <!-- Score -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mb-1">Điểm</p>
+        <p class="text-xl font-bold text-indigo-600">
+          {% if template_obj.level == "TOEIC" and toeic_stats %}
+            {{ toeic_stats.total_score }}
+          {% else %}
+            {{ session.score_percent }}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sectional Scores (TOEIC only) - Separate row below -->
+  {% if template_obj.level == "TOEIC" and toeic_stats %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h3 class="text-base font-semibold text-slate-900 mb-3">Listening</h3>
+      <div class="space-y-2">
+        <p class="text-2xl font-bold text-slate-900">{{ toeic_stats.listening.score }}/495</p>
+        <p class="text-sm text-slate-600">Trả lời đúng: {{ toeic_stats.listening.correct }}/{{ toeic_stats.listening.total }}</p>
+      </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h3 class="text-base font-semibold text-slate-900 mb-3">Reading</h3>
+      <div class="space-y-2">
+        <p class="text-2xl font-bold text-slate-900">{{ toeic_stats.reading.score }}/495</p>
+        <p class="text-sm text-slate-600">Trả lời đúng: {{ toeic_stats.reading.correct }}/{{ toeic_stats.reading.total }}</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Detailed Analysis -->
+  <div class="bg-white border border-slate-200 rounded-xl shadow-sm">
+    <div class="px-6 py-4 border-b border-slate-200">
+      <h2 class="text-lg font-semibold text-slate-900">Phân tích chi tiết</h2>
+    </div>
+    <!-- Tabs -->
+    <div class="border-b border-slate-200">
+      <div class="flex overflow-x-auto">
+        {% if template_obj.level == "TOEIC" %}
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap" data-part="L1">Part 1</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L2">Part 2</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L3">Part 3</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L4">Part 4</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R5">Part 5</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R6">Part 6</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R7">Part 7</button>
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="overall">Tổng quát</button>
+        {% else %}
+          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap" data-part="overall">Tổng quát</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-6">
+      <div id="tab-content-overall" class="tab-content-panel">
+        <!-- Table sẽ được render bằng JavaScript -->
+        <div class="text-center py-8 text-slate-500">Đang tải dữ liệu...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Answer Actions -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-900 mb-4">Đáp án</h3>
+    <div class="flex flex-wrap gap-3 mb-4">
+      <button type="button" id="btn-view-detail" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700">
+        Xem chi tiết đáp án
+      </button>
+      <button type="button" id="btn-redo-wrong" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50">
+        Làm lại các câu sai
+      </button>
+    </div>
+    <p class="text-xs text-rose-600 mb-3">
+      <strong>Chú ý:</strong> Khi làm lại các câu sai, điểm trung bình của bạn sẽ KHÔNG BỊ ẢNH HƯỞNG.
+    </p>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+      <div class="flex items-start gap-2">
+        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        <div>
+          <p class="text-sm font-semibold text-emerald-900 mb-1">Tips:</p>
+          <p class="text-sm text-emerald-800">
+            Khi xem chi tiết đáp án, bạn có thể tạo và lưu highlight từ vựng, keywords và tạo note để học và tra cứu khi có nhu cầu ôn lại đề thi này trong tương lai.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Question List -->
+  <div id="question-list-section" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hidden">
+    <h3 class="text-base font-semibold text-slate-900 mb-4">Danh sách câu hỏi</h3>
+    <div id="question-list-content" class="space-y-4">
+      <!-- Sẽ được render bằng JavaScript -->
+    </div>
+  </div>
 </div>
 
-<div class="mt-8">
-  <a href="{% url 'exam:exam_list' %}"
-     class="inline-flex items-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
-    ← Quay lại danh sách đề
-  </a>
+<!-- Modal: Chi tiết câu hỏi -->
+<div id="question-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900" id="modal-question-title">Đáp án chi tiết #<span id="modal-question-number"></span></h2>
+        <p class="text-sm text-slate-600 mt-1">{{ template_obj.title }}</p>
+      </div>
+      <button type="button" id="modal-close" class="text-slate-400 hover:text-slate-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <div id="modal-question-content">
+        <!-- Sẽ được render bằng JavaScript -->
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+(function() {
+  const answersData = {{ answers_json|safe }};
+  const toeicStats = {{ toeic_stats_json|safe }};
+  const templateLevel = "{{ template_obj.level }}";
+  const sessionId = {{ session.id }};
+  
+  let currentTab = templateLevel === "TOEIC" ? "L1" : "overall";
+  let showAnswers = false;
+
+  // Tab switching
+  document.querySelectorAll('.tab-part').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const part = this.dataset.part;
+      currentTab = part;
+      
+      // Update tab styles
+      document.querySelectorAll('.tab-part').forEach(b => {
+        b.classList.remove('border-blue-600', 'text-blue-600');
+        b.classList.add('border-transparent', 'text-slate-600');
+      });
+      this.classList.remove('border-transparent', 'text-slate-600');
+      this.classList.add('border-blue-600', 'text-blue-600');
+      
+      // Render table
+      renderAnalysisTable();
+    });
+  });
+
+  // Render analysis table
+  function renderAnalysisTable() {
+    const container = document.getElementById('tab-content-overall');
+    if (!container) return;
+
+    if (templateLevel === "TOEIC" && toeicStats && toeicStats.stats_by_part) {
+      const part = currentTab === "overall" ? null : currentTab;
+      
+      // Filter và group theo part và sub-type
+      const partGroups = {};
+      let totalStats = { correct: 0, wrong: 0, skipped: 0, total: 0 };
+      
+      Object.keys(toeicStats.stats_by_part).forEach(key => {
+        const stats = toeicStats.stats_by_part[key];
+        if (part && stats.part !== part) return;
+        if (!part && currentTab === "overall") {
+          // Overall: group tất cả
+          totalStats.correct += stats.correct || 0;
+          totalStats.wrong += stats.wrong || 0;
+          totalStats.skipped += stats.skipped || 0;
+          totalStats.total += stats.total || 0;
+        }
+        
+        const groupKey = stats.part || "other";
+        if (!partGroups[groupKey]) {
+          partGroups[groupKey] = [];
+        }
+        partGroups[groupKey].push(stats);
+      });
+      
+      // Sub-type labels
+      const subTypeLabels = {
+        "people": "Tranh tả người",
+        "objects": "Tranh tả vật",
+        "conversation": "Hội thoại",
+        "short_talk": "Bài nói ngắn",
+        "text_completion": "Điền từ vào đoạn văn",
+        "reading_comprehension": "Đọc hiểu",
+        "general": "Chung",
+      };
+      
+      let html = `
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50">
+              <th class="text-left py-3 px-4 font-semibold text-slate-700">Phân loại câu hỏi</th>
+              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu đúng</th>
+              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu sai</th>
+              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu bỏ qua</th>
+              <th class="text-center py-3 px-4 font-semibold text-slate-700">Độ chính xác</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-700">Danh sách câu hỏi</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      // Render rows for each sub-type
+      Object.keys(partGroups).sort().forEach(partKey => {
+        partGroups[partKey].forEach(stats => {
+          const partNum = stats.part ? stats.part.replace('L', '').replace('R', '') : '';
+          const subTypeLabel = subTypeLabels[stats.sub_type] || stats.sub_type;
+          const classification = stats.part ? `[Part ${partNum}] ${subTypeLabel}` : subTypeLabel;
+          const accuracy = stats.total > 0 ? ((stats.correct / stats.total) * 100).toFixed(2) : '0.00';
+          
+          html += `
+            <tr class="border-b border-slate-100">
+              <td class="py-3 px-4 font-medium">${classification}</td>
+              <td class="py-3 px-4 text-center">${stats.correct || 0}</td>
+              <td class="py-3 px-4 text-center">${stats.wrong || 0}</td>
+              <td class="py-3 px-4 text-center">${stats.skipped || 0}</td>
+              <td class="py-3 px-4 text-center">${accuracy}%</td>
+              <td class="py-3 px-4">
+                <div class="flex flex-wrap gap-1">
+                  ${(stats.questions || []).map(q => 
+                    `<button type="button" class="question-btn w-8 h-8 rounded-full border border-slate-300 text-xs font-medium hover:bg-slate-100 ${q.is_correct ? 'bg-emerald-100 border-emerald-300 text-emerald-700' : q.selected ? 'bg-rose-100 border-rose-300 text-rose-700' : 'bg-slate-50 text-slate-600'}" data-question-id="${q.id}" onclick="showQuestionDetail(${q.id})">${q.order}</button>`
+                  ).join('')}
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      });
+      
+      // Total row (if not overall tab)
+      if (part && Object.keys(partGroups).length > 0) {
+        const partTotal = Object.values(partGroups).flat().reduce((acc, stats) => {
+          acc.correct += stats.correct || 0;
+          acc.wrong += stats.wrong || 0;
+          acc.skipped += stats.skipped || 0;
+          acc.total += stats.total || 0;
+          return acc;
+        }, { correct: 0, wrong: 0, skipped: 0, total: 0 });
+        
+        const totalAccuracy = partTotal.total > 0 ? ((partTotal.correct / partTotal.total) * 100).toFixed(2) : '0.00';
+        html += `
+          <tr class="border-b-2 border-slate-300 bg-slate-50 font-semibold">
+            <td class="py-3 px-4">Total</td>
+            <td class="py-3 px-4 text-center">${partTotal.correct}</td>
+            <td class="py-3 px-4 text-center">${partTotal.wrong}</td>
+            <td class="py-3 px-4 text-center">${partTotal.skipped}</td>
+            <td class="py-3 px-4 text-center">${totalAccuracy}%</td>
+            <td class="py-3 px-4"></td>
+          </tr>
+        `;
+      }
+      
+      html += `
+          </tbody>
+        </table>
+      `;
+      
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p class="text-slate-500 text-center py-8">Chưa có dữ liệu phân tích.</p>';
+    }
+  }
+
+  // View answers button
+  document.getElementById('btn-view-detail')?.addEventListener('click', function() {
+    showAnswers = !showAnswers;
+    const section = document.getElementById('question-list-section');
+    if (section) {
+      section.classList.toggle('hidden', !showAnswers);
+      if (showAnswers) {
+        renderQuestionList();
+      }
+    }
+  });
+  
+  // View answers button (old one for compatibility)
+  document.getElementById('btn-view-answers')?.addEventListener('click', function() {
+    showAnswers = !showAnswers;
+    const section = document.getElementById('question-list-section');
+    if (section) {
+      section.classList.toggle('hidden', !showAnswers);
+      if (showAnswers) {
+        renderQuestionList();
+      }
+    }
+    this.textContent = showAnswers ? 'Ẩn đáp án' : 'Xem đáp án';
+  });
+
+  // Render question list
+  function renderQuestionList() {
+    const container = document.getElementById('question-list-content');
+    if (!container) return;
+
+    // Group by part
+    const byPart = {};
+    answersData.forEach(ans => {
+      const part = ans.question?.toeic_part || 'Other';
+      if (!byPart[part]) byPart[part] = [];
+      byPart[part].push(ans);
+    });
+
+    let html = '';
+    Object.keys(byPart).sort().forEach(part => {
+      html += `<div class="mb-6"><h4 class="font-semibold text-slate-900 mb-3">Part ${part}</h4>`;
+      byPart[part].forEach(ans => {
+        const selected = ans.raw_answer?.selected_key || '';
+        const selectedText = selected ? `${selected}: ` : '';
+        html += `
+          <div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-b-0">
+            <span class="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-xs font-medium text-slate-700">${ans.question?.order || ''}</span>
+            <span class="text-sm text-slate-600">${selectedText}chưa trả lời</span>
+            <button type="button" class="ml-auto text-blue-600 hover:underline text-sm question-detail-btn" data-question-id="${ans.question?.id}">
+              [Chi tiết]
+            </button>
+          </div>
+        `;
+      });
+      html += '</div>';
+    });
+    container.innerHTML = html;
+
+    // Attach detail button handlers using event delegation
+    container.addEventListener('click', function(e) {
+      if (e.target.classList.contains('question-detail-btn') || e.target.closest('.question-detail-btn')) {
+        const btn = e.target.classList.contains('question-detail-btn') ? e.target : e.target.closest('.question-detail-btn');
+        const questionId = btn.dataset.questionId;
+        if (questionId) {
+          showQuestionDetail(parseInt(questionId));
+        }
+      }
+    });
+  }
+
+  // Close modal function
+  function closeModal() {
+    const modal = document.getElementById('question-detail-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = '';
+    }
+  }
+  
+  // Close modal on button click
+  document.getElementById('modal-close')?.addEventListener('click', closeModal);
+  
+  // Close modal on ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('question-detail-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    }
+  });
+
+  // Attach question button handlers (delegated)
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('question-btn')) {
+      const questionId = e.target.dataset.questionId;
+      if (questionId) {
+        showQuestionDetail(parseInt(questionId));
+      }
+    }
+  });
+
+  // Initial render
+  renderAnalysisTable();
+})();
+
+// Global function for question detail
+async function showQuestionDetail(questionId) {
+  const modal = document.getElementById('question-detail-modal');
+  const content = document.getElementById('modal-question-content');
+  const title = document.getElementById('modal-question-number');
+  const sessionId = {{ session.id }};
+  
+  if (!modal || !content) return;
+  
+  // Show loading
+  content.innerHTML = '<div class="text-center py-8 text-slate-500">Đang tải...</div>';
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  // Prevent body scroll when modal is open
+  document.body.style.overflow = 'hidden';
+  
+  try {
+    const response = await fetch(`/exam/session/${sessionId}/result/question/${questionId}/`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch question detail');
+    }
+    const data = await response.json();
+    
+    const q = data.question;
+    const answer = data.answer;
+    
+    // Update title
+    if (title) {
+      title.textContent = q.order || q.id;
+    }
+    
+    // Build modal content
+    let html = '';
+    
+    // Tags/Categories
+    if (q.toeic_part) {
+      const partNum = q.toeic_part.replace('L', '').replace('R', '');
+      const subTypeLabels = {
+        "people": "Tranh tả người",
+        "objects": "Tranh tả vật",
+        "conversation": "Câu hỏi về chủ đề, mục đích",
+        "short_talk": "Bài nói ngắn",
+        "text_completion": "Điền từ vào đoạn văn",
+        "reading_comprehension": "Đọc hiểu",
+        "general": "Chung",
+      };
+      
+      html += '<div class="mb-4 flex flex-wrap gap-2">';
+      
+      // Sub-type tag
+      if (q.sub_type) {
+        const subTypeLabel = subTypeLabels[q.sub_type] || q.sub_type;
+        html += `<span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">#[Part ${partNum}] ${subTypeLabel}</span>`;
+      }
+      
+      // Topic tag (if exists)
+      if (data.topic) {
+        html += `<span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">#[Part ${partNum}] Chủ đề: ${escapeHtml(data.topic)}</span>`;
+      }
+      
+      html += '</div>';
+    }
+    
+    // Audio player (if exists)
+    if (q.audio || (data.conversation && data.conversation.audio)) {
+      const audioUrl = q.audio || (data.conversation && data.conversation.audio);
+      html += `
+        <div class="mb-4 flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+          <audio controls class="flex-1">
+            <source src="${audioUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+    }
+    
+    // Image (if exists) - show before passage content
+    if (q.image || (data.passage && data.passage.image) || (data.conversation && data.conversation.image)) {
+      const imageUrl = q.image || (data.passage && data.passage.image) || (data.conversation && data.conversation.image);
+      html += `
+        <div class="mb-4">
+          <img src="${imageUrl}" alt="Question image" class="w-full max-w-2xl mx-auto rounded-lg border border-slate-200">
+        </div>
+      `;
+    }
+    
+    // Passage content (if exists)
+    if (data.passage && data.passage.content) {
+      html += `
+        <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+          <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${escapeHtml(data.passage.content)}</p>
+        </div>
+      `;
+    }
+    
+    // Question text (with order number)
+    if (q.text) {
+      html += `
+        <div class="mb-4">
+          <p class="text-base font-semibold text-slate-900 leading-relaxed">${q.order || ''} ${escapeHtml(q.text)}</p>
+        </div>
+      `;
+    }
+    
+    // Conversation transcript (if exists) - show after question
+    if (data.conversation && data.conversation.transcript) {
+      html += `
+        <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+          <p class="text-xs font-semibold text-slate-700 mb-2">Transcript:</p>
+          <p class="text-sm text-slate-700 whitespace-pre-line">${escapeHtml(data.conversation.transcript)}</p>
+        </div>
+      `;
+    }
+    
+    // Options
+    if (q.mcq_choices && q.mcq_choices.length > 0) {
+      html += '<div class="mb-4 space-y-2">';
+      q.mcq_choices.forEach(opt => {
+        const isCorrect = opt.key === q.correct_answer;
+        const isSelected = opt.key === answer.selected_key;
+        let bgClass = 'bg-white border-slate-200';
+        
+        if (isCorrect) {
+          bgClass = 'bg-emerald-50 border-emerald-300';
+        } else if (isSelected) {
+          bgClass = 'bg-rose-50 border-rose-300';
+        }
+        
+        html += `
+          <div class="flex items-start gap-2 p-3 rounded-lg border ${bgClass}">
+            <span class="text-sm font-medium text-slate-900">${opt.key}.</span>
+            <span class="text-sm text-slate-900 flex-1">${escapeHtml(opt.text)}</span>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+    
+    // Correct answer
+    html += `<div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg"><p class="text-sm font-semibold text-blue-900">Đáp án đúng: ${q.correct_answer || 'N/A'}</p></div>`;
+    
+    // Explanation
+    if (q.explanation_vi) {
+      html += `
+        <div class="mb-4 border-t border-slate-200 pt-4">
+          <button type="button" id="toggle-explanation" class="w-full text-left text-sm font-semibold text-blue-600 hover:text-blue-700 mb-2 flex items-center justify-between">
+            <span>Giải thích chi tiết đáp án</span>
+            <span id="explanation-icon">▾</span>
+          </button>
+          <div id="explanation-content" class="hidden p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${escapeHtml(q.explanation_vi)}</p>
+          </div>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="mb-4 border-t border-slate-200 pt-4">
+          <p class="text-sm text-slate-500 italic">Chưa có lời giải cho câu hỏi này.</p>
+        </div>
+      `;
+    }
+    
+    content.innerHTML = html;
+    
+    // Toggle explanation
+    const toggleBtn = document.getElementById('toggle-explanation');
+    const explanationContent = document.getElementById('explanation-content');
+    const explanationIcon = document.getElementById('explanation-icon');
+    if (toggleBtn && explanationContent) {
+      toggleBtn.addEventListener('click', function() {
+        const isHidden = explanationContent.classList.contains('hidden');
+        explanationContent.classList.toggle('hidden');
+        if (explanationIcon) {
+          explanationIcon.textContent = isHidden ? '▴' : '▾';
+        }
+      });
+    }
+    
+    // Close modal on outside click (only on the backdrop)
+    // This is handled by the global event listener below
+    
+  } catch (error) {
+    console.error('Error loading question detail:', error);
+    content.innerHTML = '<div class="text-center py-8 text-rose-600">Lỗi khi tải dữ liệu câu hỏi. Vui lòng thử lại.</div>';
+  }
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+
+
 {% endblock %}

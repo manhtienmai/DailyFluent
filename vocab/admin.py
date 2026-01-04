@@ -2,6 +2,7 @@ import json
 
 from django.contrib import admin, messages
 from django.http import JsonResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
@@ -86,8 +87,10 @@ class FixedPhraseExampleInline(admin.TabularInline):
 class EnglishVocabularyExampleInline(admin.TabularInline):
     model = EnglishVocabularyExample
     extra = 1
-    fields = ("order", "en", "vi")
+    fields = ("order", "sentence_marked", "sentence_en", "context", "word_count", "vi", "audio_us", "audio_uk")
     ordering = ("order", "id")
+    verbose_name = "Example"
+    verbose_name_plural = "Examples"
 
 
 @admin.register(EnglishVocabulary)
@@ -97,6 +100,7 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
     list_display = (
         "en_word",
         "phonetic",
+        "pos",
         "vi_meaning",
         "course_ref",
         "lesson_ref",
@@ -104,7 +108,7 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
         "is_active",
         "created_at",
     )
-    list_filter = ("is_verified", "is_active", "course_ref", "lesson_ref", "created_at")
+    list_filter = ("is_verified", "is_active", "pos", "course_ref", "lesson_ref", "created_at")
     search_fields = (
         "en_word",
         "phonetic",
@@ -113,6 +117,8 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
         "example_en",
         "example_vi",
         "notes",
+        "pos",
+        "audio_pack_uuid",
     )
     ordering = ("en_word", "id")
 
@@ -140,6 +146,26 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
                 "api/create-lesson/",
                 self.admin_site.admin_view(self.create_lesson_api),
                 name="vocab_englishvocabulary_create_lesson_api",
+            ),
+            path(
+                "distribute-lessons/",
+                self.admin_site.admin_view(self.distribute_lessons_view),
+                name="vocab_englishvocabulary_distribute_lessons",
+            ),
+            path(
+                "api/assign-lessons/",
+                self.admin_site.admin_view(self.assign_lessons_api),
+                name="vocab_englishvocabulary_assign_lessons_api",
+            ),
+            path(
+                "bulk-upload-images/",
+                self.admin_site.admin_view(self.bulk_upload_images_view),
+                name="vocab_englishvocabulary_bulk_upload_images",
+            ),
+            path(
+                "upload-image-api/",
+                self.admin_site.admin_view(self.upload_image_api),
+                name="vocab_englishvocabulary_upload_image_api",
             ),
         ]
         return custom_urls + urls
@@ -372,13 +398,14 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
             errors = 0
 
             with transaction.atomic():
-                for item in data:
+                for idx, item in enumerate(data):
                     if not isinstance(item, dict):
                         errors += 1
                         continue
 
+                    # Support both old format and new format
                     en_word = (item.get("en_word") or item.get("word") or "").strip()
-                    vi_meaning = (item.get("vi_meaning") or item.get("meaning_vi") or "").strip()
+                    vi_meaning = (item.get("vi_meaning") or item.get("meaning_vn") or "").strip()
                     if not en_word or not vi_meaning:
                         skipped += 1
                         continue
@@ -397,17 +424,31 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
                     if lesson_title and (not item_lesson_obj or item_lesson_obj.title != lesson_title or item_lesson_obj.section_id != (item_section_obj.id if item_section_obj else None)):
                         item_lesson_obj, _created_lesson_item = Lesson.objects.get_or_create(section=item_section_obj, title=lesson_title)
 
+                    # Build notes (keep existing notes, add extra info if needed)
+                    notes = (item.get("notes") or "").strip()
+                    
+                    # Get pos, pos_candidates, audio_pack_uuid (new fields)
+                    pos = (item.get("pos") or "").strip()
+                    pos_candidates = item.get("pos_candidates")
+                    if not isinstance(pos_candidates, list):
+                        pos_candidates = []
+                    audio_pack_uuid = (item.get("audio_pack_uuid") or "").strip()
+
                     vocab_kwargs = {
-                        "phonetic": (item.get("phonetic") or item.get("ipa") or "").strip(),
+                        "phonetic": (item.get("phonetic") or item.get("pronunciation_uk_ipa") or item.get("ipa") or "").strip(),
                         "vi_meaning": vi_meaning,
-                        "en_definition": (item.get("en_definition") or item.get("definition_en") or "").strip(),
+                        "en_definition": (item.get("en_definition") or item.get("definition_en_simple") or item.get("definition_en") or "").strip(),
                         "course": course_title,
                         "section": section_title,
                         "lesson": lesson_title,
                         "course_ref": item_course_obj,
                         "section_ref": item_section_obj,
                         "lesson_ref": item_lesson_obj,
-                        "notes": (item.get("notes") or "").strip(),
+                        "notes": notes,
+                        "pos": pos,
+                        "pos_candidates": pos_candidates,
+                        "audio_pack_uuid": audio_pack_uuid,
+                        "import_order": idx + 1,  # Giữ nguyên thứ tự import (1-based)
                         "is_active": bool(item.get("is_active", default_active)),
                         "is_verified": bool(item.get("is_verified", False)),
                     }
@@ -428,20 +469,49 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
                             for idx, ex in enumerate(examples):
                                 if not isinstance(ex, dict):
                                     continue
-                                ex_en = (ex.get("en") or "").strip()
+                                
+                                # Support new format: sentence_en, sentence_marked, context, word_count
+                                # and old format: en, vi
+                                sentence_marked = (ex.get("sentence_marked") or "").strip()
+                                sentence_en = (ex.get("sentence_en") or ex.get("en") or "").strip()
                                 ex_vi = (ex.get("vi") or "").strip()
+                                context = (ex.get("context") or "").strip()
+                                word_count = ex.get("word_count")
+                                
+                                # Use sentence_marked if available, otherwise use sentence_en
+                                ex_en = sentence_marked if sentence_marked else sentence_en
+                                
                                 if not ex_en and not ex_vi:
                                     continue
+                                
                                 order = ex.get("order")
                                 try:
                                     order = int(order)
                                 except Exception:
                                     order = idx
+                                
+                                # Build vi from context if available (new format)
+                                ex_vi_final = ex_vi
+                                if context and not ex_vi:
+                                    ex_vi_final = f"[{context}]"
+                                
+                                # Convert word_count to int if available
+                                word_count_int = None
+                                if word_count is not None:
+                                    try:
+                                        word_count_int = int(word_count)
+                                    except (ValueError, TypeError):
+                                        word_count_int = None
+                                
                                 EnglishVocabularyExample.objects.create(
                                     vocab=vocab_obj,
                                     order=order,
                                     en=ex_en or "",
-                                    vi=ex_vi or "",
+                                    vi=ex_vi_final or "",
+                                    sentence_marked=sentence_marked,
+                                    sentence_en=sentence_en if sentence_en else ex_en,
+                                    context=context,
+                                    word_count=word_count_int,
                                 )
                         else:
                             # Legacy: example_en/example_vi -> create one example if present
@@ -472,8 +542,329 @@ class EnglishVocabularyAdmin(ImportExportModelAdmin):
                 messages.info(request, _("%d items skipped (missing en_word or vi_meaning).") % skipped)
             if errors and not (created or updated):
                 messages.error(request, _("%d items failed to import.") % errors)
+            
+            # If import successful and no lesson assigned, redirect to distribution page
+            if (created or updated) and not lesson_obj:
+                # Store imported vocab IDs in session for distribution
+                imported_words = [item.get("en_word") or item.get("word") for item in data if isinstance(item, dict) and (item.get("en_word") or item.get("word"))]
+                if imported_words:
+                    imported_vocab_ids = list(
+                        EnglishVocabulary.objects.filter(en_word__in=imported_words).values_list("id", flat=True)
+                    )
+                    if imported_vocab_ids:
+                        request.session["imported_vocab_ids"] = imported_vocab_ids
+                        return redirect("admin:vocab_englishvocabulary_distribute_lessons")
 
         return TemplateResponse(request, "admin/vocab/englishvocabulary/import_json.html", context)
+
+    def distribute_lessons_view(self, request):
+        """
+        UI để phân chia từ vựng đã import vào các lesson.
+        Nếu không có imported vocab trong session, hiển thị tất cả vocab chưa có lesson.
+        """
+        from core.models import Course, Section, Lesson
+        
+        imported_vocab_ids = request.session.get("imported_vocab_ids", [])
+        
+        # Nếu không có imported vocab trong session, lấy tất cả vocab chưa có lesson
+        if not imported_vocab_ids:
+            imported_vocabs = EnglishVocabulary.objects.filter(
+                lesson_ref__isnull=True,
+                is_active=True
+            ).order_by("import_order", "id", "en_word")
+            imported_vocab_ids = list(imported_vocabs.values_list("id", flat=True))
+            
+            if not imported_vocab_ids:
+                messages.info(request, _("No unassigned vocabulary found. All vocabulary items have been assigned to lessons."))
+                return redirect("admin:vocab_englishvocabulary_changelist")
+            else:
+                messages.info(request, _("Showing all unassigned vocabulary. You can also import new vocabulary and it will automatically appear here."))
+        else:
+            # Get imported vocab items - giữ nguyên thứ tự import
+            imported_vocabs = EnglishVocabulary.objects.filter(id__in=imported_vocab_ids).order_by("import_order", "id")
+        
+        # Get all courses, sections, lessons for selection
+        courses_qs = Course.objects.order_by("order", "title")
+        sections_qs = Section.objects.select_related("course").order_by("course__order", "course__title", "order", "title")
+        lessons_qs = Lesson.objects.select_related("section", "section__course").order_by(
+            "section__course__order",
+            "section__course__title",
+            "section__order",
+            "section__title",
+            "order",
+            "title",
+        )
+        
+        context = dict(
+            self.admin_site.each_context(request),
+            title=_("Distribute Vocabulary to Lessons"),
+            opts=self.model._meta,
+            app_label=self.model._meta.app_label,
+            imported_vocabs=imported_vocabs,
+            imported_count=len(imported_vocab_ids),
+            courses=courses_qs,
+            sections=sections_qs,
+            lessons=lessons_qs,
+        )
+        
+        return TemplateResponse(request, "admin/vocab/englishvocabulary/distribute_lessons.html", context)
+    
+    def assign_lessons_api(self, request):
+        """
+        API để assign vocab vào lessons (AJAX).
+        """
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+        
+        import json
+        from core.models import Lesson
+        
+        try:
+            assignments = json.loads(request.POST.get("assignments", "[]"))
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        
+        if not isinstance(assignments, list):
+            return JsonResponse({"error": "Assignments must be a list"}, status=400)
+        
+        updated = 0
+        errors = []
+        
+        with transaction.atomic():
+            for assignment in assignments:
+                vocab_id = assignment.get("vocab_id")
+                lesson_id = assignment.get("lesson_id")
+                
+                if not vocab_id:
+                    errors.append("Missing vocab_id")
+                    continue
+                
+                try:
+                    vocab_obj = EnglishVocabulary.objects.get(id=int(vocab_id))
+                except EnglishVocabulary.DoesNotExist:
+                    errors.append(f"Vocabulary {vocab_id} not found")
+                    continue
+                
+                lesson_obj = None
+                if lesson_id:
+                    try:
+                        lesson_obj = Lesson.objects.select_related("section", "section__course").get(id=int(lesson_id))
+                        vocab_obj.lesson_ref = lesson_obj
+                        vocab_obj.section_ref = lesson_obj.section
+                        vocab_obj.course_ref = lesson_obj.section.course if lesson_obj.section else None
+                        vocab_obj.lesson = lesson_obj.title
+                        vocab_obj.section = lesson_obj.section.title if lesson_obj.section else ""
+                        vocab_obj.course = lesson_obj.section.course.title if lesson_obj.section and lesson_obj.section.course else ""
+                    except Lesson.DoesNotExist:
+                        errors.append(f"Lesson {lesson_id} not found")
+                        continue
+                else:
+                    # Clear assignment
+                    vocab_obj.lesson_ref = None
+                    vocab_obj.section_ref = None
+                    vocab_obj.course_ref = None
+                    vocab_obj.lesson = ""
+                    vocab_obj.section = ""
+                    vocab_obj.course = ""
+                
+                vocab_obj.save()
+                updated += 1
+        
+        # Clear session
+        if "imported_vocab_ids" in request.session:
+            del request.session["imported_vocab_ids"]
+        
+        return JsonResponse({
+            "success": True,
+            "updated": updated,
+            "errors": errors,
+        })
+    
+    def bulk_upload_images_view(self, request):
+        """Custom view để hiển thị tất cả vocabulary và upload ảnh nhanh"""
+        from django.db.models import Q
+        from core.models import Course, Section, Lesson
+        
+        # Get filter parameters
+        course_id = request.GET.get('course', '')
+        section_id = request.GET.get('section', '')
+        lesson_id = request.GET.get('lesson', '')
+        has_image = request.GET.get('has_image', '')
+        search_query = request.GET.get('search', '')
+        
+        # Base queryset
+        vocab_items = EnglishVocabulary.objects.select_related('course_ref', 'section_ref', 'lesson_ref').order_by('course_ref', 'section_ref', 'lesson_ref', 'en_word', 'id')
+        
+        # Apply filters
+        if course_id:
+            vocab_items = vocab_items.filter(course_ref_id=course_id)
+        
+        if section_id:
+            vocab_items = vocab_items.filter(section_ref_id=section_id)
+        
+        if lesson_id:
+            vocab_items = vocab_items.filter(lesson_ref_id=lesson_id)
+        
+        if has_image == 'yes':
+            vocab_items = vocab_items.filter(image__isnull=False).exclude(image='')
+        elif has_image == 'no':
+            vocab_items = vocab_items.filter(
+                Q(image='') | Q(image__isnull=True)
+            )
+        
+        if search_query:
+            vocab_items = vocab_items.filter(
+                Q(en_word__icontains=search_query) |
+                Q(vi_meaning__icontains=search_query) |
+                Q(id__icontains=search_query)
+            )
+        
+        # Get all courses, sections, lessons for filter dropdown
+        courses = Course.objects.order_by('order', 'title')
+        sections = Section.objects.select_related('course').order_by('course__order', 'order', 'title')
+        lessons = Lesson.objects.select_related('section', 'section__course').order_by('section__course__order', 'section__order', 'order', 'title')
+        
+        # Group vocabulary by lesson (or course/section if no lesson)
+        grouped_vocab = {}
+        no_lesson_vocab = []
+        
+        for vocab in vocab_items:
+            if vocab.lesson_ref:
+                lesson_id_key = vocab.lesson_ref.id
+                if lesson_id_key not in grouped_vocab:
+                    grouped_vocab[lesson_id_key] = {
+                        'lesson': vocab.lesson_ref,
+                        'section': vocab.section_ref,
+                        'course': vocab.course_ref,
+                        'vocab_items': []
+                    }
+                grouped_vocab[lesson_id_key]['vocab_items'].append(vocab)
+            else:
+                no_lesson_vocab.append(vocab)
+        
+        # Convert to list for template
+        vocab_groups = []
+        def get_sort_key(x):
+            course = x[1]['course']
+            section = x[1]['section']
+            lesson = x[1]['lesson']
+            return (
+                course.order if course and hasattr(course, 'order') else 999,
+                section.order if section and hasattr(section, 'order') else 999,
+                lesson.order if lesson and hasattr(lesson, 'order') else 999,
+                lesson.id if lesson else 999
+            )
+        
+        for lesson_id_key, group_data in sorted(grouped_vocab.items(), key=get_sort_key):
+            vocab_groups.append(group_data)
+        
+        # Add no_lesson group at the end
+        if no_lesson_vocab:
+            vocab_groups.append({
+                'lesson': None,
+                'section': None,
+                'course': None,
+                'vocab_items': no_lesson_vocab
+            })
+        
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Bulk Upload Images - Vocabulary',
+            'vocab_groups': vocab_groups,
+            'total_count': vocab_items.count(),
+            'courses': courses,
+            'sections': sections,
+            'lessons': lessons,
+            'current_course': course_id,
+            'current_section': section_id,
+            'current_lesson': lesson_id,
+            'current_has_image': has_image,
+            'current_search': search_query,
+            'opts': self.model._meta,
+        }
+        return TemplateResponse(request, 'admin/vocab/englishvocabulary/bulk_upload_images.html', context)
+    
+    def upload_image_api(self, request):
+        """API endpoint để handle file upload cho vocabulary"""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Method not allowed'}, status=405)
+        
+        if not request.user.is_staff:
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+        
+        # Lấy vocab_id từ request
+        vocab_id = request.POST.get('vocab_id')
+        if not vocab_id:
+            return JsonResponse({'error': 'vocab_id is required'}, status=400)
+        
+        vocab = get_object_or_404(EnglishVocabulary, id=vocab_id)
+        
+        # Lấy file từ request
+        if 'image' not in request.FILES:
+            return JsonResponse({'error': 'No image file provided'}, status=400)
+        
+        image_file = request.FILES['image']
+        
+        # Validate file type
+        from pathlib import Path
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        file_ext = Path(image_file.name).suffix.lower()
+        if file_ext not in allowed_extensions:
+            return JsonResponse({
+                'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'
+            }, status=400)
+        
+        # Gán trực tiếp file vào field - Django sẽ tự động upload vào container "media"
+        try:
+            vocab.image = image_file
+            vocab.save()
+            
+            # Get full URL
+            image_url = vocab.image.url if vocab.image else None
+            
+            return JsonResponse({
+                'success': True,
+                'image_url': image_url,
+                'message': 'Image uploaded successfully'
+            })
+        except Exception as e:
+            import traceback
+            error_detail = str(e)
+            error_traceback = traceback.format_exc()
+            
+            # Log error để debug
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Vocabulary image upload error: {error_detail}\n{error_traceback}")
+            
+            # Kiểm tra các lỗi phổ biến và đưa ra thông báo hữu ích
+            if 'AuthenticationFailed' in error_detail or 'authentication' in error_detail.lower():
+                error_msg = (
+                    'Azure authentication failed. '
+                    'Vui lòng kiểm tra các biến môi trường sau trong file .env:\n'
+                    '- AZURE_ACCOUNT_NAME\n'
+                    '- AZURE_ACCOUNT_KEY\n'
+                    '- AZURE_CONTAINER (mặc định: "media")\n'
+                    '- AZURE_AUDIO_CONTAINER (mặc định: "audio")'
+                )
+            elif 'ContainerNotFound' in error_detail or 'container' in error_detail.lower():
+                error_msg = (
+                    'Azure container không tồn tại. '
+                    'Vui lòng đảm bảo container "media" đã được tạo trong Azure Storage Account.'
+                )
+            elif 'account_name' in error_detail.lower() or 'account_key' in error_detail.lower():
+                error_msg = (
+                    'Thiếu thông tin Azure Storage. '
+                    'Vui lòng kiểm tra các biến môi trường:\n'
+                    '- AZURE_ACCOUNT_NAME\n'
+                    '- AZURE_ACCOUNT_KEY'
+                )
+            else:
+                error_msg = f'Upload failed: {error_detail}'
+            
+            return JsonResponse({
+                'error': error_msg
+            }, status=500)
 
 
 @admin.register(FixedPhrase)

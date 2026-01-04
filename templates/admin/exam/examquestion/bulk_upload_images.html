@@ -1,0 +1,1113 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Bulk Upload Images - Questions{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+.df-bulk-upload-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.df-filters {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.df-filters-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.df-filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.df-filter-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.df-filter-group select,
+.df-filter-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.df-filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.df-btn-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.df-btn-filter:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.df-btn-filter.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.df-questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.df-question-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.df-question-card:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-color: #cbd5e1;
+}
+
+.df-question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.df-question-id {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.df-question-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.df-question-text {
+  font-size: 0.875rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  max-height: 3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.df-question-image {
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.df-question-image img {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+}
+
+.df-question-image-placeholder {
+  padding: 2rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.375rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.df-question-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.df-btn-upload {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #3b82f6;
+  border-radius: 0.375rem;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.df-btn-upload:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.df-btn-view {
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.df-btn-view:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Upload Modal */
+.df-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-modal.active {
+  display: flex;
+}
+
+.df-modal-content {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.df-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.df-modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.df-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-modal-close:hover {
+  color: #1e293b;
+}
+
+.df-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.df-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.df-upload-zone.dragover {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.df-upload-preview {
+  margin-top: 1rem;
+  display: none;
+}
+
+.df-upload-preview.active {
+  display: block;
+}
+
+.df-upload-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.375rem;
+}
+
+.df-upload-progress {
+  margin-top: 1rem;
+  display: none;
+}
+
+.df-upload-progress.active {
+  display: block;
+}
+
+.df-upload-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.df-upload-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.df-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.df-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.df-alert.active {
+  display: block;
+}
+
+.df-alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.df-alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.df-stats {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.df-stats strong {
+  color: #1e293b;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .df-bulk-upload-container {
+    color: var(--df-text, #f1f5f9);
+  }
+  
+  .df-bulk-upload-container h1 {
+    color: var(--df-text, #f1f5f9);
+  }
+
+  .df-filters {
+    background: var(--df-panel, #334155) !important;
+    border: 1px solid var(--df-border, #475569) !important;
+  }
+
+  .df-filter-group label {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-filter-group select,
+  .df-filter-group input {
+    background: rgba(51, 65, 85, 0.5) !important;
+    color: var(--df-text, #f1f5f9) !important;
+    border-color: var(--df-border, #475569) !important;
+  }
+
+  .df-btn-filter {
+    background: rgba(71, 85, 105, 0.4) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-btn-filter:hover {
+    background: rgba(71, 85, 105, 0.6) !important;
+  }
+
+  .df-question-card {
+    background: var(--df-panel, #334155) !important;
+    border-color: var(--df-border, #475569) !important;
+  }
+
+  .df-question-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .df-question-id {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-question-meta {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-question-text {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-question-image-placeholder {
+    background: rgba(51, 65, 85, 0.3) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-btn-view {
+    background: rgba(71, 85, 105, 0.4) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-btn-view:hover {
+    background: rgba(71, 85, 105, 0.6) !important;
+  }
+
+  .df-modal-content {
+    background: var(--df-panel, #334155) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-modal-header h2 {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-modal-close {
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-modal-close:hover {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-zone {
+    background: rgba(51, 65, 85, 0.3) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-upload-zone:hover {
+    background: rgba(51, 65, 85, 0.5) !important;
+    border-color: var(--df-primary, #3b82f6) !important;
+  }
+
+  .df-upload-zone.dragover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: var(--df-primary, #3b82f6) !important;
+  }
+
+  .df-upload-progress-bar {
+    background: rgba(71, 85, 105, 0.4) !important;
+  }
+
+  .df-stats {
+    background: rgba(51, 65, 85, 0.3) !important;
+    color: var(--df-text, #f1f5f9) !important;
+    border: 1px solid var(--df-border, #475569) !important;
+  }
+
+  .df-stats strong {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  /* Passage group header */
+  .df-passage-group > div:first-child {
+    background: rgba(51, 65, 85, 0.4) !important;
+    border: 1px solid var(--df-border, #475569) !important;
+  }
+
+  .df-passage-group h3 {
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-passage-group .df-question-image-placeholder {
+    background: rgba(51, 65, 85, 0.2) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-muted, #cbd5e1) !important;
+  }
+
+  .df-inline-upload-dropzone {
+    background: rgba(51, 65, 85, 0.3) !important;
+    border-color: var(--df-border, #475569) !important;
+    color: var(--df-text, #f1f5f9) !important;
+  }
+
+  .df-inline-upload-dropzone:hover {
+    background: rgba(51, 65, 85, 0.5) !important;
+    border-color: var(--df-primary, #3b82f6) !important;
+  }
+
+  .df-inline-progress > div {
+    background: rgba(71, 85, 105, 0.4) !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-bulk-upload-container">
+  <h1>Bulk Upload Images - Questions</h1>
+  
+  <div class="df-stats">
+    <strong>Total:</strong> {{ total_count }} questions
+    {% if current_template %}
+      | <strong>Template:</strong> {{ question_groups.0.questions.0.template.title|default:"N/A" }}
+    {% endif %}
+    {% if current_part %}
+      | <strong>Part:</strong> {{ current_part }}
+    {% endif %}
+  </div>
+  
+  <div class="df-filters">
+    <form method="get" id="filter-form">
+      <div class="df-filters-row">
+        <div class="df-filter-group">
+          <label>Template</label>
+          <select name="template" id="filter-template">
+            <option value="">All Templates</option>
+            {% for t in templates %}
+              <option value="{{ t.id }}" {% if current_template == t.id|stringformat:"s" %}selected{% endif %}>
+                {{ t.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>TOEIC Part</label>
+          <select name="part" id="filter-part">
+            <option value="">All Parts</option>
+            {% for part in parts %}
+              <option value="{{ part.value }}" {% if current_part == part.value %}selected{% endif %}>
+                {{ part.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Has Image</label>
+          <select name="has_image" id="filter-has-image">
+            <option value="">All</option>
+            <option value="yes" {% if current_has_image == "yes" %}selected{% endif %}>Has Image</option>
+            <option value="no" {% if current_has_image == "no" %}selected{% endif %}>No Image</option>
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Search</label>
+          <input type="text" name="search" id="filter-search" 
+                 value="{{ current_search }}" 
+                 placeholder="Search by text or ID...">
+        </div>
+      </div>
+      
+      <div class="df-filter-buttons">
+        <button type="submit" class="df-btn-filter active">Apply Filters</button>
+        <a href="{% url 'admin:exam_examquestion_bulk_upload_images' %}" class="df-btn-filter">Clear</a>
+      </div>
+    </form>
+  </div>
+  
+  {% for group in question_groups %}
+    {% if group.passage %}
+      <div class="df-passage-group" style="margin-bottom: 2rem;">
+        <div style="background: #f1f5f9; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="margin: 0; font-size: 1rem; color: #1e293b;">
+              📄 Passage #{{ group.passage.order }} - {{ group.questions|length }} question{{ group.questions|length|pluralize }}
+            </h3>
+            <button class="df-btn-upload" onclick="openUploadModal({{ group.passage.id }}, '{{ group.passage.template.title|escapejs }}', {{ group.passage.order }}, 'passage')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+              📷 Upload Passage Image
+            </button>
+          </div>
+          {% if group.passage.image %}
+            <div style="margin-top: 0.75rem;">
+              <img src="{{ group.passage.image.url }}" alt="Passage Image" 
+                   style="max-width: 100%; max-height: 200px; border-radius: 0.375rem; border: 1px solid #e2e8f0;">
+            </div>
+          {% else %}
+            <div style="margin-top: 0.75rem; padding: 2rem; background: #fff; border: 2px dashed #cbd5e1; border-radius: 0.375rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
+              No passage image. Click "Upload Passage Image" to add one.
+            </div>
+          {% endif %}
+        </div>
+        <div class="df-questions-grid">
+          {% for question in group.questions %}
+            <div class="df-question-card" data-question-id="{{ question.id }}">
+              <div class="df-question-header">
+                <div>
+                  <div class="df-question-id">Question #{{ question.id }}</div>
+                  <div class="df-question-meta">
+                    {{ question.template.title|truncatewords:5 }} | 
+                    Order: {{ question.order }}
+                    {% if question.toeic_part %}
+                      | {{ question.get_toeic_part_display }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+              {% if question.has_meaningful_text %}
+                <div class="df-question-text">
+                  {{ question.text|truncatewords:15 }}
+                </div>
+              {% endif %}
+              
+              {% if question.toeic_part in "L1,L2,L3,L4" %}
+                {# Upload zone trực tiếp cho listening questions #}
+                {% if question.image %}
+                  <div class="df-question-image" style="margin-bottom: 0.75rem;">
+                    <img src="{{ question.image.url }}" alt="Question Image">
+                  </div>
+                {% else %}
+                  <div class="df-question-image-placeholder" style="margin-bottom: 0.75rem; padding: 1rem; font-size: 0.75rem;">
+                    Chưa có ảnh
+                  </div>
+                {% endif %}
+                
+                <div class="df-inline-upload-zone" data-question-id="{{ question.id }}" style="margin-bottom: 0.75rem;">
+                  <input type="file" class="inline-file-input" data-question-id="{{ question.id }}" accept="image/*" style="display: none;">
+                  <div class="df-inline-upload-dropzone" data-question-id="{{ question.id }}" style="border: 2px dashed #cbd5e1; border-radius: 0.375rem; padding: 0.75rem; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                    <div style="font-size: 0.75rem; color: #64748b;">📷 Kéo thả hoặc click để upload</div>
+                  </div>
+                  <div class="df-inline-progress" id="inline-progress-{{ question.id }}" style="display: none; margin-top: 0.5rem;">
+                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                      <div id="inline-progress-fill-{{ question.id }}" style="height: 100%; background: #3b82f6; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              
+              <div class="df-question-actions">
+                <a href="{% url 'admin:exam_examquestion_change' question.id %}" class="df-btn-view" target="_blank" style="flex: 1; text-align: center;">
+                  View Question
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="df-questions-grid">
+        {% for question in group.questions %}
+          <div class="df-question-card" data-question-id="{{ question.id }}">
+            <div class="df-question-header">
+              <div>
+                <div class="df-question-id">Question #{{ question.id }}</div>
+                <div class="df-question-meta">
+                  {{ question.template.title|truncatewords:5 }} | 
+                  Order: {{ question.order }}
+                  {% if question.toeic_part %}
+                    | {{ question.get_toeic_part_display }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            {% if question.has_meaningful_text %}
+              <div class="df-question-text">
+                {{ question.text|truncatewords:15 }}
+              </div>
+            {% endif %}
+            
+            {% if question.toeic_part in "L1,L2,L3,L4" %}
+              {# Upload zone trực tiếp cho listening questions #}
+              {% if question.image %}
+                <div class="df-question-image" style="margin-bottom: 0.75rem;">
+                  <img src="{{ question.image.url }}" alt="Question Image">
+                </div>
+              {% else %}
+                <div class="df-question-image-placeholder" style="margin-bottom: 0.75rem; padding: 1rem; font-size: 0.75rem;">
+                  Chưa có ảnh
+                </div>
+              {% endif %}
+              
+              <div class="df-inline-upload-zone" data-question-id="{{ question.id }}" style="margin-bottom: 0.75rem;">
+                <input type="file" class="inline-file-input" data-question-id="{{ question.id }}" accept="image/*" style="display: none;">
+                <div class="df-inline-upload-dropzone" data-question-id="{{ question.id }}" style="border: 2px dashed #cbd5e1; border-radius: 0.375rem; padding: 0.75rem; text-align: center; cursor: pointer; background: #f8fafc; transition: all 0.2s;">
+                  <div style="font-size: 0.75rem; color: #64748b;">📷 Kéo thả hoặc click để upload</div>
+                </div>
+                <div class="df-inline-progress" id="inline-progress-{{ question.id }}" style="display: none; margin-top: 0.5rem;">
+                  <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                    <div id="inline-progress-fill-{{ question.id }}" style="height: 100%; background: #3b82f6; width: 0%; transition: width 0.3s;"></div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+            
+            <div class="df-question-actions">
+              <a href="{% url 'admin:exam_examquestion_change' question.id %}" class="df-btn-view" target="_blank" style="flex: 1; text-align: center;">
+                View Question
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% empty %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+      No questions found. Try adjusting your filters.
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Upload Modal -->
+<div class="df-modal" id="upload-modal">
+  <div class="df-modal-content">
+    <div class="df-modal-header">
+      <h2 id="modal-title">Upload Image</h2>
+      <button class="df-modal-close" onclick="closeUploadModal()">&times;</button>
+    </div>
+    
+    <div class="df-alert df-alert-success" id="success-alert">
+      <strong>Success!</strong> <span id="success-message"></span>
+    </div>
+    
+    <div class="df-alert df-alert-error" id="error-alert">
+      <strong>Error!</strong> <span id="error-message"></span>
+    </div>
+    
+    <div class="df-upload-zone" id="upload-zone">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+      <div style="font-size: 1rem; color: #475569; margin-bottom: 0.25rem;">Click to upload, drag and drop, or paste (Ctrl+V)</div>
+      <div style="font-size: 0.875rem; color: #64748b;">PNG, JPG, GIF up to 10MB</div>
+      <input type="file" id="file-input" accept="image/*" style="display: none;">
+    </div>
+    
+    <div class="df-upload-progress" id="progress-container">
+      <div class="df-upload-progress-bar">
+        <div class="df-upload-progress-fill" id="progress-fill"></div>
+      </div>
+      <p style="text-align: center; margin-top: 0.5rem; color: #64748b; font-size: 0.875rem;">
+        Uploading... <span id="progress-text">0%</span>
+      </p>
+    </div>
+    
+    <div class="df-upload-preview" id="preview-container">
+      <img id="preview-image" src="" alt="Preview">
+    </div>
+    
+    <div class="df-modal-actions">
+      <button class="df-btn-filter" onclick="closeUploadModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentQuestionId = null;
+let currentPassageId = null;
+let uploadType = null; // 'question' or 'passage'
+
+function openUploadModal(id, templateTitle, order, type = 'question') {
+  uploadType = type;
+  if (type === 'passage') {
+    currentPassageId = id;
+    document.getElementById('modal-title').textContent = `Upload Passage Image - Passage #${order} (${templateTitle})`;
+  } else {
+    currentQuestionId = id;
+    document.getElementById('modal-title').textContent = `Upload Image - Question #${id} (${templateTitle}, Order: ${order})`;
+  }
+  document.getElementById('upload-modal').classList.add('active');
+  resetModal();
+}
+
+function closeUploadModal() {
+  document.getElementById('upload-modal').classList.remove('active');
+  currentQuestionId = null;
+  currentPassageId = null;
+  uploadType = null;
+  resetModal();
+}
+
+function resetModal() {
+  document.getElementById('file-input').value = '';
+  document.getElementById('preview-container').classList.remove('active');
+  document.getElementById('progress-container').classList.remove('active');
+  document.getElementById('success-alert').classList.remove('active');
+  document.getElementById('error-alert').classList.remove('active');
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-text').textContent = '0%';
+}
+
+// Get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+const previewContainer = document.getElementById('preview-container');
+const previewImage = document.getElementById('preview-image');
+const progressContainer = document.getElementById('progress-container');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const successAlert = document.getElementById('success-alert');
+const errorAlert = document.getElementById('error-alert');
+const successMessage = document.getElementById('success-message');
+const errorMessage = document.getElementById('error-message');
+
+// Click to upload
+uploadZone.addEventListener('click', () => {
+  fileInput.click();
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) {
+    handleFile(e.target.files[0]);
+  }
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  
+  if (e.dataTransfer.files.length > 0) {
+    handleFile(e.dataTransfer.files[0]);
+  }
+});
+
+// Paste image from clipboard
+document.addEventListener('paste', (e) => {
+  // Only handle paste when modal is open
+  const modal = document.getElementById('upload-modal');
+  if (!modal || !modal.classList.contains('active')) return;
+  
+  // Check if upload zone is focused or modal is active
+  const items = e.clipboardData.items;
+  
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    
+    // Check if item is an image
+    if (item.type.indexOf('image') !== -1) {
+      e.preventDefault();
+      
+      // Get image as blob
+      const blob = item.getAsFile();
+      
+      // Convert blob to File object
+      const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+        type: blob.type || 'image/png'
+      });
+      
+      // Handle the file
+      handleFile(file);
+      break;
+    }
+  }
+});
+
+function handleFile(file) {
+  if (uploadType === 'passage' && !currentPassageId) return;
+  if (uploadType === 'question' && !currentQuestionId) return;
+  
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    showError('Please select an image file');
+    return;
+  }
+  
+  // Validate file size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showError('File size must be less than 10MB');
+    return;
+  }
+  
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+    previewContainer.classList.add('active');
+  };
+  reader.readAsDataURL(file);
+  
+  // Upload file
+  uploadFile(file);
+}
+
+function uploadFile(file) {
+  if (uploadType === 'passage' && !currentPassageId) return;
+  if (uploadType === 'question' && !currentQuestionId) return;
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  if (uploadType === 'passage') {
+    formData.append('passage_id', currentPassageId);
+  } else {
+    formData.append('question_id', currentQuestionId);
+  }
+  
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  
+  // Show progress
+  progressContainer.classList.add('active');
+  progressFill.style.width = '0%';
+  progressText.textContent = '0%';
+  hideAlerts();
+  
+  const xhr = new XMLHttpRequest();
+  
+  // Track upload progress
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+      progressText.textContent = percent + '%';
+    }
+  });
+  
+  xhr.addEventListener('load', () => {
+    progressContainer.classList.remove('active');
+    
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        showSuccess('Image uploaded successfully! Refreshing...');
+        // Refresh the question card after 1 second
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showError(response.error || 'Upload failed');
+      }
+    } else {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        showError(response.error || 'Upload failed');
+      } catch (e) {
+        showError('Upload failed. Please try again.');
+      }
+    }
+  });
+  
+  xhr.addEventListener('error', () => {
+    progressContainer.classList.remove('active');
+    showError('Network error. Please try again.');
+  });
+  
+  const apiUrl = uploadType === 'passage' 
+    ? '{% url "admin:exam_examquestion_upload_passage_image_api" %}'
+    : '{% url "admin:exam_examquestion_upload_image_api" %}';
+  xhr.open('POST', apiUrl);
+  xhr.send(formData);
+}
+
+function showSuccess(message) {
+  successMessage.textContent = message;
+  successAlert.classList.add('active');
+  errorAlert.classList.remove('active');
+}
+
+function showError(message) {
+  errorMessage.textContent = message;
+  errorAlert.classList.add('active');
+  successAlert.classList.remove('active');
+}
+
+function hideAlerts() {
+  successAlert.classList.remove('active');
+  errorAlert.classList.remove('active');
+}
+
+// Close modal on outside click
+document.getElementById('upload-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'upload-modal') {
+    closeUploadModal();
+  }
+});
+
+// Inline upload for listening questions (L1-L4)
+document.addEventListener('DOMContentLoaded', function() {
+  // Setup inline file inputs
+  const inlineFileInputs = document.querySelectorAll('.inline-file-input');
+  inlineFileInputs.forEach(input => {
+    const questionId = input.dataset.questionId;
+    const dropzone = document.querySelector(`.df-inline-upload-dropzone[data-question-id="${questionId}"]`);
+    const progressContainer = document.getElementById(`inline-progress-${questionId}`);
+    const progressFill = document.getElementById(`inline-progress-fill-${questionId}`);
+    
+    if (!dropzone) return;
+    
+    // Click to upload
+    dropzone.addEventListener('click', () => {
+      input.click();
+    });
+    
+    // File input change
+    input.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleInlineUpload(e.target.files[0], questionId, progressContainer, progressFill);
+      }
+    });
+    
+    // Drag and drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.borderColor = '#3b82f6';
+      dropzone.style.background = '#eff6ff';
+    });
+    
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.style.borderColor = '#cbd5e1';
+      dropzone.style.background = '#f8fafc';
+    });
+    
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.style.borderColor = '#cbd5e1';
+      dropzone.style.background = '#f8fafc';
+      
+      if (e.dataTransfer.files.length > 0) {
+        handleInlineUpload(e.dataTransfer.files[0], questionId, progressContainer, progressFill);
+      }
+    });
+  });
+});
+
+function handleInlineUpload(file, questionId, progressContainer, progressFill) {
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    alert('Vui lòng chọn file ảnh');
+    return;
+  }
+  
+  // Validate file size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Kích thước file phải nhỏ hơn 10MB');
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('question_id', questionId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  
+  // Show progress
+  progressContainer.style.display = 'block';
+  progressFill.style.width = '0%';
+  
+  const xhr = new XMLHttpRequest();
+  
+  // Track upload progress
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+    }
+  });
+  
+  xhr.addEventListener('load', () => {
+    progressContainer.style.display = 'none';
+    
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        // Reload page to show new image
+        location.reload();
+      } else {
+        alert('Upload thất bại: ' + (response.error || 'Lỗi không xác định'));
+      }
+    } else {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        alert('Upload thất bại: ' + (response.error || 'Lỗi không xác định'));
+      } catch (e) {
+        alert('Upload thất bại. Vui lòng thử lại.');
+      }
+    }
+  });
+  
+  xhr.addEventListener('error', () => {
+    progressContainer.style.display = 'none';
+    alert('Lỗi kết nối. Vui lòng thử lại.');
+  });
+  
+  xhr.open('POST', '{% url "admin:exam_examquestion_upload_image_api" %}');
+  xhr.send(formData);
+}
+</script>
+{% endblock %}
+

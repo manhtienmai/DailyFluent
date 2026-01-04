@@ -1,0 +1,969 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Bulk Upload Images - Vocabulary{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin-modern.css' %}">
+<style>
+.df-bulk-upload-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.df-filters {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.df-filters-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.df-filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.df-filter-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.df-filter-group select,
+.df-filter-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.df-filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.df-btn-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.df-btn-filter:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.df-btn-filter.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.df-vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.df-vocab-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.df-vocab-card:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-color: #cbd5e1;
+}
+
+.df-vocab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.df-vocab-word {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.df-vocab-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.df-vocab-meaning {
+  font-size: 0.875rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.df-vocab-image {
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.df-vocab-image img {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+}
+
+.df-vocab-image-placeholder {
+  padding: 2rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.375rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.df-vocab-card.dragover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.df-vocab-card.dragover .df-vocab-image-placeholder {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.df-vocab-image {
+  position: relative;
+}
+
+.df-vocab-image.dragover::after {
+  content: 'Drop image here';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.df-vocab-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.df-btn-upload {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #3b82f6;
+  border-radius: 0.375rem;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.df-btn-upload:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.df-btn-view {
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.df-btn-view:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Upload Modal */
+.df-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-modal.active {
+  display: flex;
+}
+
+.df-modal-content {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.df-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.df-modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.df-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-modal-close:hover {
+  color: #1e293b;
+}
+
+.df-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.df-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.df-upload-zone.dragover {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.df-upload-preview {
+  margin-top: 1rem;
+  display: none;
+}
+
+.df-upload-preview.active {
+  display: block;
+}
+
+.df-upload-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.375rem;
+}
+
+.df-upload-progress {
+  margin-top: 1rem;
+  display: none;
+}
+
+.df-upload-progress.active {
+  display: block;
+}
+
+.df-upload-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.df-upload-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.df-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.df-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.df-alert.active {
+  display: block;
+}
+
+.df-alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.df-alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.df-stats {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.df-stats strong {
+  color: #1e293b;
+}
+
+.df-lesson-group {
+  margin-bottom: 2rem;
+}
+
+.df-lesson-group-header {
+  background: #f1f5f9;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.df-lesson-group-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-bulk-upload-container">
+  <h1>Bulk Upload Images - Vocabulary</h1>
+  
+  <div class="df-stats">
+    <strong>Total:</strong> {{ total_count }} vocabulary items
+    {% if current_course %}
+      | <strong>Course:</strong> 
+      {% for course in courses %}
+        {% if course.id|stringformat:"s" == current_course %}
+          {{ course.title }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if current_lesson %}
+      | <strong>Lesson:</strong> 
+      {% for lesson in lessons %}
+        {% if lesson.id|stringformat:"s" == current_lesson %}
+          {{ lesson.title }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  
+  <div class="df-filters">
+    <form method="get" id="filter-form">
+      <div class="df-filters-row">
+        <div class="df-filter-group">
+          <label>Course</label>
+          <select name="course" id="filter-course">
+            <option value="">All Courses</option>
+            {% for course in courses %}
+              <option value="{{ course.id }}" {% if current_course == course.id|stringformat:"s" %}selected{% endif %}>
+                {{ course.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Section</label>
+          <select name="section" id="filter-section">
+            <option value="">All Sections</option>
+            {% for section in sections %}
+              <option value="{{ section.id }}" {% if current_section == section.id|stringformat:"s" %}selected{% endif %}>
+                {{ section.course.title }} - {{ section.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Lesson</label>
+          <select name="lesson" id="filter-lesson">
+            <option value="">All Lessons</option>
+            {% for lesson in lessons %}
+              <option value="{{ lesson.id }}" {% if current_lesson == lesson.id|stringformat:"s" %}selected{% endif %}>
+                {{ lesson.section.course.title }} - {{ lesson.section.title }} - {{ lesson.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Has Image</label>
+          <select name="has_image" id="filter-has-image">
+            <option value="">All</option>
+            <option value="yes" {% if current_has_image == "yes" %}selected{% endif %}>Has Image</option>
+            <option value="no" {% if current_has_image == "no" %}selected{% endif %}>No Image</option>
+          </select>
+        </div>
+        
+        <div class="df-filter-group">
+          <label>Search</label>
+          <input type="text" name="search" id="filter-search" 
+                 value="{{ current_search }}" 
+                 placeholder="Search by word or meaning...">
+        </div>
+      </div>
+      
+      <div class="df-filter-buttons">
+        <button type="submit" class="df-btn-filter active">Apply Filters</button>
+        <a href="{% url 'admin:vocab_englishvocabulary_bulk_upload_images' %}" class="df-btn-filter">Clear</a>
+      </div>
+    </form>
+  </div>
+  
+  {% for group in vocab_groups %}
+    <div class="df-lesson-group">
+      {% if group.lesson %}
+        <div class="df-lesson-group-header">
+          <h3>
+            📚 {{ group.course.title|default:"No Course" }} › 
+            {{ group.section.title|default:"No Section" }} › 
+            {{ group.lesson.title }} - 
+            {{ group.vocab_items|length }} vocabulary item{{ group.vocab_items|length|pluralize }}
+          </h3>
+        </div>
+      {% else %}
+        <div class="df-lesson-group-header">
+          <h3>
+            📚 No Lesson Assigned - {{ group.vocab_items|length }} vocabulary item{{ group.vocab_items|length|pluralize }}
+          </h3>
+        </div>
+      {% endif %}
+      
+      <div class="df-vocab-grid">
+        {% for vocab in group.vocab_items %}
+          <div class="df-vocab-card" data-vocab-id="{{ vocab.id }}">
+            <div class="df-vocab-header">
+              <div>
+                <div class="df-vocab-word">{{ vocab.en_word }}</div>
+                <div class="df-vocab-meta">
+                  ID: {{ vocab.id }}
+                  {% if vocab.phonetic %}
+                    | {{ vocab.phonetic }}
+                  {% endif %}
+                  {% if vocab.pos %}
+                    | {{ vocab.pos }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <div class="df-vocab-meaning">
+              {{ vocab.vi_meaning|truncatewords:10 }}
+            </div>
+            
+            <div class="df-vocab-image" data-vocab-id="{{ vocab.id }}">
+              {% if vocab.image %}
+                <img src="{{ vocab.image.url }}" alt="{{ vocab.en_word }}">
+              {% else %}
+                <div class="df-vocab-image-placeholder">
+                  No image. Drag & drop, click "Upload Image", or paste (Ctrl+V) to add one.
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="df-vocab-actions">
+              <button class="df-btn-upload" onclick="openUploadModal({{ vocab.id }}, '{{ vocab.en_word|escapejs }}')">
+                📷 Upload Image
+              </button>
+              <a href="{% url 'admin:vocab_englishvocabulary_change' vocab.id %}" class="df-btn-view" target="_blank">
+                View
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% empty %}
+    <div style="text-align: center; padding: 3rem; color: #64748b;">
+      No vocabulary found. Try adjusting your filters.
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Upload Modal -->
+<div class="df-modal" id="upload-modal">
+  <div class="df-modal-content">
+    <div class="df-modal-header">
+      <h2 id="modal-title">Upload Image</h2>
+      <button class="df-modal-close" onclick="closeUploadModal()">&times;</button>
+    </div>
+    
+    <div class="df-alert df-alert-success" id="success-alert">
+      <strong>Success!</strong> <span id="success-message"></span>
+    </div>
+    
+    <div class="df-alert df-alert-error" id="error-alert">
+      <strong>Error!</strong> <span id="error-message"></span>
+    </div>
+    
+    <div class="df-upload-zone" id="upload-zone">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+      <div style="font-size: 1rem; color: #475569; margin-bottom: 0.25rem;">Click to upload, drag and drop, or paste (Ctrl+V)</div>
+      <div style="font-size: 0.875rem; color: #64748b;">PNG, JPG, GIF up to 10MB</div>
+      <input type="file" id="file-input" accept="image/*" style="display: none;">
+    </div>
+    
+    <div class="df-upload-progress" id="progress-container">
+      <div class="df-upload-progress-bar">
+        <div class="df-upload-progress-fill" id="progress-fill"></div>
+      </div>
+      <p style="text-align: center; margin-top: 0.5rem; color: #64748b; font-size: 0.875rem;">
+        Uploading... <span id="progress-text">0%</span>
+      </p>
+    </div>
+    
+    <div class="df-upload-preview" id="preview-container">
+      <img id="preview-image" src="" alt="Preview">
+    </div>
+    
+    <div class="df-modal-actions">
+      <button class="df-btn-filter" onclick="closeUploadModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentVocabId = null;
+
+function openUploadModal(vocabId, vocabWord) {
+  currentVocabId = vocabId;
+  document.getElementById('modal-title').textContent = `Upload Image - ${vocabWord}`;
+  document.getElementById('upload-modal').classList.add('active');
+  resetModal();
+}
+
+function closeUploadModal() {
+  document.getElementById('upload-modal').classList.remove('active');
+  currentVocabId = null;
+  resetModal();
+}
+
+function resetModal() {
+  document.getElementById('file-input').value = '';
+  document.getElementById('preview-container').classList.remove('active');
+  document.getElementById('progress-container').classList.remove('active');
+  document.getElementById('success-alert').classList.remove('active');
+  document.getElementById('error-alert').classList.remove('active');
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-text').textContent = '0%';
+}
+
+// Get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+const previewContainer = document.getElementById('preview-container');
+const previewImage = document.getElementById('preview-image');
+const progressContainer = document.getElementById('progress-container');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const successAlert = document.getElementById('success-alert');
+const errorAlert = document.getElementById('error-alert');
+const successMessage = document.getElementById('success-message');
+const errorMessage = document.getElementById('error-message');
+
+// Click to upload
+uploadZone.addEventListener('click', () => {
+  fileInput.click();
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) {
+    handleFile(e.target.files[0]);
+  }
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  
+  if (e.dataTransfer.files.length > 0) {
+    handleFile(e.dataTransfer.files[0]);
+  }
+});
+
+// Paste image from clipboard
+document.addEventListener('paste', (e) => {
+  const modal = document.getElementById('upload-modal');
+  if (!modal || !modal.classList.contains('active')) return;
+  
+  const items = e.clipboardData.items;
+  
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    
+    if (item.type.indexOf('image') !== -1) {
+      e.preventDefault();
+      
+      const blob = item.getAsFile();
+      const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+        type: blob.type || 'image/png'
+      });
+      
+      handleFile(file);
+      break;
+    }
+  }
+});
+
+function handleFile(file) {
+  if (!currentVocabId) return;
+  
+  if (!file.type.startsWith('image/')) {
+    showError('Please select an image file');
+    return;
+  }
+  
+  if (file.size > 10 * 1024 * 1024) {
+    showError('File size must be less than 10MB');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+    previewContainer.classList.add('active');
+  };
+  reader.readAsDataURL(file);
+  
+  uploadFile(file);
+}
+
+function uploadFile(file) {
+  if (!currentVocabId) return;
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('vocab_id', currentVocabId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  
+  progressContainer.classList.add('active');
+  progressFill.style.width = '0%';
+  progressText.textContent = '0%';
+  hideAlerts();
+  
+  const xhr = new XMLHttpRequest();
+  
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+      progressText.textContent = percent + '%';
+    }
+  });
+  
+  xhr.addEventListener('load', () => {
+    progressContainer.classList.remove('active');
+    
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        showSuccess('Image uploaded successfully! Refreshing...');
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showError(response.error || 'Upload failed');
+      }
+    } else {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        showError(response.error || 'Upload failed');
+      } catch (e) {
+        showError('Upload failed. Please try again.');
+      }
+    }
+  });
+  
+  xhr.addEventListener('error', () => {
+    progressContainer.classList.remove('active');
+    showError('Network error. Please try again.');
+  });
+  
+  xhr.open('POST', '{% url "admin:vocab_englishvocabulary_upload_image_api" %}');
+  xhr.send(formData);
+}
+
+function showSuccess(message) {
+  successMessage.textContent = message;
+  successAlert.classList.add('active');
+  errorAlert.classList.remove('active');
+}
+
+function showError(message) {
+  errorMessage.textContent = message;
+  errorAlert.classList.add('active');
+  successAlert.classList.remove('active');
+}
+
+function hideAlerts() {
+  successAlert.classList.remove('active');
+  errorAlert.classList.remove('active');
+}
+
+// Close modal on outside click
+document.getElementById('upload-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'upload-modal') {
+    closeUploadModal();
+  }
+});
+
+// Drag and drop directly on vocab cards
+document.querySelectorAll('.df-vocab-card').forEach(card => {
+  const vocabId = parseInt(card.dataset.vocabId);
+  const imageContainer = card.querySelector('.df-vocab-image');
+  
+  if (!vocabId || !imageContainer) return;
+  
+  // Prevent default drag behavior
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    imageContainer.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+  
+  // Drag enter
+  imageContainer.addEventListener('dragenter', () => {
+    card.classList.add('dragover');
+    imageContainer.classList.add('dragover');
+  });
+  
+  // Drag leave
+  imageContainer.addEventListener('dragleave', (e) => {
+    // Only remove dragover if we're leaving the card/image container
+    if (!card.contains(e.relatedTarget)) {
+      card.classList.remove('dragover');
+      imageContainer.classList.remove('dragover');
+    }
+  });
+  
+  // Drop
+  imageContainer.addEventListener('drop', (e) => {
+    card.classList.remove('dragover');
+    imageContainer.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        uploadVocabImageDirectly(vocabId, file, card);
+      } else {
+        showError('Please drop an image file');
+      }
+    }
+  });
+});
+
+// Upload image directly to vocab card (without modal)
+function uploadVocabImageDirectly(vocabId, file, card) {
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File size must be less than 10MB');
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('vocab_id', vocabId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+  
+  // Show loading state
+  const imageContainer = card.querySelector('.df-vocab-image');
+  const originalContent = imageContainer.innerHTML;
+  imageContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #3b82f6;">Uploading... <div style="margin-top: 0.5rem; font-size: 0.75rem;">0%</div></div>';
+  
+  const xhr = new XMLHttpRequest();
+  
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      imageContainer.querySelector('div').innerHTML = `Uploading... <div style="margin-top: 0.5rem; font-size: 0.75rem;">${percent}%</div>`;
+    }
+  });
+  
+  xhr.addEventListener('load', () => {
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        // Reload page to show new image
+        setTimeout(() => {
+          location.reload();
+        }, 500);
+      } else {
+        imageContainer.innerHTML = originalContent;
+        alert(response.error || 'Upload failed');
+      }
+    } else {
+      imageContainer.innerHTML = originalContent;
+      try {
+        const response = JSON.parse(xhr.responseText);
+        alert(response.error || 'Upload failed');
+      } catch (e) {
+        alert('Upload failed. Please try again.');
+      }
+    }
+  });
+  
+  xhr.addEventListener('error', () => {
+    imageContainer.innerHTML = originalContent;
+    alert('Network error. Please try again.');
+  });
+  
+  xhr.open('POST', '{% url "admin:vocab_englishvocabulary_upload_image_api" %}');
+  xhr.send(formData);
+}
+
+// Paste image directly on vocab card (when card is focused/hovered)
+let hoveredVocabCard = null;
+
+document.querySelectorAll('.df-vocab-card').forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    hoveredVocabCard = card;
+  });
+  
+  card.addEventListener('mouseleave', () => {
+    setTimeout(() => {
+      if (hoveredVocabCard === card) {
+        hoveredVocabCard = null;
+      }
+    }, 100);
+  });
+});
+
+// Global paste handler for direct upload to hovered card
+document.addEventListener('paste', (e) => {
+  // If modal is open, let modal handle it
+  const modal = document.getElementById('upload-modal');
+  if (modal && modal.classList.contains('active')) {
+    return;
+  }
+  
+  // Otherwise, try to paste to hovered card
+  if (!hoveredVocabCard) return;
+  
+  const items = e.clipboardData.items;
+  
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    
+    if (item.type.indexOf('image') !== -1) {
+      e.preventDefault();
+      
+      const vocabId = parseInt(hoveredVocabCard.dataset.vocabId);
+      if (!vocabId) return;
+      
+      const blob = item.getAsFile();
+      const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+        type: blob.type || 'image/png'
+      });
+      
+      uploadVocabImageDirectly(vocabId, file, hoveredVocabCard);
+      break;
+    }
+  }
+});
+</script>
+{% endblock %}
+

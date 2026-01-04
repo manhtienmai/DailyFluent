@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a href="{% url 'admin:exam_examquestion_bulk_upload_images' %}" class="addlink">
+      📷 Bulk Upload Images
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'admin:exam_examquestion_upload_listening_images' %}" class="addlink">
+      🎧 Upload Listening Images (Part 1-4)
+    </a>
+  </li>
+{% endblock %}
+

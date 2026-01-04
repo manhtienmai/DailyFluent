@@ -1,0 +1,21 @@
+{% comment %}
+Reusable Banter Loader Component
+
+Usage:
+{% include "components/loader.html" %}
+{% include "components/loader.html" with variant="centered" %}
+{% include "components/loader.html" with variant="overlay" %}
+{% include "components/loader.html" with variant="light" %}
+{% endcomment %}
+<div class="banter-loader {% if variant == 'centered' %}banter-loader--centered{% elif variant == 'overlay' %}banter-loader--overlay{% endif %} {% if variant == 'light' %}banter-loader--light{% endif %}">
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+  <div class="banter-loader__box"></div>
+</div>
+

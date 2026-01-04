@@ -1,0 +1,569 @@
+/* =========================
+   Exam Components - Shared Styles
+   ========================= */
+
+/* =========================
+   MCQ Question Grid
+   ========================= */
+.df-question-grid-wrapper {
+  width: 70%;
+  max-width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 1024px) {
+  .df-question-grid-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.df-mcq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 32px);
+  gap: 6px;
+  justify-content: start;
+}
+
+@media (max-width: 640px) {
+  .df-mcq-grid {
+    grid-template-columns: repeat(auto-fill, 28px);
+    /* Giảm 20% từ 36px */
+    gap: 5px;
+  }
+}
+
+.df-mcq-qbtn {
+  width: 32px;
+  /* Giảm 20% từ 40px */
+  height: 32px;
+  /* Giảm 20% từ 40px */
+  border-radius: 8px;
+  border: 1px solid rgb(15 23 42);
+  /* slate-900 - viền đen */
+  background: #fff;
+  color: rgb(15 23 42);
+  /* slate-900 - số đen */
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  /* text-sm */
+  cursor: pointer;
+  user-select: none;
+  transition: all 150ms ease;
+}
+
+.df-mcq-qbtn:hover {
+  background: rgb(241 245 249);
+  /* slate-100 - nền xám nhạt khi hover */
+  border-color: rgb(15 23 42);
+  /* giữ viền đen */
+}
+
+.df-mcq-qbtn--active {
+  background: rgb(37 99 235);
+  /* blue-600 - nền xanh đậm */
+  border-color: rgb(37 99 235);
+  color: #fff;
+  /* số trắng */
+  font-weight: 700;
+  box-shadow: none;
+  /* Bỏ box-shadow */
+}
+
+.df-mcq-qbtn--active:hover {
+  background: rgb(29 78 216);
+  /* blue-700 - đậm hơn khi hover */
+  border-color: rgb(29 78 216);
+}
+
+.df-mcq-qbtn--correct {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: rgb(6 95 70);
+}
+
+.df-mcq-qbtn--wrong {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.35);
+  color: rgb(159 18 57);
+}
+
+/* =========================
+   MCQ Layout & Options
+   ========================= */
+.df-mcq-wrap {
+  max-width: 70%;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 1024px) {
+  .df-mcq-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.df-mcq-options {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1.25rem;
+}
+
+.df-mcq-option {
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 2px solid rgb(226 232 240);
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  color: rgb(15 23 42);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.df-mcq-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 113, 249, 0.08) 0%, rgba(0, 113, 249, 0.02) 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.df-mcq-option:hover {
+  border-color: rgba(0, 113, 249, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 113, 249, 0.12);
+}
+
+.df-mcq-option:hover::before {
+  opacity: 1;
+}
+
+.df-mcq-option:active {
+  transform: translateY(0);
+}
+
+.df-mcq-option:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* MCQ Option states with animations */
+.df-mcq-option.df-mcq-option--correct {
+  background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #34d399 !important;
+  color: #047857 !important;
+  animation: correctPulse 0.5s ease-out;
+}
+
+.df-mcq-option.df-mcq-option--wrong {
+  background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%) !important;
+  border-color: #f87171 !important;
+  color: #b91c1c !important;
+  animation: wrongShake 0.4s ease-out;
+}
+
+@keyframes correctPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes wrongShake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-6px);
+  }
+
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* Ensure these states override hover */
+.df-mcq-option.df-mcq-option--correct:hover,
+.df-mcq-option.df-mcq-option--wrong:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* MCQ - Responsive Tablet */
+@media (max-width: 768px) {
+  .df-mcq-wrap {
+    width: 90%;
+    max-width: 90%;
+  }
+
+  .df-mcq-options {
+    gap: 0.75rem;
+  }
+
+  .df-mcq-option {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.875rem;
+  }
+
+  .df-mcq-option:hover {
+    transform: none;
+    /* Disable hover effects on touch */
+  }
+
+  .df-mcq-qbtn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .df-mcq-grid {
+    grid-template-columns: repeat(auto-fill, 2rem);
+    gap: 0.375rem;
+  }
+}
+
+/* MCQ - Responsive Mobile */
+@media (max-width: 480px) {
+  .df-mcq-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .df-mcq-options {
+    gap: 0.625rem;
+    margin-top: 1rem;
+  }
+
+  .df-mcq-option {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    border-width: 1.5px;
+  }
+
+  .df-question-grid-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* =========================
+   Toggle Switch (Reusable Component)
+   ========================= */
+.df-toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.df-toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.df-toggle-switch-ui {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #cbd5e1;
+  /* slate-300 */
+  border-radius: 12px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.df-toggle-switch-ui::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.df-toggle-switch input:checked+.df-toggle-switch-ui {
+  background: #3b82f6;
+  /* blue-500 */
+}
+
+.df-toggle-switch input:checked+.df-toggle-switch-ui::after {
+  left: 23px;
+}
+
+.df-toggle-switch-label {
+  font-size: 0.875rem;
+  color: rgb(51 65 85);
+  /* slate-700 */
+  font-weight: 500;
+}
+
+/* =========================
+   Listening Exercise
+   ========================= */
+.df-listening-wrap {
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.df-listening-play-btn {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgb(37 99 235);
+  /* blue-600 */
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  flex-shrink: 0;
+}
+
+.df-listening-play-btn:hover {
+  background: rgb(29 78 216);
+  /* blue-700 */
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.df-listening-play-btn:active {
+  transform: scale(0.95);
+}
+
+.df-listening-play-btn.df-listening-playing {
+  background: rgb(239 68 68);
+  /* red-500 */
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.df-listening-play-btn.df-listening-playing:hover {
+  background: rgb(220 38 38);
+  /* red-600 */
+}
+
+.df-listening-play-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  stroke-width: 2.5;
+}
+
+.df-listening-repeat-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: #fff;
+  color: rgb(71 85 105);
+  /* slate-600 */
+  border: 1.5px solid rgb(203 213 225);
+  /* slate-300 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+  flex-shrink: 0;
+}
+
+.df-listening-repeat-btn:hover {
+  background: rgb(241 245 249);
+  /* slate-100 */
+  border-color: rgb(148 163 184);
+  /* slate-400 */
+  color: rgb(30 41 59);
+  /* slate-800 */
+}
+
+.df-listening-icon-sm {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2.5;
+}
+
+.df-listening-voice-btn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid rgb(203 213 225);
+  /* slate-300 */
+  background: #fff;
+  color: rgb(71 85 105);
+  /* slate-600 */
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.df-listening-voice-btn:hover {
+  background: rgb(241 245 249);
+  /* slate-100 */
+  border-color: rgb(148 163 184);
+  /* slate-400 */
+}
+
+.df-listening-voice-btn.df-listening-voice-active {
+  background: rgb(37 99 235);
+  /* blue-600 */
+  border-color: rgb(37 99 235);
+  color: #fff;
+}
+
+.df-listening-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid rgb(226 232 240);
+  /* slate-200 */
+  border-radius: 0.75rem;
+  background: #fff;
+  color: rgb(15 23 42);
+  /* slate-900 */
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.df-listening-option:hover:not(:disabled) {
+  border-color: rgb(37 99 235);
+  /* blue-600 */
+  background: rgb(239 246 255);
+  /* blue-50 */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.df-listening-option:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.df-listening-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.df-listening-option.df-listening-option--correct {
+  background-color: #ecfdf5 !important;
+  /* emerald-50 */
+  border-color: #a7f3d0 !important;
+  /* emerald-200 */
+  color: #047857 !important;
+  /* emerald-700 */
+}
+
+.df-listening-option.df-listening-option--wrong {
+  background-color: #fef2f2 !important;
+  /* rose-50 */
+  border-color: #fecaca !important;
+  /* rose-200 */
+  color: #991b1b !important;
+  /* rose-700 */
+}
+
+.df-listening-option-label {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgb(241 245 249);
+  /* slate-100 */
+  color: rgb(71 85 105);
+  /* slate-600 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.df-listening-option.df-listening-option--correct .df-listening-option-label {
+  background: rgb(16 185 129) !important;
+  /* emerald-500 */
+  color: #fff !important;
+}
+
+.df-listening-option.df-listening-option--wrong .df-listening-option-label {
+  background: rgb(239 68 68) !important;
+  /* red-500 */
+  color: #fff !important;
+}
+
+/* Ensure these states override hover */
+.df-listening-option.df-listening-option--correct:hover,
+.df-listening-option.df-listening-option--wrong:hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.df-listening-option-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .df-listening-play-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .df-listening-play-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .df-listening-option {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+}

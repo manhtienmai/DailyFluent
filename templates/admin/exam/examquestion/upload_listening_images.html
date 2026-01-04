@@ -1,0 +1,1060 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Upload Ảnh - Listening Questions{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin-modern.css' %}?v=20251231">
+<style>
+.df-upload-listening-container {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.df-filters {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.df-filters-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.df-filter-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.df-filter-group select,
+.df-filter-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.df-btn-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.df-btn-filter:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Conversation Groups Container - 2 columns */
+.df-conversations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+  .df-conversations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Conversation Groups */
+.df-conversation-group {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.df-conversation-group.selected {
+  border-color: #3b82f6;
+  border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #eff6ff;
+}
+
+.df-conversation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.df-conversation-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.df-conversation-meta {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.df-questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Individual Question Cards */
+.df-question-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.df-question-card.selected {
+  border-color: #3b82f6;
+  border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #eff6ff;
+}
+
+.df-question-card:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-color: #cbd5e1;
+}
+
+.df-question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.df-question-info {
+  flex: 1;
+}
+
+.df-question-id {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.df-question-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.df-image-preview {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.df-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+  margin-bottom: 0.75rem;
+}
+
+.df-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.df-upload-zone.dragover {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.df-upload-icon {
+  width: 2rem;
+  height: 2rem;
+  margin: 0 auto 0.5rem;
+  color: #64748b;
+}
+
+.df-upload-text {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.df-btn-upload {
+  width: 100%;
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.df-btn-upload:hover {
+  background: #2563eb;
+}
+
+.df-btn-upload:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.df-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+.df-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s;
+}
+
+.df-batch-upload-section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.df-batch-upload-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.df-batch-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+}
+
+.df-batch-upload-zone:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.df-batch-upload-zone.dragover {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-upload-listening-container">
+  <h1 class="text-2xl font-bold text-slate-900 mb-6">Upload Ảnh - Listening Questions (Part 1-4)</h1>
+
+  <!-- Filters -->
+  <div class="df-filters">
+    <form method="get" id="filter-form">
+      <div class="df-filters-row">
+        <div class="df-filter-group">
+          <label>Template</label>
+          <select name="template" onchange="document.getElementById('filter-form').submit();">
+            <option value="">-- Tất cả --</option>
+            {% for t in templates %}
+              <option value="{{ t.id }}" {% if filters.template_id == t.id|stringformat:"s" %}selected{% endif %}>
+                {{ t.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="df-filter-group">
+          <label>Part</label>
+          <select name="part" onchange="document.getElementById('filter-form').submit();">
+            <option value="">-- Tất cả --</option>
+            {% for part in listening_parts %}
+              <option value="{{ part.value }}" {% if filters.toeic_part == part.value %}selected{% endif %}>
+                {{ part.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="df-filter-group">
+          <label>Conversation (Part 3, 4)</label>
+          <select name="conversation" onchange="document.getElementById('filter-form').submit();">
+            <option value="">-- Tất cả --</option>
+            {% for conv in conversations %}
+              <option value="{{ conv.id }}" {% if filters.conversation_id == conv.id|stringformat:"s" %}selected{% endif %}>
+                {{ conv.template.title }} - {{ conv.get_toeic_part_display }} - Conversation {{ conv.order }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="df-filter-group">
+          <label>Có ảnh</label>
+          <select name="has_image" onchange="document.getElementById('filter-form').submit();">
+            <option value="">-- Tất cả --</option>
+            <option value="yes" {% if filters.has_image == 'yes' %}selected{% endif %}>Có ảnh</option>
+            <option value="no" {% if filters.has_image == 'no' %}selected{% endif %}>Chưa có ảnh</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Individual Questions (Part 1) - Hiển thị trước -->
+  {% if individual_questions %}
+    <div class="df-conversation-group">
+      <div class="df-conversation-header">
+        <div>
+          <div class="df-conversation-title">Part 1 - Câu hỏi riêng lẻ</div>
+          <div class="df-conversation-meta">{{ individual_questions|length }} câu hỏi</div>
+        </div>
+      </div>
+      
+      <div class="df-questions-grid">
+        {% for q in individual_questions %}
+          <div class="df-question-card" data-question-id="{{ q.id }}">
+            <div class="df-question-header">
+              <div class="df-question-info">
+                <div class="df-question-id">Câu {{ q.order }} - {{ q.get_toeic_part_display }}</div>
+                <div class="df-question-meta">ID: {{ q.id }} | Template: {{ q.template.title|truncatewords:3 }}</div>
+              </div>
+            </div>
+            
+            {% if q.image %}
+              <img src="{{ q.image.url }}" alt="Question Image" class="df-image-preview">
+            {% else %}
+              <div class="df-image-preview" style="display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+            {% endif %}
+            
+            <div class="df-upload-zone" data-question-id="{{ q.id }}">
+              <input type="file" class="question-file-input" data-question-id="{{ q.id }}" accept="image/*" style="display: none;">
+              <svg class="df-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <p class="df-upload-text">Kéo thả, click hoặc paste (Ctrl+V) để upload</p>
+            </div>
+            
+            <div class="df-progress-bar" id="progress-{{ q.id }}">
+              <div class="df-progress-fill" id="progress-fill-{{ q.id }}"></div>
+            </div>
+            
+            <button type="button" class="df-btn-upload" onclick="document.querySelector('input[data-question-id=\"{{ q.id }}\"]').click();">
+              Chọn ảnh
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Batch Upload Section (for conversations) -->
+  {% if grouped_questions %}
+  <div class="df-batch-upload-section">
+    <h2 class="df-batch-upload-title">Upload ảnh cho nhiều câu cùng conversation (Part 3, 4)</h2>
+    <div class="df-batch-upload-zone" id="batch-upload-zone">
+      <svg class="df-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+      </svg>
+      <p class="df-upload-text">Kéo thả ảnh vào đây, click hoặc paste (Ctrl+V) để chọn</p>
+      <p class="text-xs text-slate-500 mt-1">Có thể chọn nhiều ảnh cùng lúc</p>
+      <input type="file" id="batch-file-input" multiple accept="image/*" style="display: none;">
+    </div>
+    <div class="mt-4">
+      <p class="text-sm text-slate-600">
+        <strong>Lưu ý:</strong> Khi upload nhiều ảnh, hệ thống sẽ tự động gán ảnh theo thứ tự câu hỏi trong conversation được chọn.
+        Vui lòng chọn conversation ở filter trên trước khi upload.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Conversation Groups (Part 3, 4) - 2 conversations per row -->
+  <div class="df-conversations-grid">
+    {% for group_data in grouped_questions %}
+      <div class="df-conversation-group" data-conversation-id="{{ group_data.conversation.id }}">
+        <div class="df-conversation-header">
+          <div>
+            <div class="df-conversation-title">
+              {{ group_data.conversation.template.title }} - {{ group_data.conversation.get_toeic_part_display }} - Conversation {{ group_data.conversation.order }}
+            </div>
+            <div class="df-conversation-meta">
+              {{ group_data.questions|length }} câu hỏi
+            </div>
+          </div>
+          {% if group_data.conversation.image %}
+            <div>
+              <img src="{{ group_data.conversation.image.url }}" alt="Conversation Image" class="df-image-preview" style="max-width: 200px;">
+            </div>
+          {% endif %}
+        </div>
+        
+        {# Hiển thị ảnh conversation chung cho tất cả câu trong conversation #}
+        {% if group_data.conversation.image %}
+          <div style="margin-bottom: 1rem;">
+            <img src="{{ group_data.conversation.image.url }}" alt="Conversation Image" class="df-image-preview" style="max-width: 100%; height: auto;">
+          </div>
+        {% else %}
+          <div class="df-image-preview" style="display: flex; align-items: center; justify-content: center; color: #94a3b8; margin-bottom: 1rem;">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        {% endif %}
+        
+        {# Upload zone cho conversation (chung cho tất cả câu) #}
+        <div class="df-upload-zone" data-conversation-id="{{ group_data.conversation.id }}" style="margin-bottom: 1.5rem;">
+          <input type="file" class="conversation-file-input" data-conversation-id="{{ group_data.conversation.id }}" accept="image/*" style="display: none;">
+          <svg class="df-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <p class="df-upload-text">Kéo thả, click hoặc paste (Ctrl+V) để upload ảnh chung cho conversation</p>
+        </div>
+        
+        <div class="df-progress-bar" id="progress-conv-{{ group_data.conversation.id }}" style="display: none; margin-bottom: 1.5rem;">
+          <div class="df-progress-fill" id="progress-fill-conv-{{ group_data.conversation.id }}"></div>
+        </div>
+        
+        {# Danh sách câu hỏi trong conversation (chỉ hiển thị, không có upload zone riêng) #}
+        <div class="df-questions-grid">
+          {% for q in group_data.questions %}
+            <div class="df-question-card" data-question-id="{{ q.id }}" data-conversation-id="{{ group_data.conversation.id }}">
+              <div class="df-question-header">
+                <div class="df-question-info">
+                  <div class="df-question-id">Câu {{ q.order }}</div>
+                  <div class="df-question-meta">ID: {{ q.id }} | {{ q.get_toeic_part_display }}</div>
+                </div>
+              </div>
+              <div style="padding: 0.5rem; background: #f8fafc; border-radius: 0.375rem; text-align: center; color: #64748b; font-size: 0.75rem;">
+                Dùng ảnh chung của conversation
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+
+  {% if not grouped_questions and not individual_questions %}
+    <div class="bg-white border border-slate-200 rounded-lg p-8 text-center">
+      <p class="text-slate-600">Không tìm thấy câu hỏi nào. Vui lòng thử filter khác.</p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  // Track which upload zone is currently hovered (for paste)
+  let hoveredUploadZone = null;
+  
+  // Track selected question card or conversation
+  let selectedQuestionCard = null;
+  let selectedQuestionId = null;
+  let selectedConversationId = null;
+  let selectedConversationGroup = null;
+  
+  // Initialize: select first card/group by default
+  const firstConversationGroup = document.querySelector('.df-conversation-group');
+  const firstCard = document.querySelector('.df-question-card');
+  
+  if (firstConversationGroup) {
+    // If there are conversation groups, select the first one
+    firstConversationGroup.classList.add('selected');
+    selectedConversationGroup = firstConversationGroup;
+    selectedConversationId = firstConversationGroup.dataset.conversationId;
+  } else if (firstCard) {
+    // Otherwise, select the first question card
+    firstCard.classList.add('selected');
+    selectedQuestionCard = firstCard;
+    selectedQuestionId = firstCard.dataset.questionId;
+  }
+  
+  // Helper function to select conversation group
+  function selectConversationGroup(group) {
+    // Remove selected class from all groups and cards
+    document.querySelectorAll('.df-conversation-group').forEach(g => {
+      g.classList.remove('selected');
+    });
+    document.querySelectorAll('.df-question-card').forEach(c => {
+      c.classList.remove('selected');
+    });
+    
+    // Add selected class to group
+    group.classList.add('selected');
+    selectedConversationGroup = group;
+    selectedConversationId = group.dataset.conversationId;
+    selectedQuestionCard = null;
+    selectedQuestionId = null;
+    
+    console.log('Selected conversation:', selectedConversationId);
+  }
+  
+  // Helper function to select question card
+  function selectQuestionCard(card) {
+    // Remove selected class from all groups and cards
+    document.querySelectorAll('.df-conversation-group').forEach(g => {
+      g.classList.remove('selected');
+    });
+    document.querySelectorAll('.df-question-card').forEach(c => {
+      c.classList.remove('selected');
+    });
+    
+    // Add selected class to card
+    card.classList.add('selected');
+    selectedQuestionCard = card;
+    selectedQuestionId = card.dataset.questionId;
+    selectedConversationId = null;
+    selectedConversationGroup = null;
+    
+    console.log('Selected question:', selectedQuestionId);
+  }
+  
+  // Click to select conversation group
+  document.querySelectorAll('.df-conversation-group').forEach(group => {
+    group.addEventListener('click', function(e) {
+      // Only prevent selection if clicking directly on file input
+      if (e.target.tagName === 'INPUT' && e.target.type === 'file') {
+        return;
+      }
+      
+      // If clicking on upload zone, select the group but let upload zone handle its own click
+      if (e.target.closest('.df-upload-zone')) {
+        selectConversationGroup(group);
+        // Don't stop propagation, let upload zone handle its own click
+        return;
+      }
+      
+      // Click anywhere else on the group → select it
+      selectConversationGroup(group);
+    });
+  });
+  
+  // Click to select question card
+  document.querySelectorAll('.df-question-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      // Only prevent selection if clicking directly on file input
+      if (e.target.tagName === 'INPUT' && e.target.type === 'file') {
+        return;
+      }
+      
+      // If clicking on upload zone, select the card but let upload zone handle its own click
+      if (e.target.closest('.df-upload-zone')) {
+        const conversationId = card.dataset.conversationId;
+        if (conversationId) {
+          // This is a conversation question, select the conversation group instead
+          const conversationGroup = card.closest('.df-conversation-group');
+          if (conversationGroup) {
+            selectConversationGroup(conversationGroup);
+          }
+        } else {
+          // This is an individual question (Part 1, 2), select the card
+          selectQuestionCard(card);
+        }
+        // Don't stop propagation, let upload zone handle its own click
+        return;
+      }
+      
+      // Click anywhere else on the card → select it
+      const conversationId = card.dataset.conversationId;
+      
+      // If it's a conversation question, select the conversation group instead
+      if (conversationId) {
+        const conversationGroup = card.closest('.df-conversation-group');
+        if (conversationGroup) {
+          selectConversationGroup(conversationGroup);
+        }
+      } else {
+        // For individual questions (Part 1, 2), select the card
+        // Stop propagation to prevent conversation group click handler from firing
+        e.stopPropagation();
+        selectQuestionCard(card);
+      }
+    });
+  });
+  
+  // Upload zone handlers for conversations (Part 3, 4)
+  document.querySelectorAll('.df-upload-zone[data-conversation-id]').forEach(zone => {
+    const conversationId = zone.dataset.conversationId;
+    const fileInput = zone.querySelector('.conversation-file-input');
+    
+    // Click to upload - stop propagation to prevent group selection
+    zone.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (e.target !== fileInput) {
+        fileInput.click();
+      }
+    });
+    
+    // Drag and drop
+    zone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+    
+    zone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+    });
+    
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleConversationUpload(conversationId, files[0], zone);
+      }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        handleConversationUpload(conversationId, this.files[0], zone);
+      }
+    });
+  });
+  
+  // Upload zone handlers for individual questions (Part 1, 2)
+  document.querySelectorAll('.df-upload-zone[data-question-id]').forEach(zone => {
+    const questionId = zone.dataset.questionId;
+    const fileInput = zone.querySelector('.question-file-input');
+    const card = zone.closest('.df-question-card');
+    
+    // Track hover for paste functionality
+    zone.addEventListener('mouseenter', function() {
+      hoveredUploadZone = { questionId, zone, card };
+    });
+    
+    zone.addEventListener('mouseleave', function() {
+      // Don't clear immediately, wait a bit in case user is pasting
+      setTimeout(() => {
+        if (hoveredUploadZone && hoveredUploadZone.zone === zone) {
+          hoveredUploadZone = null;
+        }
+      }, 100);
+    });
+    
+    // Click to upload - also select the card and open file dialog
+    zone.addEventListener('click', function(e) {
+      // Stop propagation to prevent card click handler from firing
+      e.stopPropagation();
+      
+      // Select the card first
+      if (card && !card.dataset.conversationId) {
+        selectQuestionCard(card);
+      }
+      
+      // Then open file dialog
+      if (e.target !== fileInput) {
+        fileInput.click();
+      }
+    });
+    
+    // Drag and drop
+    zone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+    
+    zone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+    });
+    
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        handleFileUpload(questionId, files[0], card);
+      }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        handleFileUpload(questionId, this.files[0], card);
+      }
+    });
+  });
+  
+  // Batch upload for conversations
+  const batchUploadZone = document.getElementById('batch-upload-zone');
+  const batchFileInput = document.getElementById('batch-file-input');
+  
+  if (batchUploadZone && batchFileInput) {
+    batchUploadZone.addEventListener('click', () => batchFileInput.click());
+    
+    batchUploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      batchUploadZone.classList.add('dragover');
+    });
+    
+    batchUploadZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      batchUploadZone.classList.remove('dragover');
+    });
+    
+    batchUploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      batchUploadZone.classList.remove('dragover');
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        handleBatchUpload(files);
+      }
+    });
+    
+    batchFileInput.addEventListener('change', function(e) {
+      if (this.files.length > 0) {
+        handleBatchUpload(Array.from(this.files));
+      }
+    });
+  }
+  
+  function handleFileUpload(questionId, file, card) {
+    const formData = new FormData();
+    formData.append('question_id', questionId);
+    formData.append('image', file);
+    
+    const progressBar = document.getElementById(`progress-${questionId}`);
+    const progressFill = document.getElementById(`progress-fill-${questionId}`);
+    const uploadBtn = card.querySelector('.df-btn-upload');
+    
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Đang upload...';
+    
+    // Get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    
+    fetch('{% url "admin:exam_examquestion_upload_image_api" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': csrftoken
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        progressFill.style.width = '100%';
+        setTimeout(() => {
+          // Reload page to show new image
+          window.location.reload();
+        }, 500);
+      } else {
+        alert('Lỗi: ' + (data.error || 'Upload thất bại'));
+        progressBar.style.display = 'none';
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Chọn ảnh';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi upload ảnh');
+      progressBar.style.display = 'none';
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Chọn ảnh';
+    });
+  }
+  
+  function handleBatchUpload(files) {
+    // Get selected conversation from filter
+    const conversationId = new URLSearchParams(window.location.search).get('conversation');
+    if (!conversationId) {
+      alert('Vui lòng chọn conversation ở filter trên trước khi upload nhiều ảnh.');
+      return;
+    }
+    
+    // Get questions for this conversation
+    const questions = Array.from(document.querySelectorAll(`.df-conversation-group .df-question-card`))
+      .map(card => parseInt(card.dataset.questionId))
+      .sort((a, b) => {
+        const cardA = document.querySelector(`[data-question-id="${a}"]`);
+        const cardB = document.querySelector(`[data-question-id="${b}"]`);
+        const orderA = parseInt(cardA.querySelector('.df-question-id').textContent.replace('Câu ', ''));
+        const orderB = parseInt(cardB.querySelector('.df-question-id').textContent.replace('Câu ', ''));
+        return orderA - orderB;
+      });
+    
+    if (files.length > questions.length) {
+      alert(`Bạn đã chọn ${files.length} ảnh nhưng chỉ có ${questions.length} câu hỏi. Chỉ upload ${questions.length} ảnh đầu tiên.`);
+      files = files.slice(0, questions.length);
+    }
+    
+    // Upload files sequentially
+    let index = 0;
+    function uploadNext() {
+      if (index >= files.length || index >= questions.length) {
+        alert('Đã upload xong tất cả ảnh!');
+        setTimeout(() => window.location.reload(), 1000);
+        return;
+      }
+      
+      const questionId = questions[index];
+      const file = files[index];
+      const card = document.querySelector(`[data-question-id="${questionId}"]`);
+      
+      handleFileUpload(questionId, file, card);
+      
+      index++;
+      // Wait a bit before next upload
+      setTimeout(uploadNext, 1000);
+    }
+    
+    uploadNext();
+  }
+  
+  function handleConversationUpload(conversationId, file, zone) {
+    const formData = new FormData();
+    formData.append('conversation_id', conversationId);
+    formData.append('image', file);
+    
+    const progressBar = document.getElementById(`progress-conv-${conversationId}`);
+    const progressFill = document.getElementById(`progress-fill-conv-${conversationId}`);
+    
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    
+    // Get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    
+    fetch('{% url "admin:exam_examquestion_upload_listening_image_api" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': csrftoken
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        progressFill.style.width = '100%';
+        setTimeout(() => {
+          // Reload page to show new image
+          window.location.reload();
+        }, 500);
+      } else {
+        alert('Lỗi: ' + (data.error || 'Upload thất bại'));
+        progressBar.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi upload ảnh');
+      progressBar.style.display = 'none';
+    });
+  }
+  
+  // Paste image from clipboard - listen globally
+  document.addEventListener('paste', function(e) {
+    // Only handle if clipboard has image data
+    if (!e.clipboardData || !e.clipboardData.items) {
+      return;
+    }
+    
+    const items = e.clipboardData.items;
+    
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Check if item is an image
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault();
+        
+        // Get image as blob
+        const blob = item.getAsFile();
+        
+        // Convert blob to File object
+        const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+          type: blob.type || 'image/png'
+        });
+        
+        // Determine which upload zone to use
+        let targetZone = null;
+        let targetQuestionId = null;
+        let targetConversationId = null;
+        let targetCard = null;
+        
+        // Priority 1: Use selected conversation group
+        if (selectedConversationGroup && selectedConversationId) {
+          targetConversationId = selectedConversationId;
+          targetZone = selectedConversationGroup.querySelector(`.df-upload-zone[data-conversation-id="${targetConversationId}"]`);
+          console.log('Paste: Using selected conversation', targetConversationId);
+        }
+        // Priority 2: Use selected question card
+        else if (selectedQuestionCard && selectedQuestionId) {
+          targetCard = selectedQuestionCard;
+          targetQuestionId = selectedQuestionId;
+          // Part 1, 2: use question upload zone
+          targetZone = targetCard.querySelector('.df-upload-zone[data-question-id]');
+          console.log('Paste: Using selected question', targetQuestionId, 'Zone found:', !!targetZone);
+          if (!targetZone) {
+            // Fallback: try to find by questionId directly
+            targetZone = document.querySelector(`.df-upload-zone[data-question-id="${targetQuestionId}"]`);
+            if (targetZone) {
+              targetCard = targetZone.closest('.df-question-card');
+              console.log('Paste: Found zone by questionId fallback');
+            } else {
+              console.error('Paste: Upload zone not found for selected question', targetQuestionId);
+            }
+          }
+        }
+        // Priority 3: Use hovered upload zone
+        else if (hoveredUploadZone) {
+          targetZone = hoveredUploadZone.zone;
+          targetQuestionId = hoveredUploadZone.questionId;
+          targetCard = hoveredUploadZone.card;
+          targetConversationId = targetCard ? targetCard.dataset.conversationId : null;
+          console.log('Paste: Using hovered zone', targetQuestionId || targetConversationId);
+        } 
+        // Priority 4: Use first visible upload zone without image
+        else {
+          const zonesWithoutImage = Array.from(document.querySelectorAll('.df-upload-zone'))
+            .filter(zone => {
+              if (zone.dataset.conversationId) {
+                // For conversation zones, check conversation image
+                const convGroup = zone.closest('.df-conversation-group');
+                const img = convGroup ? convGroup.querySelector('.df-image-preview img') : null;
+                return !img || !img.src || img.src.includes('data:');
+              } else {
+                // For question zones, check question image
+                const card = zone.closest('.df-question-card');
+                const img = card ? card.querySelector('.df-image-preview img') : null;
+                return !img || !img.src || img.src.includes('data:');
+              }
+            });
+          
+          if (zonesWithoutImage.length > 0) {
+            targetZone = zonesWithoutImage[0];
+            targetQuestionId = targetZone.dataset.questionId;
+            targetConversationId = targetZone.dataset.conversationId;
+            targetCard = targetZone.closest('.df-question-card');
+            console.log('Paste: Using first zone without image', targetQuestionId || targetConversationId);
+          } else {
+            // Priority 5: Use first upload zone
+            const firstZone = document.querySelector('.df-upload-zone');
+            if (firstZone) {
+              targetZone = firstZone;
+              targetQuestionId = firstZone.dataset.questionId;
+              targetConversationId = firstZone.dataset.conversationId;
+              targetCard = firstZone.closest('.df-question-card');
+              console.log('Paste: Using first zone', targetQuestionId || targetConversationId);
+            }
+          }
+        }
+        
+        if (targetZone) {
+          // If uploading to conversation, ensure the conversation group is selected
+          if (targetConversationId) {
+            const convGroup = targetZone.closest('.df-conversation-group');
+            if (convGroup) {
+              selectConversationGroup(convGroup);
+            }
+          }
+          // If uploading to individual question, ensure the question card is selected
+          else if (targetQuestionId && targetCard && !targetCard.dataset.conversationId) {
+            selectQuestionCard(targetCard);
+          }
+          
+          // Highlight the target zone briefly
+          targetZone.style.borderColor = '#3b82f6';
+          targetZone.style.background = '#dbeafe';
+          setTimeout(() => {
+            targetZone.style.borderColor = '';
+            targetZone.style.background = '';
+          }, 500);
+          
+          // Upload the file
+          if (targetConversationId) {
+            // Upload to conversation
+            handleConversationUpload(targetConversationId, file, targetZone);
+          } else if (targetQuestionId && targetCard) {
+            // Upload to question
+            handleFileUpload(targetQuestionId, file, targetCard);
+          } else {
+            alert('Không tìm thấy vùng upload. Vui lòng click vào một câu hỏi hoặc conversation trước khi paste.');
+          }
+        } else {
+          alert('Không tìm thấy vùng upload. Vui lòng click vào một câu hỏi hoặc conversation trước khi paste.');
+        }
+        
+        break;
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}
+

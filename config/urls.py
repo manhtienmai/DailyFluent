@@ -16,6 +16,8 @@ urlpatterns = [
     path("exam/", include("exam.urls", namespace="exam")),
     path("streak/", include("streak.urls", namespace="streak")),
     path("grammar/", include("grammar.urls", namespace="grammar")),
+    path("todos/", include("todos.urls", namespace="todos")),
+    path("payment/", include("payment.urls", namespace="payment")),
 ]
 
 if settings.DEBUG:

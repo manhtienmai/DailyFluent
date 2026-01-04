@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Trạng thái thanh toán - DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Trạng thái thanh toán</h1>
+
+    <div class="space-y-4 mb-6">
+      <div>
+        <span class="text-sm text-slate-600">Gói:</span>
+        <span class="font-semibold text-slate-900 ml-2">{{ plan.name }}</span>
+      </div>
+      <div>
+        <span class="text-sm text-slate-600">Số tiền:</span>
+        <span class="font-semibold text-slate-900 ml-2">{{ payment.amount|floatformat:0 }} VND</span>
+      </div>
+      <div>
+        <span class="text-sm text-slate-600">Phương thức:</span>
+        <span class="font-semibold text-slate-900 ml-2">{{ payment.get_payment_method_display }}</span>
+      </div>
+      <div>
+        <span class="text-sm text-slate-600">Trạng thái:</span>
+        <span class="ml-2 px-3 py-1 rounded-full text-sm font-semibold
+          {% if payment.status == 'completed' %}bg-green-100 text-green-700
+          {% elif payment.status == 'processing' %}bg-yellow-100 text-yellow-700
+          {% elif payment.status == 'failed' %}bg-red-100 text-red-700
+          {% else %}bg-slate-100 text-slate-700{% endif %}">
+          {{ payment.get_status_display }}
+        </span>
+      </div>
+      <div>
+        <span class="text-sm text-slate-600">Thời gian tạo:</span>
+        <span class="font-semibold text-slate-900 ml-2">{{ payment.created_at|date:"d/m/Y H:i" }}</span>
+      </div>
+      {% if payment.completed_at %}
+      <div>
+        <span class="text-sm text-slate-600">Thời gian hoàn thành:</span>
+        <span class="font-semibold text-slate-900 ml-2">{{ payment.completed_at|date:"d/m/Y H:i" }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if payment.status == 'pending' or payment.status == 'processing' %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+      <p class="text-sm text-yellow-800">
+        {% if payment.payment_method == 'bank' %}
+        Thanh toán của bạn đang được xử lý. Chúng tôi sẽ xác thực trong vòng 24 giờ.
+        {% else %}
+        Đang chờ xử lý thanh toán...
+        {% endif %}
+      </p>
+    </div>
+    {% elif payment.status == 'completed' %}
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+      <p class="text-sm text-green-800">
+        <strong>Thanh toán thành công!</strong> Tài khoản của bạn đã được nâng cấp lên Premium.
+      </p>
+    </div>
+    {% elif payment.status == 'failed' %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <p class="text-sm text-red-800">
+        Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.
+      </p>
+    </div>
+    {% endif %}
+
+    <div class="flex gap-3">
+      <a
+        href="{% url 'payment:my_subscription' %}"
+        class="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold transition-colors"
+      >
+        Xem gói đăng ký
+      </a>
+      <a
+        href="{% url 'payment:plans' %}"
+        class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 font-semibold transition-colors"
+      >
+        Xem gói khác
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

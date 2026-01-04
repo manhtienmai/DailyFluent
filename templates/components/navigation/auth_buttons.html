@@ -1,0 +1,16 @@
+{% comment %}
+Authentication Buttons Component (Desktop - when not logged in)
+Usage: {% include "components/navigation/auth_buttons.html" %}
+{% endcomment %}
+
+<div class="flex items-center gap-3 ml-6">
+  <a href="{% url 'account_login' %}"
+     class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 font-medium hover:bg-slate-200">
+    Đăng nhập
+  </a>
+  <a href="{% url 'account_signup' %}"
+     class="px-3 py-1.5 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700">
+    Đăng ký
+  </a>
+</div>
+

@@ -1,0 +1,529 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Distribute Vocabulary to Lessons{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto" style="min-height: 100vh; padding: 2rem 1rem;">
+  <div class="mb-4">
+    <h1 class="text-2xl font-semibold text-slate-900">{% trans "Distribute Vocabulary to Lessons" %}</h1>
+    <p class="mt-1 text-sm text-slate-600">
+      {% trans "Phân chia" %} <strong>{{ imported_count }}</strong> {% trans "từ vựng đã import vào các lesson." %}
+      <span class="text-xs text-slate-500 ml-2">(Thứ tự từ vựng giữ nguyên theo JSON)</span>
+    </p>
+  </div>
+
+  {# Quick Create Course/Section/Lesson Panel #}
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 mb-4">
+    <h2 class="text-lg font-semibold text-slate-900 mb-3">{% trans "Quick Create" %}</h2>
+    <div class="grid sm:grid-cols-3 gap-4">
+      {# Create Course #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Course</label>
+        <div class="flex gap-2">
+          <input type="text" id="new-course-title" placeholder="Tên course..."
+                 class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+          <button id="btn-create-course" type="button"
+                  class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
+            Tạo
+          </button>
+        </div>
+      </div>
+      
+      {# Create Section #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Section</label>
+        <div class="flex gap-2">
+          <select id="section-course-select" class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+            <option value="">-- Chọn course --</option>
+            {% for course in courses %}
+              <option value="{{ course.id }}">{{ course.title }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" id="new-section-title" placeholder="Tên section..."
+                 class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+          <button id="btn-create-section" type="button" disabled
+                  class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 disabled:opacity-50">
+            Tạo
+          </button>
+        </div>
+      </div>
+      
+      {# Create Lesson #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Lesson</label>
+        <div class="flex gap-2">
+          <select id="lesson-section-select" class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+            <option value="">-- Chọn section --</option>
+            {% for section in sections %}
+              <option value="{{ section.id }}" data-course="{{ section.course_id }}">
+                {{ section.course.title }} — {{ section.title }}
+              </option>
+            {% endfor %}
+          </select>
+          <input type="text" id="new-lesson-title" placeholder="Tên lesson..."
+                 class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+          <button id="btn-create-lesson" type="button" disabled
+                  class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 disabled:opacity-50">
+            Tạo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Main Distribution Panel #}
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+    {# Filters and Bulk Actions #}
+    <div class="mb-4 space-y-3">
+      <div class="flex items-center gap-4 flex-wrap">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Filter by Lesson</label>
+          <select id="filter-lesson" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+            <option value="">-- All Lessons --</option>
+            {% for lesson in lessons %}
+              <option value="{{ lesson.id }}">
+                {% if lesson.section %}{{ lesson.section.course.title }} — {{ lesson.section.title }} — {% endif %}{{ lesson.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Bulk Assign to Lesson</label>
+          <select id="bulk-lesson-select" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+            <option value="">-- Chọn lesson --</option>
+            {% for lesson in lessons %}
+              <option value="{{ lesson.id }}">
+                {% if lesson.section %}{{ lesson.section.course.title }} — {{ lesson.section.title }} — {% endif %}{{ lesson.title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2 flex-wrap">
+        <button id="btn-select-all" type="button"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+          Select All
+        </button>
+        <button id="btn-clear-all" type="button"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+          Clear All
+        </button>
+        <button id="btn-select-unassigned" type="button"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+          Select Unassigned
+        </button>
+        <button id="btn-assign-selected" type="button" disabled
+                class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          Assign Selected
+        </button>
+        <div class="ml-auto text-sm text-slate-600">
+          <span id="selected-count">0</span> / {{ imported_count }} selected
+        </div>
+      </div>
+    </div>
+
+    {# Vocabulary List #}
+    <div id="vocab-list" class="space-y-2 max-h-[600px] overflow-y-auto border-t border-slate-200 pt-4">
+      {% for vocab in imported_vocabs %}
+        <div class="vocab-item flex items-start gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+             data-vocab-id="{{ vocab.id }}"
+             data-vocab-word="{{ vocab.en_word|lower }}">
+          <input type="checkbox" class="vocab-checkbox mt-1 cursor-pointer" value="{{ vocab.id }}">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-slate-900">{{ vocab.en_word }}</div>
+            <div class="text-sm text-slate-600 mt-1">{{ vocab.vi_meaning }}</div>
+            {% if vocab.phonetic %}
+              <div class="text-xs text-slate-500 mt-1">[{{ vocab.phonetic }}]</div>
+            {% endif %}
+            {% if vocab.pos %}
+              <div class="text-xs text-slate-400 mt-1">{{ vocab.pos }}</div>
+            {% endif %}
+          </div>
+          <div class="flex-1 min-w-0 max-w-xs">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Assign to Lesson</label>
+            <select class="lesson-select w-full rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                    data-vocab-id="{{ vocab.id }}">
+              <option value="">-- No lesson --</option>
+              {% for lesson in lessons %}
+                <option value="{{ lesson.id }}" {% if vocab.lesson_ref_id == lesson.id %}selected{% endif %}>
+                  {% if lesson.section %}{{ lesson.section.course.title }} — {{ lesson.section.title }} — {% endif %}{{ lesson.title }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {# Footer Actions #}
+    <div class="border-t border-slate-200 pt-4 mt-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="text-sm text-slate-600">
+          <span id="selected-count-footer">0</span> vocabulary selected
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-save-all" type="button"
+                  class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700">
+            Save All Assignments
+          </button>
+          <a class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+             href="{% url 'admin:vocab_englishvocabulary_changelist' %}">
+            Done
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const vocabItems = document.querySelectorAll('.vocab-item');
+  const checkboxes = document.querySelectorAll('.vocab-checkbox');
+  const lessonSelects = document.querySelectorAll('.lesson-select');
+  const filterLesson = document.getElementById('filter-lesson');
+  const bulkLessonSelect = document.getElementById('bulk-lesson-select');
+  const btnSelectAll = document.getElementById('btn-select-all');
+  const btnClearAll = document.getElementById('btn-clear-all');
+  const btnSelectUnassigned = document.getElementById('btn-select-unassigned');
+  const btnAssignSelected = document.getElementById('btn-assign-selected');
+  const btnSaveAll = document.getElementById('btn-save-all');
+  const selectedCountEl = document.getElementById('selected-count');
+  const selectedCountFooterEl = document.getElementById('selected-count-footer');
+  
+  // Quick Create elements
+  const newCourseTitle = document.getElementById('new-course-title');
+  const btnCreateCourse = document.getElementById('btn-create-course');
+  const sectionCourseSelect = document.getElementById('section-course-select');
+  const newSectionTitle = document.getElementById('new-section-title');
+  const btnCreateSection = document.getElementById('btn-create-section');
+  const lessonSectionSelect = document.getElementById('lesson-section-select');
+  const newLessonTitle = document.getElementById('new-lesson-title');
+  const btnCreateLesson = document.getElementById('btn-create-lesson');
+  
+  function updateSelectedCount() {
+    const count = Array.from(checkboxes).filter(cb => cb.checked).length;
+    selectedCountEl.textContent = count;
+    selectedCountFooterEl.textContent = count;
+    btnAssignSelected.disabled = count === 0 || !bulkLessonSelect.value;
+  }
+  
+  // Filter by lesson
+  if (filterLesson) {
+    filterLesson.addEventListener('change', function() {
+      const lessonId = this.value;
+      vocabItems.forEach(item => {
+        if (!lessonId) {
+          item.style.display = '';
+        } else {
+          const vocabId = item.dataset.vocabId;
+          const select = item.querySelector(`.lesson-select[data-vocab-id="${vocabId}"]`);
+          if (select && select.value === lessonId) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        }
+      });
+    });
+  }
+  
+  // Select All / Clear All / Select Unassigned
+  if (btnSelectAll) {
+    btnSelectAll.addEventListener('click', function() {
+      checkboxes.forEach(cb => cb.checked = true);
+      updateSelectedCount();
+    });
+  }
+  
+  if (btnClearAll) {
+    btnClearAll.addEventListener('click', function() {
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectedCount();
+    });
+  }
+  
+  if (btnSelectUnassigned) {
+    btnSelectUnassigned.addEventListener('click', function() {
+      checkboxes.forEach(cb => {
+        const vocabId = cb.value;
+        const select = document.querySelector(`.lesson-select[data-vocab-id="${vocabId}"]`);
+        cb.checked = !select || !select.value;
+      });
+      updateSelectedCount();
+    });
+  }
+  
+  // Update count when checkbox changes
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+  });
+  
+  // Bulk lesson select change
+  if (bulkLessonSelect) {
+    bulkLessonSelect.addEventListener('change', function() {
+      updateSelectedCount();
+    });
+  }
+  
+  // Assign Selected to Lesson
+  if (btnAssignSelected) {
+    btnAssignSelected.addEventListener('click', function() {
+      const lessonId = bulkLessonSelect.value;
+      if (!lessonId) {
+        alert('Vui lòng chọn lesson từ dropdown "Bulk Assign to Lesson"');
+        return;
+      }
+      
+      const selectedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+      
+      if (selectedIds.length === 0) {
+        alert('Vui lòng chọn ít nhất một từ vựng');
+        return;
+      }
+      
+      // Update all selected selects
+      selectedIds.forEach(vocabId => {
+        const select = document.querySelector(`.lesson-select[data-vocab-id="${vocabId}"]`);
+        if (select) {
+          select.value = lessonId;
+        }
+      });
+      
+      // Uncheck all
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectedCount();
+    });
+  }
+  
+  // Keyboard shortcuts: Space to toggle, Arrow keys to navigate
+  let focusedIndex = -1;
+  vocabItems.forEach((item, idx) => {
+    item.addEventListener('click', function(e) {
+      if (e.target.type !== 'checkbox' && e.target.tagName !== 'SELECT') {
+        const checkbox = item.querySelector('.vocab-checkbox');
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          updateSelectedCount();
+        }
+      }
+    });
+    
+    item.addEventListener('keydown', function(e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        const checkbox = item.querySelector('.vocab-checkbox');
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          updateSelectedCount();
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (idx < vocabItems.length - 1) {
+          vocabItems[idx + 1].focus();
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (idx > 0) {
+          vocabItems[idx - 1].focus();
+        }
+      }
+    });
+    
+    item.setAttribute('tabindex', '0');
+  });
+  
+  // Quick Create Course
+  if (btnCreateCourse && newCourseTitle) {
+    btnCreateCourse.addEventListener('click', async function() {
+      const title = newCourseTitle.value.trim();
+      if (!title) {
+        alert('Nhập tên course trước');
+        return;
+      }
+      btnCreateCourse.disabled = true;
+      try {
+        const data = await postForm("{% url 'admin:vocab_englishvocabulary_create_course_api' %}", { title: title });
+        addOption(sectionCourseSelect, data.id, data.title);
+        sectionCourseSelect.value = String(data.id);
+        newCourseTitle.value = '';
+        alert('Đã tạo course: ' + data.title);
+      } catch (e) {
+        alert('Lỗi: ' + e.message);
+      } finally {
+        btnCreateCourse.disabled = false;
+      }
+    });
+  }
+  
+  // Quick Create Section
+  if (sectionCourseSelect) {
+    sectionCourseSelect.addEventListener('change', function() {
+      btnCreateSection.disabled = !this.value;
+      filterSections();
+    });
+  }
+  
+  if (btnCreateSection && newSectionTitle) {
+    btnCreateSection.addEventListener('click', async function() {
+      const courseId = sectionCourseSelect.value;
+      const title = newSectionTitle.value.trim();
+      if (!courseId || !title) {
+        alert('Chọn course và nhập tên section');
+        return;
+      }
+      btnCreateSection.disabled = true;
+      try {
+        const data = await postForm("{% url 'admin:vocab_englishvocabulary_create_section_api' %}", {
+          title: title,
+          course_id: courseId
+        });
+        const label = data.course_title + ' — ' + data.title;
+        addOption(lessonSectionSelect, data.id, label, { 'data-course': String(data.course_id) });
+        lessonSectionSelect.value = String(data.id);
+        newSectionTitle.value = '';
+        filterSections();
+        alert('Đã tạo section: ' + data.title);
+      } catch (e) {
+        alert('Lỗi: ' + e.message);
+      } finally {
+        btnCreateSection.disabled = false;
+      }
+    });
+  }
+  
+  // Quick Create Lesson
+  if (lessonSectionSelect) {
+    lessonSectionSelect.addEventListener('change', function() {
+      btnCreateLesson.disabled = !this.value;
+    });
+  }
+  
+  if (btnCreateLesson && newLessonTitle) {
+    btnCreateLesson.addEventListener('click', async function() {
+      const sectionId = lessonSectionSelect.value;
+      const courseId = lessonSectionSelect.options[lessonSectionSelect.selectedIndex]?.dataset.course;
+      const title = newLessonTitle.value.trim();
+      if (!sectionId || !courseId || !title) {
+        alert('Chọn section và nhập tên lesson');
+        return;
+      }
+      btnCreateLesson.disabled = true;
+      try {
+        const data = await postForm("{% url 'admin:vocab_englishvocabulary_create_lesson_api' %}", {
+          title: title,
+          course_id: courseId,
+          section_id: sectionId
+        });
+        const label = data.course_title + ' — ' + data.section_title + ' — ' + data.title;
+        addOption(bulkLessonSelect, data.id, label);
+        addOption(filterLesson, data.id, label);
+        lessonSelects.forEach(select => {
+          addOption(select, data.id, label);
+        });
+        bulkLessonSelect.value = String(data.id);
+        newLessonTitle.value = '';
+        alert('Đã tạo lesson: ' + data.title);
+      } catch (e) {
+        alert('Lỗi: ' + e.message);
+      } finally {
+        btnCreateLesson.disabled = false;
+      }
+    });
+  }
+  
+  function filterSections() {
+    const courseId = sectionCourseSelect.value;
+    Array.from(lessonSectionSelect.options).forEach(opt => {
+      if (opt.value === '') return;
+      opt.hidden = courseId ? (String(opt.dataset.course || '') !== String(courseId)) : false;
+    });
+  }
+  
+  function addOption(selectEl, value, label, extraAttrs) {
+    const opt = document.createElement('option');
+    opt.value = String(value);
+    opt.textContent = label;
+    if (extraAttrs) {
+      Object.keys(extraAttrs).forEach(k => opt.setAttribute(k, extraAttrs[k]));
+    }
+    selectEl.appendChild(opt);
+    return opt;
+  }
+  
+  async function postForm(url, data) {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: new URLSearchParams(data).toString()
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error(json.error || 'Request failed');
+    }
+    return json;
+  }
+  
+  // Save All Assignments
+  if (btnSaveAll) {
+    btnSaveAll.addEventListener('click', async function() {
+      const assignments = Array.from(lessonSelects).map(select => ({
+        vocab_id: select.dataset.vocabId,
+        lesson_id: select.value || null,
+      }));
+      
+      btnSaveAll.disabled = true;
+      btnSaveAll.textContent = 'Đang lưu...';
+      
+      try {
+        const formData = new URLSearchParams();
+        formData.append('assignments', JSON.stringify(assignments));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        const response = await fetch("{% url 'admin:vocab_englishvocabulary_assign_lessons_api' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: formData.toString(),
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert(`Đã lưu ${data.updated} từ vựng thành công!`);
+          window.location.href = "{% url 'admin:vocab_englishvocabulary_changelist' %}";
+        } else {
+          alert('Lỗi: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Lỗi: ' + e.message);
+      } finally {
+        btnSaveAll.disabled = false;
+        btnSaveAll.textContent = 'Save All Assignments';
+      }
+    });
+  }
+  
+  function getCookie(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+  }
+  
+  updateSelectedCount();
+  filterSections();
+})();
+</script>
+{% endblock %}

@@ -1,23 +1,2385 @@
 {% extends "courses/base_course.html" %}
+{% load static vocab_tags grammar_tags %}
 
 {% block title %}{{ lesson.title }} | {{ course.title }}{% endblock %}
 
-{% block course_content %}
-  <div class="mb-4">
-    <div class="text-xs text-slate-500 uppercase tracking-wide">Lesson</div>
-    <h1 class="text-2xl font-bold text-slate-900">{{ lesson.title }}</h1>
-    {% if lesson.section %}
-      <p class="mt-1 text-sm text-slate-600">
-        {{ lesson.section.title }} · {{ course.title }}
-      </p>
-    {% endif %}
-  </div>
-
-  <div class="prose prose-slate max-w-none">
-    <p class="text-slate-600">
-      (Trang lesson này là “khung UI” để bạn phát triển nội dung sau: gắn vocab/grammar theo lesson, flashcard theo lesson, v.v.)
-    </p>
-  </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/exam-components.css' %}?v=20251227">
 {% endblock %}
 
+{% block course_content %}
+<div class="space-y-4">
+  <div class="df-lesson-breadcrumb bg-white rounded-xl border border-slate-200 shadow-sm px-3 py-2.5">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-1 text-[13px]">
+        <a class="px-1.5 py-1 hover:bg-slate-100 text-slate-800 rounded" href="{% url 'core:course_list' %}">Courses</a>
+        <span class="text-slate-400">›</span>
+        <a class="px-1.5 py-1 hover:bg-slate-100 text-slate-800 rounded"
+          href="{% url 'core:course_detail' course.slug %}">{{
+          course.title }}</a>
+        {% if lesson.section %}
+        <span class="text-slate-400">›</span>
+        <span class="px-1.5 py-1 text-slate-600 rounded">{{ lesson.section.title }}</span>
+        {% endif %}
+        <span class="text-slate-400">›</span>
+        <span class="px-1.5 py-1 font-semibold text-slate-900 rounded">{{ lesson.title }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        {% if prev_lesson %}
+        <a class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+          href="{% url 'core:lesson_detail' course.slug prev_lesson.slug %}?mode={{ mode }}">‹ Bài trước</a>
+        {% else %}
+        <span class="px-2.5 py-1.5 rounded-lg border border-slate-100 text-slate-300">‹ Bài trước</span>
+        {% endif %}
+        {% if next_lesson %}
+        <a class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+          href="{% url 'core:lesson_detail' course.slug next_lesson.slug %}?mode={{ mode }}">Bài sau ›</a>
+        {% else %}
+        <span class="px-2.5 py-1.5 rounded-lg border border-slate-100 text-slate-300">Bài sau ›</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 
+  {% if mode not in "vocab,mcq,matching,fill,listening,grammar" %}
+  <div class="mt-4 p-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-sm">
+    Chế độ <span class="font-semibold">{{ mode }}</span> chưa triển khai UI/logic.
+    Mình đã dựng sẵn sidebar + routing để bạn phát triển tiếp.
+  </div>
+  {% endif %}
+</div>
+
+{% if mode == "vocab" %}
+<div class="df-vocab-list-wrapper space-y-4">
+  {% for w in en_words %}
+  <article class="df-vocab-card shadow-sm overflow-hidden">
+    <div class="df-vocab-card-inner p-5">
+      <div class="df-vocab-top">
+        <div>
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="df-vocab-word text-slate-900">
+                  {{ w.en_word }}
+                  {% if w.phonetic %}
+                  <span class="df-vocab-phonetic">{{ w.phonetic }}</span>
+                  {% endif %}
+                </div>
+                {% if w.audio_pack_uuid %}
+                <div class="df-vocab-audio-controls flex items-center gap-1.5">
+                  <button type="button" class="df-audio-btn df-audio-btn-us"
+                    data-audio-us="{% vocab_audio_url_us w.audio_pack_uuid 'word' %}"
+                    data-audio-uk="{% vocab_audio_url_uk w.audio_pack_uuid 'word' %}" title="Nghe phát âm (US)">
+                    <svg class="df-audio-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <span class="df-audio-label">US</span>
+                  </button>
+                  <button type="button" class="df-audio-btn df-audio-btn-uk"
+                    data-audio-us="{% vocab_audio_url_us w.audio_pack_uuid 'word' %}"
+                    data-audio-uk="{% vocab_audio_url_uk w.audio_pack_uuid 'word' %}" title="Nghe phát âm (UK)">
+                    <svg class="df-audio-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <span class="df-audio-label">UK</span>
+                  </button>
+                </div>
+                {% endif %}
+              </div>
+              <div class="mt-3 df-vocab-body">
+                <div class="font-semibold text-slate-800">Nghĩa:</div>
+                <div class="text-slate-700">{{ w.vi_meaning }}</div>
+                {% if w.en_definition %}
+                <div class="text-slate-600 mt-2">{{ w.en_definition }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="df-vocab-media">
+          {% if w.image %}
+          <div class="df-vocab-media-box">
+            <img src="{{ w.image.url }}" alt="Ảnh minh hoạ {{ w.en_word }}" class="df-vocab-media-img" />
+          </div>
+          {% else %}
+          <div class="df-vocab-media-box df-media-frame flex items-center justify-center text-slate-500 text-sm">
+            Hình minh hoạ (optional)
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="font-semibold text-slate-800">Ví dụ:</div>
+        <ul class="mt-2 space-y-2 df-vocab-body">
+          {% for ex in w.examples.all %}
+          <li class="flex items-start gap-2 pl-3 border-l-2 border-slate-200">
+            {% if w.audio_pack_uuid %}
+            {% with example_num=forloop.counter %}
+            {% vocab_audio_url_us w.audio_pack_uuid 'example' example_num as audio_us_url %}
+            {% vocab_audio_url_uk w.audio_pack_uuid 'example' example_num as audio_uk_url %}
+            {% if audio_us_url or audio_uk_url %}
+            <button type="button" class="df-example-audio-icon" data-audio-us="{{ audio_us_url }}"
+              data-audio-uk="{{ audio_uk_url }}" title="Nghe ví dụ">
+              <svg class="df-example-audio-icon-svg" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            </button>
+            {% endif %}
+            {% endwith %}
+            {% endif %}
+            <div class="flex-1 min-w-0">
+              <div class="text-slate-800">
+                {% if ex.sentence_marked %}
+                {{ ex.sentence_marked|format_marked_sentence|safe }}
+                {% else %}
+                {{ ex.en }}
+                {% endif %}
+              </div>
+              {% if ex.vi|is_not_context %}<div class="text-slate-600 mt-1">({{ ex.vi }})</div>{% endif %}
+            </div>
+          </li>
+          {% empty %}
+          {% if w.example_en or w.example_vi %}
+          <li class="flex items-start gap-2 pl-3 border-l-2 border-slate-200">
+            <div class="flex-1 min-w-0">
+              <div class="text-slate-800">{{ w.example_en }}</div>
+              {% if w.example_vi %}<div class="text-slate-600">({{ w.example_vi }})</div>{% endif %}
+            </div>
+          </li>
+          {% else %}
+          <li class="text-slate-500">Chưa có ví dụ.</li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </article>
+  {% empty %}
+  {% if mode == "vocab" %}
+  <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-600">
+    <p class="mb-4">Lesson này chưa có từ vựng tiếng Anh (gán bằng `lesson_ref`) để hiển thị.</p>
+    {% if lesson.content or grammar_points %}
+    <p class="text-sm text-slate-500">
+      {% if lesson.content %}
+      <a href="?mode=grammar" class="text-blue-600 hover:text-blue-700 underline">Xem nội dung ngữ pháp →</a>
+      {% elif grammar_points %}
+      <a href="?mode=grammar" class="text-blue-600 hover:text-blue-700 underline">Xem điểm ngữ pháp →</a>
+      {% endif %}
+    </p>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="df-vocab-list-wrapper mt-4">
+  {# Per Page Selector #}
+  <div class="flex items-center justify-between gap-4 mb-4">
+    <div class="text-xs text-slate-500">
+      Hiển thị <span class="font-semibold">{{ page_obj.start_index }}</span>-<span class="font-semibold">{{
+        page_obj.end_index }}</span> / <span class="font-semibold">{{ total_count }}</span> từ vựng
+    </div>
+    <div class="flex items-center gap-2">
+      <label for="vocab-per-page" class="text-xs text-slate-600">Số từ/trang:</label>
+      <select id="vocab-per-page"
+        class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white hover:bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+        <option value="10"  {% if per_page == 10 %}selected{% endif %}>10</option>
+        <option value="20"  {% if per_page == 20 %}selected{% endif %}>20</option>
+        <option value="30"  {% if per_page == 30 %}selected{% endif %}>30</option>
+        <option value="50"  {% if per_page == 50 %}selected{% endif %}>50</option>
+        <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+
+      </select>
+    </div>
+  </div>
+
+  {% include "components/pagination.html" with page_obj=page_obj page_items=page_items base_qs=base_qs %}
+</div>
+
+{# Per Page Selector JavaScript #}
+<script>
+  (function () {
+    const perPageSelect = document.getElementById('vocab-per-page');
+    if (!perPageSelect) return;
+
+    // Load saved preference from localStorage
+    try {
+      const saved = localStorage.getItem('df_vocab_per_page');
+      if (saved) {
+        const savedValue = parseInt(saved, 10);
+        if ([10, 20, 30, 50, 100].includes(savedValue)) {
+          const currentValue = parseInt(perPageSelect.value, 10);
+          if (savedValue !== currentValue) {
+            // Redirect to page 1 with saved per_page
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', savedValue);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load per_page preference:', e);
+    }
+
+    // Handle change event
+    perPageSelect.addEventListener('change', function () {
+      const newPerPage = parseInt(this.value, 10);
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('df_vocab_per_page', String(newPerPage));
+      } catch (e) {
+        console.warn('Failed to save per_page preference:', e);
+      }
+
+      // Redirect to page 1 with new per_page
+      const url = new URL(window.location.href);
+      url.searchParams.set('per_page', newPerPage);
+      url.searchParams.set('page', '1');
+      window.location.href = url.toString();
+    });
+  })();
+</script>
+{% endif %}
+
+{% if mode == "mcq" %}
+<script id="mcq-questions-json" type="application/json">{{ mcq_questions_json|safe }}</script>
+<script type="application/json" id="mcq-lesson-data">{"lessonId": {{ lesson.id }}}</script>
+
+<div class="df-mcq-wrap space-y-4">
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wide">Trắc nghiệm từ vựng</div>
+        <div class="text-sm text-slate-600 mt-1">
+          <span id="mcq-progress-text">Câu 1 / {{ mcq_questions_count }}</span>
+        </div>
+      </div>
+      <button type="button" id="mcq-reset"
+        class="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        Làm lại
+      </button>
+    </div>
+
+    <div class="mt-5">
+      <div class="text-xs text-slate-500">Hint (English meaning)</div>
+      <div id="mcq-hint" class="mt-1 text-slate-800 font-semibold"></div>
+    </div>
+
+    <div class="mt-5">
+      <div id="mcq-question-label" class="text-xs text-slate-500 mb-2"></div>
+      <div id="mcq-question" class="text-base text-slate-900 leading-relaxed"></div>
+    </div>
+
+    <div id="mcq-options" class="df-mcq-options"></div>
+
+    <div id="mcq-feedback" class="mt-5 hidden rounded-2xl border p-4 text-sm"></div>
+  </section>
+
+  <aside class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center justify-between gap-3">
+      <button type="button" id="mcq-prev"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        ‹ Câu trước
+      </button>
+
+      {% include "components/toggle_switch.html" with toggle_id="mcq-auto-next" label="Tự động chuyển câu" %}
+
+      <button type="button" id="mcq-next"
+        class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Câu sau ›
+      </button>
+    </div>
+
+    {% include "components/question_grid.html" with grid_id="mcq-grid" total_count=mcq_questions_count
+    correct_id="mcq-correct" %}
+  </aside>
+</div>
+
+<script>
+  (function () {
+    const dataEl = document.getElementById("mcq-questions-json");
+    const questions = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
+
+    const lessonDataEl = document.getElementById("mcq-lesson-data");
+    const lessonData = lessonDataEl ? JSON.parse(lessonDataEl.textContent || "{}") : {};
+    const lessonId = lessonData.lessonId || 0;
+    const storageKey = `df_mcq_progress_${lessonId}`;
+
+    const elSentence = document.getElementById("mcq-sentence");
+    const elHint = document.getElementById("mcq-hint");
+    const elOptions = document.getElementById("mcq-options");
+    const elFeedback = document.getElementById("mcq-feedback");
+    const elProgress = document.getElementById("mcq-progress-text");
+    const elGrid = document.getElementById("mcq-grid");
+    const elCorrect = document.getElementById("mcq-correct");
+
+    const btnPrev = document.getElementById("mcq-prev");
+    const btnNext = document.getElementById("mcq-next");
+    const btnReset = document.getElementById("mcq-reset");
+    const chkAuto = document.getElementById("mcq-auto-next");
+
+    let idx = 0;
+    // state: object {questionId: {isCorrect: true/false, selectedOption: "...", wrongOptions: Set}} - use question ID instead of index
+    // wrongOptions: Set of options that were selected and were wrong
+    let state = {};
+    let correct = 0;
+    let autoNext = true;
+
+    // Build questionId -> index map for quick lookup
+    const questionIdMap = {};
+    questions.forEach((q, i) => {
+      if (q.id) {
+        questionIdMap[q.id] = i;
+      }
+    });
+
+    // Throttle saveProgress to avoid too many writes
+    let saveProgressTimeout = null;
+    function saveProgress() {
+      if (saveProgressTimeout) {
+        clearTimeout(saveProgressTimeout);
+      }
+      saveProgressTimeout = setTimeout(() => {
+        try {
+          const data = {
+            state: state, // object with questionId keys
+            correct: correct,
+            idx: idx
+          };
+          localStorage.setItem(storageKey, JSON.stringify(data));
+        } catch (e) {
+          console.warn("Failed to save MCQ progress:", e);
+        }
+      }, 500); // Throttle: wait 500ms before saving
+    }
+
+    // Load saved progress from localStorage
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const data = JSON.parse(saved);
+          // Support both old format (array/boolean) and new format (object with isCorrect/selectedOption)
+          if (data.state) {
+            if (Array.isArray(data.state)) {
+              // Migrate old format (array of booleans) to new format
+              state = {};
+              questions.forEach((q, i) => {
+                if (q.id && i < data.state.length) {
+                  const oldVal = data.state[i];
+                  if (oldVal !== null && oldVal !== undefined) {
+                    state[q.id] = { isCorrect: oldVal === true, selectedOption: null, wrongOptions: [] };
+                  }
+                }
+              });
+            } else if (typeof data.state === 'object') {
+              // Check if it's old format (questionId: true/false) or new format (questionId: {isCorrect, selectedOption, wrongOptions})
+              state = {};
+              Object.keys(data.state).forEach(qId => {
+                const val = data.state[qId];
+                if (val === true || val === false) {
+                  // Old format: migrate to new format
+                  state[qId] = { isCorrect: val === true, selectedOption: null, wrongOptions: [] };
+                } else if (val && typeof val === 'object' && 'isCorrect' in val) {
+                  // New format: ensure wrongOptions exists
+                  state[qId] = {
+                    isCorrect: val.isCorrect,
+                    selectedOption: val.selectedOption || null,
+                    wrongOptions: val.wrongOptions || []
+                  };
+                }
+              });
+            }
+            // Recalculate correct count
+            correct = 0;
+            Object.values(state).forEach(v => {
+              if (v && v.isCorrect === true) correct++;
+            });
+            idx = Math.max(0, Math.min(data.idx || 0, questions.length - 1));
+            if (elCorrect) elCorrect.textContent = String(correct);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load MCQ progress:", e);
+      }
+    }
+
+    try {
+      const saved = localStorage.getItem("df_mcq_auto_next");
+      if (saved === "0") autoNext = false;
+    } catch (e) { }
+    if (chkAuto) chkAuto.checked = autoNext;
+    if (chkAuto) chkAuto.addEventListener("change", () => {
+      autoNext = !!chkAuto.checked;
+      try { localStorage.setItem("df_mcq_auto_next", autoNext ? "1" : "0"); } catch (e) { }
+    });
+
+    function renderGrid() {
+      if (!elGrid) return;
+      elGrid.innerHTML = "";
+      questions.forEach((q, i) => {
+        const qId = q.id || i; // fallback to index if no id
+        const s = state[qId];
+        const isCorrect = s && s.isCorrect === true;
+        const isWrong = s && s.isCorrect === false;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i + 1);
+        btn.className =
+          "df-mcq-qbtn " +
+          (i === idx ? "df-mcq-qbtn--active " : "") +
+          (isCorrect
+            ? "df-mcq-qbtn--correct"
+            : isWrong
+              ? "df-mcq-qbtn--wrong"
+              : "");
+        btn.addEventListener("click", () => {
+          idx = i;
+          saveProgress();
+          render();
+        });
+        elGrid.appendChild(btn);
+      });
+    }
+
+    function render() {
+      const q = questions[idx];
+      if (!q) return;
+
+      if (elProgress) elProgress.textContent = `Câu ${idx + 1} / ${questions.length}`;
+      if (elHint) elHint.textContent = q.hint || "(Chưa có hint)";
+
+      // Render question based on type
+      const questionLabel = document.getElementById("mcq-question-label");
+      const questionEl = document.getElementById("mcq-question");
+      const qType = q.type || "fill_blank"; // default to fill_blank for backward compatibility
+
+      if (qType === "fill_blank") {
+        if (questionLabel) questionLabel.textContent = "Điền từ vào chỗ trống:";
+        if (questionEl) questionEl.textContent = q.question || q.masked || "____";
+      } else if (qType === "choose_vi") {
+        if (questionLabel) questionLabel.textContent = "Chọn nghĩa tiếng Việt:";
+        if (questionEl) questionEl.innerHTML = `<span class="font-semibold text-lg">${q.question || ""}</span>`;
+      } else if (qType === "choose_word") {
+        if (questionLabel) questionLabel.textContent = "Chọn từ vựng tiếng Anh:";
+        if (questionEl) questionEl.textContent = q.question || "";
+      }
+
+      if (elOptions) {
+        elOptions.innerHTML = "";
+        const qId = q.id || idx; // use question ID if available
+        const currentState = state[qId];
+        const isAnsweredCorrect = currentState && currentState.isCorrect === true;
+        const selectedOption = currentState ? currentState.selectedOption : null;
+        // Get set of wrong options that were previously selected
+        const wrongOptions = currentState && currentState.wrongOptions ? new Set(currentState.wrongOptions) : new Set();
+
+        (q.options || []).forEach((opt) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "df-mcq-option";
+          const isCorrectOpt = String(opt).toLowerCase() === String(q.answer).toLowerCase();
+          const isSelected = selectedOption && String(opt).toLowerCase() === String(selectedOption).toLowerCase();
+          const optLower = String(opt).toLowerCase();
+          const wasWrong = wrongOptions.has(optLower);
+
+          // If answered correctly, disable all options
+          if (isAnsweredCorrect) {
+            b.disabled = true;
+            // Highlight correct answer in green
+            if (isCorrectOpt) {
+              b.classList.add("df-mcq-option--correct");
+            }
+            // Still show wrong options in red (from wrongOptions)
+            if (wasWrong) {
+              b.classList.add("df-mcq-option--wrong");
+              // Show translation if wrong
+              if (q.option_translations && q.option_translations[opt]) {
+                const translation = q.option_translations[opt];
+                b.textContent = `${opt} (${translation})`;
+              } else {
+                b.textContent = opt;
+              }
+            } else {
+              b.textContent = opt;
+            }
+          } else if (isSelected || wasWrong) {
+            // Wrong answer selected (current or previous): show red, but allow clicking other options
+            b.classList.add("df-mcq-option--wrong");
+            // Show translation if wrong
+            if (q.option_translations && q.option_translations[opt]) {
+              const translation = q.option_translations[opt];
+              b.textContent = `${opt} (${translation})`;
+            } else {
+              b.textContent = opt;
+            }
+          } else {
+            // Reset styles for unselected options
+            b.classList.remove("df-mcq-option--correct", "df-mcq-option--wrong");
+            b.textContent = opt;
+          }
+
+          // Only allow clicking if not answered correctly
+          if (!isAnsweredCorrect) {
+            b.addEventListener("click", () => {
+              const isCorrect = isCorrectOpt;
+              const wasCorrect = currentState && currentState.isCorrect === true;
+
+              // Update wrongOptions set
+              if (!isCorrect) {
+                wrongOptions.add(optLower);
+              }
+
+              // Update state with wrongOptions array (convert Set to Array for JSON serialization)
+              state[qId] = {
+                isCorrect: isCorrect,
+                selectedOption: opt,
+                wrongOptions: Array.from(wrongOptions)
+              };
+
+              // Only increment correct count if this is the first time getting it right
+              if (isCorrect && !wasCorrect) {
+                correct += 1;
+                if (elCorrect) elCorrect.textContent = String(correct);
+              } else if (!isCorrect && wasCorrect) {
+                // If switching from correct to wrong, decrement
+                correct -= 1;
+                if (elCorrect) elCorrect.textContent = String(correct);
+              }
+
+              saveProgress(); // Save after answering (throttled)
+
+              // Auto-next after 2.5 seconds if correct (reduced from 5 seconds)
+              if (isCorrect && autoNext && idx < questions.length - 1) {
+                setTimeout(() => {
+                  idx += 1;
+                  saveProgress();
+                  render();
+                }, 2500); // 2.5 seconds (reduced from 5 seconds)
+              }
+
+              renderGrid();
+              render(); // refresh to show state
+            });
+          }
+          elOptions.appendChild(b);
+        });
+      }
+
+      // Hide feedback box (not used anymore)
+      if (elFeedback) {
+        elFeedback.classList.add("hidden");
+      }
+
+      if (btnPrev) btnPrev.disabled = idx === 0;
+      if (btnNext) btnNext.disabled = idx >= questions.length - 1;
+      renderGrid();
+    }
+
+    if (btnPrev) btnPrev.addEventListener("click", () => {
+      if (idx > 0) {
+        idx -= 1;
+        saveProgress();
+        render();
+      }
+    });
+    if (btnNext) btnNext.addEventListener("click", () => {
+      if (idx < questions.length - 1) {
+        idx += 1;
+        saveProgress();
+        render();
+      }
+    });
+    if (btnReset) btnReset.addEventListener("click", () => {
+      state = {}; // Reset object
+      correct = 0;
+      idx = 0;
+      if (elCorrect) elCorrect.textContent = "0";
+      if (elFeedback) elFeedback.classList.add("hidden");
+      if (saveProgressTimeout) {
+        clearTimeout(saveProgressTimeout);
+        saveProgressTimeout = null;
+      }
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (e) { }
+      render();
+    });
+
+    // init: load saved progress first, then render
+    loadProgress();
+    render();
+  })();
+</script>
+{% endif %}
+
+{% if mode == "matching" %}
+<script id="matching-boards-json" type="application/json">{{ matching_boards_json|safe }}</script>
+
+<div class="df-match-wrap space-y-4">
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="text-sm text-slate-600 mt-1">
+          <span id="match-progress-text">Bảng 1 / {{ matching_boards_count }}</span>
+          <span class="mx-2">·</span>
+          <span id="match-pairs-text">Đã ghép 0/0</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="match-board" class="mt-6 df-match-board"></div>
+  </section>
+
+  <aside class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center justify-between gap-3">
+      <button type="button" id="match-prev"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        ‹ Bảng trước
+      </button>
+
+      {% include "components/toggle_switch.html" with toggle_id="match-auto-next" label="Tự động sang bảng" %}
+
+      <button type="button" id="match-next"
+        class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Bảng sau ›
+      </button>
+    </div>
+
+    {% include "components/question_grid.html" with grid_id="match-grid" title="Danh sách bảng:" show_stats=False %}
+  </aside>
+</div>
+
+<script>
+  (function () {
+    const dataEl = document.getElementById("matching-boards-json");
+    const boards = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
+
+    const elBoard = document.getElementById("match-board");
+    const elProgress = document.getElementById("match-progress-text");
+    const elPairs = document.getElementById("match-pairs-text");
+    const elGrid = document.getElementById("match-grid");
+
+    const btnPrev = document.getElementById("match-prev");
+    const btnNext = document.getElementById("match-next");
+    const btnReset = document.getElementById("match-reset");
+    const chkAuto = document.getElementById("match-auto-next");
+
+    let boardIdx = 0;
+    let lock = false;
+    let selected = []; // [{el, pairId, kind}]
+    let matched = new Set(); // pairId set
+
+    let autoNext = true;
+    try {
+      const saved = localStorage.getItem("df_match_auto_next");
+      if (saved === "0") autoNext = false;
+    } catch (e) { }
+    if (chkAuto) chkAuto.checked = autoNext;
+    if (chkAuto) chkAuto.addEventListener("change", () => {
+      autoNext = !!chkAuto.checked;
+      try { localStorage.setItem("df_match_auto_next", autoNext ? "1" : "0"); } catch (e) { }
+    });
+
+    function setPairsText() {
+      const b = boards[boardIdx];
+      const total = b ? (b.pairs || 0) : 0;
+      if (elPairs) elPairs.textContent = `Đã ghép ${matched.size}/${total}`;
+    }
+
+    function renderBoardList() {
+      if (!elGrid) return;
+      elGrid.innerHTML = "";
+      boards.forEach((_b, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i + 1);
+        btn.className = "df-mcq-qbtn " + (i === boardIdx ? "df-mcq-qbtn--active" : "");
+        btn.addEventListener("click", () => {
+          boardIdx = i;
+          resetBoardState();
+          render();
+        });
+        elGrid.appendChild(btn);
+      });
+    }
+
+    function resetBoardState() {
+      lock = false;
+      selected = [];
+      matched = new Set();
+    }
+
+    function markMatched(tileEl) {
+      tileEl.classList.add("df-match-tile--matched");
+      tileEl.classList.remove("df-match-tile--selected");
+      tileEl.disabled = true;
+    }
+
+    function checkDone() {
+      const b = boards[boardIdx];
+      const total = b ? (b.pairs || 0) : 0;
+      if (total > 0 && matched.size >= total) {
+        if (autoNext && boardIdx < boards.length - 1) {
+          setTimeout(() => {
+            boardIdx += 1;
+            resetBoardState();
+            render();
+          }, 650);
+        }
+      }
+    }
+
+    function onTileClick(tileEl) {
+      if (lock) return;
+      if (tileEl.disabled) return;
+      const kind = tileEl.dataset.kind;
+      if (kind === "blank") return;
+
+      const pairId = tileEl.dataset.pairId;
+      if (!pairId) return;
+      if (matched.has(pairId)) return;
+      if (selected.find((x) => x.el === tileEl)) return;
+
+      tileEl.classList.add("df-match-tile--selected");
+      selected.push({ el: tileEl, pairId, kind });
+
+      if (selected.length < 2) return;
+      lock = true;
+
+      const a = selected[0];
+      const b = selected[1];
+      const ok = a.pairId === b.pairId && a.kind !== b.kind;
+
+      if (ok) {
+        matched.add(a.pairId);
+        markMatched(a.el);
+        markMatched(b.el);
+        selected = [];
+        lock = false;
+        setPairsText();
+        checkDone();
+      } else {
+        setTimeout(() => {
+          a.el.classList.remove("df-match-tile--selected");
+          b.el.classList.remove("df-match-tile--selected");
+          selected = [];
+          lock = false;
+        }, 380);
+      }
+    }
+
+    function render() {
+      const b = boards[boardIdx];
+      if (!b) return;
+
+      if (elProgress) elProgress.textContent = `Bảng ${boardIdx + 1} / ${boards.length}`;
+      setPairsText();
+      renderBoardList();
+
+      if (btnPrev) btnPrev.disabled = boardIdx === 0;
+      if (btnNext) btnNext.disabled = boardIdx >= boards.length - 1;
+
+      if (!elBoard) return;
+      elBoard.innerHTML = "";
+
+      (b.tiles || []).forEach((t) => {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "df-match-tile";
+        tile.dataset.kind = t.kind || "";
+        tile.dataset.pairId = t.pair_id == null ? "" : String(t.pair_id);
+        tile.dataset.text = t.text || "";
+        tile.disabled = (t.kind === "blank");
+        tile.textContent = (t.kind === "blank") ? "" : (t.text || "");
+        tile.addEventListener("click", () => onTileClick(tile));
+        elBoard.appendChild(tile);
+      });
+    }
+
+    if (btnPrev) btnPrev.addEventListener("click", () => {
+      if (boardIdx <= 0) return;
+      boardIdx -= 1;
+      resetBoardState();
+      render();
+    });
+    if (btnNext) btnNext.addEventListener("click", () => {
+      if (boardIdx >= boards.length - 1) return;
+      boardIdx += 1;
+      resetBoardState();
+      render();
+    });
+    if (btnReset) btnReset.addEventListener("click", () => {
+      // reshuffle current board tiles in place (client-side)
+      const b = boards[boardIdx];
+      if (!b) return;
+      const tiles = (b.tiles || []).slice();
+      for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+      }
+      b.tiles = tiles;
+      resetBoardState();
+      render();
+    });
+
+    render();
+  })();
+</script>
+{% endif %}
+
+{% if mode == "fill" %}
+<script id="fill-questions-json" type="application/json">{{ fill_questions_json|safe }}</script>
+
+<div class="df-mcq-wrap space-y-4">
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wide">Điền từ (gõ đáp án)</div>
+        <div class="text-sm text-slate-600 mt-1">
+          <span id="fill-progress-text">Câu 1 / {{ fill_questions_count }}</span>
+        </div>
+      </div>
+      <button type="button" id="fill-reset"
+        class="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        Làm lại
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <div id="fill-hint-vi" class="text-base font-extrabold text-slate-900"></div>
+      <div id="fill-hint-en" class="mt-2 text-sm text-slate-600"></div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-center">
+      <input id="fill-input" type="text" autocomplete="off"
+        class="w-full max-w-md px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+        placeholder="Nhập từ tiếng Anh..." />
+    </div>
+
+    <div class="mt-4 flex items-center justify-center gap-2">
+      <button type="button" id="fill-submit"
+        class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Kiểm tra
+      </button>
+      <button type="button" id="fill-show"
+        class="px-5 py-3 rounded-2xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        Hiện đáp án
+      </button>
+    </div>
+
+    <div id="fill-feedback" class="mt-5 hidden rounded-2xl border p-4 text-sm"></div>
+  </section>
+
+  <aside class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center justify-between gap-3">
+      <button type="button" id="fill-prev"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        ‹ Câu trước
+      </button>
+
+      {% include "components/toggle_switch.html" with toggle_id="fill-auto-next" label="Tự động chuyển câu" %}
+
+      <button type="button" id="fill-next"
+        class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Câu sau ›
+      </button>
+    </div>
+
+    {% include "components/question_grid.html" with grid_id="fill-grid" total_count=fill_questions_count
+    correct_id="fill-correct" %}
+  </aside>
+</div>
+
+<script>
+  (function () {
+    const dataEl = document.getElementById("fill-questions-json");
+    const questions = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
+
+    const elHintVi = document.getElementById("fill-hint-vi");
+    const elHintEn = document.getElementById("fill-hint-en");
+    const elProgress = document.getElementById("fill-progress-text");
+    const elFeedback = document.getElementById("fill-feedback");
+    const elGrid = document.getElementById("fill-grid");
+    const elCorrect = document.getElementById("fill-correct");
+
+    const input = document.getElementById("fill-input");
+    const btnSubmit = document.getElementById("fill-submit");
+    const btnShow = document.getElementById("fill-show");
+    const btnPrev = document.getElementById("fill-prev");
+    const btnNext = document.getElementById("fill-next");
+    const btnReset = document.getElementById("fill-reset");
+    const chkAuto = document.getElementById("fill-auto-next");
+
+    let idx = 0;
+    const state = questions.map(() => null); // null / true / false
+    let correct = 0;
+    let autoNext = true;
+
+    try {
+      const saved = localStorage.getItem("df_fill_auto_next");
+      if (saved === "0") autoNext = false;
+    } catch (e) { }
+    if (chkAuto) chkAuto.checked = autoNext;
+    if (chkAuto) chkAuto.addEventListener("change", () => {
+      autoNext = !!chkAuto.checked;
+      try { localStorage.setItem("df_fill_auto_next", autoNext ? "1" : "0"); } catch (e) { }
+    });
+
+    function setFeedback(type, html) {
+      if (!elFeedback) return;
+      elFeedback.classList.remove("hidden");
+      elFeedback.classList.remove("border-emerald-200", "bg-emerald-50", "text-emerald-800");
+      elFeedback.classList.remove("border-rose-200", "bg-rose-50", "text-rose-800");
+      if (type === "ok") {
+        elFeedback.classList.add("border-emerald-200", "bg-emerald-50", "text-emerald-800");
+      } else {
+        elFeedback.classList.add("border-rose-200", "bg-rose-50", "text-rose-800");
+      }
+      elFeedback.innerHTML = html;
+    }
+
+    function renderGrid() {
+      if (!elGrid) return;
+      elGrid.innerHTML = "";
+      questions.forEach((_q, i) => {
+        const s = state[i];
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i + 1);
+        btn.className =
+          "df-mcq-qbtn " +
+          (i === idx ? "df-mcq-qbtn--active " : "") +
+          (s === true ? "df-mcq-qbtn--correct" : s === false ? "df-mcq-qbtn--wrong" : "");
+        btn.addEventListener("click", () => {
+          idx = i;
+          render();
+        });
+        elGrid.appendChild(btn);
+      });
+    }
+
+    function normalize(s) {
+      return String(s || "").trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
+    function checkAnswer() {
+      const q = questions[idx];
+      if (!q) return;
+      const ans = normalize(q.answer);
+      const typed = normalize(input ? input.value : "");
+      const ok = typed && typed === ans;
+
+      if (state[idx] === null) {
+        state[idx] = ok;
+        if (ok) correct += 1;
+        if (elCorrect) elCorrect.textContent = String(correct);
+      }
+
+      if (ok) setFeedback("ok", `Đúng! Đáp án: <b>${q.answer}</b>`);
+      else setFeedback("bad", `Chưa đúng. Đáp án: <b>${q.answer}</b>`);
+
+      renderGrid();
+
+      if (ok && autoNext && idx < questions.length - 1) {
+        setTimeout(() => {
+          idx += 1;
+          render();
+        }, 450);
+      }
+    }
+
+    function render() {
+      const q = questions[idx];
+      if (!q) return;
+      if (elProgress) elProgress.textContent = `Câu ${idx + 1} / ${questions.length}`;
+      if (elHintVi) elHintVi.textContent = q.hint_vi || "(Chưa có nghĩa VI)";
+      if (elHintEn) elHintEn.textContent = q.hint_en ? `Hint: ${q.hint_en}` : "Hint: (chưa có nghĩa/định nghĩa EN)";
+
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+      if (elFeedback) elFeedback.classList.add("hidden");
+
+      if (btnPrev) btnPrev.disabled = idx === 0;
+      if (btnNext) btnNext.disabled = idx >= questions.length - 1;
+      renderGrid();
+    }
+
+    if (btnSubmit) btnSubmit.addEventListener("click", checkAnswer);
+    if (btnShow) btnShow.addEventListener("click", () => {
+      const q = questions[idx];
+      if (!q) return;
+      setFeedback("bad", `Đáp án: <b>${q.answer}</b>`);
+    });
+    if (btnPrev) btnPrev.addEventListener("click", () => { if (idx > 0) { idx -= 1; render(); } });
+    if (btnNext) btnNext.addEventListener("click", () => { if (idx < questions.length - 1) { idx += 1; render(); } });
+    if (btnReset) btnReset.addEventListener("click", () => {
+      for (let i = 0; i < state.length; i++) state[i] = null;
+      correct = 0;
+      idx = 0;
+      if (elCorrect) elCorrect.textContent = "0";
+      if (elFeedback) elFeedback.classList.add("hidden");
+      render();
+    });
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          checkAnswer();
+        }
+      });
+    }
+
+    render();
+  })();
+</script>
+{% endif %}
+
+{% if mode == "listening" %}
+{% if listening_questions_count > 0 %}
+<div class="df-listening-wrap space-y-4">
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center justify-between gap-3 mb-6">
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wide">Luyện tập nghe từ vựng</div>
+        <div class="text-sm text-slate-600 mt-1">
+          <span id="listen-progress-text">Câu 1 / {{ listening_questions_count }}</span>
+          <span class="mx-2">·</span>
+          <span>Đúng: <span id="listen-correct" class="font-semibold text-emerald-600">0</span> / <span
+              id="listen-total" class="font-semibold">{{ listening_questions_count }}</span></span>
+        </div>
+      </div>
+      <button type="button" id="listen-reset"
+        class="px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        Làm lại
+      </button>
+    </div>
+
+    {# Audio Player #}
+    <div class="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+      <div class="flex items-center justify-center gap-4">
+        <button type="button" id="listen-play" class="df-listening-play-btn">
+          <svg class="df-listening-play-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+        <button type="button" id="listen-repeat" class="df-listening-repeat-btn" title="Phát lại">
+          <svg class="df-listening-icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+        <div class="flex-1">
+          <div class="text-xs text-slate-500 mb-1">Nhấn để nghe từ vựng</div>
+          <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
+            <div id="listen-progress-bar" class="h-full bg-blue-600 transition-all duration-100" style="width: 0%">
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="listen-voice-us" class="df-listening-voice-btn df-listening-voice-active"
+            data-voice="us">US</button>
+          <button type="button" id="listen-voice-uk" class="df-listening-voice-btn" data-voice="uk">UK</button>
+        </div>
+      </div>
+    </div>
+
+    {# Question Content #}
+    <div id="listen-question-content">
+      {# Will be populated by JavaScript #}
+    </div>
+
+    {# Feedback #}
+    <div id="listen-feedback" class="mt-4 hidden rounded-xl border p-4 text-sm"></div>
+  </section>
+
+  <aside class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+    <div class="flex items-center justify-between gap-3">
+      <button type="button" id="listen-prev"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+        ‹ Câu trước
+      </button>
+      {% include "components/toggle_switch.html" with toggle_id="listen-auto-next" label="Tự động chuyển câu" %}
+      <button type="button" id="listen-next"
+        class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        Câu sau ›
+      </button>
+    </div>
+    {% include "components/question_grid.html" with grid_id="listen-grid" total_count=listening_questions_count
+    correct_id="listen-correct" %}
+  </aside>
+</div>
+
+<script id="listening-questions-json" type="application/json">{{ listening_questions_json|safe }}</script>
+<script>
+  (function () {
+    const dataEl = document.getElementById("listening-questions-json");
+    const questions = dataEl ? JSON.parse(dataEl.textContent || "[]") : [];
+    if (questions.length === 0) return;
+
+    const elProgress = document.getElementById("listen-progress-text");
+    const elCorrect = document.getElementById("listen-correct");
+    const elTotal = document.getElementById("listen-total");
+    const elQuestionContent = document.getElementById("listen-question-content");
+    const elFeedback = document.getElementById("listen-feedback");
+    const elGrid = document.getElementById("listen-grid");
+    const btnPlay = document.getElementById("listen-play");
+    const btnRepeat = document.getElementById("listen-repeat");
+    const btnPrev = document.getElementById("listen-prev");
+    const btnNext = document.getElementById("listen-next");
+    const btnReset = document.getElementById("listen-reset");
+    const btnVoiceUs = document.getElementById("listen-voice-us");
+    const btnVoiceUk = document.getElementById("listen-voice-uk");
+    const chkAutoNext = document.getElementById("listen-auto-next");
+    const elProgressBar = document.getElementById("listen-progress-bar");
+
+    let idx = 0;
+    // state: object {questionId: {isCorrect: true/false, selectedOption: "...", wrongOptions: Array}} - use question ID instead of index
+    // wrongOptions: Array of option indices that were selected and were wrong
+    let state = {};
+    let correct = 0;
+    let currentAudio = null;
+    let currentVoice = "us"; // "us" or "uk"
+    let autoNext = true;
+    let selectedAnswer = null;
+
+    // Load auto-next preference
+    try {
+      const saved = localStorage.getItem("df_listen_auto_next");
+      if (saved === "0") autoNext = false;
+    } catch (e) { }
+    if (chkAutoNext) chkAutoNext.checked = autoNext;
+
+    if (chkAutoNext) {
+      chkAutoNext.addEventListener("change", () => {
+        autoNext = !!chkAutoNext.checked;
+        try {
+          localStorage.setItem("df_listen_auto_next", autoNext ? "1" : "0");
+        } catch (e) { }
+      });
+    }
+
+    // Voice selection
+    if (btnVoiceUs) {
+      btnVoiceUs.addEventListener("click", () => {
+        currentVoice = "us";
+        btnVoiceUs.classList.add("df-listening-voice-active");
+        btnVoiceUk.classList.remove("df-listening-voice-active");
+        stopAudio();
+      });
+    }
+    if (btnVoiceUk) {
+      btnVoiceUk.addEventListener("click", () => {
+        currentVoice = "uk";
+        btnVoiceUk.classList.add("df-listening-voice-active");
+        btnVoiceUs.classList.remove("df-listening-voice-active");
+        stopAudio();
+      });
+    }
+
+    function stopAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      if (btnPlay) {
+        btnPlay.classList.remove("df-listening-playing");
+        btnPlay.innerHTML = '<svg class="df-listening-play-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+      }
+      if (elProgressBar) elProgressBar.style.width = "0%";
+    }
+
+    function playAudio() {
+      const q = questions[idx];
+      if (!q) return;
+
+      stopAudio();
+
+      const audioUrl = currentVoice === "us" ? q.audio_us : q.audio_uk;
+      if (!audioUrl) return;
+
+      const audio = new Audio(audioUrl);
+      currentAudio = audio;
+
+      if (btnPlay) {
+        btnPlay.classList.add("df-listening-playing");
+        btnPlay.innerHTML = '<svg class="df-listening-play-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+      }
+
+      audio.addEventListener("timeupdate", () => {
+        if (elProgressBar && audio.duration) {
+          const percent = (audio.currentTime / audio.duration) * 100;
+          elProgressBar.style.width = percent + "%";
+        }
+      });
+
+      audio.addEventListener("ended", () => {
+        stopAudio();
+      });
+
+      audio.addEventListener("error", (e) => {
+        console.warn("Audio error:", e);
+        stopAudio();
+      });
+
+      audio.play().catch((err) => {
+        console.warn("Audio play error:", err);
+        stopAudio();
+      });
+    }
+
+    function renderQuestion() {
+      const q = questions[idx];
+      if (!q) return;
+
+      if (elProgress) elProgress.textContent = `Câu ${idx + 1} / ${questions.length}`;
+      if (elFeedback) elFeedback.classList.add("hidden");
+      selectedAnswer = null;
+
+      let html = "";
+
+      // Get current state for this question
+      const qId = q.id || idx;
+      const currentState = state[qId];
+      const isAnsweredCorrect = currentState && currentState.isCorrect === true;
+      const selectedOption = currentState ? currentState.selectedOption : null;
+      // Get array of wrong option indices that were previously selected
+      const wrongOptions = currentState && currentState.wrongOptions ? new Set(currentState.wrongOptions) : new Set();
+
+      if (q.type === "choose_meaning") {
+        // Multiple choice: choose Vietnamese meaning
+        html = `
+                  <div class="text-center mb-6">
+                    <div class="text-lg font-semibold text-slate-700 mb-2">Nghe và chọn nghĩa đúng</div>
+                  </div>
+                  <div class="grid grid-cols-1 gap-3">
+                    ${q.options.map((opt, i) => {
+          const isCorrectOpt = i === q.correct_answer;
+          const isSelected = selectedOption !== null && selectedOption === i;
+          const wasWrong = wrongOptions.has(i);
+          const shouldShowRed = (isSelected && !isCorrectOpt) || (wasWrong && !isAnsweredCorrect) || (wasWrong && isAnsweredCorrect);
+          const shouldShowGreen = isAnsweredCorrect && isCorrectOpt;
+
+          return `
+                      <button type="button" 
+                              class="df-listening-option ${shouldShowGreen ? 'df-listening-option--correct' : ''} ${shouldShowRed ? 'df-listening-option--wrong' : ''}"
+                              data-option-index="${i}"
+                              ${isAnsweredCorrect ? 'disabled' : ''}>
+                        <span class="df-listening-option-label">${String.fromCharCode(65 + i)}</span>
+                        <span class="df-listening-option-text">${opt}</span>
+                      </button>
+                    `;
+        }).join("")}
+                  </div>
+                `;
+      } else if (q.type === "choose_word") {
+        // Multiple choice: choose English word
+        html = `
+                  <div class="text-center mb-6">
+                    <div class="text-lg font-semibold text-slate-700 mb-2">Nghe và chọn từ đúng</div>
+                    ${q.hint_vi ? `<div class="text-sm text-slate-600 italic">Nghĩa: ${q.hint_vi}</div>` : ''}
+                  </div>
+                  <div class="grid grid-cols-1 gap-3">
+                    ${q.options.map((opt, i) => {
+          const isCorrectOpt = i === q.correct_answer;
+          const isSelected = selectedOption !== null && selectedOption === i;
+          const wasWrong = wrongOptions.has(i);
+          const shouldShowRed = (isSelected && !isCorrectOpt) || (wasWrong && !isAnsweredCorrect) || (wasWrong && isAnsweredCorrect);
+          const shouldShowGreen = isAnsweredCorrect && isCorrectOpt;
+
+          return `
+                      <button type="button" 
+                              class="df-listening-option ${shouldShowGreen ? 'df-listening-option--correct' : ''} ${shouldShowRed ? 'df-listening-option--wrong' : ''}"
+                              data-option-index="${i}"
+                              ${isAnsweredCorrect ? 'disabled' : ''}>
+                        <span class="df-listening-option-label">${String.fromCharCode(65 + i)}</span>
+                        <span class="df-listening-option-text">${opt}</span>
+                      </button>
+                    `;
+        }).join("")}
+                  </div>
+                `;
+      } else if (q.type === "dictation") {
+        // Dictation: type the word
+        html = `
+                  <div class="text-center mb-6">
+                    <div class="text-lg font-semibold text-slate-700 mb-2">Nghe và gõ từ vựng</div>
+                    ${q.hint_vi ? `<div class="text-sm text-slate-600 italic mb-1">Nghĩa: ${q.hint_vi}</div>` : ''}
+                    ${q.hint_en ? `<div class="text-xs text-slate-500">${q.hint_en}</div>` : ''}
+                  </div>
+                  <div class="flex items-center justify-center">
+                    <input type="text" 
+                           id="listen-dictation-input"
+                           autocomplete="off"
+                           class="w-full max-w-md px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-center"
+                           placeholder="Nhập từ tiếng Anh..."
+                           ${isAnsweredCorrect ? 'disabled' : ''}>
+                  </div>
+                  <div class="mt-4 flex items-center justify-center gap-2">
+                    <button type="button" 
+                            id="listen-submit"
+                            class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+                            ${isAnsweredCorrect ? 'disabled' : ''}>
+                      Kiểm tra
+                    </button>
+                    <button type="button" 
+                            id="listen-show-answer"
+                            class="px-5 py-3 rounded-2xl border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+                            ${isAnsweredCorrect ? '' : 'disabled'}>
+                      Hiện đáp án
+                    </button>
+                  </div>
+                `;
+      }
+
+      if (elQuestionContent) elQuestionContent.innerHTML = html;
+
+      // Attach event listeners
+      if (q.type === "choose_meaning" || q.type === "choose_word") {
+        const optionButtons = elQuestionContent.querySelectorAll(".df-listening-option");
+        optionButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (isAnsweredCorrect) return;
+            const optionIdx = parseInt(btn.dataset.optionIndex);
+            selectedAnswer = optionIdx;
+            checkAnswer(optionIdx);
+          });
+        });
+      } else if (q.type === "dictation") {
+        const input = document.getElementById("listen-dictation-input");
+        const btnSubmit = document.getElementById("listen-submit");
+        const btnShow = document.getElementById("listen-show-answer");
+
+        // Focus input if not already answered correctly
+        if (input && !isAnsweredCorrect) {
+          input.focus();
+
+          // Add Enter key listener
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && btnSubmit && !btnSubmit.disabled) {
+              e.preventDefault();
+              const typed = (input.value || "").trim().toLowerCase();
+              checkAnswer(typed);
+            }
+          });
+        }
+
+        if (btnSubmit) {
+          btnSubmit.addEventListener("click", () => {
+            // Only block if already answered correctly
+            if (isAnsweredCorrect) return;
+            const typed = (input ? input.value : "").trim().toLowerCase();
+            checkAnswer(typed);
+          });
+        }
+
+        if (btnShow) {
+          btnShow.addEventListener("click", () => {
+            showFeedback(false, `Đáp án: <b>${q.word}</b>`);
+          });
+        }
+      }
+
+      if (btnPrev) btnPrev.disabled = idx === 0;
+      if (btnNext) btnNext.disabled = idx >= questions.length - 1;
+      renderGrid();
+    }
+
+    function checkAnswer(userAnswer) {
+      const q = questions[idx];
+      if (!q) return;
+
+      const qId = q.id || idx;
+      const currentState = state[qId];
+      if (currentState && currentState.isCorrect === true) return; // Already answered correctly
+
+      // Get wrongOptions set
+      const wrongOptions = currentState && currentState.wrongOptions ? new Set(currentState.wrongOptions) : new Set();
+
+      let isCorrect = false;
+      if (q.type === "choose_meaning" || q.type === "choose_word") {
+        isCorrect = userAnswer === q.correct_answer;
+        // If wrong, add to wrongOptions
+        if (!isCorrect) {
+          wrongOptions.add(userAnswer);
+        }
+      } else if (q.type === "dictation") {
+        const correct = (q.correct_answer || "").trim().toLowerCase();
+        const typed = (userAnswer || "").trim().toLowerCase();
+        isCorrect = typed === correct;
+      }
+
+      // Update state with wrongOptions array (convert Set to Array for JSON serialization)
+      const wasCorrect = currentState && currentState.isCorrect === true;
+      state[qId] = {
+        isCorrect: isCorrect,
+        selectedOption: (q.type === "choose_meaning" || q.type === "choose_word") ? userAnswer : null,
+        wrongOptions: Array.from(wrongOptions)
+      };
+
+      // Only increment correct count if this is the first time getting it right
+      if (isCorrect && !wasCorrect) {
+        correct += 1;
+        if (elCorrect) elCorrect.textContent = String(correct);
+      } else if (!isCorrect && wasCorrect) {
+        // If switching from correct to wrong, decrement
+        correct -= 1;
+        if (elCorrect) elCorrect.textContent = String(correct);
+      }
+
+      // For dictation: different behavior
+      if (q.type === "dictation") {
+        if (isCorrect) {
+          // When correct: show success message and play audio
+          showFeedback(true, `✓ Đúng! Đáp án: <b>${q.word}</b>`);
+
+          // Play audio of the vocabulary word
+          const audioUrl = currentVoice === "us" ? q.audio_us : q.audio_uk;
+          if (audioUrl) {
+            stopAudio();
+            const audio = new Audio(audioUrl);
+            currentAudio = audio;
+
+            if (btnPlay) {
+              btnPlay.classList.add("df-listening-playing");
+              btnPlay.innerHTML = '<svg class="df-listening-play-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            }
+
+            audio.addEventListener("ended", () => {
+              stopAudio();
+            });
+
+            audio.addEventListener("error", (e) => {
+              console.warn("Audio error:", e);
+              stopAudio();
+            });
+
+            audio.play().catch((err) => {
+              console.warn("Audio play error:", err);
+              stopAudio();
+            });
+          }
+
+          renderQuestion(); // Re-render to disable input
+          renderGrid();
+
+          // Auto-next after correct answer
+          if (autoNext && idx < questions.length - 1) {
+            setTimeout(() => {
+              idx += 1;
+              renderQuestion();
+              playAudio(); // Auto-play next question
+            }, 2500);
+          }
+        } else {
+          // When wrong: only show error message, don't show answer, allow retry
+          showFeedback(false, `✗ Chưa đúng. Hãy thử lại!`);
+          // Don't disable input, allow user to try again
+          renderGrid();
+        }
+      } else {
+        // For other question types (choose_meaning, choose_word): original behavior
+        showFeedback(isCorrect, isCorrect
+          ? `✓ Đúng!`
+          : `✗ Chưa đúng. Đáp án đúng: <b>${q.correct_text || q.word}</b>`);
+
+        renderQuestion(); // Re-render to show correct/wrong states
+        renderGrid();
+
+        if (isCorrect && autoNext && idx < questions.length - 1) {
+          setTimeout(() => {
+            idx += 1;
+            renderQuestion();
+            playAudio(); // Auto-play next question
+          }, 2500);
+        }
+      }
+    }
+
+    function showFeedback(isCorrect, message) {
+      if (!elFeedback) return;
+      elFeedback.classList.remove("hidden");
+      elFeedback.className = "mt-4 rounded-xl border p-4 text-sm " +
+        (isCorrect ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800");
+      elFeedback.innerHTML = message;
+    }
+
+    function renderGrid() {
+      if (!elGrid) return;
+      elGrid.innerHTML = "";
+      questions.forEach((q, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i + 1);
+        btn.className = "df-mcq-qbtn";
+        if (i === idx) {
+          btn.classList.add("df-mcq-qbtn--active");
+        }
+        // Check if this question was answered correctly
+        const qId = q.id || i;
+        const qState = state[qId];
+        if (qState && qState.isCorrect === true) {
+          btn.classList.add("df-mcq-qbtn--answered");
+        }
+        btn.addEventListener("click", () => {
+          idx = i;
+          renderQuestion();
+          playAudio();
+        });
+        elGrid.appendChild(btn);
+      });
+    }
+
+    // Event listeners
+    if (btnPlay) btnPlay.addEventListener("click", playAudio);
+    if (btnRepeat) btnRepeat.addEventListener("click", playAudio);
+    if (btnPrev) btnPrev.addEventListener("click", () => { if (idx > 0) { idx -= 1; renderQuestion(); } });
+    if (btnNext) btnNext.addEventListener("click", () => { if (idx < questions.length - 1) { idx += 1; renderQuestion(); } });
+    if (btnReset) btnReset.addEventListener("click", () => {
+      state = {};
+      correct = 0;
+      idx = 0;
+      selectedAnswer = null;
+      if (elCorrect) elCorrect.textContent = "0";
+      if (elFeedback) elFeedback.classList.add("hidden");
+      stopAudio();
+      renderQuestion();
+    });
+
+    // Initial render
+    renderQuestion();
+    // Auto-play first question
+    setTimeout(() => playAudio(), 300);
+  })();
+</script>
+{% endif %}
+{% endif %}
+
+{% if mode == "dictation" %}
+<div class="max-w-3xl mx-auto">
+  {% if dictation_questions_count > 0 %}
+  <div id="df-dictation-app" class="space-y-6">
+    <!-- Header / Progress -->
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-slate-800">Nghe chép chính tả</h2>
+      <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
+        <span id="dt-progress-text">1 / {{ dictation_questions_count }}</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+      <div id="dt-progress-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-8 space-y-8">
+
+        <!-- Audio Section -->
+        <div class="flex flex-col items-center justify-center gap-4 py-4">
+          <div class="flex items-center gap-4">
+            <button id="dt-btn-slow"
+              class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 font-medium transition-colors"
+              title="Nghe chậm (0.75x)">
+              🐢 Chậm
+            </button>
+            <div class="relative group">
+              <button id="dt-btn-play"
+                class="w-16 h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg shadow-blue-200 transition-all transform active:scale-95 group-hover:scale-105">
+                <svg class="w-8 h-8 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              <!-- Loading spinner overlay -->
+              <div id="dt-loading"
+                class="absolute inset-0 rounded-full border-4 border-slate-100 border-t-transparent animate-spin hidden pointer-events-none">
+              </div>
+            </div>
+          </div>
+          <p class="text-sm text-slate-400">Nhấn Space để nghe lại</p>
+        </div>
+
+        <!-- Hints -->
+        <div id="dt-hints" class="space-y-2">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+            <p id="dt-hint-vi" class="text-slate-700 font-medium text-lg"></p>
+            <p id="dt-hint-en" class="text-slate-500 text-sm mt-1 italic"></p>
+          </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+          <textarea id="dt-input" rows="3"
+            class="w-full rounded-xl border-slate-200 bg-white p-4 text-lg text-slate-800 placeholder:text-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none"
+            placeholder="Nhập nội dung bạn nghe được..." spellcheck="false" autocomplete="off"></textarea>
+
+          <div class="flex justify-end">
+            <button id="dt-btn-check"
+              class="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 active:bg-slate-950 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+              Kiểm tra
+            </button>
+            <button id="dt-btn-next"
+              class="hidden px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200">
+              Câu tiếp theo →
+            </button>
+          </div>
+        </div>
+
+        <!-- Feedback Area -->
+        <div id="dt-feedback" class="hidden rounded-xl p-5 bg-slate-50 border border-slate-100">
+          <div class="mb-2 text-sm font-semibold text-slate-500 uppercase tracking-wider">Kết quả:</div>
+          <div id="dt-diff-content" class="text-lg leading-relaxed"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Screen (Hidden) -->
+  <div id="dt-summary" class="hidden text-center space-y-6 py-10">
+    <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <h2 class="text-3xl font-bold text-slate-900">Hoàn thành xuất sắc! 🎉</h2>
+    <p class="text-slate-600 text-lg">Bạn đã hoàn thành bài tập nghe chép chính tả.</p>
+    <button onclick="window.location.reload()"
+      class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Luyện tập lại
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      const questions = {{ dictation_questions_json| safe
+    }};
+    let idx = 0;
+    let audio = new Audio();
+    let isSlow = false;
+    let isChecked = false;
+
+    // Elements
+    const elApp = document.getElementById('df-dictation-app');
+    const elSummary = document.getElementById('dt-summary');
+    const elProgressText = document.getElementById('dt-progress-text');
+    const elProgressBar = document.getElementById('dt-progress-bar');
+
+    const btnPlay = document.getElementById('dt-btn-play');
+    const btnSlow = document.getElementById('dt-btn-slow');
+    const loading = document.getElementById('dt-loading');
+
+    const txtInput = document.getElementById('dt-input');
+    const btnCheck = document.getElementById('dt-btn-check');
+    const btnNext = document.getElementById('dt-btn-next');
+
+    const elHintVi = document.getElementById('dt-hint-vi');
+    const elHintEn = document.getElementById('dt-hint-en');
+
+    const elFeedback = document.getElementById('dt-feedback');
+    const elDiffContent = document.getElementById('dt-diff-content');
+
+    // --- Diff Logic ---
+    function diffString(actual, expected) {
+      // Return generic diff HTML
+      const actualWords = actual.trim().split(/\s+/);
+      const expectedWords = expected.trim().split(/\s+/);
+      // Simple word-by-word comparison (naive)
+      // Better approach: use LCS or similar, or just simple sequential match if lengths match
+      // Fallback: If lengths differ significantly, just show "Expected: ... \n Your answer: ..."
+
+      // For simplicity, let's normalize and compare token by token until mismatch
+      let html = "";
+      // To do proper diff visually, simpler is:
+      // Show Expected line
+      // Show User line with corrections
+
+      // Let's iterate expected words
+      // If user word matches -> green
+      // If user word wrong -> red user word (strikethrough) + green expected word
+      // If user missing -> green expected word (highlighted)
+
+      let i = 0, j = 0;
+      while (i < expectedWords.length || j < actualWords.length) {
+        const ew = expectedWords[i] ? expectedWords[i].toLowerCase().replace(/[.,?!]/g, '') : "";
+        const aw = actualWords[j] ? actualWords[j].toLowerCase().replace(/[.,?!]/g, '') : "";
+
+        const ewOriginal = expectedWords[i] || "";
+        const awOriginal = actualWords[j] || "";
+
+        if (ew === aw && ew !== "") {
+          // Match
+          html += `<span class="text-green-600 font-medium mx-1">${ewOriginal}</span>`;
+          i++; j++;
+        } else {
+          // Mismatch
+          if (awOriginal) {
+            html += `<span class="text-rose-500 line-through decoration-2 mx-1 opacity-70">${awOriginal}</span>`;
+          }
+          if (ewOriginal) {
+            html += `<span class="text-green-600 font-bold bg-green-100 px-1 rounded mx-1">${ewOriginal}</span>`;
+          }
+          i++; j++;
+        }
+      }
+      return html;
+    }
+
+    function render() {
+      if (idx >= questions.length) {
+        elApp.classList.add('hidden');
+        elSummary.classList.remove('hidden');
+        return;
+      }
+
+      const q = questions[idx];
+
+      // Reset UI
+      isChecked = false;
+      txtInput.value = "";
+      txtInput.disabled = false;
+      txtInput.focus();
+
+      // Buttons
+      btnCheck.classList.remove('hidden');
+      btnNext.classList.add('hidden');
+      elFeedback.classList.add('hidden');
+
+      // Hints
+      elHintVi.textContent = q.hint_vi;
+      elHintEn.textContent = q.hint_en || "";
+
+      // Progress
+      elProgressText.textContent = `${idx + 1} / ${questions.length}`;
+      elProgressBar.style.width = `${((idx) / questions.length) * 100}%`;
+
+      // Audio
+      loadAudio(q.audio_us);
+    }
+
+    function loadAudio(url) {
+      loading.classList.remove('hidden');
+      audio.src = url;
+      audio.load();
+    }
+
+    audio.addEventListener('canplaythrough', () => {
+      loading.classList.add('hidden');
+      playAudio();
+    });
+
+    audio.addEventListener('error', (e) => {
+      console.error("Audio error", e);
+      loading.classList.add('hidden');
+      // Try UK fallback if US fails on first try? 
+      // Simple retry logic omitted for brevity
+    });
+
+    audio.addEventListener('ended', () => {
+      // Reset button state if needed
+    });
+
+    function playAudio() {
+      if (!audio.src) return;
+      audio.playbackRate = isSlow ? 0.75 : 1.0;
+      audio.play().catch(e => console.warn(e));
+      txtInput.focus();
+    }
+
+    function check() {
+      if (isChecked) return;
+      isChecked = true;
+
+      const q = questions[idx];
+      const userText = txtInput.value;
+      const normalize = s => s.trim().toLowerCase().replace(/[.,?!]/g, '');
+
+      const isCorrect = normalize(userText) === normalize(q.correct_answer);
+
+      // Show feedback
+      elFeedback.classList.remove('hidden');
+
+      if (isCorrect) {
+        elDiffContent.innerHTML = `<div class="flex items-center gap-2 text-green-600 font-bold"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Chính xác!</div><div class="mt-2 text-slate-800 text-xl font-medium">${q.correct_answer}</div>`;
+        // Play success sound?
+      } else {
+        const diffHtml = diffString(userText, q.correct_answer);
+        elDiffContent.innerHTML = `<div>${diffHtml}</div>`;
+      }
+
+      // UI updates
+      btnCheck.classList.add('hidden');
+      btnNext.classList.remove('hidden');
+      btnNext.focus();
+
+      // Save progress (mock)
+    }
+
+    // Event Listeners
+    btnPlay.addEventListener('click', playAudio);
+
+    btnSlow.addEventListener('click', () => {
+      isSlow = !isSlow;
+      btnSlow.classList.toggle('bg-blue-50', isSlow);
+      btnSlow.classList.toggle('border-blue-200', isSlow);
+      btnSlow.classList.toggle('text-blue-600', isSlow);
+      if (!audio.paused) {
+        audio.playbackRate = isSlow ? 0.75 : 1.0;
+      }
+    });
+
+    btnCheck.addEventListener('click', check);
+
+    btnNext.addEventListener('click', () => {
+      idx++;
+      render();
+    });
+
+    // Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (mode !== "dictation") return;
+      if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault();
+        playAudio();
+      }
+      if (e.key === 'Enter') {
+        if (e.target.tagName === 'TEXTAREA') {
+          // Prevent default newline if checking
+          e.preventDefault();
+          if (!isChecked) check();
+          else if (!btnNext.classList.contains('hidden')) {
+            idx++; render();
+          }
+        } else {
+          if (!isChecked) check();
+          else idx++; render();
+        }
+      }
+    });
+
+    // Init
+    window.mode = "{{ mode }}"; // helper
+    render();
+            
+        }) ();
+  </script>
+  {% else %}
+  <div class="mt-4 p-8 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+    <div class="inline-flex p-4 rounded-full bg-slate-100 text-slate-400 mb-4">
+      <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      </svg>
+    </div>
+    <p class="text-slate-600 font-medium">Chưa có bài tập nghe chép cho bài học này.</p>
+    <p class="text-slate-400 text-sm mt-1">Vui lòng quay lại sau khi admin thêm dữ liệu audio.</p>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{# Audio Player Script for Vocabulary #}
+{% if mode == "vocab" %}
+<script>
+  (function () {
+    // Global audio player instance
+    let currentAudio = null;
+    let currentButton = null;
+
+    function stopCurrentAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      if (currentButton) {
+        currentButton.classList.remove('df-audio-btn-playing');
+        currentButton = null;
+      }
+    }
+
+    function playAudio(button, voice) {
+      const audioUs = button.dataset.audioUs;
+      const audioUk = button.dataset.audioUk;
+
+      // Check if at least one audio URL exists
+      if (!audioUs && !audioUk) {
+        console.warn('No audio URL found for button');
+        return;
+      }
+
+      // Stop current audio if playing
+      stopCurrentAudio();
+
+      // Get audio URL based on voice
+      const audioUrl = voice === 'us' ? audioUs : audioUk;
+
+      // Fallback to the other voice if current voice URL is missing
+      const finalUrl = audioUrl || (voice === 'us' ? audioUk : audioUs);
+
+      if (!finalUrl) {
+        console.warn('No valid audio URL found');
+        return;
+      }
+
+      // Create and play audio
+      const audio = new Audio(finalUrl);
+      currentAudio = audio;
+      currentButton = button;
+
+      button.classList.add('df-audio-btn-playing');
+
+      audio.addEventListener('ended', function () {
+        stopCurrentAudio();
+      });
+
+      audio.addEventListener('error', function (e) {
+        console.warn('Audio load error:', finalUrl, e);
+        stopCurrentAudio();
+        // Show user-friendly message
+        if (button.classList.contains('df-example-audio-icon')) {
+          button.title = 'Không thể tải audio. Vui lòng thử lại sau.';
+          setTimeout(function () {
+            button.title = 'Nghe ví dụ';
+          }, 3000);
+        } else {
+          button.title = 'Không thể tải audio. Vui lòng thử lại sau.';
+          setTimeout(function () {
+            button.title = button.classList.contains('df-audio-btn-us') ? 'Nghe phát âm (US)' : 'Nghe phát âm (UK)';
+          }, 3000);
+        }
+      });
+
+      audio.addEventListener('loadstart', function () {
+        button.title = 'Đang tải...';
+      });
+
+      audio.addEventListener('canplay', function () {
+        if (button.classList.contains('df-example-audio-icon')) {
+          button.title = 'Nghe ví dụ';
+        } else {
+          button.title = button.classList.contains('df-audio-btn-us') ? 'Nghe phát âm (US)' : 'Nghe phát âm (UK)';
+        }
+      });
+
+      audio.play().catch(function (err) {
+        console.warn('Audio play error:', err);
+        stopCurrentAudio();
+        if (button.classList.contains('df-example-audio-icon')) {
+          button.title = 'Không thể phát audio. Vui lòng thử lại.';
+          setTimeout(function () {
+            button.title = 'Nghe ví dụ';
+          }, 3000);
+        } else {
+          button.title = 'Không thể phát audio. Vui lòng thử lại.';
+          setTimeout(function () {
+            button.title = button.classList.contains('df-audio-btn-us') ? 'Nghe phát âm (US)' : 'Nghe phát âm (UK)';
+          }, 3000);
+        }
+      });
+    }
+
+    // Attach event listeners to all audio buttons
+    document.addEventListener('DOMContentLoaded', function () {
+      // Regular audio buttons (word vocabulary)
+      const audioButtons = document.querySelectorAll('.df-audio-btn');
+
+      audioButtons.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const isUs = btn.classList.contains('df-audio-btn-us');
+          const voice = isUs ? 'us' : 'uk';
+
+          // If same button is clicked and playing, stop it
+          if (currentButton === btn && currentAudio && !currentAudio.paused) {
+            stopCurrentAudio();
+          } else {
+            playAudio(btn, voice);
+          }
+        });
+      });
+
+      // Simple audio icons for examples (no button wrapper)
+      const exampleAudioIcons = document.querySelectorAll('.df-example-audio-icon');
+
+      exampleAudioIcons.forEach(function (icon) {
+        icon.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // For examples, default to US voice, fallback to UK
+          const audioUs = icon.dataset.audioUs;
+          const audioUk = icon.dataset.audioUk;
+          const voice = audioUs ? 'us' : 'uk';
+
+          // If same icon is clicked and playing, stop it
+          if (currentButton === icon && currentAudio && !currentAudio.paused) {
+            stopCurrentAudio();
+          } else {
+            playAudio(icon, voice);
+          }
+        });
+      });
+    });
+  })();
+</script>
+{% endif %}
+
+{% if mode == "grammar" %}
+{# Lesson Content (if exists) #}
+{% if lesson.content %}
+<div class="df-lesson-content-wrapper mb-6">
+  <article class="df-lesson-content-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-6">
+      <div class="df-lesson-content-html">
+        {{ lesson.content|safe }}
+      </div>
+    </div>
+  </article>
+</div>
+{% endif %}
+
+{# Grammar Points #}
+<div class="df-grammar-wrapper space-y-6">
+  {% if grammar_points %}
+  {% for point in grammar_points %}
+  <article class="df-grammar-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-6 space-y-5">
+      {# Header #}
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-2xl font-bold text-slate-900">{{ point.title }}</h2>
+            {% if point.level %}
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+              {{ point.level }}
+            </span>
+            {% endif %}
+          </div>
+          {% if point.summary %}
+          <p class="text-slate-600 text-base leading-relaxed">{{ point.summary }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Công thức - Highlight Box #}
+      <div class="df-grammar-formula-box">
+        <div class="df-grammar-formula-label">Công thức</div>
+        <div class="df-grammar-formula-content">
+          {{ point.title }}
+        </div>
+      </div>
+
+      {# Giải thích chi tiết #}
+      {% if point.details %}
+      <div class="df-grammar-details">
+        <h3 class="df-grammar-section-title">Giải thích</h3>
+        <div class="df-grammar-details-content">
+          {{ point.details|grammar_format|safe }}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Ví dụ #}
+      {% if point.examples_list %}
+      <div class="df-grammar-examples">
+        <h3 class="df-grammar-section-title">Ví dụ</h3>
+        <div class="space-y-3">
+          {% for example in point.examples_list %}
+          <div class="df-grammar-example-item">
+            <div class="df-grammar-example-text">{{ example|grammar_format|safe }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+  {% else %}
+  {% if not lesson.content %}
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+    <div class="text-slate-500 text-lg mb-2">Chưa có nội dung ngữ pháp</div>
+    {% if total_count > 0 %}
+    <p class="text-sm text-slate-500 mt-4">
+      <a href="?mode=vocab" class="text-blue-600 hover:text-blue-700 underline">Xem từ vựng →</a>
+    </p>
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="text-slate-400 text-sm">Bài học này chưa có điểm ngữ pháp nào.</div>
+</div>
+{% endif %}
+</div>
+
+<style>
+  .df-grammar-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .df-grammar-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .df-grammar-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .df-grammar-formula-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4), 0 8px 10px -6px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .df-grammar-formula-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+  }
+
+  .df-grammar-formula-box::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .df-grammar-formula-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 0.375rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .df-grammar-formula-content {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.5;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.02em;
+  }
+
+  .df-grammar-section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .df-grammar-details {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border-left: 4px solid #3b82f6;
+  }
+
+  .df-grammar-details-content {
+    color: #475569;
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+
+  .df-grammar-details-content p {
+    margin-bottom: 1rem;
+  }
+
+  .df-grammar-details-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .df-grammar-examples {
+    background: #fff;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .df-grammar-example-item {
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid #10b981;
+    transition: all 0.2s;
+  }
+
+  .df-grammar-example-item:hover {
+    background: #f1f5f9;
+    border-left-color: #059669;
+  }
+
+  .df-grammar-example-text {
+    color: #1e293b;
+    font-size: 1rem;
+    line-height: 1.7;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+
+  /* Lesson Content Styles */
+  .df-lesson-content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .df-lesson-content-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .df-lesson-content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .df-lesson-content-html {
+    color: #1e293b;
+    font-size: 1rem;
+    line-height: 1.8;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+
+  .df-lesson-content-html h1,
+  .df-lesson-content-html h2,
+  .df-lesson-content-html h3,
+  .df-lesson-content-html h4,
+  .df-lesson-content-html h5,
+  .df-lesson-content-html h6 {
+    font-weight: 700;
+    margin: 1.5rem 0 1rem 0;
+    color: #1e293b;
+    line-height: 1.4;
+  }
+
+  .df-lesson-content-html h1 {
+    font-size: 2rem;
+  }
+
+  .df-lesson-content-html h2 {
+    font-size: 1.75rem;
+  }
+
+  .df-lesson-content-html h3 {
+    font-size: 1.5rem;
+  }
+
+  .df-lesson-content-html p {
+    margin: 0 0 1rem 0;
+  }
+
+  .df-lesson-content-html p:last-child {
+    margin-bottom: 0;
+  }
+
+  .df-lesson-content-html strong {
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .df-lesson-content-html em {
+    font-style: italic;
+  }
+
+  .df-lesson-content-html u {
+    text-decoration: underline;
+  }
+
+  .df-lesson-content-html ul,
+  .df-lesson-content-html ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  .df-lesson-content-html li {
+    margin: 0.5rem 0;
+  }
+
+  .df-lesson-content-html blockquote {
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid #3b82f6;
+    background: #f8fafc;
+    border-radius: 0.25rem;
+    font-style: italic;
+    color: #475569;
+  }
+
+  .df-lesson-content-html code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875em;
+    color: #dc2626;
+  }
+
+  .df-lesson-content-html pre {
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .df-lesson-content-html pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+  }
+</style>
+{% endif %}
+</div>
+{% endblock %}

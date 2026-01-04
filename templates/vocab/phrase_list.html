@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Cụm từ cố định | DailyFluent{% endblock %}
+{% block main_classes %}df-page-container-lg{% endblock %}
 
 {% block content %}
 <div class="flex items-center justify-between mb-6">
@@ -52,6 +53,7 @@
   <table class="min-w-full text-sm">
     <thead class="bg-slate-50 text-xs uppercase text-slate-500">
       <tr>
+        <th class="px-4 py-2 text-left w-16">#</th>
         <th class="px-4 py-2 text-left">Cụm từ</th>
         <th class="px-4 py-2 text-left">Hiragana</th>
         <th class="px-4 py-2 text-left">Nghĩa</th>
@@ -61,6 +63,7 @@
     <tbody>
       {% for p in phrases %}
         <tr class="border-t border-slate-100 hover:bg-slate-50">
+          <td class="px-4 py-2 text-sm text-slate-500">{{ page_obj.start_index|add:forloop.counter0 }}</td>
           <td class="px-4 py-2">
             <div class="font-semibold text-lg text-slate-900" lang="ja">{{ p.jp_text }}</div>
           </td>
@@ -76,7 +79,7 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+          <td colspan="5" class="px-4 py-6 text-center text-sm text-slate-500">
             Chưa có cụm từ nào.
           </td>
         </tr>
@@ -85,40 +88,6 @@
   </table>
 </div>
 
-{% if page_obj.paginator.num_pages > 1 %}
-  <div class="mt-4 flex items-center justify-between">
-    <div class="text-xs text-slate-500">
-      Hiển thị {{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ total_count }}
-    </div>
-    <div class="flex items-center gap-2">
-      {% if page_obj.has_previous %}
-        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
-           href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">‹</a>
-      {% else %}
-        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">‹</span>
-      {% endif %}
-
-      {% for p in page_items %}
-        {% if p %}
-          {% if p == page_obj.number %}
-            <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white text-sm font-semibold">{{ p }}</span>
-          {% else %}
-            <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
-               href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ p }}">{{ p }}</a>
-          {% endif %}
-        {% else %}
-          <span class="w-10 h-10 inline-flex items-center justify-center text-slate-400">…</span>
-        {% endif %}
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <a class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-200 text-sm hover:bg-slate-50"
-           href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">›</a>
-      {% else %}
-        <span class="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-slate-100 text-sm text-slate-300">›</span>
-      {% endif %}
-    </div>
-  </div>
-{% endif %}
+{% include "components/pagination.html" with page_obj=page_obj page_items=page_items base_qs=base_qs range_text="Hiển thị "|add:page_obj.start_index|add:"-"|add:page_obj.end_index|add:" / "|add:total_count %}
 {% endblock %}
 

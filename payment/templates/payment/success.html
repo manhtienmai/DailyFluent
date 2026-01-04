@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Thanh toán thành công - DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 text-center">
+    <div class="mb-6">
+      <div class="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 mb-2">Thanh toán thành công!</h1>
+      <p class="text-slate-600">Cảm ơn bạn đã thanh toán</p>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-left">
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-600">Gói:</span>
+          <span class="font-semibold text-slate-900">{{ plan.name }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Số tiền:</span>
+          <span class="font-semibold text-slate-900">{{ payment.amount|floatformat:0 }} VND</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Mã giao dịch:</span>
+          <span class="font-mono text-xs text-slate-900">{{ payment.id }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <a
+        href="{% url 'payment:my_subscription' %}"
+        class="block w-full px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold transition-colors"
+      >
+        Xem gói đăng ký
+      </a>
+      <a
+        href="{% url 'home' %}"
+        class="block w-full px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 font-semibold transition-colors"
+      >
+        Về trang chủ
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

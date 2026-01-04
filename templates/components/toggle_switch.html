@@ -1,0 +1,13 @@
+{% comment %}
+Reusable Toggle Switch Component
+Based on TOEIC exam toggle design
+
+Usage:
+{% include "components/toggle_switch.html" with toggle_id="my-toggle" label="Tự động chuyển câu" checked=True %}
+{% endcomment %}
+<label class="df-toggle-switch">
+  <input type="checkbox" id="{{ toggle_id|default:'toggle-switch' }}" {% if checked %}checked{% endif %}>
+  <span class="df-toggle-switch-ui"></span>
+  {% if label %}<span class="df-toggle-switch-label">{{ label }}</span>{% endif %}
+</label>
+

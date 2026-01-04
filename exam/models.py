@@ -10,6 +10,7 @@ class ExamLevel(models.TextChoices):
     N3 = "N3", "JLPT N3"
     N2 = "N2", "JLPT N2"
     N1 = "N1", "JLPT N1"
+    TOEIC = "TOEIC", "TOEIC"
 
 
 class ExamCategory(models.TextChoices):
@@ -18,6 +19,9 @@ class ExamCategory(models.TextChoices):
     DOKKAI = "DOKKAI", "Dokkai"
     CHOUKAI = "CHOUKAI", "Choukai"
     MIX = "MIX", "Mixed"
+    LISTENING = "LISTENING", "TOEIC Listening"
+    READING = "READING", "TOEIC Reading"
+    TOEIC_FULL = "TOEIC_FULL", "TOEIC Full Test"
 
 
 class ExamGroupType(models.TextChoices):
@@ -34,6 +38,21 @@ class QuestionType(models.TextChoices):
     NEAR_SYNONYM = "NEAR", "Từ cận nghĩa"
     USAGE = "USAGE", "Cách dùng từ"
     PARAGRAPH = "PARA", "Đoạn văn"
+
+
+# ============
+#  TOEIC
+# ============
+
+class TOEICPart(models.TextChoices):
+    """Các phần của bài thi TOEIC"""
+    LISTENING_1 = "L1", "Listening Part 1: Mô tả hình ảnh"
+    LISTENING_2 = "L2", "Listening Part 2: Câu hỏi-Đáp án"
+    LISTENING_3 = "L3", "Listening Part 3: Hội thoại ngắn"
+    LISTENING_4 = "L4", "Listening Part 4: Bài nói ngắn"
+    READING_5 = "R5", "Reading Part 5: Điền từ vào câu"
+    READING_6 = "R6", "Reading Part 6: Điền từ vào đoạn văn"
+    READING_7 = "R7", "Reading Part 7: Đọc hiểu"
 
 
 # ============
@@ -56,7 +75,7 @@ class ReadingFormat(models.TextChoices):
 class ExamBook(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=120, blank=True)
-    level = models.CharField(max_length=2, choices=ExamLevel.choices)
+    level = models.CharField(max_length=10, choices=ExamLevel.choices)
     category = models.CharField(max_length=10, choices=ExamCategory.choices)
 
     description = models.TextField(blank=True)
@@ -116,7 +135,7 @@ class ExamTemplate(models.Model):
     # Mô tả thêm nếu cần
     description = models.TextField(blank=True)
 
-    level = models.CharField(max_length=2, choices=ExamLevel.choices)
+    level = models.CharField(max_length=10, choices=ExamLevel.choices)
     category = models.CharField(max_length=10, choices=ExamCategory.choices)
 
     group_type = models.CharField(
@@ -162,6 +181,32 @@ class ExamTemplate(models.Model):
         null=True,
         blank=True,
         help_text="Giới hạn thời gian (phút). Để trống nếu không giới hạn.",
+    )
+
+    # ===== TOEIC specific fields =====
+    is_full_toeic = models.BooleanField(
+        default=False,
+        help_text="True nếu là full test TOEIC (200 câu: Listening + Reading)",
+    )
+    listening_time_limit_minutes = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        default=45,
+        help_text="Giới hạn thời gian cho phần Listening (phút). Mặc định 45 phút.",
+    )
+    reading_time_limit_minutes = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        default=75,
+        help_text="Giới hạn thời gian cho phần Reading (phút). Mặc định 75 phút.",
+    )
+
+    # Audio trọn bài (cho Full Test hoặc bài Test lẻ)
+    audio_file = models.FileField(
+        upload_to="exam/audio/",
+        blank=True,
+        null=True,
+        help_text="File audio trọn bài (dùng cho TOEIC Full Test hoặc bài nghe dài).",
     )
 
     # Active / hide
@@ -264,6 +309,81 @@ class ReadingPassage(models.Model):
 
 
 # ======================
+#  LISTENING CONVERSATION (TOEIC)
+# ======================
+
+class ListeningConversation(models.Model):
+    """
+    Hội thoại / Bài nói cho Listening Part 3, 4.
+    
+    Part 3: 13 đoạn hội thoại, mỗi đoạn 3 câu hỏi
+    Part 4: 10 đoạn bài nói, mỗi đoạn 3 câu hỏi
+    
+    Mỗi đoạn có:
+    - 1 file audio
+    - Có thể có hình/biểu đồ (optional)
+    - Transcript (optional, hiển thị sau khi submit)
+    - N câu hỏi (ExamQuestion) gắn với conversation này
+    """
+    
+    template = models.ForeignKey(
+        ExamTemplate,
+        related_name="listening_conversations",
+        on_delete=models.CASCADE,
+        help_text="Template chứa đoạn hội thoại này",
+    )
+    
+    toeic_part = models.CharField(
+        max_length=2,
+        choices=[(TOEICPart.LISTENING_3, "Part 3"), (TOEICPart.LISTENING_4, "Part 4")],
+        help_text="Part 3 (hội thoại) hoặc Part 4 (bài nói)",
+    )
+    
+    order = models.PositiveIntegerField(
+        default=1,
+        help_text="Thứ tự đoạn trong Part (1-13 cho Part 3, 1-10 cho Part 4)",
+    )
+    
+    audio = models.FileField(
+        upload_to="exam/toeic/listening/",
+        help_text="File audio cho đoạn hội thoại/bài nói",
+    )
+    
+    # Có thể có hình/biểu đồ (optional)
+    image = models.ImageField(
+        upload_to="exam/toeic/listening_images/",
+        blank=True,
+        null=True,
+        help_text="Hình/biểu đồ kèm theo (nếu có)",
+    )
+    
+    # Context/transcript (optional, để hiển thị sau khi làm xong)
+    transcript = models.TextField(
+        blank=True,
+        help_text="Transcript của đoạn audio (hiển thị sau khi submit)",
+    )
+    
+    # Metadata
+    data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='VD: {"speakers": 2, "topic": "office meeting", "duration_seconds": 45}',
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ["template_id", "toeic_part", "order", "id"]
+        unique_together = ("template", "toeic_part", "order")
+        verbose_name = "Listening Conversation"
+        verbose_name_plural = "Listening Conversations"
+    
+    def __str__(self):
+        return f"{self.template} – {self.get_toeic_part_display()} – Conversation {self.order}"
+
+
+# ======================
 #  EXAM QUESTION
 # ======================
 
@@ -285,6 +405,31 @@ class ExamQuestion(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         help_text="Nếu là câu dokkai thì gắn với passage tương ứng",
+    )
+
+    # ===== TOEIC specific fields =====
+    toeic_part = models.CharField(
+        max_length=2,
+        choices=TOEICPart.choices,
+        blank=True,
+        null=True,
+        help_text="Phần TOEIC (L1-L4, R5-R7). Để trống nếu không phải TOEIC.",
+    )
+    
+    image = models.ImageField(
+        upload_to="exam/toeic/images/",
+        blank=True,
+        null=True,
+        help_text="Hình ảnh cho Listening Part 1 hoặc Reading Part 7 (nếu có).",
+    )
+    
+    listening_conversation = models.ForeignKey(
+        "ListeningConversation",
+        related_name="questions",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Đoạn hội thoại/bài nói cho Listening Part 3, 4 (nếu có).",
     )
 
     audio = models.FileField(
@@ -402,6 +547,13 @@ class ExamAttempt(models.Model):
 
     total_questions = models.PositiveIntegerField(default=0)
     correct_count = models.PositiveIntegerField(default=0)
+    
+    # Metadata để lưu thông tin về mode, selected_parts, time_limit, etc.
+    data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Lưu metadata như mode, selected_parts, time_limit_minutes"
+    )
 
     class Meta:
         ordering = ["-started_at"]
@@ -450,3 +602,49 @@ class QuestionAnswer(models.Model):
 
     def __str__(self):
         return f"{self.attempt} – {self.question_id}"
+
+
+# ======================
+#  EXAM COMMENT
+# ======================
+
+class ExamComment(models.Model):
+    """
+    Comment/Thảo luận cho đề thi.
+    Chỉ hỗ trợ text, không có media.
+    """
+    template = models.ForeignKey(
+        ExamTemplate,
+        related_name="comments",
+        on_delete=models.CASCADE,
+        help_text="Đề thi được comment",
+    )
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="exam_comments",
+        on_delete=models.CASCADE,
+        help_text="User đã comment",
+    )
+    
+    content = models.TextField(
+        max_length=2000,
+        help_text="Nội dung comment (tối đa 2000 ký tự)",
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Admin có thể ẩn comment không phù hợp",
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["template", "-created_at"]),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} – {self.template.title} ({self.created_at.strftime('%Y-%m-%d')})"

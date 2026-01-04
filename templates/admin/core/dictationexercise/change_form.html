@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+{{ block.super }}
+{% if import_json_url %}
+<li>
+    <a href="{{ import_json_url }}" class="historylink"
+        style="background: #417690; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;">
+        📥 Import JSON Segments
+    </a>
+</li>
+{% endif %}
+{% endblock %}

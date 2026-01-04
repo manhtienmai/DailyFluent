@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a class="addlink" href="{% url 'admin:exam_examtemplate_import_toeic_json_new' %}">
+      Import TOEIC JSON
+    </a>
+  </li>
+{% endblock %}
+

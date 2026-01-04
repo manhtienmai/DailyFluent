@@ -3,6 +3,38 @@ from django.conf import settings
 from django.utils import timezone
 import json
 import math
+import uuid
+import os
+
+
+def en_vocab_image_upload_to(_instance, filename: str) -> str:
+    base, ext = os.path.splitext(filename or "")
+    ext = (ext or "").lower()
+    return f"en_vocab/images/{uuid.uuid4().hex}{ext}"
+
+
+def en_vocab_audio_us_upload_to(_instance, filename: str) -> str:
+    base, ext = os.path.splitext(filename or "")
+    ext = (ext or "").lower()
+    return f"en_vocab/audio/us/{uuid.uuid4().hex}{ext}"
+
+
+def en_vocab_audio_uk_upload_to(_instance, filename: str) -> str:
+    base, ext = os.path.splitext(filename or "")
+    ext = (ext or "").lower()
+    return f"en_vocab/audio/uk/{uuid.uuid4().hex}{ext}"
+
+
+def en_example_audio_us_upload_to(_instance, filename: str) -> str:
+    base, ext = os.path.splitext(filename or "")
+    ext = (ext or "").lower()
+    return f"en_vocab/examples/audio/us/{uuid.uuid4().hex}{ext}"
+
+
+def en_example_audio_uk_upload_to(_instance, filename: str) -> str:
+    base, ext = os.path.splitext(filename or "")
+    ext = (ext or "").lower()
+    return f"en_vocab/examples/audio/uk/{uuid.uuid4().hex}{ext}"
 
 
 class UserStudySettings(models.Model):
@@ -26,6 +58,18 @@ class UserStudySettings(models.Model):
     new_cards_today = models.PositiveIntegerField(default=0)
     reviews_today = models.PositiveIntegerField(default=0)
     last_study_date = models.DateField(null=True, blank=True)
+
+    class EnglishVoice(models.TextChoices):
+        US = "us", "US"
+        UK = "uk", "UK"
+
+    english_voice_preference = models.CharField(
+        "Giọng tiếng Anh ưa thích (EN)",
+        max_length=2,
+        choices=EnglishVoice.choices,
+        default=EnglishVoice.US,
+        help_text="Dùng để chọn audio US/UK (từ vựng + ví dụ). Nếu thiếu giọng ưa thích, hệ thống sẽ fallback sang giọng còn lại.",
+    )
     
     class Meta:
         verbose_name = "Cài đặt học tập"
@@ -178,6 +222,49 @@ class EnglishVocabulary(models.Model):
     example_en = models.TextField("Câu ví dụ tiếng Anh", blank=True)
     example_vi = models.TextField("Nghĩa câu ví dụ (VI)", blank=True)
     notes = models.TextField("Ghi chú", blank=True)
+    
+    # New fields for enhanced vocabulary data
+    pos = models.CharField(
+        "Part of Speech",
+        max_length=50,
+        blank=True,
+        help_text="Từ loại (noun, verb, adjective, adverb, etc.)",
+    )
+    pos_candidates = models.JSONField(
+        "POS Candidates",
+        default=list,
+        blank=True,
+        help_text="Danh sách các từ loại có thể (JSON array)",
+    )
+    audio_pack_uuid = models.CharField(
+        "Audio Pack UUID",
+        max_length=100,
+        blank=True,
+        help_text="UUID của audio pack để tải về sau",
+    )
+
+    image = models.ImageField(
+        "Ảnh minh hoạ",
+        upload_to=en_vocab_image_upload_to,
+        null=True,
+        blank=True,
+        help_text="Ảnh minh hoạ cho từ vựng (upload lên Azure).",
+    )
+
+    audio_us = models.FileField(
+        "Audio (US)",
+        upload_to=en_vocab_audio_us_upload_to,
+        null=True,
+        blank=True,
+        help_text="File phát âm giọng US (mp3/wav...).",
+    )
+    audio_uk = models.FileField(
+        "Audio (UK)",
+        upload_to=en_vocab_audio_uk_upload_to,
+        null=True,
+        blank=True,
+        help_text="File phát âm giọng UK (mp3/wav...).",
+    )
 
     # Không bắt buộc, để nhóm theo bài/khóa (text legacy)
     lesson = models.CharField("Lesson", max_length=100, blank=True)
@@ -207,6 +294,13 @@ class EnglishVocabulary(models.Model):
         related_name="en_vocab_items",
     )
 
+    import_order = models.PositiveIntegerField(
+        "Import Order",
+        null=True,
+        blank=True,
+        help_text="Thứ tự import từ JSON (để giữ nguyên thứ tự ban đầu)",
+        db_index=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -233,6 +327,45 @@ class EnglishVocabularyExample(models.Model):
     order = models.PositiveIntegerField(default=0)
     en = models.TextField("Câu ví dụ tiếng Anh")
     vi = models.TextField("Dịch tiếng Việt", blank=True)
+    
+    # New fields for enhanced example data
+    sentence_marked = models.TextField(
+        "Câu ví dụ có đánh dấu",
+        blank=True,
+        help_text="Câu ví dụ với từ vựng được đánh dấu (ví dụ: ⟦word⟧)",
+    )
+    sentence_en = models.TextField(
+        "Câu ví dụ tiếng Anh (plain)",
+        blank=True,
+        help_text="Câu ví dụ tiếng Anh không có đánh dấu",
+    )
+    context = models.CharField(
+        "Context",
+        max_length=200,
+        blank=True,
+        help_text="Ngữ cảnh sử dụng (ví dụ: system update, order processing)",
+    )
+    word_count = models.PositiveIntegerField(
+        "Word Count",
+        null=True,
+        blank=True,
+        help_text="Số từ trong câu ví dụ",
+    )
+
+    audio_us = models.FileField(
+        "Audio ví dụ (US)",
+        upload_to=en_example_audio_us_upload_to,
+        null=True,
+        blank=True,
+        help_text="Audio cho câu ví dụ giọng US (optional).",
+    )
+    audio_uk = models.FileField(
+        "Audio ví dụ (UK)",
+        upload_to=en_example_audio_uk_upload_to,
+        null=True,
+        blank=True,
+        help_text="Audio cho câu ví dụ giọng UK (optional).",
+    )
 
     class Meta:
         ordering = ["order", "id"]

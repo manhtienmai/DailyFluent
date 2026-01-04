@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chuyển khoản ngân hàng - DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Thông tin chuyển khoản</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- QR Code -->
+      <div class="bg-white border-2 border-blue-200 rounded-xl p-6 text-center">
+        <h2 class="font-semibold text-slate-900 mb-4">Quét mã QR để chuyển khoản</h2>
+        <div class="bg-white p-4 rounded-lg inline-block mb-4">
+          <img 
+            src="{% url 'payment:qr_code' payment.id %}" 
+            alt="QR Code"
+            class="w-64 h-64 mx-auto"
+            id="qr-code-image"
+          />
+        </div>
+        <p class="text-xs text-slate-600 mb-2">Quét mã QR bằng ứng dụng ngân hàng của bạn</p>
+        <button
+          onclick="downloadQR()"
+          class="text-xs text-blue-600 hover:text-blue-700 underline"
+        >
+          Tải xuống QR code
+        </button>
+      </div>
+
+      <!-- Bank Info -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <h2 class="font-semibold text-blue-900 mb-4">Thông tin chuyển khoản</h2>
+        <div class="space-y-3 text-sm">
+          <div>
+            <span class="text-slate-600 block mb-1">Tên tài khoản:</span>
+            <span class="font-semibold text-slate-900 text-base">{{ bank_info.account_name }}</span>
+          </div>
+          <div>
+            <span class="text-slate-600 block mb-1">Số tài khoản:</span>
+            <span class="font-semibold text-slate-900 font-mono text-base">{{ bank_info.account_number }}</span>
+            <button
+              onclick="copyToClipboard('{{ bank_info.account_number }}')"
+              class="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+            >
+              Sao chép
+            </button>
+          </div>
+          <div>
+            <span class="text-slate-600 block mb-1">Ngân hàng:</span>
+            <span class="font-semibold text-slate-900 text-base">{{ bank_info.bank_name }}</span>
+          </div>
+          {% if bank_info.branch %}
+          <div>
+            <span class="text-slate-600 block mb-1">Chi nhánh:</span>
+            <span class="font-semibold text-slate-900 text-base">{{ bank_info.branch }}</span>
+          </div>
+          {% endif %}
+          <div class="pt-3 border-t border-blue-300">
+            <span class="text-slate-600 block mb-1">Số tiền:</span>
+            <span class="font-bold text-xl text-blue-600">{{ plan.price|floatformat:0 }} VND</span>
+          </div>
+          <div>
+            <span class="text-slate-600 block mb-1">Nội dung chuyển khoản:</span>
+            <span class="font-semibold text-slate-900 font-mono text-base bg-white px-2 py-1 rounded">{{ transfer_content }}</span>
+            <button
+              onclick="copyToClipboard('{{ transfer_content }}')"
+              class="ml-2 text-xs text-blue-600 hover:text-blue-700 underline"
+            >
+              Sao chép
+            </button>
+            <p class="text-xs text-slate-500 mt-1">Vui lòng nhập đúng nội dung này khi chuyển khoản</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form id="bank-transfer-form" method="POST" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Mã giao dịch chuyển khoản <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          name="transfer_code"
+          required
+          placeholder="Nhập mã giao dịch từ ngân hàng"
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+        <p class="text-xs text-slate-500 mt-1">Mã giao dịch thường có dạng: NAP{{ payment.id|slice:":8" }}</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Tên chủ tài khoản (người chuyển)
+        </label>
+        <input
+          type="text"
+          name="bank_account_name"
+          placeholder="Tên của bạn"
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Số tài khoản (người chuyển)
+        </label>
+        <input
+          type="text"
+          name="bank_account_number"
+          placeholder="Số tài khoản của bạn"
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Ngân hàng (người chuyển)
+        </label>
+        <input
+          type="text"
+          name="bank_name"
+          placeholder="VD: Vietcombank, BIDV, Techcombank..."
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Ảnh chụp biên lai chuyển khoản (tùy chọn)
+        </label>
+        <input
+          type="file"
+          name="transfer_image"
+          accept="image/*"
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+        <p class="text-xs text-slate-500 mt-1">Hỗ trợ: JPG, PNG (tối đa 5MB)</p>
+      </div>
+
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+        <p class="text-sm text-yellow-800">
+          <strong>Lưu ý:</strong> Sau khi chuyển khoản, vui lòng điền thông tin và gửi. 
+          Chúng tôi sẽ xác thực trong vòng 24 giờ. Bạn sẽ nhận được email thông báo khi thanh toán được xác nhận.
+        </p>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold transition-colors"
+        >
+          Gửi thông tin chuyển khoản
+        </button>
+        <a
+          href="{% url 'payment:plans' %}"
+          class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 font-semibold transition-colors"
+        >
+          Hủy
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    alert('Đã sao chép: ' + text);
+  }, function(err) {
+    console.error('Could not copy text: ', err);
+  });
+}
+
+function downloadQR() {
+  const img = document.getElementById('qr-code-image');
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'qr-code-{{ payment.id }}.png';
+  link.click();
+}
+
+document.getElementById('bank-transfer-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const submitBtn = this.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Đang gửi...';
+  
+  try {
+    const response = await fetch('{% url "payment:submit_bank_transfer" payment.id %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      alert(data.message);
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      }
+    } else {
+      alert('Lỗi: ' + (data.error || 'Có lỗi xảy ra'));
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Có lỗi xảy ra khi gửi thông tin');
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+</script>
+{% endblock %}
+

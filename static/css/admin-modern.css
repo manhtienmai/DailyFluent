@@ -11,9 +11,85 @@
   --df-primary: #2563eb;   /* blue-600 */
 }
 
+/* Fix html element for admin pages */
+html.df-admin,
+html body.df-admin {
+  overflow: auto !important;
+  height: auto !important;
+}
+
 body.df-admin {
   background: var(--df-bg) !important;
   color: var(--df-text);
+  overflow: auto !important; /* Allow scrolling in admin pages */
+  overflow-y: auto !important; /* Explicit vertical scroll */
+  height: auto !important; /* Allow content to expand */
+  min-height: 100vh !important; /* At least viewport height */
+  position: static !important; /* Override position: relative from theme.css */
+}
+
+/* Ensure admin content area can scroll */
+body.df-admin #content {
+  overflow: visible !important;
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  position: relative !important;
+}
+
+/* Fix for content-main specifically */
+body.df-admin #content-main {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  position: relative !important;
+}
+
+/* Fix for custom admin pages with long content */
+body.df-admin .content {
+  overflow: visible !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Fix for Django admin main container */
+body.df-admin #container {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
+/* Fix for colM class (Django admin content wrapper) - CRITICAL */
+body.df-admin #content.colM,
+body.df-admin .colM,
+body.df-admin div#content {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  position: relative !important;
+  display: block !important;
+}
+
+/* Fix for any wrapper that might be blocking scroll */
+body.df-admin .main-content,
+body.df-admin .dashboard,
+body.df-admin .module {
+  overflow: visible !important;
+}
+
+/* Override any fixed height or max-height that might prevent scrolling */
+/* But exclude tables and specific elements that need overflow */
+body.df-admin *:not(table):not(#changelist table):not(.inline-related table) {
+  max-height: none !important;
+}
+
+/* But keep table overflow for proper table display */
+body.df-admin #changelist table {
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 #header {
@@ -66,12 +142,12 @@ textarea, select {
 /* ===== Dark mode (follow system/browser) ===== */
 @media (prefers-color-scheme: dark) {
   :root {
-    --df-bg: #0b1220;       /* deep slate */
-    --df-panel: #0f172a;    /* slate-900 */
-    --df-border: #223047;   /* custom border */
-    --df-text: #e5e7eb;     /* slate-200 */
-    --df-muted: #94a3b8;    /* slate-400 */
-    --df-primary: #60a5fa;  /* blue-400 */
+    --df-bg: #1e293b;       /* slate-800 - sáng hơn, dễ nhìn hơn */
+    --df-panel: #334155;   /* slate-700 - panel sáng hơn */
+    --df-border: #475569;  /* slate-600 - border rõ hơn */
+    --df-text: #f1f5f9;    /* slate-100 - text sáng, contrast cao */
+    --df-muted: #cbd5e1;   /* slate-300 - muted text vẫn rõ */
+    --df-primary: #3b82f6; /* blue-500 - primary rõ hơn */
   }
 
   body.df-admin {
@@ -81,23 +157,28 @@ textarea, select {
 
   /* Admin header */
   #header {
-    background: rgba(15, 23, 42, 0.75) !important;
+    background: rgba(30, 41, 59, 0.95) !important; /* slate-800 với opacity */
     border-bottom-color: var(--df-border) !important;
+  }
+
+  #branding h1, #branding h1 a {
+    color: var(--df-text) !important;
   }
 
   /* Links */
   a, a:visited {
-    color: #93c5fd;
+    color: #60a5fa !important; /* blue-400 - rõ hơn */
   }
   a:hover {
-    color: #bfdbfe;
+    color: #93c5fd !important; /* blue-300 */
   }
 
   /* Panels */
   .module, .inline-group, .dashboard .module {
     background: var(--df-panel) !important;
     border-color: var(--df-border) !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    color: var(--df-text) !important;
   }
 
   /* Tables */
@@ -106,30 +187,51 @@ textarea, select {
   #changelist table tbody td,
   #changelist table tbody th {
     border-color: var(--df-border) !important;
+    color: var(--df-text) !important;
   }
   #changelist table thead th {
-    background: rgba(148, 163, 184, 0.10) !important;
-    color: var(--df-muted) !important;
+    background: rgba(71, 85, 105, 0.5) !important; /* slate-600 với opacity */
+    color: var(--df-text) !important;
+    font-weight: 600 !important;
+  }
+  #changelist table tbody tr {
+    background: var(--df-panel) !important;
+  }
+  #changelist table tbody tr:hover {
+    background: rgba(71, 85, 105, 0.3) !important;
   }
 
   /* Buttons */
   .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: rgba(148, 163, 184, 0.10) !important;
+    background: rgba(71, 85, 105, 0.4) !important; /* slate-600 với opacity */
     border-color: var(--df-border) !important;
     color: var(--df-text) !important;
+  }
+  .button:hover, input[type=submit]:hover, input[type=button]:hover, a.button:hover {
+    background: rgba(71, 85, 105, 0.6) !important;
   }
   .button.default, input[type=submit].default {
     background: var(--df-primary) !important;
     border-color: var(--df-primary) !important;
-    color: #0b1220 !important;
+    color: #ffffff !important;
+  }
+  .button.default:hover, input[type=submit].default:hover {
+    background: #2563eb !important; /* blue-600 */
   }
 
   /* Inputs */
   input[type=text], input[type=password], input[type=email], input[type=url], input[type=number],
   textarea, select {
-    background: rgba(148, 163, 184, 0.08) !important;
+    background: rgba(51, 65, 85, 0.5) !important; /* slate-700 với opacity */
     color: var(--df-text) !important;
     border-color: var(--df-border) !important;
+  }
+  input[type=text]:focus, input[type=password]:focus, input[type=email]:focus,
+  input[type=url]:focus, input[type=number]:focus, textarea:focus, select:focus {
+    background: rgba(51, 65, 85, 0.7) !important;
+    border-color: var(--df-primary) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
   }
 
   /* Help text */
@@ -137,17 +239,204 @@ textarea, select {
     color: var(--df-muted) !important;
   }
 
+  /* Labels */
+  label {
+    color: var(--df-text) !important;
+  }
+
+  /* Fieldset headers */
+  h2 {
+    color: var(--df-text) !important;
+  }
+
+  /* Messages */
+  .messagelist li {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+    color: var(--df-text) !important;
+  }
+
+  /* Breadcrumbs */
+  .breadcrumbs {
+    color: var(--df-muted) !important;
+  }
+  .breadcrumbs a {
+    color: var(--df-muted) !important;
+  }
+
+  /* Object tools */
+  .object-tools a {
+    background: var(--df-primary) !important;
+    color: #ffffff !important;
+  }
+  .object-tools a:hover {
+    background: #2563eb !important;
+  }
+
   /* Tailwind utility classes used inside our custom admin pages (import screens).
      Force them to behave in dark mode without depending on Tailwind 'dark:' config. */
-  body.df-admin .bg-white { background-color: var(--df-panel) !important; }
-  body.df-admin .bg-slate-50 { background-color: rgba(148, 163, 184, 0.08) !important; }
-  body.df-admin .border-slate-200 { border-color: var(--df-border) !important; }
-  body.df-admin .text-slate-900 { color: var(--df-text) !important; }
-  body.df-admin .text-slate-800 { color: var(--df-text) !important; }
-  body.df-admin .text-slate-700 { color: #cbd5e1 !important; }
-  body.df-admin .text-slate-600 { color: var(--df-muted) !important; }
-  body.df-admin .text-slate-500 { color: var(--df-muted) !important; }
-  body.df-admin .shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important; }
+  body.df-admin .bg-white { 
+    background-color: var(--df-panel) !important; 
+  }
+  body.df-admin .bg-slate-50 { 
+    background-color: rgba(51, 65, 85, 0.3) !important; 
+  }
+  body.df-admin .bg-slate-100 {
+    background-color: rgba(51, 65, 85, 0.4) !important;
+  }
+  body.df-admin .border-slate-200 { 
+    border-color: var(--df-border) !important; 
+  }
+  body.df-admin .text-slate-900 { 
+    color: var(--df-text) !important; 
+  }
+  body.df-admin .text-slate-800 { 
+    color: var(--df-text) !important; 
+  }
+  body.df-admin .text-slate-700 { 
+    color: var(--df-text) !important; 
+  }
+  body.df-admin .text-slate-600 { 
+    color: var(--df-muted) !important; 
+  }
+  body.df-admin .text-slate-500 { 
+    color: var(--df-muted) !important; 
+  }
+  body.df-admin .text-slate-400 {
+    color: var(--df-muted) !important;
+  }
+  body.df-admin .shadow-sm { 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important; 
+  }
+  body.df-admin .text-blue-600 {
+    color: var(--df-primary) !important;
+  }
+  body.df-admin .bg-blue-600 {
+    background-color: var(--df-primary) !important;
+  }
+  body.df-admin .border-blue-600 {
+    border-color: var(--df-primary) !important;
+  }
+
+  /* Admin action links */
+  .addlink, .changelink, .deletelink {
+    color: var(--df-primary) !important;
+  }
+  .addlink:hover, .changelink:hover, .deletelink:hover {
+    color: #60a5fa !important;
+  }
+
+  /* Form rows */
+  .form-row {
+    border-bottom-color: var(--df-border) !important;
+  }
+
+  /* Fieldsets */
+  fieldset.module {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+  }
+  fieldset.module h2 {
+    background: rgba(71, 85, 105, 0.3) !important;
+    border-bottom-color: var(--df-border) !important;
+    color: var(--df-text) !important;
+  }
+
+  /* Selects and checkboxes */
+  select {
+    background-color: rgba(51, 65, 85, 0.5) !important;
+    color: var(--df-text) !important;
+  }
+  input[type=checkbox], input[type=radio] {
+    accent-color: var(--df-primary) !important;
+  }
+
+  /* Error messages */
+  .errorlist {
+    color: #fca5a5 !important; /* red-300 */
+  }
+  .errornote {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #f87171 !important;
+    color: #fca5a5 !important;
+  }
+
+  /* Success messages */
+  .success {
+    background: rgba(34, 197, 94, 0.2) !important;
+    border-color: #4ade80 !important;
+    color: #86efac !important;
+  }
+
+  /* Inline related */
+  .inline-related {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+  }
+  .inline-related h3 {
+    background: rgba(71, 85, 105, 0.3) !important;
+    color: var(--df-text) !important;
+  }
+
+  /* Pagination */
+  .paginator a, .paginator span {
+    color: var(--df-text) !important;
+    border-color: var(--df-border) !important;
+  }
+  .paginator a:hover {
+    background: rgba(71, 85, 105, 0.4) !important;
+  }
+
+  /* Filter sidebar */
+  #changelist-filter {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+  }
+  #changelist-filter h3 {
+    color: var(--df-text) !important;
+  }
+  #changelist-filter li {
+    border-bottom-color: var(--df-border) !important;
+  }
+  #changelist-filter a {
+    color: var(--df-muted) !important;
+  }
+  #changelist-filter a:hover,
+  #changelist-filter .selected a {
+    color: var(--df-primary) !important;
+  }
+
+  /* Search bar */
+  #searchbar {
+    background: rgba(51, 65, 85, 0.5) !important;
+    border-color: var(--df-border) !important;
+    color: var(--df-text) !important;
+  }
+
+  /* Calendar widget */
+  .calendarbox, .clockbox {
+    background: var(--df-panel) !important;
+    border-color: var(--df-border) !important;
+  }
+  .calendarbox table th,
+  .calendarbox table td {
+    color: var(--df-text) !important;
+  }
+  .calendarbox table td.selected a {
+    background: var(--df-primary) !important;
+    color: #ffffff !important;
+  }
+
+  /* Related widget wrapper */
+  .related-widget-wrapper {
+    color: var(--df-text) !important;
+  }
+
+  /* Readonly fields */
+  .readonly {
+    background: rgba(51, 65, 85, 0.3) !important;
+    color: var(--df-muted) !important;
+  }
 }
 
 

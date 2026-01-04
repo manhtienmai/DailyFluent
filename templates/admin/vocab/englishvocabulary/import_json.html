@@ -133,9 +133,45 @@
   </div>
 
   <details class="mt-4">
-    <summary class="cursor-pointer text-sm font-semibold text-slate-700">{% trans "Sample JSON" %}</summary>
-    <pre class="mt-2 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
-[
+    <summary class="cursor-pointer text-sm font-semibold text-slate-700">{% trans "Sample JSON Formats" %}</summary>
+    <div class="mt-2 space-y-4">
+      <div>
+        <p class="text-sm font-medium text-slate-800 mb-2">{% trans "Format mới (khuyến nghị):" %}</p>
+        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">[
+  {
+    "word": "accountant",
+    "pos": "noun",
+    "pos_candidates": [],
+    "meaning_vn": "kế toán",
+    "definition_en_simple": "an employee who checks and prepares financial records",
+    "pronunciation_uk_ipa": "/əˈkaʊntənt/",
+    "examples": [
+      {
+        "order": 1,
+        "context": "finance reporting",
+        "sentence_marked": "The ⟦accountant⟧ prepared the monthly expense summary for the finance director this afternoon carefully.",
+        "sentence_en": "The accountant prepared the monthly expense summary for the finance director this afternoon carefully.",
+        "word_count": 14
+      },
+      {
+        "order": 2,
+        "context": "budget adjustment",
+        "sentence_marked": "The ⟦accountant⟧ updated the quarterly budget because several travel costs were entered under the wrong category.",
+        "sentence_en": "The accountant updated the quarterly budget because several travel costs were entered under the wrong category.",
+        "word_count": 16
+      }
+    ],
+    "audio_pack_uuid": "ff6d6065-ea42-4141-a999-d353437b00ea"
+  }
+]</pre>
+        <p class="mt-1 text-xs text-slate-500">
+          {% trans "Lưu ý: Sau khi import, bạn sẽ được chuyển đến trang phân chia từ vựng vào các lesson." %}
+        </p>
+      </div>
+      
+      <div>
+        <p class="text-sm font-medium text-slate-800 mb-2">{% trans "Format cũ (vẫn hỗ trợ):" %}</p>
+        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">[
   {
     "en_word": "efficient",
     "phonetic": "/ɪˈfɪʃ.ənt/",
@@ -149,8 +185,9 @@
       { "order": 1, "en": "We need a more efficient process.", "vi": "Chúng ta cần một quy trình hiệu quả hơn." }
     ]
   }
-]
-    </pre>
+]</pre>
+      </div>
+    </div>
   </details>
 </div>
 

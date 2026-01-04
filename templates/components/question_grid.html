@@ -1,0 +1,18 @@
+<div class="mt-4 df-question-grid-wrapper">
+  <div class="text-sm font-semibold text-slate-900">{{ title|default:"Danh sách bài tập:" }}</div>
+  
+  {% if show_stats|default:True %}
+    <div class="mt-1 text-sm text-slate-600">
+      {% if total_count %}
+        Tổng: <span class="font-semibold">{{ total_count }}</span>
+        · Đúng: <span id="{{ correct_id|default:grid_id|add:'-correct' }}" class="font-semibold">0</span>
+      {% else %}
+        Tổng: <span id="{{ total_id|default:grid_id|add:'-total' }}" class="font-semibold">0</span>
+        · Đúng: <span id="{{ correct_id|default:grid_id|add:'-correct' }}" class="font-semibold">0</span>
+      {% endif %}
+    </div>
+  {% endif %}
+  
+  <div id="{{ grid_id }}" class="mt-3 df-mcq-grid"></div>
+</div>
+

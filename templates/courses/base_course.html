@@ -1,14 +1,24 @@
 {% extends "base.html" %}
 
-{% block main_classes %}max-w-6xl mx-auto px-4 py-6{% endblock %}
+{% block main_classes %}df-page-full{% endblock %}
 
 {% block content %}
-<div class="grid gap-5 md:grid-cols-[18rem,1fr] items-start">
-  {% include "courses/_sidebar.html" %}
+{# Fallback critical CSS: ensures horizontal sidebar layout even if static CSS is cached/missed #}
+<style>
+  .df-course-layout{display:flex;align-items:flex-start;gap:0;width:100%}
+  .df-course-sidebar{flex:0 0 17.5rem;width:17.5rem;font-size:0.95rem;padding:0;margin:0}
+  .df-course-sidebar-inner{position:fixed;top:var(--df-header-h);left:0;width:17.5rem;height:calc(100vh - var(--df-header-h));max-height:calc(100vh - var(--df-header-h));overflow-y:auto;overflow-x:hidden;padding:1rem 0;margin:0;z-index:40}
+  .df-course-main{flex:1 1 auto;min-width:0}
+  @media (max-width:900px){.df-course-layout{flex-direction:column}.df-course-sidebar{width:100%;flex-basis:auto;font-size:0.95rem}.df-course-sidebar-inner{position:static;width:auto;max-height:none;overflow:visible}}
+</style>
+<div class="df-page-container df-course-page">
+  <div class="df-course-layout">
+    {% include "courses/_lesson_sidebar.html" %}
 
-  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-    {% block course_content %}{% endblock %}
-  </section>
+    <section class="df-course-main">
+      {% block course_content %}{% endblock %}
+    </section>
+  </div>
 </div>
 {% endblock %}
 

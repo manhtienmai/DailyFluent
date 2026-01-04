@@ -1,0 +1,28 @@
+{% comment %}
+Desktop Navigation Menu Component
+Usage: {% include "components/navigation/desktop_menu.html" %}
+{% endcomment %}
+
+<nav class="hidden sm:flex items-center gap-3 lg:gap-4 text-sm ml-auto">
+  <div class="flex items-center gap-2 lg:gap-3">
+    {% if navigation_items %}
+    {% for item in navigation_items %}
+    <a href="{% url item.url_name %}"
+      class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800 transition-colors whitespace-nowrap">
+      {{ item.name }}
+    </a>
+    {% endfor %}
+    {% else %}
+    {# Fallback links if navigation_items not available #}
+    <a href="/" class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800 transition-colors">Trang chủ</a>
+    <a href="{% url 'core:course_list' %}"
+      class="px-3 py-1.5 rounded-full hover:bg-slate-100 text-slate-800 transition-colors">Courses</a>
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated %}
+  {% include "components/navigation/account_menu.html" %}
+  {% else %}
+  {% include "components/navigation/auth_buttons.html" %}
+  {% endif %}
+</nav>

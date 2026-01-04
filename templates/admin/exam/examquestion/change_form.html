@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original.pk %}
+    <li>
+      <a href="{% url 'admin:exam_examquestion_upload_image' original.pk %}" class="addlink">
+        📷 Upload Image
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}
+

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mục tiêu hàng ngày - DailyFluent{% endblock %}
+
+{% block main_classes %}df-page-container-md{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-400">Mục tiêu hàng ngày</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+        Danh sách mục tiêu của bạn 📝
+      </h1>
+    </div>
+    <a href="{% url 'home' %}" class="text-sm text-slate-600 hover:text-slate-900">
+      ← Về Dashboard
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-2xl font-bold text-slate-900">{{ total_count }}</div>
+      <div class="text-sm text-slate-500 mt-1">Tổng mục tiêu</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-2xl font-bold text-blue-600">{{ active_count }}</div>
+      <div class="text-sm text-slate-500 mt-1">Đang thực hiện</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+      <div class="text-2xl font-bold text-green-600">{{ completed_count }}</div>
+      <div class="text-sm text-slate-500 mt-1">Đã hoàn thành</div>
+    </div>
+  </div>
+
+  <!-- Add todo form -->
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Thêm mục tiêu mới</h2>
+    <form id="todo-form" class="space-y-3">
+      <div>
+        <input
+          type="text"
+          id="todo-title"
+          placeholder="Tiêu đề mục tiêu..."
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          maxlength="200"
+          required
+        />
+      </div>
+      <div>
+        <textarea
+          id="todo-description"
+          placeholder="Mô tả chi tiết (tùy chọn)..."
+          rows="3"
+          class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+          maxlength="500"
+        ></textarea>
+      </div>
+      <div class="flex gap-3">
+        <select
+          id="todo-period-type"
+          class="px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
+        >
+          <option value="day">Ngày</option>
+          <option value="week">Tuần</option>
+          <option value="month">Tháng</option>
+          <option value="year">Năm</option>
+        </select>
+        <select
+          id="todo-priority"
+          class="px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
+        >
+          <option value="low">Mức độ ưu tiên: Thấp</option>
+          <option value="medium" selected>Mức độ ưu tiên: Trung bình</option>
+          <option value="high">Mức độ ưu tiên: Cao</option>
+        </select>
+        <input
+          type="date"
+          id="todo-due-date"
+          class="px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
+        />
+      </div>
+      <button
+        type="submit"
+        class="w-full px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold text-sm transition-colors"
+      >
+        Thêm mục tiêu
+      </button>
+    </form>
+  </section>
+
+  <!-- Active todos -->
+  {% if active_todos %}
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Đang thực hiện ({{ active_count }})</h2>
+    <div id="active-todos" class="space-y-2">
+      {% for todo in active_todos %}
+      <div class="df-todo-item flex items-start gap-3 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" data-todo-id="{{ todo.id }}">
+        <button
+          type="button"
+          class="df-todo-checkbox flex-shrink-0 w-6 h-6 rounded-lg border-2 border-slate-300 flex items-center justify-center transition-all hover:scale-110 mt-0.5"
+          data-todo-id="{{ todo.id }}"
+          title="Đánh dấu đã hoàn thành"
+        >
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold {% if todo.completed %}line-through text-slate-400{% else %}text-slate-900{% endif %}">{{ todo.title }}</h3>
+              {% if todo.description %}
+              <p class="text-xs text-slate-600 mt-1 {% if todo.completed %}line-through{% endif %}">{{ todo.description }}</p>
+              {% endif %}
+              <div class="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                {% if todo.period_type == 'day' %}
+                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">Ngày</span>
+                {% elif todo.period_type == 'week' %}
+                <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">Tuần</span>
+                {% elif todo.period_type == 'month' %}
+                <span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded">Tháng</span>
+                {% else %}
+                <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded">Năm</span>
+                {% endif %}
+                {% if todo.priority == 'high' %}
+                <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded">Cao</span>
+                {% elif todo.priority == 'medium' %}
+                <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">Trung bình</span>
+                {% else %}
+                <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded">Thấp</span>
+                {% endif %}
+                {% if todo.due_date %}
+                <span>Hạn: {{ todo.due_date|date:"d/m/Y" }}</span>
+                {% if todo.is_overdue %}
+                <span class="text-red-600 font-semibold">(Quá hạn)</span>
+                {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            <button
+              type="button"
+              class="df-todo-delete flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+              data-todo-id="{{ todo.id }}"
+              title="Xóa"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Completed todos -->
+  {% if completed_todos %}
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-4">Đã hoàn thành ({{ completed_count }})</h2>
+    <div id="completed-todos" class="space-y-2">
+      {% for todo in completed_todos %}
+      <div class="df-todo-item flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-75" data-todo-id="{{ todo.id }}">
+        <button
+          type="button"
+          class="df-todo-checkbox flex-shrink-0 w-6 h-6 rounded-lg border-2 bg-blue-600 border-blue-600 flex items-center justify-center transition-all hover:scale-110 mt-0.5"
+          data-todo-id="{{ todo.id }}"
+          title="Đánh dấu chưa hoàn thành"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold text-slate-400 line-through">{{ todo.title }}</h3>
+              {% if todo.description %}
+              <p class="text-xs text-slate-500 mt-1 line-through">{{ todo.description }}</p>
+              {% endif %}
+            </div>
+            <button
+              type="button"
+              class="df-todo-delete flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+              data-todo-id="{{ todo.id }}"
+              title="Xóa"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if not active_todos and not completed_todos %}
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 text-center">
+    <div class="text-4xl mb-4">📝</div>
+    <h3 class="text-lg font-semibold text-slate-900 mb-2">Chưa có mục tiêu nào</h3>
+    <p class="text-sm text-slate-500">Hãy thêm mục tiêu đầu tiên của bạn ở trên!</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  const todoForm = document.getElementById('todo-form');
+  const todoTitle = document.getElementById('todo-title');
+  const todoDescription = document.getElementById('todo-description');
+  const todoPriority = document.getElementById('todo-priority');
+  const todoDueDate = document.getElementById('todo-due-date');
+  
+  // Create todo
+  todoForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const title = todoTitle.value.trim();
+    if (!title) return;
+    
+    try {
+      const response = await fetch('{% url "todos:todo_create" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+          title: title,
+          description: todoDescription.value.trim(),
+          priority: todoPriority.value,
+          due_date: todoDueDate.value || null
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        todoTitle.value = '';
+        todoDescription.value = '';
+        todoDueDate.value = '';
+        todoPriority.value = 'medium';
+        location.reload();
+      } else {
+        alert('Lỗi: ' + (data.error || 'Không thể tạo mục tiêu'));
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Có lỗi xảy ra khi tạo mục tiêu');
+    }
+  });
+  
+  // Toggle completed
+  document.querySelectorAll('.df-todo-checkbox').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const todoId = this.dataset.todoId;
+      try {
+        const response = await fetch(`/todos/${todoId}/toggle/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          location.reload();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra');
+      }
+    });
+  });
+  
+  // Delete todo
+  document.querySelectorAll('.df-todo-delete').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      if (!confirm('Bạn có chắc muốn xóa mục tiêu này?')) return;
+      
+      const todoId = this.dataset.todoId;
+      try {
+        const response = await fetch(`/todos/${todoId}/delete/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          location.reload();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra');
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}
+
