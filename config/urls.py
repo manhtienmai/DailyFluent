@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from core.views import home
+from core.views import health
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -18,6 +19,7 @@ urlpatterns = [
     path("grammar/", include("grammar.urls", namespace="grammar")),
     path("todos/", include("todos.urls", namespace="todos")),
     path("payment/", include("payment.urls", namespace="payment")),
+    path("health", health),
 ]
 
 if settings.DEBUG:

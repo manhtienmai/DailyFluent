@@ -845,3 +845,6 @@ def dictation_detail(request, exercise_slug):
         "segments": segments,
         "segments_json": segments_json,
     })
+
+def health(request):
+    return JsonResponse({"ok": True})
