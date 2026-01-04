@@ -4,13 +4,14 @@
 {% block title %}{{ exercise.title }} | Nghe chép chính tả{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260104">
+<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260105">
 <style>
   .dictation-card {
-    max-width: 700px;
+    max-width: 1000px;
     margin: 0 auto;
   }
 
+  /* Vizualizer Styles */
   .audio-visualizer {
     display: flex;
     align-items: center;
@@ -70,6 +71,88 @@
     opacity: 0.3;
     transform: scaleY(0.3);
   }
+
+  /* Tabs */
+  .tab-btn {
+    position: relative;
+    padding-bottom: 8px;
+    color: #64748b;
+    /* slate-500 */
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: #334155;
+    /* slate-700 */
+  }
+
+  .tab-btn.active {
+    color: #2563eb;
+    /* blue-600 */
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #2563eb;
+    border-radius: 99px 99px 0 0;
+  }
+
+  /* Transcript Item */
+  .transcript-item {
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+
+  .transcript-item:hover {
+    background-color: #f8fafc;
+  }
+
+  .transcript-item.active {
+    background-color: #eff6ff;
+    /* blue-50 */
+    border-left-color: #2563eb;
+    /* blue-600 */
+  }
+
+  .transcript-item.active .t-text {
+    color: #1e40af;
+    /* blue-800 */
+    font-weight: 600;
+  }
+
+  .transcript-item .play-icon-sm {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .transcript-item:hover .play-icon-sm,
+  .transcript-item.active .play-icon-sm {
+    opacity: 1;
+  }
+
+  /* Scrollbar for transcript list */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 99px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 </style>
 {% endblock %}
 
@@ -77,128 +160,274 @@
 
 {% block content %}
 <div class="dictation-card space-y-6">
-  <!-- Header -->
-  <div class="text-center">
-    <div class="flex items-center justify-center gap-3 mb-2">
-      <a href="{% url 'core:dictation_list' %}" class="text-slate-400 hover:text-slate-600 transition-colors">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </a>
-      <h1 class="text-xl font-bold text-slate-900">{{ exercise.title }}</h1>
-      <span class="px-2 py-0.5 text-xs font-semibold rounded-full 
-        {% if exercise.difficulty == 'beginner' %}bg-green-100 text-green-700
-        {% elif exercise.difficulty == 'intermediate' %}bg-blue-100 text-blue-700
-        {% else %}bg-purple-100 text-purple-700{% endif %}">
-        {{ exercise.get_difficulty_display }}
-      </span>
+  <!-- Header & Tabs -->
+  <div>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <a href="{% url 'core:dictation_list' %}" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">{{ exercise.title }}</h1>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex space-x-8 border-b border-slate-200">
+        <button onclick="switchTab('dictation')" id="tab-btn-dictation"
+          class="tab-btn active text-sm uppercase tracking-wide">
+          Dictation
+        </button>
+        <button onclick="switchTab('transcript')" id="tab-btn-transcript"
+          class="tab-btn text-sm uppercase tracking-wide">
+          Full Transcript
+        </button>
+      </div>
     </div>
-    <!-- Progress -->
-    <div class="flex items-center justify-center gap-3">
+  </div>
+
+  <!-- TAB: DICTATION (Original Game) -->
+  <div id="view-dictation" class="tab-pane animate-fade-in-up">
+
+    <!-- Progress (Dictation Mode) -->
+    <div class="flex items-center justify-center gap-3 mb-6">
       <span id="progress-text" class="text-sm text-slate-500 font-medium">1 / {{ segments.count }}</span>
       <div class="w-48 bg-slate-200 rounded-full h-1.5">
         <div id="progress-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%">
         </div>
       </div>
     </div>
+
+    <!-- Main Exercise Card -->
+    <div id="exercise-app" class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+      <!-- Audio Section -->
+      <div class="p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-200">
+        <div class="flex flex-col items-center gap-4">
+          <!-- Visualizer -->
+          <div id="audio-viz" class="audio-visualizer paused">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-3">
+            <button id="btn-play" type="button"
+              class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Phát
+            </button>
+            <button id="btn-slow" type="button"
+              class="flex items-center gap-1 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Chậm
+            </button>
+          </div>
+
+          <!-- Hint -->
+          <p id="hint-text" class="text-sm text-slate-500 italic hidden"></p>
+        </div>
+      </div>
+
+      <!-- Input Section -->
+      <div class="p-6">
+        <textarea id="user-input"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all resize-none text-lg leading-relaxed"
+          rows="2" placeholder="Nhập nội dung bạn nghe được..."></textarea>
+
+        <!-- Actions -->
+        <div class="flex justify-center gap-3 mt-4">
+          <button id="btn-check" type="button"
+            class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-sm">
+            Kiểm tra
+          </button>
+          <button id="btn-next" type="button"
+            class="hidden px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+            Tiếp theo →
+          </button>
+        </div>
+      </div>
+
+      <!-- Feedback Section -->
+      <div id="feedback" class="hidden p-6 border-t border-slate-100 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Kết quả:</div>
+        <div id="feedback-content" class="text-lg leading-relaxed"></div>
+      </div>
+    </div>
+
+    <!-- Summary Screen -->
+    <div id="summary-screen" class="hidden bg-white border border-slate-200 rounded-2xl shadow-lg p-10 text-center">
+      <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">Hoàn thành! 🎉</h2>
+      <p class="text-slate-600 mb-2">Bạn đã hoàn thành bài tập với kết quả:</p>
+      <p id="final-score" class="text-3xl font-bold text-emerald-600 mb-6"></p>
+      <div class="flex justify-center gap-3">
+        <button onclick="window.location.reload()"
+          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors">
+          Làm lại
+        </button>
+        <a href="{% url 'core:dictation_list' %}"
+          class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors">
+          Danh sách bài
+        </a>
+      </div>
+    </div>
   </div>
 
-  <!-- Main Exercise Card -->
-  <div id="exercise-app" class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
-    <!-- Audio Section -->
-    <div class="p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-200">
-      <div class="flex flex-col items-center gap-4">
-        <!-- Visualizer -->
-        <div id="audio-viz" class="audio-visualizer paused">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
+  <!-- TAB: FULL TRANSCRIPT -->
+  <div id="view-transcript" class="tab-pane hidden animate-fade-in-up">
+    <div
+      class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row h-[550px]">
+
+      <!-- Box Left: Player & Current Text -->
+      <div class="w-full md:w-5/12 bg-slate-900 text-white p-6 flex flex-col relative justify-between">
+
+        <!-- Decoration -->
+        <div class="absolute top-0 right-0 p-4 opacity-10">
+          <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>
         </div>
 
-        <!-- Controls -->
-        <div class="flex items-center gap-3">
-          <button id="btn-play" type="button"
-            class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Phát
-          </button>
-          <button id="btn-slow" type="button"
-            class="flex items-center gap-1 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex-1 flex flex-col items-center justify-center text-center space-y-4 px-2 z-10">
+          <!-- Icon -->
+          <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white/50 mb-2">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
-            Chậm
-          </button>
+          </div>
+          <!-- Active Text -->
+          <div id="trans-active-text"
+            class="text-lg font-medium leading-relaxed min-h-[80px] flex items-center justify-center text-white transition-all duration-300">
+            (Bấm play để bắt đầu)
+          </div>
         </div>
 
-        <!-- Hint -->
-        <p id="hint-text" class="text-sm text-slate-500 italic hidden"></p>
+        <!-- Compact Controls -->
+        <div class="pt-4 border-t border-white/10 z-10 w-full mt-4">
+          <!-- Progress Bar -->
+          <div class="w-full bg-white/20 h-1.5 rounded-full cursor-pointer relative group mb-3"
+            id="trans-progress-container">
+            <div id="trans-progress-bar"
+              class="bg-blue-500 h-full rounded-full w-0 pointer-events-none transition-[width] duration-100 ease-linear">
+            </div>
+            <div class="absolute -top-2 -bottom-2 w-full cursor-pointer"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="text-xs text-slate-400 font-mono w-10 text-left" id="trans-current-time">00:00</div>
+
+            <div class="flex items-center gap-4">
+              <button id="trans-btn-prev" class="text-white/60 hover:text-white transition-colors p-1"><svg
+                  class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg></button>
+
+              <button id="trans-btn-play"
+                class="w-12 h-12 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-600/20 transition-transform active:scale-95">
+                <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+
+              <button id="trans-btn-next" class="text-white/60 hover:text-white transition-colors p-1"><svg
+                  class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg></button>
+            </div>
+
+            <div class="text-xs text-slate-400 font-mono w-10 text-right" id="trans-total-time">00:00</div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Input Section -->
-    <div class="p-6">
-      <textarea id="user-input"
-        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all resize-none text-lg leading-relaxed"
-        rows="2" placeholder="Nhập nội dung bạn nghe được..."></textarea>
+      <!-- Box Right: Transcript List -->
+      <div class="w-full md:w-7/12 bg-white flex flex-col border-l border-slate-100">
+        <!-- Options Header -->
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh sách câu</div>
+          <label
+            class="flex items-center gap-2 cursor-pointer text-sm text-slate-600 select-none hover:text-slate-900 group">
+            <input type="checkbox" id="chk-autoscroll"
+              class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" checked>
+            <span class="font-medium group-hover:text-blue-600 transition-colors">Tự động cuộn</span>
+          </label>
+        </div>
 
-      <!-- Actions -->
-      <div class="flex justify-center gap-3 mt-4">
-        <button id="btn-check" type="button"
-          class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-sm">
-          Kiểm tra
-        </button>
-        <button id="btn-next" type="button"
-          class="hidden px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm">
-          Tiếp theo →
-        </button>
+        <!-- List -->
+        <div id="transcript-list" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+          <!-- Items will be injected here -->
+        </div>
       </div>
-    </div>
-
-    <!-- Feedback Section -->
-    <div id="feedback" class="hidden p-6 border-t border-slate-100 bg-slate-50">
-      <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Kết quả:</div>
-      <div id="feedback-content" class="text-lg leading-relaxed"></div>
     </div>
   </div>
 
-  <!-- Summary Screen -->
-  <div id="summary-screen" class="hidden bg-white border border-slate-200 rounded-2xl shadow-lg p-10 text-center">
-    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-      <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-      </svg>
-    </div>
-    <h2 class="text-2xl font-bold text-slate-900 mb-2">Hoàn thành! 🎉</h2>
-    <p class="text-slate-600 mb-2">Bạn đã hoàn thành bài tập với kết quả:</p>
-    <p id="final-score" class="text-3xl font-bold text-emerald-600 mb-6"></p>
-    <div class="flex justify-center gap-3">
-      <button onclick="window.location.reload()"
-        class="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors">
-        Làm lại
-      </button>
-      <a href="{% url 'core:dictation_list' %}"
-        class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors">
-        Danh sách bài
-      </a>
-    </div>
-  </div>
-
-  <!-- Hidden Audio -->
+  <!-- Hidden Audio (Shared) -->
   <audio id="main-audio" preload="auto">
     <source src="{{ exercise.audio_file.url }}" type="audio/mpeg">
   </audio>
 </div>
 
+<!-- Helper Styles -->
+<style>
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+</style>
+
 <script>
+  // -- TABS LOGIC --
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-pane').forEach(el => {
+      el.classList.add('hidden');
+      el.classList.remove('animate-fade-in-up');
+    });
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    const pane = document.getElementById('view-' + tabName);
+    pane.classList.remove('hidden');
+    // Trigger animation reflow
+    void pane.offsetWidth;
+    pane.classList.add('animate-fade-in-up');
+
+    document.getElementById('tab-btn-' + tabName).classList.add('active');
+
+    // Pause audio when switching to dictation to reset state if needed
+    // Logic differs between modes so safer to pause.
+    const audio = document.getElementById('main-audio');
+    if (!audio.paused) audio.pause();
+  }
+
   (function () {
     const segments = JSON.parse("{{ segments_json|escapejs }}");
     const audio = document.getElementById('main-audio');
+
+    // -- DICTATION VARS --
     const viz = document.getElementById('audio-viz');
     const btnPlay = document.getElementById('btn-play');
     const btnSlow = document.getElementById('btn-slow');
@@ -220,15 +449,36 @@
     let correctCount = 0;
     let checkInterval = null;
 
+    // -- TRANSCRIPT VARS --
+    const transActiveText = document.getElementById('trans-active-text');
+    const transList = document.getElementById('transcript-list');
+    const transBtnPlay = document.getElementById('trans-btn-play');
+    const transBtnPrev = document.getElementById('trans-btn-prev');
+    const transBtnNext = document.getElementById('trans-btn-next');
+    const transProgressBar = document.getElementById('trans-progress-bar');
+    const transCurrentTime = document.getElementById('trans-current-time');
+    const transTotalTime = document.getElementById('trans-total-time');
+    const chkAutoScroll = document.getElementById('chk-autoscroll');
+
+    let transActiveIndex = -1;
+
     function init() {
       if (segments.length === 0) {
-        exerciseApp.innerHTML = '<div class="p-10 text-center text-slate-500">Chưa có dữ liệu segments. Vui lòng import JSON từ Admin.</div>';
+        document.querySelector('.dictation-card').innerHTML = '<div class="p-10 text-center text-slate-500">Chưa có dữ liệu bài tập. Hãy quay lại sau.</div>';
         return;
       }
-      render();
+
+      // Init Dictation
+      renderDictation();
+
+      // Init Transcript UI
+      renderTranscriptList();
     }
 
-    function render() {
+    // ==========================================
+    // DICTATION MODE LOGIC
+    // ==========================================
+    function renderDictation() {
       if (currentIndex >= segments.length) {
         showSummary();
         return;
@@ -240,7 +490,6 @@
       isChecked = false;
       userInput.value = '';
       userInput.disabled = false;
-      userInput.focus();
       btnCheck.classList.remove('hidden');
       btnNext.classList.add('hidden');
       feedback.classList.add('hidden');
@@ -257,29 +506,39 @@
       progressText.textContent = `${currentIndex + 1} / ${segments.length}`;
       progressBar.style.width = `${(currentIndex / segments.length) * 100}%`;
 
-      // Auto play
-      playCurrentSegment();
+      // NOTE: We do NOT auto-play on render() anymore on page load for safety, 
+      // but "Next" button usually triggers render -> play.
+      // We will handle play explicitly in Next.
     }
 
-    function playCurrentSegment() {
+    function playDictationSegment() {
       if (currentIndex >= segments.length) return;
       const seg = segments[currentIndex];
 
+      if (checkInterval) clearInterval(checkInterval);
+
+      // Seek & Play
       audio.currentTime = seg.start_time;
       audio.playbackRate = isSlow ? 0.7 : 1.0;
-      audio.play();
 
-      viz.classList.remove('paused');
+      const p = audio.play();
+      if (p) p.catch(e => console.warn(e));
 
-      // Stop at end_time
-      if (checkInterval) clearInterval(checkInterval);
+      updateViz(true);
+
+      // Stop at end
       checkInterval = setInterval(() => {
         if (!audio.paused && audio.currentTime >= seg.end_time) {
           audio.pause();
-          viz.classList.add('paused');
+          updateViz(false);
           clearInterval(checkInterval);
         }
       }, 50);
+    }
+
+    function updateViz(playing) {
+      if (playing) viz.classList.remove('paused');
+      else viz.classList.add('paused');
     }
 
     function diffString(userText, correctText) {
@@ -294,48 +553,29 @@
         if (uw.toLowerCase() === cw.toLowerCase()) {
           html += `<span class="text-emerald-600">${cw}</span> `;
         } else {
-          if (uw) html += `<del>${uw}</del> `;
-          if (cw) html += `<ins>${cw}</ins> `;
+          if (uw) html += `<del class="text-rose-400 decoration-rose-300 decoration-2">${uw}</del> `;
+          if (cw) html += `<ins class="text-blue-600 no-underline font-semibold">${cw}</ins> `;
         }
       }
       return html.trim();
     }
 
-    function check() {
+    function checkDictation() {
       if (isChecked) return;
       isChecked = true;
 
       const seg = segments[currentIndex];
       const userText = userInput.value.trim();
-      const correctText = seg.correct_text.trim();
-
       const normalize = s => s.toLowerCase().replace(/[.,?!'"]/g, '');
-      const isCorrect = normalize(userText) === normalize(correctText);
+      const isCorrect = normalize(userText) === normalize(seg.correct_text);
 
       if (isCorrect) correctCount++;
 
-      // Show feedback
       feedback.classList.remove('hidden');
       if (isCorrect) {
-        feedbackContent.innerHTML = `
-        <div class="flex items-center gap-2 text-emerald-600 font-bold">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          Chính xác!
-        </div>
-        <div class="mt-2 text-slate-800">${correctText}</div>
-      `;
+        feedbackContent.innerHTML = `<div class="text-emerald-600 font-bold flex items-center gap-2 animate-bounce-short"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Chính xác!</div><div class="mt-1 text-slate-800">${seg.correct_text}</div>`;
       } else {
-        feedbackContent.innerHTML = `
-        <div class="flex items-center gap-2 text-rose-600 font-bold mb-2">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-          Chưa đúng
-        </div>
-        <div>${diffString(userText, correctText)}</div>
-      `;
+        feedbackContent.innerHTML = `<div class="text-rose-500 font-bold mb-2">Chưa đúng</div><div class="leading-relaxed bg-slate-50 p-2 rounded">${diffString(userText, seg.correct_text)}</div>`;
       }
 
       userInput.disabled = true;
@@ -344,9 +584,10 @@
       btnNext.focus();
     }
 
-    function next() {
+    function nextDictation() {
       currentIndex++;
-      render();
+      renderDictation();
+      playDictationSegment();
     }
 
     function showSummary() {
@@ -356,8 +597,128 @@
       finalScore.textContent = `${correctCount} / ${segments.length} câu đúng`;
     }
 
-    // Event Listeners
-    btnPlay.addEventListener('click', playCurrentSegment);
+    // ==========================================
+    // TRANSCRIPT MODE LOGIC
+    // ==========================================
+    function formatTime(s) {
+      if (isNaN(s)) return "00:00";
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${m < 10 ? '0' + m : m}:${sec < 10 ? '0' + sec : sec}`;
+    }
+
+    function renderTranscriptList() {
+      transList.innerHTML = '';
+      segments.forEach((seg, idx) => {
+        const div = document.createElement('div');
+        div.className = `transcript-item group flex gap-3 p-3 rounded-lg cursor-pointer ${idx === 0 ? '' : ''}`;
+        div.dataset.index = idx;
+        div.dataset.start = seg.start_time;
+
+        div.onclick = () => {
+          playTranscriptIndex(idx);
+        };
+
+        div.innerHTML = `
+             <div class="pt-1">
+                <div class="play-icon-sm w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center ring-4 ring-blue-50 group-hover:scale-110 transition-transform">
+                   <svg class="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+             </div>
+             <div class="t-text text-slate-600 text-[15px] leading-relaxed select-text">${seg.correct_text}</div>
+          `;
+        transList.appendChild(div);
+      });
+
+      const onMeta = () => {
+        transTotalTime.textContent = formatTime(audio.duration);
+      };
+      audio.addEventListener('loadedmetadata', onMeta);
+      if (audio.readyState >= 1) onMeta();
+    }
+
+    function playTranscriptIndex(idx) {
+      if (idx < 0 || idx >= segments.length) return;
+      const seg = segments[idx];
+
+      // Clear dictation interval if any, we want full playback
+      if (checkInterval) clearInterval(checkInterval);
+
+      audio.currentTime = seg.start_time;
+      audio.playbackRate = 1.0;
+      audio.play();
+      updateTransBtn(true);
+    }
+
+    function updateTransBtn(playing) {
+      if (playing) {
+        transBtnPlay.innerHTML = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+      } else {
+        transBtnPlay.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      }
+    }
+
+    function highlightTranscriptItem(idx) {
+      if (transActiveIndex === idx) return;
+      transActiveIndex = idx;
+
+      // Update list styling
+      Array.from(transList.children).forEach((el, i) => {
+        if (i === idx) {
+          el.classList.add('active');
+          // Auto scroll
+          if (chkAutoScroll.checked) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      // Update big text
+      if (idx >= 0 && segments[idx]) {
+        transActiveText.textContent = segments[idx].correct_text;
+      }
+    }
+
+    // -- SHARED AUDIO EVENTS --
+    audio.addEventListener('timeupdate', () => {
+      // Only run transcript logic if transcript tab is visible? 
+      // No, maybe user switches tabs. But typically we only care if viewed.
+      // But let's keep it sync.
+
+      const cur = audio.currentTime;
+      const dur = audio.duration;
+
+      // Update Transcript Progress Bar
+      if (dur > 0) {
+        const pct = (cur / dur) * 100;
+        transProgressBar.style.width = `${pct}%`;
+        transCurrentTime.textContent = formatTime(cur);
+      }
+
+      // Highlight logic for Transcript Mode
+      const idx = segments.findIndex(s => cur >= s.start_time && cur < s.end_time);
+      if (idx !== -1) {
+        highlightTranscriptItem(idx);
+      }
+    });
+
+    audio.addEventListener('play', () => updateTransBtn(true));
+    audio.addEventListener('pause', () => updateTransBtn(false));
+    audio.addEventListener('ended', () => {
+      updateTransBtn(false);
+      updateViz(false);
+    });
+
+    // -- EVENT BINDINGS --
+
+    // Dictation
+    btnPlay.addEventListener('click', () => {
+      // Toggle play/pause for current segment
+      if (!audio.paused) audio.pause();
+      else playDictationSegment();
+    });
 
     btnSlow.addEventListener('click', () => {
       isSlow = !isSlow;
@@ -366,27 +727,49 @@
       btnSlow.classList.toggle('text-blue-600', isSlow);
     });
 
-    btnCheck.addEventListener('click', check);
-    btnNext.addEventListener('click', next);
+    btnCheck.addEventListener('click', checkDictation);
+
+    btnNext.addEventListener('click', nextDictation);
 
     userInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        if (!isChecked) check();
-        else next();
+        if (!isChecked) checkDictation();
+        else nextDictation();
       }
     });
 
-    audio.addEventListener('ended', () => {
-      viz.classList.add('paused');
+    // Transcript Controls
+    transBtnPlay.addEventListener('click', () => {
+      if (audio.paused) audio.play();
+      else audio.pause();
     });
 
-    audio.addEventListener('pause', () => {
-      viz.classList.add('paused');
+    transBtnPrev.addEventListener('click', () => {
+      let target = transActiveIndex - 1;
+      if (target < 0) target = 0;
+      playTranscriptIndex(target);
+    });
+
+    transBtnNext.addEventListener('click', () => {
+      let target = transActiveIndex + 1;
+      if (target >= segments.length) target = 0;
+      playTranscriptIndex(target);
+    });
+
+    // Seek on progress bar
+    document.getElementById('trans-progress-container').addEventListener('click', (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = x / rect.width;
+      audio.currentTime = pct * audio.duration;
     });
 
     // Init
     init();
+
+    // Expose switchTab globally
+    window.switchTab = switchTab;
   })();
 </script>
 {% endblock %}

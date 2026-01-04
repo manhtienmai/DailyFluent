@@ -61,6 +61,8 @@ jobs:
         run: |
           ARTIFACT="${{ env.APP_NAME }}_${{ github.sha }}.tar.gz"
           tar -czf "$ARTIFACT" \
+            --exclude="$ARTIFACT" \
+            --exclude="*.tar.gz" \
             --exclude=".git" \
             --exclude="venv" \
             --exclude="__pycache__" \
