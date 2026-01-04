@@ -59,16 +59,28 @@ jobs:
 
       - name: Package artifact
         run: |
-          ARTIFACT="${{ env.APP_NAME }}_${{ github.sha }}.tar.gz"
-          tar -czf "$ARTIFACT" \
-            --exclude="$ARTIFACT" \
-            --exclude="*.tar.gz" \
+          set -euo pipefail
+          ARTIFACT="/tmp/${{ env.APP_NAME }}_${{ github.sha }}.tar.gz"
+          STAGE="/tmp/${{ env.APP_NAME }}_stage_${{ github.sha }}"
+
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+
+          # Copy source to staging (snapshot) to avoid "file changed as we read it"
+          rsync -a --delete \
             --exclude=".git" \
             --exclude="venv" \
             --exclude="__pycache__" \
             --exclude="*.pyc" \
             --exclude=".env" \
-            .
+            --exclude="node_modules" \
+            --exclude=".next" \
+            --exclude="staticfiles" \
+            --exclude="media" \
+            --exclude="*.sqlite3" \
+            ./ "$STAGE/"
+
+          tar -C "$STAGE" -czf "$ARTIFACT" .
           echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
 
       - name: Start SSH agent
@@ -84,7 +96,7 @@ jobs:
       - name: Upload artifact to VM
         run: |
           scp -P "${{ secrets.VM_PORT }}" "$ARTIFACT" \
-            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/tmp/$ARTIFACT"
+            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/tmp/$(basename "$ARTIFACT")"
 
       - name: Deploy on VM (extract -> release -> blue/green switch)
         run: |
