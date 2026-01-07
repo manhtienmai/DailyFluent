@@ -4,334 +4,1072 @@
 {% block main_classes %}df-page-container-lg{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/exam-result.css' %}?v=20251227">
+<link rel="stylesheet" href="{% static 'css/exam-result.css' %}?v=20260107">
+<style>
+  /* Modern Exam Result Styles */
+  .df-result-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  /* Alert Banner */
+  .df-result-alert {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #a7f3d0;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .df-result-alert-icon {
+    color: #059669;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .df-result-alert-text {
+    font-size: 0.875rem;
+    color: #065f46;
+    line-height: 1.5;
+  }
+
+  .df-result-alert-link {
+    color: #047857;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  /* Header */
+  .df-result-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .df-result-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+  }
+
+  .df-result-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .df-result-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .df-result-btn--primary {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  .df-result-btn--primary:hover {
+    background: #2563eb;
+  }
+
+  .df-result-btn--secondary {
+    background: #fff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+  }
+
+  .df-result-btn--secondary:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+  }
+
+  /* Summary Grid */
+  .df-result-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .df-result-summary {
+      grid-template-columns: 280px 1fr;
+    }
+  }
+
+  /* Left Stats Card */
+  .df-result-left-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .df-result-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .df-result-stat-icon {
+    width: 24px;
+    height: 24px;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+
+  .df-result-stat-content {
+    flex: 1;
+  }
+
+  .df-result-stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+  }
+
+  .df-result-stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* Right Stats Cards Grid */
+  .df-result-right-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    .df-result-right-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .df-result-stat-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .df-result-stat-card-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .df-result-stat-card-icon--correct {
+    color: #10b981;
+  }
+
+  .df-result-stat-card-icon--wrong {
+    color: #ef4444;
+  }
+
+  .df-result-stat-card-icon--skipped {
+    color: #94a3b8;
+  }
+
+  .df-result-stat-card-icon--score {
+    color: #6366f1;
+  }
+
+  .df-result-stat-card-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.375rem;
+  }
+
+  .df-result-stat-card-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .df-result-stat-card-value--correct {
+    color: #10b981;
+  }
+
+  .df-result-stat-card-value--wrong {
+    color: #ef4444;
+  }
+
+  .df-result-stat-card-value--skipped {
+    color: #64748b;
+  }
+
+  .df-result-stat-card-value--score {
+    color: #1e293b;
+  }
+
+  .df-result-stat-card-unit {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.125rem;
+  }
+
+  /* Section Scores */
+  .df-result-section-scores {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-result-section-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .df-result-section-title {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+
+  .df-result-section-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .df-result-section-detail {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  /* Analysis Section */
+  .df-result-analysis {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .df-result-analysis-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* Part Tabs */
+  .df-result-tabs {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 0.5rem;
+  }
+
+  .df-result-tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .df-result-tab:hover {
+    color: #3b82f6;
+  }
+
+  .df-result-tab--active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    font-weight: 600;
+  }
+
+  /* Analysis Table */
+  .df-result-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .df-result-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .df-result-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .df-result-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .df-result-table .text-center {
+    text-align: center;
+  }
+
+  .df-result-table .total-row {
+    background: #f8fafc;
+    font-weight: 600;
+  }
+
+  /* Question Number Buttons in Table */
+  .df-result-qnum-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .df-result-qnum {
+    width: 28px;
+    height: 28px;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .df-result-qnum:hover {
+    border-color: #94a3b8;
+  }
+
+  .df-result-qnum--correct {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+  }
+
+  .df-result-qnum--wrong {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+  }
+
+  .df-result-qnum--skipped {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #64748b;
+  }
+
+  /* Answer Section */
+  .df-result-answers {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-result-answers-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .df-result-answers-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .df-result-warning {
+    font-size: 0.75rem;
+    color: #dc2626;
+    font-style: italic;
+  }
+
+  .df-result-tips {
+    background: #fefce8;
+    border: 1px solid #fef08a;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .df-result-tips-icon {
+    color: #ca8a04;
+    flex-shrink: 0;
+  }
+
+  .df-result-tips-text {
+    font-size: 0.8125rem;
+    color: #854d0e;
+    line-height: 1.5;
+  }
+
+  /* Question List */
+  .df-result-qlist {
+    margin-top: 1.5rem;
+  }
+
+  .df-result-qlist-part {
+    margin-bottom: 1.5rem;
+  }
+
+  .df-result-qlist-part-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .df-result-qlist-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .df-result-qlist-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .df-result-qlist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  .df-result-qlist-num {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3b82f6;
+    min-width: 24px;
+  }
+
+  .df-result-qlist-answer {
+    font-size: 0.875rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .df-result-qlist-status {
+    display: flex;
+    align-items: center;
+  }
+
+  .df-result-qlist-status--correct {
+    color: #10b981;
+  }
+
+  .df-result-qlist-status--wrong {
+    color: #ef4444;
+  }
+
+  .df-result-qlist-status--skipped {
+    color: #94a3b8;
+  }
+
+  .df-result-qlist-detail {
+    font-size: 0.8125rem;
+    color: #64748b;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .df-result-qlist-detail:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+
+  /* Modal */
+  .df-result-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+  }
+
+  .df-result-modal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .df-result-modal-content {
+    background: #fff;
+    border-radius: 1rem;
+    max-width: 720px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+
+  .df-result-modal.active .df-result-modal-content {
+    transform: translateY(0);
+  }
+
+  .df-result-modal-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .df-result-modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .df-result-modal-subtitle {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin-top: 0.125rem;
+  }
+
+  .df-result-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: all 0.15s;
+    background: transparent;
+    border: none;
+  }
+
+  .df-result-modal-close:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .df-result-modal-body {
+    padding: 1.25rem;
+  }
+
+  /* Modal Content Styles */
+  .df-result-modal-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+  }
+
+  .df-result-modal-audio {
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .df-result-modal-audio audio {
+    width: 100%;
+    height: 36px;
+  }
+
+  .df-result-modal-image {
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+
+  .df-result-modal-image img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .df-result-modal-question {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .df-result-modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .df-result-modal-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #1e293b;
+  }
+
+  .df-result-modal-option--correct {
+    background: #dcfce7;
+    border-color: #86efac;
+  }
+
+  .df-result-modal-option--wrong {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  .df-result-modal-option-radio {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .df-result-modal-option--selected .df-result-modal-option-radio {
+    border-color: #3b82f6;
+    background: #3b82f6;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+
+  .df-result-modal-answer {
+    padding: 0.75rem 1rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #1e40af;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .df-result-modal-explanation-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.75rem 0;
+    background: transparent;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #3b82f6;
+    cursor: pointer;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .df-result-modal-explanation-content {
+    padding: 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #475569;
+    line-height: 1.6;
+    white-space: pre-line;
+    display: none;
+  }
+
+  .df-result-modal-explanation-content.show {
+    display: block;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<!-- Hidden form for CSRF token -->
+<form id="csrf-form" style="display: none;">{% csrf_token %}</form>
+
+<div class="df-result-container">
+  <!-- Alert Banner -->
+  <div class="df-result-alert">
+    <svg class="df-result-alert-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <p class="df-result-alert-text">
+      <strong>Chú ý:</strong> Bạn có thể tạo flashcards từ highlights (bao gồm các highlights các bạn đã tạo trước đây)
+      trong trang chi tiết kết quả bài thi. <a href="#" class="df-result-alert-link">Xem hướng dẫn.</a>
+    </p>
+  </div>
+
   <!-- Header -->
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-slate-900">Kết quả thi: {{ template_obj.title }}</h1>
-    <div class="flex gap-3">
-      <button type="button" id="btn-view-answers" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700">
+  <div class="df-result-header">
+    <h1 class="df-result-title">Kết quả thi: {{ template_obj.title }}</h1>
+    <div class="df-result-actions">
+      <button type="button" id="btn-view-answers" class="df-result-btn df-result-btn--primary">
         Xem đáp án
       </button>
-      <a href="{% url 'exam:exam_detail' template_obj.slug %}" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50">
+      <a href="{% url 'exam:exam_detail' template_obj.slug %}" class="df-result-btn df-result-btn--secondary">
         Quay về trang đề thi
       </a>
     </div>
   </div>
 
-  <!-- Performance Summary -->
-  <div class="df-exam-result-summary">
-    <!-- Left Card: Main Stats -->
-    <div class="df-exam-result-left bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-      <h3 class="text-sm font-semibold text-slate-700 mb-4">Kết quả làm bài</h3>
-      <div class="space-y-3">
-        <div>
-          <p class="text-xs text-slate-500 mb-1">Kết quả làm bài</p>
-          <p class="text-2xl font-bold text-slate-900">{{ session.correct_count }}/{{ session.total_questions }}</p>
+  <!-- Summary -->
+  <div class="df-result-summary">
+    <!-- Left Card -->
+    <div class="df-result-left-card">
+      <div class="df-result-stat-row">
+        <svg class="df-result-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="df-result-stat-content">
+          <div class="df-result-stat-label">Kết quả làm bài</div>
+          <div class="df-result-stat-value">{{ session.correct_count }}/{{ session.total_questions }}</div>
         </div>
-        <div>
-          <p class="text-xs text-slate-500 mb-1">Độ chính xác (#đúng/#tổng)</p>
-          <p class="text-2xl font-bold text-slate-900">{{ session.score_percent }}%</p>
-        </div>
-        {% if time_taken %}
-        <div>
-          <p class="text-xs text-slate-500 mb-1">Thời gian hoàn thành</p>
-          <p class="text-xl font-bold text-slate-900">{{ time_taken }}</p>
-        </div>
-        {% endif %}
       </div>
+      <div class="df-result-stat-row">
+        <svg class="df-result-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <div class="df-result-stat-content">
+          <div class="df-result-stat-label">Độ chính xác (#đúng/#tổng)</div>
+          <div class="df-result-stat-value">{{ session.score_percent }}%</div>
+        </div>
+      </div>
+      {% if time_taken %}
+      <div class="df-result-stat-row">
+        <svg class="df-result-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="df-result-stat-content">
+          <div class="df-result-stat-label">Thời gian hoàn thành</div>
+          <div class="df-result-stat-value">{{ time_taken }}</div>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Right Cards: 4 Stats -->
-    <div class="df-exam-result-right grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Right Cards Grid -->
+    <div class="df-result-right-grid">
       <!-- Correct -->
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
+      <div class="df-result-stat-card">
+        <div class="df-result-stat-card-icon df-result-stat-card-icon--correct">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-        <p class="text-xs text-slate-500 mb-1">Trả lời đúng</p>
-        <p class="text-xl font-bold text-emerald-600">{{ session.correct_count }} câu hỏi</p>
+        <div class="df-result-stat-card-label">Trả lời đúng</div>
+        <div class="df-result-stat-card-value df-result-stat-card-value--correct">{{ session.correct_count }}</div>
+        <div class="df-result-stat-card-unit">câu hỏi</div>
       </div>
 
       <!-- Wrong -->
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
+      <div class="df-result-stat-card">
+        <div class="df-result-stat-card-icon df-result-stat-card-icon--wrong">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-        <p class="text-xs text-slate-500 mb-1">Trả lời sai</p>
-        <p class="text-xl font-bold text-rose-600">{{ wrong_count }} câu hỏi</p>
+        <div class="df-result-stat-card-label">Trả lời sai</div>
+        <div class="df-result-stat-card-value df-result-stat-card-value--wrong">{{ wrong_count }}</div>
+        <div class="df-result-stat-card-unit">câu hỏi</div>
       </div>
 
       <!-- Skipped -->
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-            </svg>
-          </div>
+      <div class="df-result-stat-card">
+        <div class="df-result-stat-card-icon df-result-stat-card-icon--skipped">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+          </svg>
         </div>
-        <p class="text-xs text-slate-500 mb-1">Bỏ qua</p>
-        <p class="text-xl font-bold text-blue-600">{{ skipped_count }} câu hỏi</p>
+        <div class="df-result-stat-card-label">Bỏ qua</div>
+        <div class="df-result-stat-card-value df-result-stat-card-value--skipped">{{ skipped_count }}</div>
+        <div class="df-result-stat-card-unit">câu hỏi</div>
       </div>
 
       <!-- Score -->
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
-            </svg>
-          </div>
+      <div class="df-result-stat-card">
+        <div class="df-result-stat-card-icon df-result-stat-card-icon--score">
+          <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+          </svg>
         </div>
-        <p class="text-xs text-slate-500 mb-1">Điểm</p>
-        <p class="text-xl font-bold text-indigo-600">
+        <div class="df-result-stat-card-label">Điểm</div>
+        <div class="df-result-stat-card-value df-result-stat-card-value--score">
           {% if template_obj.level == "TOEIC" and toeic_stats %}
-            {{ toeic_stats.total_score }}
+          {{ toeic_stats.total_score }}
           {% else %}
-            {{ session.score_percent }}
+          {{ session.score_percent }}
           {% endif %}
-        </p>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Sectional Scores (TOEIC only) - Separate row below -->
+  <!-- TOEIC Section Scores -->
   {% if template_obj.level == "TOEIC" and toeic_stats %}
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-      <h3 class="text-base font-semibold text-slate-900 mb-3">Listening</h3>
-      <div class="space-y-2">
-        <p class="text-2xl font-bold text-slate-900">{{ toeic_stats.listening.score }}/495</p>
-        <p class="text-sm text-slate-600">Trả lời đúng: {{ toeic_stats.listening.correct }}/{{ toeic_stats.listening.total }}</p>
-      </div>
+  <div class="df-result-section-scores">
+    <div class="df-result-section-card">
+      <div class="df-result-section-title">Listening</div>
+      <div class="df-result-section-score">{{ toeic_stats.listening.score }}/495</div>
+      <div class="df-result-section-detail">Trả lời đúng: {{ toeic_stats.listening.correct }}/{{
+        toeic_stats.listening.total }}</div>
     </div>
-    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-      <h3 class="text-base font-semibold text-slate-900 mb-3">Reading</h3>
-      <div class="space-y-2">
-        <p class="text-2xl font-bold text-slate-900">{{ toeic_stats.reading.score }}/495</p>
-        <p class="text-sm text-slate-600">Trả lời đúng: {{ toeic_stats.reading.correct }}/{{ toeic_stats.reading.total }}</p>
-      </div>
+    <div class="df-result-section-card">
+      <div class="df-result-section-title">Reading</div>
+      <div class="df-result-section-score">{{ toeic_stats.reading.score }}/495</div>
+      <div class="df-result-section-detail">Trả lời đúng: {{ toeic_stats.reading.correct }}/{{ toeic_stats.reading.total
+        }}</div>
     </div>
   </div>
   {% endif %}
 
   <!-- Detailed Analysis -->
-  <div class="bg-white border border-slate-200 rounded-xl shadow-sm">
-    <div class="px-6 py-4 border-b border-slate-200">
-      <h2 class="text-lg font-semibold text-slate-900">Phân tích chi tiết</h2>
-    </div>
+  <div class="df-result-analysis">
+    <div class="df-result-analysis-header">Phân tích chi tiết</div>
+
     <!-- Tabs -->
-    <div class="border-b border-slate-200">
-      <div class="flex overflow-x-auto">
-        {% if template_obj.level == "TOEIC" %}
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap" data-part="L1">Part 1</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L2">Part 2</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L3">Part 3</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="L4">Part 4</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R5">Part 5</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R6">Part 6</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="R7">Part 7</button>
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap" data-part="overall">Tổng quát</button>
-        {% else %}
-          <button type="button" class="tab-part px-4 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap" data-part="overall">Tổng quát</button>
-        {% endif %}
-      </div>
+    <div class="df-result-tabs">
+      {% if template_obj.level == "TOEIC" %}
+      <button type="button" class="df-result-tab df-result-tab--active" data-part="L1">Part 1</button>
+      <button type="button" class="df-result-tab" data-part="L2">Part 2</button>
+      <button type="button" class="df-result-tab" data-part="L3">Part 3</button>
+      <button type="button" class="df-result-tab" data-part="L4">Part 4</button>
+      <button type="button" class="df-result-tab" data-part="R5">Part 5</button>
+      <button type="button" class="df-result-tab" data-part="R6">Part 6</button>
+      <button type="button" class="df-result-tab" data-part="R7">Part 7</button>
+      <button type="button" class="df-result-tab" data-part="overall">Tổng quát</button>
+      {% else %}
+      <button type="button" class="df-result-tab df-result-tab--active" data-part="overall">Tổng quát</button>
+      {% endif %}
     </div>
 
-    <!-- Tab Content -->
-    <div class="p-6">
-      <div id="tab-content-overall" class="tab-content-panel">
-        <!-- Table sẽ được render bằng JavaScript -->
-        <div class="text-center py-8 text-slate-500">Đang tải dữ liệu...</div>
-      </div>
+    <!-- Table Content -->
+    <div id="analysis-table-content" style="padding: 1rem;">
+      <div style="text-align: center; padding: 2rem; color: #64748b;">Đang tải dữ liệu...</div>
     </div>
   </div>
 
-  <!-- Answer Actions -->
-  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-    <h3 class="text-base font-semibold text-slate-900 mb-4">Đáp án</h3>
-    <div class="flex flex-wrap gap-3 mb-4">
-      <button type="button" id="btn-view-detail" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700">
+  <!-- Answer Section -->
+  <div class="df-result-answers">
+    <div class="df-result-answers-header">
+      <span class="df-result-answers-title">Đáp án</span>
+      <button type="button" id="btn-view-detail" class="df-result-btn df-result-btn--secondary">
         Xem chi tiết đáp án
       </button>
-      <button type="button" id="btn-redo-wrong" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50">
+      <button type="button" id="btn-redo-wrong" class="df-result-btn df-result-btn--secondary">
         Làm lại các câu sai
       </button>
+      <span class="df-result-warning">Chú ý: Khi làm lại các câu sai, điểm trung bình của bạn sẽ KHÔNG BỊ ẢNH
+        HƯỞNG.</span>
     </div>
-    <p class="text-xs text-rose-600 mb-3">
-      <strong>Chú ý:</strong> Khi làm lại các câu sai, điểm trung bình của bạn sẽ KHÔNG BỊ ẢNH HƯỞNG.
-    </p>
-    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-      <div class="flex items-start gap-2">
-        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
-        <div>
-          <p class="text-sm font-semibold text-emerald-900 mb-1">Tips:</p>
-          <p class="text-sm text-emerald-800">
-            Khi xem chi tiết đáp án, bạn có thể tạo và lưu highlight từ vựng, keywords và tạo note để học và tra cứu khi có nhu cầu ôn lại đề thi này trong tương lai.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Detailed Question List -->
-  <div id="question-list-section" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hidden">
-    <h3 class="text-base font-semibold text-slate-900 mb-4">Danh sách câu hỏi</h3>
-    <div id="question-list-content" class="space-y-4">
-      <!-- Sẽ được render bằng JavaScript -->
+    <div class="df-result-tips">
+      <svg class="df-result-tips-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+      <p class="df-result-tips-text">
+        <strong>Tips:</strong> Khi xem chi tiết đáp án, bạn có thể tạo và lưu highlight từ vựng, keywords và tạo note để
+        học và tra cứu khi có nhu cầu ôn lại đề thi này trong tương lai.
+      </p>
+    </div>
+
+    <!-- Question List (shown by default) -->
+    <div id="question-list" class="df-result-qlist">
+      <!-- Will be rendered by JavaScript -->
     </div>
   </div>
 </div>
 
-<!-- Modal: Chi tiết câu hỏi -->
-<div id="question-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+<!-- Question Detail Modal -->
+<div id="question-modal" class="df-result-modal">
+  <div class="df-result-modal-content">
+    <div class="df-result-modal-header">
       <div>
-        <h2 class="text-xl font-bold text-slate-900" id="modal-question-title">Đáp án chi tiết #<span id="modal-question-number"></span></h2>
-        <p class="text-sm text-slate-600 mt-1">{{ template_obj.title }}</p>
+        <div class="df-result-modal-title">Đáp án chi tiết #<span id="modal-qnum"></span></div>
+        <div class="df-result-modal-subtitle">{{ template_obj.title }}</div>
       </div>
-      <button type="button" id="modal-close" class="text-slate-400 hover:text-slate-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      <button type="button" id="modal-close-btn" class="df-result-modal-close">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
-    <div class="p-6">
-      <div id="modal-question-content">
-        <!-- Sẽ được render bằng JavaScript -->
-      </div>
+    <div class="df-result-modal-body" id="modal-body">
+      <!-- Will be rendered by JavaScript -->
     </div>
   </div>
 </div>
 
 <script>
-(function() {
-  const answersData = {{ answers_json|safe }};
-  const toeicStats = {{ toeic_stats_json|safe }};
-  const templateLevel = "{{ template_obj.level }}";
-  const sessionId = {{ session.id }};
-  
-  let currentTab = templateLevel === "TOEIC" ? "L1" : "overall";
+  (function () {
+    const answersData = {{ answers_json| safe }};
+    const toeicStats = {{ toeic_stats_json| safe }};
+    const templateLevel = "{{ template_obj.level }}";
+    const sessionId = {{ session.id }};
+
+    let currentTab = templateLevel === "TOEIC" ? "L1" : "overall";
   let showAnswers = false;
 
+  // Sub-type labels
+  const subTypeLabels = {
+    "people": "Tranh tả người",
+    "objects": "Tranh tả vật",
+    "conversation": "Hội thoại",
+    "short_talk": "Bài nói ngắn",
+    "text_completion": "Điền từ vào đoạn văn",
+    "reading_comprehension": "Đọc hiểu",
+    "general": "Chung"
+  };
+
+  // Convert number (1,2,3,4) to letter (A,B,C,D)
+  function numberToLetter(num) {
+    const mapping = { '1': 'A', '2': 'B', '3': 'C', '4': 'D' };
+    return mapping[String(num)] || num;
+  }
+
   // Tab switching
-  document.querySelectorAll('.tab-part').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const part = this.dataset.part;
-      currentTab = part;
-      
-      // Update tab styles
-      document.querySelectorAll('.tab-part').forEach(b => {
-        b.classList.remove('border-blue-600', 'text-blue-600');
-        b.classList.add('border-transparent', 'text-slate-600');
+  document.querySelectorAll('.df-result-tab').forEach(btn => {
+    btn.addEventListener('click', function () {
+      currentTab = this.dataset.part;
+
+      document.querySelectorAll('.df-result-tab').forEach(b => {
+        b.classList.remove('df-result-tab--active');
       });
-      this.classList.remove('border-transparent', 'text-slate-600');
-      this.classList.add('border-blue-600', 'text-blue-600');
-      
-      // Render table
+      this.classList.add('df-result-tab--active');
+
       renderAnalysisTable();
     });
   });
 
   // Render analysis table
   function renderAnalysisTable() {
-    const container = document.getElementById('tab-content-overall');
+    const container = document.getElementById('analysis-table-content');
     if (!container) return;
 
     if (templateLevel === "TOEIC" && toeicStats && toeicStats.stats_by_part) {
       const part = currentTab === "overall" ? null : currentTab;
-      
-      // Filter và group theo part và sub-type
+
       const partGroups = {};
-      let totalStats = { correct: 0, wrong: 0, skipped: 0, total: 0 };
-      
+
       Object.keys(toeicStats.stats_by_part).forEach(key => {
         const stats = toeicStats.stats_by_part[key];
         if (part && stats.part !== part) return;
-        if (!part && currentTab === "overall") {
-          // Overall: group tất cả
-          totalStats.correct += stats.correct || 0;
-          totalStats.wrong += stats.wrong || 0;
-          totalStats.skipped += stats.skipped || 0;
-          totalStats.total += stats.total || 0;
-        }
-        
+
         const groupKey = stats.part || "other";
         if (!partGroups[groupKey]) {
           partGroups[groupKey] = [];
         }
         partGroups[groupKey].push(stats);
       });
-      
-      // Sub-type labels
-      const subTypeLabels = {
-        "people": "Tranh tả người",
-        "objects": "Tranh tả vật",
-        "conversation": "Hội thoại",
-        "short_talk": "Bài nói ngắn",
-        "text_completion": "Điền từ vào đoạn văn",
-        "reading_comprehension": "Đọc hiểu",
-        "general": "Chung",
-      };
-      
+
       let html = `
-        <table class="w-full text-sm">
+        <table class="df-result-table">
           <thead>
-            <tr class="border-b border-slate-200 bg-slate-50">
-              <th class="text-left py-3 px-4 font-semibold text-slate-700">Phân loại câu hỏi</th>
-              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu đúng</th>
-              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu sai</th>
-              <th class="text-center py-3 px-4 font-semibold text-slate-700">Số câu bỏ qua</th>
-              <th class="text-center py-3 px-4 font-semibold text-slate-700">Độ chính xác</th>
-              <th class="text-left py-3 px-4 font-semibold text-slate-700">Danh sách câu hỏi</th>
+            <tr>
+              <th style="width: 25%;">Phân loại câu hỏi</th>
+              <th class="text-center" style="width: 12%;">Số câu đúng</th>
+              <th class="text-center" style="width: 12%;">Số câu sai</th>
+              <th class="text-center" style="width: 12%;">Số câu bỏ qua</th>
+              <th class="text-center" style="width: 12%;">Độ chính xác</th>
+              <th style="width: 27%;">Danh sách câu hỏi</th>
             </tr>
           </thead>
           <tbody>
       `;
-      
-      // Render rows for each sub-type
+
       Object.keys(partGroups).sort().forEach(partKey => {
         partGroups[partKey].forEach(stats => {
           const partNum = stats.part ? stats.part.replace('L', '').replace('R', '') : '';
           const subTypeLabel = subTypeLabels[stats.sub_type] || stats.sub_type;
           const classification = stats.part ? `[Part ${partNum}] ${subTypeLabel}` : subTypeLabel;
           const accuracy = stats.total > 0 ? ((stats.correct / stats.total) * 100).toFixed(2) : '0.00';
-          
+
           html += `
-            <tr class="border-b border-slate-100">
-              <td class="py-3 px-4 font-medium">${classification}</td>
-              <td class="py-3 px-4 text-center">${stats.correct || 0}</td>
-              <td class="py-3 px-4 text-center">${stats.wrong || 0}</td>
-              <td class="py-3 px-4 text-center">${stats.skipped || 0}</td>
-              <td class="py-3 px-4 text-center">${accuracy}%</td>
-              <td class="py-3 px-4">
-                <div class="flex flex-wrap gap-1">
-                  ${(stats.questions || []).map(q => 
-                    `<button type="button" class="question-btn w-8 h-8 rounded-full border border-slate-300 text-xs font-medium hover:bg-slate-100 ${q.is_correct ? 'bg-emerald-100 border-emerald-300 text-emerald-700' : q.selected ? 'bg-rose-100 border-rose-300 text-rose-700' : 'bg-slate-50 text-slate-600'}" data-question-id="${q.id}" onclick="showQuestionDetail(${q.id})">${q.order}</button>`
-                  ).join('')}
+            <tr>
+              <td>${classification}</td>
+              <td class="text-center">${stats.correct || 0}</td>
+              <td class="text-center">${stats.wrong || 0}</td>
+              <td class="text-center">${stats.skipped || 0}</td>
+              <td class="text-center">${accuracy}%</td>
+              <td>
+                <div class="df-result-qnum-grid">
+                  ${(stats.questions || []).map(q => {
+            let statusClass = 'df-result-qnum--skipped';
+            if (q.is_correct) statusClass = 'df-result-qnum--correct';
+            else if (q.selected) statusClass = 'df-result-qnum--wrong';
+            return `<button type="button" class="df-result-qnum ${statusClass}" data-qid="${q.id}">${q.order}</button>`;
+          }).join('')}
                 </div>
               </td>
             </tr>
           `;
         });
       });
-      
-      // Total row (if not overall tab)
+
+      // Total row
       if (part && Object.keys(partGroups).length > 0) {
         const partTotal = Object.values(partGroups).flat().reduce((acc, stats) => {
           acc.correct += stats.correct || 0;
@@ -340,62 +1078,52 @@
           acc.total += stats.total || 0;
           return acc;
         }, { correct: 0, wrong: 0, skipped: 0, total: 0 });
-        
+
         const totalAccuracy = partTotal.total > 0 ? ((partTotal.correct / partTotal.total) * 100).toFixed(2) : '0.00';
         html += `
-          <tr class="border-b-2 border-slate-300 bg-slate-50 font-semibold">
-            <td class="py-3 px-4">Total</td>
-            <td class="py-3 px-4 text-center">${partTotal.correct}</td>
-            <td class="py-3 px-4 text-center">${partTotal.wrong}</td>
-            <td class="py-3 px-4 text-center">${partTotal.skipped}</td>
-            <td class="py-3 px-4 text-center">${totalAccuracy}%</td>
-            <td class="py-3 px-4"></td>
+          <tr class="total-row">
+            <td>Total</td>
+            <td class="text-center">${partTotal.correct}</td>
+            <td class="text-center">${partTotal.wrong}</td>
+            <td class="text-center">${partTotal.skipped}</td>
+            <td class="text-center">${totalAccuracy}%</td>
+            <td></td>
           </tr>
         `;
       }
-      
-      html += `
-          </tbody>
-        </table>
-      `;
-      
+
+      html += '</tbody></table>';
       container.innerHTML = html;
+
+      // Attach click handlers
+      container.querySelectorAll('.df-result-qnum').forEach(btn => {
+        btn.addEventListener('click', () => showQuestionDetail(parseInt(btn.dataset.qid)));
+      });
     } else {
-      container.innerHTML = '<p class="text-slate-500 text-center py-8">Chưa có dữ liệu phân tích.</p>';
+      container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chưa có dữ liệu phân tích.</p>';
     }
   }
 
-  // View answers button
-  document.getElementById('btn-view-detail')?.addEventListener('click', function() {
+  // View answers buttons
+  document.getElementById('btn-view-answers')?.addEventListener('click', toggleAnswers);
+  document.getElementById('btn-view-detail')?.addEventListener('click', toggleAnswers);
+
+  function toggleAnswers() {
     showAnswers = !showAnswers;
-    const section = document.getElementById('question-list-section');
+    const section = document.getElementById('question-list');
     if (section) {
-      section.classList.toggle('hidden', !showAnswers);
-      if (showAnswers) {
-        renderQuestionList();
-      }
+      section.style.display = showAnswers ? 'block' : 'none';
+      if (showAnswers) renderQuestionList();
     }
-  });
-  
-  // View answers button (old one for compatibility)
-  document.getElementById('btn-view-answers')?.addEventListener('click', function() {
-    showAnswers = !showAnswers;
-    const section = document.getElementById('question-list-section');
-    if (section) {
-      section.classList.toggle('hidden', !showAnswers);
-      if (showAnswers) {
-        renderQuestionList();
-      }
-    }
-    this.textContent = showAnswers ? 'Ẩn đáp án' : 'Xem đáp án';
-  });
+    const btn = document.getElementById('btn-view-answers');
+    if (btn) btn.textContent = showAnswers ? 'Ẩn đáp án' : 'Xem đáp án';
+  }
 
   // Render question list
   function renderQuestionList() {
-    const container = document.getElementById('question-list-content');
+    const container = document.getElementById('question-list');
     if (!container) return;
 
-    // Group by part
     const byPart = {};
     answersData.forEach(ans => {
       const part = ans.question?.toeic_part || 'Other';
@@ -405,268 +1133,236 @@
 
     let html = '';
     Object.keys(byPart).sort().forEach(part => {
-      html += `<div class="mb-6"><h4 class="font-semibold text-slate-900 mb-3">Part ${part}</h4>`;
+      const partNum = part.replace('L', '').replace('R', '');
+      html += `<div class="df-result-qlist-part">`;
+      html += `<div class="df-result-qlist-part-title">Part ${partNum}</div>`;
+      html += `<div class="df-result-qlist-grid">`;
+
       byPart[part].forEach(ans => {
+        const q = ans.question;
         const selected = ans.raw_answer?.selected_key || '';
-        const selectedText = selected ? `${selected}: ` : '';
+        const correct = q?.correct_answer || '';
+        const isCorrect = ans.is_correct;
+        const isSkipped = !selected;
+
+        let statusIcon = '';
+        let statusClass = '';
+        if (isSkipped) {
+          statusIcon = '—';
+          statusClass = 'df-result-qlist-status--skipped';
+        } else if (isCorrect) {
+          statusIcon = '✓';
+          statusClass = 'df-result-qlist-status--correct';
+        } else {
+          statusIcon = '✗';
+          statusClass = 'df-result-qlist-status--wrong';
+        }
+
+        const displayAnswer = isSkipped ? 'chưa trả lời' : numberToLetter(selected);
+
         html += `
-          <div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-b-0">
-            <span class="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-xs font-medium text-slate-700">${ans.question?.order || ''}</span>
-            <span class="text-sm text-slate-600">${selectedText}chưa trả lời</span>
-            <button type="button" class="ml-auto text-blue-600 hover:underline text-sm question-detail-btn" data-question-id="${ans.question?.id}">
-              [Chi tiết]
-            </button>
+          <div class="df-result-qlist-item">
+            <span class="df-result-qlist-num">${q?.order || ''}</span>
+            <span class="df-result-qlist-answer">
+              ${numberToLetter(correct)}: ${displayAnswer}
+              <span class="df-result-qlist-status ${statusClass}">${statusIcon}</span>
+            </span>
+            <span class="df-result-qlist-detail" data-qid="${q?.id}">[Chi tiết]</span>
           </div>
         `;
       });
-      html += '</div>';
+
+      html += '</div></div>';
     });
+
     container.innerHTML = html;
 
-    // Attach detail button handlers using event delegation
-    container.addEventListener('click', function(e) {
-      if (e.target.classList.contains('question-detail-btn') || e.target.closest('.question-detail-btn')) {
-        const btn = e.target.classList.contains('question-detail-btn') ? e.target : e.target.closest('.question-detail-btn');
-        const questionId = btn.dataset.questionId;
-        if (questionId) {
-          showQuestionDetail(parseInt(questionId));
-        }
-      }
+    // Attach click handlers
+    container.querySelectorAll('.df-result-qlist-detail').forEach(btn => {
+      btn.addEventListener('click', () => showQuestionDetail(parseInt(btn.dataset.qid)));
     });
   }
 
-  // Close modal function
-  function closeModal() {
-    const modal = document.getElementById('question-detail-modal');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      // Restore body scroll when modal is closed
-      document.body.style.overflow = '';
-    }
+  // Modal
+  const modal = document.getElementById('question-modal');
+  const modalBody = document.getElementById('modal-body');
+  const modalQnum = document.getElementById('modal-qnum');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
+
+  function openModal() {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
-  
-  // Close modal on button click
-  document.getElementById('modal-close')?.addEventListener('click', closeModal);
-  
-  // Close modal on ESC key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      const modal = document.getElementById('question-detail-modal');
-      if (modal && !modal.classList.contains('hidden')) {
-        closeModal();
-      }
+
+  function closeModal() {
+    // Stop any playing audio in the modal
+    const audio = modalBody?.querySelector('audio');
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
     }
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  modalCloseBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) closeModal();
   });
 
-  // Attach question button handlers (delegated)
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('question-btn')) {
-      const questionId = e.target.dataset.questionId;
-      if (questionId) {
-        showQuestionDetail(parseInt(questionId));
+  // Show question detail
+  async function showQuestionDetail(questionId) {
+    if (!modal || !modalBody) return;
+
+    modalBody.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">Đang tải...</div>';
+    openModal();
+
+    try {
+      const response = await fetch(`/exam/session/${sessionId}/result/question/${questionId}/`);
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+
+      const q = data.question;
+      const answer = data.answer;
+
+      if (modalQnum) modalQnum.textContent = q.order || q.id;
+
+      let html = '';
+
+      // Tag
+      if (q.toeic_part) {
+        const partNum = q.toeic_part.replace('L', '').replace('R', '');
+        const subTypeLabel = subTypeLabels[q.sub_type] || q.sub_type;
+        html += `<div class="df-result-modal-tag">#[Part ${partNum}] ${subTypeLabel}</div>`;
       }
+
+      // Audio
+      if (q.audio || data.conversation?.audio) {
+        const audioUrl = q.audio || data.conversation?.audio;
+        html += `<div class="df-result-modal-audio"><audio controls><source src="${audioUrl}" type="audio/mpeg"></audio></div>`;
+      }
+
+      // Image
+      if (q.image || data.passage?.image || data.conversation?.image) {
+        const imageUrl = q.image || data.passage?.image || data.conversation?.image;
+        html += `<div class="df-result-modal-image"><img src="${imageUrl}" alt="Question image"></div>`;
+      }
+
+      // Question text
+      if (q.text) {
+        html += `<div class="df-result-modal-question">${q.order || ''} ${escapeHtml(q.text)}</div>`;
+      }
+
+      // Options
+      if (q.mcq_choices?.length > 0) {
+        html += '<div class="df-result-modal-options">';
+        q.mcq_choices.forEach(opt => {
+          const isCorrect = opt.key === q.correct_answer;
+          const isSelected = opt.key === answer.selected_key;
+          let optClass = '';
+          if (isCorrect) optClass = 'df-result-modal-option--correct';
+          else if (isSelected) optClass = 'df-result-modal-option--wrong';
+
+          html += `
+            <div class="df-result-modal-option ${optClass} ${isSelected ? 'df-result-modal-option--selected' : ''}">
+              <span class="df-result-modal-option-radio"></span>
+              <span>${numberToLetter(opt.key)}.</span>
+              <span>${escapeHtml(opt.text)}</span>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      // Correct answer
+      html += `<div class="df-result-modal-answer">Đáp án đúng: ${numberToLetter(q.correct_answer) || 'N/A'}</div>`;
+
+      // Explanation
+      html += `
+        <button type="button" class="df-result-modal-explanation-btn" id="explanation-toggle">
+          <span>Giải thích chi tiết đáp án</span>
+          <span id="explanation-arrow">▼</span>
+        </button>
+        <div class="df-result-modal-explanation-content" id="explanation-content">
+          ${q.explanation_vi ? escapeHtml(q.explanation_vi) : 'Chưa có lời giải cho câu hỏi này.'}
+        </div>
+      `;
+
+      modalBody.innerHTML = html;
+
+      // Toggle explanation
+      document.getElementById('explanation-toggle')?.addEventListener('click', () => {
+        const content = document.getElementById('explanation-content');
+        const arrow = document.getElementById('explanation-arrow');
+        if (content && arrow) {
+          content.classList.toggle('show');
+          arrow.textContent = content.classList.contains('show') ? '▲' : '▼';
+        }
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+      modalBody.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Lỗi khi tải dữ liệu.</div>';
     }
-  });
+  }
+
+  // Make showQuestionDetail global
+  window.showQuestionDetail = showQuestionDetail;
+
+  // Helper
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
   // Initial render
   renderAnalysisTable();
-})();
+  renderQuestionList();
 
-// Global function for question detail
-async function showQuestionDetail(questionId) {
-  const modal = document.getElementById('question-detail-modal');
-  const content = document.getElementById('modal-question-content');
-  const title = document.getElementById('modal-question-number');
-  const sessionId = {{ session.id }};
-  
-  if (!modal || !content) return;
-  
-  // Show loading
-  content.innerHTML = '<div class="text-center py-8 text-slate-500">Đang tải...</div>';
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
-  // Prevent body scroll when modal is open
-  document.body.style.overflow = 'hidden';
-  
-  try {
-    const response = await fetch(`/exam/session/${sessionId}/result/question/${questionId}/`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch question detail');
-    }
-    const data = await response.json();
-    
-    const q = data.question;
-    const answer = data.answer;
-    
-    // Update title
-    if (title) {
-      title.textContent = q.order || q.id;
-    }
-    
-    // Build modal content
-    let html = '';
-    
-    // Tags/Categories
-    if (q.toeic_part) {
-      const partNum = q.toeic_part.replace('L', '').replace('R', '');
-      const subTypeLabels = {
-        "people": "Tranh tả người",
-        "objects": "Tranh tả vật",
-        "conversation": "Câu hỏi về chủ đề, mục đích",
-        "short_talk": "Bài nói ngắn",
-        "text_completion": "Điền từ vào đoạn văn",
-        "reading_comprehension": "Đọc hiểu",
-        "general": "Chung",
-      };
-      
-      html += '<div class="mb-4 flex flex-wrap gap-2">';
-      
-      // Sub-type tag
-      if (q.sub_type) {
-        const subTypeLabel = subTypeLabels[q.sub_type] || q.sub_type;
-        html += `<span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">#[Part ${partNum}] ${subTypeLabel}</span>`;
-      }
-      
-      // Topic tag (if exists)
-      if (data.topic) {
-        html += `<span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">#[Part ${partNum}] Chủ đề: ${escapeHtml(data.topic)}</span>`;
-      }
-      
-      html += '</div>';
-    }
-    
-    // Audio player (if exists)
-    if (q.audio || (data.conversation && data.conversation.audio)) {
-      const audioUrl = q.audio || (data.conversation && data.conversation.audio);
-      html += `
-        <div class="mb-4 flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-          <audio controls class="flex-1">
-            <source src="${audioUrl}" type="audio/mpeg">
-          </audio>
-        </div>
-      `;
-    }
-    
-    // Image (if exists) - show before passage content
-    if (q.image || (data.passage && data.passage.image) || (data.conversation && data.conversation.image)) {
-      const imageUrl = q.image || (data.passage && data.passage.image) || (data.conversation && data.conversation.image);
-      html += `
-        <div class="mb-4">
-          <img src="${imageUrl}" alt="Question image" class="w-full max-w-2xl mx-auto rounded-lg border border-slate-200">
-        </div>
-      `;
-    }
-    
-    // Passage content (if exists)
-    if (data.passage && data.passage.content) {
-      html += `
-        <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-          <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${escapeHtml(data.passage.content)}</p>
-        </div>
-      `;
-    }
-    
-    // Question text (with order number)
-    if (q.text) {
-      html += `
-        <div class="mb-4">
-          <p class="text-base font-semibold text-slate-900 leading-relaxed">${q.order || ''} ${escapeHtml(q.text)}</p>
-        </div>
-      `;
-    }
-    
-    // Conversation transcript (if exists) - show after question
-    if (data.conversation && data.conversation.transcript) {
-      html += `
-        <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-          <p class="text-xs font-semibold text-slate-700 mb-2">Transcript:</p>
-          <p class="text-sm text-slate-700 whitespace-pre-line">${escapeHtml(data.conversation.transcript)}</p>
-        </div>
-      `;
-    }
-    
-    // Options
-    if (q.mcq_choices && q.mcq_choices.length > 0) {
-      html += '<div class="mb-4 space-y-2">';
-      q.mcq_choices.forEach(opt => {
-        const isCorrect = opt.key === q.correct_answer;
-        const isSelected = opt.key === answer.selected_key;
-        let bgClass = 'bg-white border-slate-200';
-        
-        if (isCorrect) {
-          bgClass = 'bg-emerald-50 border-emerald-300';
-        } else if (isSelected) {
-          bgClass = 'bg-rose-50 border-rose-300';
-        }
-        
-        html += `
-          <div class="flex items-start gap-2 p-3 rounded-lg border ${bgClass}">
-            <span class="text-sm font-medium text-slate-900">${opt.key}.</span>
-            <span class="text-sm text-slate-900 flex-1">${escapeHtml(opt.text)}</span>
-          </div>
-        `;
-      });
-      html += '</div>';
-    }
-    
-    // Correct answer
-    html += `<div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg"><p class="text-sm font-semibold text-blue-900">Đáp án đúng: ${q.correct_answer || 'N/A'}</p></div>`;
-    
-    // Explanation
-    if (q.explanation_vi) {
-      html += `
-        <div class="mb-4 border-t border-slate-200 pt-4">
-          <button type="button" id="toggle-explanation" class="w-full text-left text-sm font-semibold text-blue-600 hover:text-blue-700 mb-2 flex items-center justify-between">
-            <span>Giải thích chi tiết đáp án</span>
-            <span id="explanation-icon">▾</span>
-          </button>
-          <div id="explanation-content" class="hidden p-4 bg-slate-50 border border-slate-200 rounded-lg">
-            <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${escapeHtml(q.explanation_vi)}</p>
-          </div>
-        </div>
-      `;
-    } else {
-      html += `
-        <div class="mb-4 border-t border-slate-200 pt-4">
-          <p class="text-sm text-slate-500 italic">Chưa có lời giải cho câu hỏi này.</p>
-        </div>
-      `;
-    }
-    
-    content.innerHTML = html;
-    
-    // Toggle explanation
-    const toggleBtn = document.getElementById('toggle-explanation');
-    const explanationContent = document.getElementById('explanation-content');
-    const explanationIcon = document.getElementById('explanation-icon');
-    if (toggleBtn && explanationContent) {
-      toggleBtn.addEventListener('click', function() {
-        const isHidden = explanationContent.classList.contains('hidden');
-        explanationContent.classList.toggle('hidden');
-        if (explanationIcon) {
-          explanationIcon.textContent = isHidden ? '▴' : '▾';
-        }
-      });
-    }
-    
-    // Close modal on outside click (only on the backdrop)
-    // This is handled by the global event listener below
-    
-  } catch (error) {
-    console.error('Error loading question detail:', error);
-    content.innerHTML = '<div class="text-center py-8 text-rose-600">Lỗi khi tải dữ liệu câu hỏi. Vui lòng thử lại.</div>';
-  }
-}
+  // Redo wrong questions button handler
+  document.getElementById('btn-redo-wrong')?.addEventListener('click', function () {
+    // Get wrong question IDs
+    const wrongQuestionIds = answersData
+      .filter(ans => !ans.is_correct && ans.raw_answer?.selected_key)
+      .map(ans => ans.question?.id)
+      .filter(id => id);
 
-// Helper function to escape HTML
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+    if (wrongQuestionIds.length === 0) {
+      alert('Không có câu sai để làm lại!');
+      return;
+    }
+
+    if (confirm(`Bạn muốn làm lại ${wrongQuestionIds.length} câu sai? (Không tính thời gian)`)) {
+      // Submit form to create new attempt with wrong questions
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/exam/session/${sessionId}/redo-wrong/`;
+
+      // Add CSRF token
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+      form.appendChild(csrfInput);
+
+      // Add question IDs
+      wrongQuestionIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'question_ids';
+        input.value = id;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}) ();
 </script>
-
-
 {% endblock %}

@@ -2,28 +2,21 @@
 Account Menu Dropdown Component (Desktop)
 Usage: {% include "components/navigation/account_menu.html" %}
 {% endcomment %}
-
 <div class="flex items-center gap-3 ml-6">
   <div class="relative">
-    <button
-      id="accountMenuButton"
-      type="button"
-      class="flex items-center justify-center focus:outline-none"
-    >
+    <button id="accountMenuButton" type="button" class="flex items-center justify-center focus:outline-none">
       <span class="sr-only">Mở menu tài khoản</span>
       <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
         {% if user.email %}
-          {{ user.email|slice:":1"|upper }}
+        {{ user.email|slice:":1"|upper }}
         {% else %}
-          DF
+        DF
         {% endif %}
       </div>
     </button>
 
-    <div
-      id="accountMenu"
-      class="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 text-sm hidden z-20"
-    >
+    <div id="accountMenu"
+      class="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 text-sm hidden z-20">
       <div class="px-3 py-2 border-b border-slate-100">
         <p class="text-[11px] text-slate-500 uppercase tracking-wide">
           Tài khoản
@@ -35,25 +28,19 @@ Usage: {% include "components/navigation/account_menu.html" %}
         {% endif %}
       </div>
 
-      <a href="#"
-         class="block px-3 py-2 hover:bg-slate-50">
-        Trang cá nhân (sắp có)
+      <a href="{% url 'core:profile' %}" class="block px-3 py-2 hover:bg-slate-50">
+        Trang cá nhân
       </a>
-      <a href="#"
-         class="block px-3 py-2 hover:bg-slate-50">
-        Cài đặt tài khoản (sắp có)
+      <a href="{% url 'core:settings' %}" class="block px-3 py-2 hover:bg-slate-50">
+        Cài đặt tài khoản
       </a>
 
-      <form method="post"
-            action="{% url 'account_logout' %}"
-            class="border-t border-slate-100 mt-1">
+      <form method="post" action="{% url 'account_logout' %}" class="border-t border-slate-100 mt-1">
         {% csrf_token %}
-        <button type="submit"
-                class="w-full text-left px-3 py-2 hover:bg-slate-50 text-red-600">
+        <button type="submit" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-red-600">
           Đăng xuất
         </button>
       </form>
     </div>
   </div>
 </div>
-

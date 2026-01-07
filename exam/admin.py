@@ -6,8 +6,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
+from django.core.files.base import ContentFile
 import json
 import uuid
+import re
 from pathlib import Path
 from .models import (
     ExamBook,
@@ -148,6 +150,7 @@ class ExamTemplateAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         extra_context['show_import_button'] = True
+        extra_context['import_audio_url'] = reverse('admin:exam_examtemplate_import_audio', args=[object_id])
         return super().change_view(request, object_id, form_url, extra_context)
     
     def get_urls(self):
@@ -162,6 +165,11 @@ class ExamTemplateAdmin(admin.ModelAdmin):
                 '<int:template_id>/import-toeic-json/',
                 self.admin_site.admin_view(self.import_toeic_json_view),
                 name='exam_examtemplate_import_toeic_json',
+            ),
+            path(
+                '<int:template_id>/import-audio/',
+                self.admin_site.admin_view(self.import_audio_view),
+                name='exam_examtemplate_import_audio',
             ),
         ]
         return custom_urls + urls
@@ -241,6 +249,161 @@ class ExamTemplateAdmin(admin.ModelAdmin):
             'has_view_permission': True,
             'auto_create': template_id is None,
         })
+
+    def import_audio_view(self, request, template_id):
+        """Import audio files from folder to questions/conversations"""
+        template = get_object_or_404(ExamTemplate, pk=template_id)
+        
+        if request.method == 'POST':
+            # Chỉ xử lý audio cho Listening (L1-L4)
+            listening_qs = template.questions.filter(toeic_part__in=["L1", "L2", "L3", "L4"])
+
+            audio_files = request.FILES.getlist('audio_files')
+            
+            if not audio_files:
+                messages.error(request, "Vui lòng chọn ít nhất một file audio.")
+                return redirect(request.path)
+            
+            # Parse and map audio files
+            success_count = 0
+            error_messages = []
+            
+            # Sort files by name to ensure correct order
+            audio_files = sorted(audio_files, key=lambda f: f.name)
+            
+            for audio_file in audio_files:
+                filename = audio_file.name
+                
+                # Parse filename: E26-T01-01.mp3 or E26-T01-32-34.mp3
+                # Pattern: any-prefix-(number) or any-prefix-(start)-(end)
+                match = re.match(r'^.+-(\d+)(?:-(\d+))?\.(mp3|wav|m4a)$', filename, re.IGNORECASE)
+                
+                if not match:
+                    error_messages.append(f"Không thể parse filename: {filename}")
+                    continue
+                
+                first_num = int(match.group(1))
+                second_num = match.group(2)
+                
+                if second_num:
+                    # Conversation audio: E26-T01-32-34.mp3 -> questions from order 32 to 34
+                    start_order = first_num
+                    end_order = int(second_num)
+                    
+                    # Find listening questions in range
+                    questions = listening_qs.filter(order__gte=start_order, order__lte=end_order).order_by('order')
+                    
+                    if not questions.exists():
+                        error_messages.append(f"Không tìm thấy questions từ {start_order} đến {end_order} cho file: {filename}")
+                        continue
+                    
+                    # Check if questions have listening_conversation
+                    # Group by conversation
+                    conversations = {}
+                    questions_without_conv = []
+                    
+                    for q in questions:
+                        if q.listening_conversation:
+                            conv_id = q.listening_conversation.id
+                            if conv_id not in conversations:
+                                conversations[conv_id] = q.listening_conversation
+                        else:
+                            questions_without_conv.append(q)
+                    
+                    # Assign audio to conversations (if any)
+                    # If questions have conversation, assign to conversation only
+                    for conv in conversations.values():
+                        conv.audio.save(
+                            f"conv_{conv.toeic_part}_{conv.order}_{filename}",
+                            ContentFile(audio_file.read()),
+                            save=True
+                        )
+                        audio_file.seek(0)
+                        success_count += 1
+                    
+                    # Assign audio to questions without conversation
+                    for q in questions_without_conv:
+                        q.audio.save(
+                            f"q_{q.order}_{filename}",
+                            ContentFile(audio_file.read()),
+                            save=True
+                        )
+                        audio_file.seek(0)
+                        success_count += 1
+                    
+                    if conversations and questions_without_conv:
+                        messages.info(request, f"Đã gán audio {filename} cho {len(conversations)} conversation(s) và {len(questions_without_conv)} question(s) (từ {start_order} đến {end_order})")
+                    elif conversations:
+                        messages.info(request, f"Đã gán audio {filename} cho {len(conversations)} conversation(s) (từ {start_order} đến {end_order})")
+                    else:
+                        messages.info(request, f"Đã gán audio {filename} cho {len(questions_without_conv)} question(s) (từ {start_order} đến {end_order})")
+                else:
+                    # Single question audio: E26-T01-01.mp3 -> question order 1
+                    order = first_num
+                    
+                    try:
+                        question = listening_qs.get(order=order)
+                        
+                        # If question has listening_conversation, assign to conversation instead
+                        if question.listening_conversation:
+                            conv = question.listening_conversation
+                            conv.audio.save(
+                                f"conv_{conv.toeic_part}_{conv.order}_{filename}",
+                                ContentFile(audio_file.read()),
+                                save=True
+                            )
+                            messages.info(request, f"Đã gán audio {filename} cho conversation (question {order} có conversation)")
+                        else:
+                            # Assign to question
+                            question.audio.save(
+                                f"q_{order}_{filename}",
+                                ContentFile(audio_file.read()),
+                                save=True
+                            )
+                        
+                        success_count += 1
+                    except ExamQuestion.DoesNotExist:
+                        error_messages.append(f"Không tìm thấy question order {order} cho file: {filename}")
+                    except ExamQuestion.MultipleObjectsReturned:
+                        # Multiple questions with same order (shouldn't happen, but handle it)
+                        questions = listening_qs.filter(order=order)
+                        for q in questions:
+                            if q.listening_conversation:
+                                q.listening_conversation.audio.save(
+                                    f"conv_{q.listening_conversation.toeic_part}_{q.listening_conversation.order}_{filename}",
+                                    ContentFile(audio_file.read()),
+                                    save=True
+                                )
+                                audio_file.seek(0)
+                            else:
+                                q.audio.save(
+                                    f"q_{order}_{filename}",
+                                    ContentFile(audio_file.read()),
+                                    save=True
+                                )
+                                audio_file.seek(0)
+                        success_count += 1
+            
+            if success_count > 0:
+                messages.success(request, f"Đã import thành công {success_count} audio file(s)!")
+            if error_messages:
+                for msg in error_messages[:10]:  # Limit to 10 errors
+                    messages.warning(request, msg)
+                if len(error_messages) > 10:
+                    messages.warning(request, f"... và {len(error_messages) - 10} lỗi khác.")
+            
+            return redirect(reverse('admin:exam_examtemplate_change', args=[template.id]))
+        
+        # GET request: show form
+        listening_qs = template.questions.filter(toeic_part__in=["L1", "L2", "L3", "L4"]).order_by("order")
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'template': template,
+            'title': f'Import Audio Files for {template.title}',
+            'listening_questions': listening_qs,
+        }
+        return render(request, 'admin/exam/examtemplate/import_audio.html', context)
 
 
 @admin.register(ExamQuestion)

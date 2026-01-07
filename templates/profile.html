@@ -1,0 +1,602 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Profile Page Styles */
+    .df-profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem;
+    }
+
+    /* Banner */
+    .df-profile-banner {
+        height: 160px;
+        border-radius: 0 0 1rem 1rem;
+        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+        position: relative;
+        margin-bottom: 60px;
+    }
+
+    .df-profile-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Cpath d='M0,100 C100,150 200,50 300,100 C350,125 400,100 400,100 L400,200 L0,200 Z' fill='rgba(255,255,255,0.1)'/%3E%3Cpath d='M0,120 C80,100 160,140 240,120 C320,100 400,140 400,120 L400,200 L0,200 Z' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E") center/cover;
+        border-radius: 0 0 1rem 1rem;
+    }
+
+    /* Avatar */
+    .df-profile-avatar-wrapper {
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    .df-profile-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: #fff;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .df-profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .df-profile-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .df-profile-avatar-placeholder svg {
+        width: 60px;
+        height: 60px;
+        color: #94a3b8;
+    }
+
+    .df-profile-edit-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        background: #fff;
+        border-radius: 50%;
+        border: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .df-profile-edit-btn:hover {
+        background: #f8fafc;
+        border-color: #3b82f6;
+    }
+
+    .df-profile-edit-btn svg {
+        width: 14px;
+        height: 14px;
+        color: #475569;
+    }
+
+    /* User Info */
+    .df-profile-info {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .df-profile-username {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .df-profile-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 0.8125rem;
+        border-radius: 9999px;
+    }
+
+    /* Tabs */
+    .df-profile-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0;
+    }
+
+    .df-profile-tab {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #64748b;
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        margin-bottom: -1px;
+    }
+
+    .df-profile-tab:hover {
+        color: #3b82f6;
+    }
+
+    .df-profile-tab--active {
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .df-profile-tab--active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #3b82f6;
+        border-radius: 2px 2px 0 0;
+    }
+
+    /* Tab Content */
+    .df-profile-tab-content {
+        display: none;
+    }
+
+    .df-profile-tab-content--active {
+        display: block;
+    }
+
+    /* Courses Tab */
+    .df-profile-section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1rem;
+    }
+
+    .df-profile-course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .df-profile-course-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        transition: all 0.2s;
+    }
+
+    .df-profile-course-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+
+    .df-profile-course-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .df-profile-course-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .df-profile-course-badge {
+        padding: 0.125rem 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+    }
+
+    .df-profile-course-progress {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .df-profile-course-next {
+        font-size: 0.8125rem;
+        color: #475569;
+    }
+
+    .df-profile-course-next strong {
+        color: #1e293b;
+    }
+
+    /* Results Tab */
+    .df-profile-stats-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: #fff;
+        border: 2px solid #3b82f6;
+        color: #3b82f6;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 2rem;
+    }
+
+    .df-profile-stats-btn:hover {
+        background: #eff6ff;
+    }
+
+    .df-profile-exam-group {
+        margin-bottom: 2rem;
+    }
+
+    .df-profile-exam-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .df-profile-exam-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .df-profile-exam-table th {
+        text-align: left;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .df-profile-exam-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .df-profile-exam-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .df-profile-exam-date {
+        font-weight: 500;
+    }
+
+    .df-profile-exam-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+    }
+
+    .df-profile-exam-tag {
+        padding: 0.125rem 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 0.25rem;
+    }
+
+    .df-profile-exam-tag--full {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .df-profile-exam-tag--practice {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .df-profile-exam-tag--part {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .df-profile-exam-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .df-profile-exam-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Empty State */
+    .df-profile-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #64748b;
+    }
+
+    .df-profile-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        color: #cbd5e1;
+    }
+
+    .df-profile-empty-text {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .df-profile-empty-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #3b82f6;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        margin-top: 1rem;
+        transition: all 0.2s;
+    }
+
+    .df-profile-empty-cta:hover {
+        background: #2563eb;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .df-profile-banner {
+            height: 120px;
+            margin-bottom: 50px;
+        }
+
+        .df-profile-avatar {
+            width: 90px;
+            height: 90px;
+        }
+
+        .df-profile-username {
+            font-size: 1.5rem;
+        }
+
+        .df-profile-tabs {
+            gap: 0.5rem;
+        }
+
+        .df-profile-tab {
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .df-profile-exam-table th:nth-child(3),
+        .df-profile-exam-table td:nth-child(3) {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-profile-container">
+    <!-- Banner -->
+    <div class="df-profile-banner">
+        <div class="df-profile-avatar-wrapper">
+            <div class="df-profile-avatar">
+                {% if profile_user.profile.avatar %}
+                <img src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}">
+                {% else %}
+                <div class="df-profile-avatar-placeholder">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                </div>
+                {% endif %}
+            </div>
+            {% if is_own_profile %}
+            <button type="button" class="df-profile-edit-btn" title="Chỉnh sửa ảnh đại diện">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="df-profile-info">
+        <h1 class="df-profile-username">{{ profile_user.username }}</h1>
+        <span class="df-profile-badge">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Trang công khai
+        </span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="df-profile-tabs">
+        <button type="button" class="df-profile-tab df-profile-tab--active" data-tab="courses">
+            Chương trình luyện thi
+        </button>
+        <button type="button" class="df-profile-tab" data-tab="results">
+            Kết quả luyện thi
+        </button>
+    </div>
+
+    <!-- Tab Content: Courses -->
+    <div id="tab-courses" class="df-profile-tab-content df-profile-tab-content--active">
+        <h2 class="df-profile-section-title">Các khóa học thử</h2>
+
+        {% if enrolled_courses %}
+        <div class="df-profile-course-grid">
+            {% for course in enrolled_courses %}
+            <div class="df-profile-course-card">
+                <div class="df-profile-course-header">
+                    <span class="df-profile-course-title">{{ course.title }}</span>
+                    <span class="df-profile-course-badge">Học thử</span>
+                </div>
+                <div class="df-profile-course-progress">{{ course.progress|default:0 }}%</div>
+                {% if course.next_lesson %}
+                <div class="df-profile-course-next">
+                    <strong>Tiếp tục bài học:</strong> {{ course.next_lesson }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="df-profile-empty">
+            <svg class="df-profile-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <p class="df-profile-empty-text">Chưa tham gia khóa học nào</p>
+            <a href="{% url 'core:course_list' %}" class="df-profile-empty-cta">
+                Khám phá các khóa học
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tab Content: Results -->
+    <div id="tab-results" class="df-profile-tab-content">
+        {% if is_own_profile %}
+        <button type="button" class="df-profile-stats-btn">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Tới trang thống kê kết quả luyện thi
+        </button>
+        {% endif %}
+
+        {% if exam_results_grouped %}
+        {% for exam_title, attempts in exam_results_grouped.items %}
+        <div class="df-profile-exam-group">
+            <h3 class="df-profile-exam-title">{{ exam_title }}</h3>
+            <table class="df-profile-exam-table">
+                <thead>
+                    <tr>
+                        <th>Ngày làm</th>
+                        <th>Kết quả</th>
+                        <th>Thời gian làm bài</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attempt in attempts %}
+                    <tr>
+                        <td>
+                            <div class="df-profile-exam-date">{{ attempt.submitted_at|date:"d/m/Y" }}</div>
+                            <div class="df-profile-exam-tags">
+                                {% if attempt.is_full_test %}
+                                <span class="df-profile-exam-tag df-profile-exam-tag--full">Full test</span>
+                                {% else %}
+                                <span class="df-profile-exam-tag df-profile-exam-tag--practice">Luyện tập</span>
+                                {% for part in attempt.selected_parts %}
+                                <span class="df-profile-exam-tag df-profile-exam-tag--part">Part {{ part }}</span>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {{ attempt.correct_count }}/{{ attempt.total_questions }}
+                            {% if attempt.score %}
+                            (Điểm: {{ attempt.score }})
+                            {% endif %}
+                        </td>
+                        <td>{{ attempt.time_taken }}</td>
+                        <td>
+                            <a href="{% url 'exam:exam_result' session_id=attempt.id %}" class="df-profile-exam-link">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="df-profile-empty">
+            <svg class="df-profile-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <p class="df-profile-empty-text">Chưa có kết quả luyện thi nào</p>
+            <a href="{% url 'exam:toeic_list' %}" class="df-profile-empty-cta">
+                Bắt đầu luyện thi TOEIC
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    (function () {
+        // Tab switching
+        document.querySelectorAll('.df-profile-tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                const tabId = this.dataset.tab;
+
+                // Update tab styles
+                document.querySelectorAll('.df-profile-tab').forEach(t => {
+                    t.classList.remove('df-profile-tab--active');
+                });
+                this.classList.add('df-profile-tab--active');
+
+                // Update content
+                document.querySelectorAll('.df-profile-tab-content').forEach(content => {
+                    content.classList.remove('df-profile-tab-content--active');
+                });
+                document.getElementById('tab-' + tabId)?.classList.add('df-profile-tab-content--active');
+            });
+        });
+    })();
+</script>
+{% endblock %}

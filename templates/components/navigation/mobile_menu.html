@@ -24,11 +24,11 @@ Usage: {% include "components/navigation/mobile_menu.html" %}
       </p>
       {% endif %}
     </div>
-    <a href="#" class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-800 text-sm">
-      Trang cá nhân (sắp có)
+    <a href="{% url 'core:profile' %}" class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-800 text-sm">
+      Trang cá nhân
     </a>
-    <a href="#" class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-800 text-sm">
-      Cài đặt tài khoản (sắp có)
+    <a href="{% url 'core:settings' %}" class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-800 text-sm">
+      Cài đặt tài khoản
     </a>
     <form method="post" action="{% url 'account_logout' %}" class="mt-2">
       {% csrf_token %}

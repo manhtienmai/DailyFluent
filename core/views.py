@@ -486,6 +486,23 @@ def home(request):
     # Tính comment count (fake: 10% của attempt_count, min 100)
     for exam in latest_exams:
         exam.comment_count = max(100, int(exam.attempt_count * 0.1))
+    
+    # Lấy khóa học đã đăng ký và kết quả luyện thi gần nhất
+    enrolled_courses = []
+    recent_exam_results = []
+    
+    if request.user.is_authenticated:
+        # Lấy khóa học đã đăng ký (max 4)
+        from core.models import Enrollment
+        enrolled_courses = Enrollment.objects.filter(
+            user=request.user
+        ).select_related('course').order_by('-enrolled_at')[:4]
+        
+        # Lấy kết quả luyện thi gần nhất (max 5)
+        recent_exam_results = ExamAttempt.objects.filter(
+            user=request.user,
+            status=ExamAttempt.Status.SUBMITTED
+        ).select_related('template').order_by('-submitted_at')[:5]
 
     context = {
         "streak": streak,
@@ -495,6 +512,8 @@ def home(request):
         "reviews_today": reviews_today,
         "latest_exams": latest_exams,
         "todo_items": todo_items,
+        "enrolled_courses": enrolled_courses,
+        "recent_exam_results": recent_exam_results,
     }
     return render(request, "home.html", context)
 
@@ -506,8 +525,22 @@ def course_list(request):
 
 def course_detail(request, course_slug: str):
     from vocab.models import EnglishVocabulary
+    from core.models import Enrollment
+    from django.utils import timezone
     
     course = get_object_or_404(Course, slug=course_slug, is_active=True)
+    
+    # Auto-enroll user when they access the course
+    enrollment = None
+    if request.user.is_authenticated:
+        enrollment, created = Enrollment.objects.get_or_create(
+            user=request.user,
+            course=course
+        )
+        # Update last_accessed timestamp
+        enrollment.last_accessed = timezone.now()
+        enrollment.save(update_fields=['last_accessed'])
+    
     sections = (
         Section.objects.filter(course=course, is_active=True)
         .prefetch_related("lessons")
@@ -845,6 +878,106 @@ def dictation_detail(request, exercise_slug):
         "segments": segments,
         "segments_json": segments_json,
     })
+
+
+def profile(request, username=None):
+    """
+    Trang profile người dùng.
+    - Nếu không có username: hiển thị profile của user hiện tại
+    - Nếu có username: hiển thị profile của user đó (public view)
+    """
+    from django.contrib.auth.models import User
+    from exam.models import ExamAttempt
+    from collections import defaultdict
+    
+    # Xác định user cần hiển thị
+    if username:
+        profile_user = get_object_or_404(User, username=username)
+    elif request.user.is_authenticated:
+        profile_user = request.user
+    else:
+        from django.shortcuts import redirect
+        return redirect('account_login')
+    
+    is_own_profile = request.user.is_authenticated and request.user.id == profile_user.id
+    
+    # Lấy các khóa học đã đăng ký (tạm thời: tất cả khóa học active)
+    enrolled_courses = []
+    if is_own_profile:
+        # TODO: Implement actual enrollment tracking
+        # For now, show all courses with 0% progress
+        courses = Course.objects.filter(is_active=True)[:5]
+        for course in courses:
+            enrolled_courses.append({
+                'title': course.title,
+                'progress': 0,
+                'next_lesson': None,
+            })
+    
+    # Lấy kết quả thi
+    exam_results_grouped = defaultdict(list)
+    
+    attempts = (
+        ExamAttempt.objects
+        .filter(user=profile_user, status=ExamAttempt.Status.SUBMITTED)
+        .select_related('template')
+        .order_by('-submitted_at')[:50]
+    )
+    
+    for attempt in attempts:
+        # Tính thời gian làm bài
+        time_taken = "N/A"
+        if attempt.submitted_at and attempt.started_at:
+            delta = attempt.submitted_at - attempt.started_at
+            total_seconds = int(delta.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            time_taken = f"{hours}:{minutes:02d}:{seconds:02d}"
+        
+        # Xác định loại bài thi
+        attempt_data = attempt.data or {}
+        is_full_test = attempt_data.get('mode') != 'practice'
+        selected_parts = attempt_data.get('selected_parts', [])
+        
+        # Tính điểm (nếu có)
+        score = None
+        if attempt.template.level == 'TOEIC':
+            # Tính điểm TOEIC đơn giản
+            if attempt.total_questions > 0:
+                ratio = attempt.correct_count / attempt.total_questions
+                score = round(10 + ratio * 980)
+        
+        exam_results_grouped[attempt.template.title].append({
+            'id': attempt.id,
+            'submitted_at': attempt.submitted_at,
+            'correct_count': attempt.correct_count,
+            'total_questions': attempt.total_questions,
+            'time_taken': time_taken,
+            'is_full_test': is_full_test,
+            'selected_parts': [p.replace('L', '').replace('R', '') for p in selected_parts],
+            'score': score,
+        })
+    
+    return render(request, "profile.html", {
+        "profile_user": profile_user,
+        "is_own_profile": is_own_profile,
+        "enrolled_courses": enrolled_courses,
+        "exam_results_grouped": dict(exam_results_grouped),
+    })
+
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def settings(request):
+    """
+    Trang cài đặt tài khoản.
+    """
+    return render(request, "settings.html", {
+        "user": request.user,
+    })
+
 
 def health(request):
     return JsonResponse({"ok": True})

@@ -7,358 +7,358 @@
 
 {% block content %}
 <div class="space-y-6">
-  <!-- Header -->
-  <div class="mb-6">
-    <div class="flex flex-wrap gap-2 mb-3">
-      {% if template.level == "TOEIC" %}
-        <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#IELTS Academic</span>
-        {% if template.category == "LISTENING" %}
-          <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Listening</span>
-        {% elif template.category == "READING" %}
-          <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Reading</span>
-        {% endif %}
-      {% else %}
-        <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{ template.get_level_display }}</span>
-        {% if template.category %}
-          <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{ template.get_category_display }}</span>
-        {% endif %}
-      {% endif %}
-    </div>
-    <h1 class="text-3xl font-bold text-slate-900">{{ template.title }}</h1>
-  </div>
-
-  <!-- Thông tin đề thi -->
-  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-    <div class="space-y-3">
-      <div class="flex items-center gap-2 text-sm text-slate-600">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span>
-          Thời gian làm bài:
-          {% if template.level == "TOEIC" %}
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-wrap gap-2 mb-3">
+            {% if template.level == "TOEIC" %}
+            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#IELTS Academic</span>
             {% if template.category == "LISTENING" %}
-              40 phút
+            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Listening</span>
             {% elif template.category == "READING" %}
-              60 phút
-            {% elif template.category == "TOEIC_FULL" %}
-              {{ template.listening_time_limit_minutes|default:45 }} + {{ template.reading_time_limit_minutes|default:75 }} phút
-            {% else %}
-              {{ template.time_limit_minutes|default:60 }} phút
+            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Reading</span>
             {% endif %}
-          {% else %}
-            {{ template.time_limit_minutes|default:60 }} phút
-          {% endif %}
-        </span>
-        <span>|</span>
-        <span>
-          {% if template.level == "TOEIC" %}
-            {% if template.category == "LISTENING" %}
-              4 phần thi
-            {% elif template.category == "READING" %}
-              3 phần thi
-            {% elif template.category == "TOEIC_FULL" %}
-              7 phần thi
             {% else %}
-              {{ template.total_questions }} câu hỏi
+            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{
+                template.get_level_display }}</span>
+            {% if template.category %}
+            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{
+                template.get_category_display }}</span>
             {% endif %}
-          {% else %}
-            {{ template.total_questions }} câu hỏi
-          {% endif %}
-        </span>
-        <span>|</span>
-        <span>{{ template.total_questions }} câu hỏi</span>
-        <span>|</span>
-        <span>{{ comment_count|floatformat:0 }} bình luận</span>
-      </div>
-      
-      <div class="flex items-center gap-2 text-sm text-slate-600">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-        <span>{{ attempt_count|floatformat:0 }} người đã luyện tập đề thi này</span>
-      </div>
-      
-      {% if template.level == "TOEIC" %}
-      <div class="text-sm text-red-600 font-medium">
-        <strong>Chú ý:</strong> để được quy đổi sang scaled score (ví dụ trên thang điểm 990 cho TOEIC hoặc 9.0 cho IELTS), vui lòng chọn chế độ làm FULL TEST.
-      </div>
-      {% endif %}
-    </div>
-  </section>
-
-  <!-- Tabs -->
-  <div class="border-b border-slate-200">
-    <nav class="flex gap-6">
-      <button type="button" 
-              id="tab-practice"
-              class="px-4 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 -mb-px">
-        Luyện tập
-      </button>
-      <button type="button" 
-              id="tab-full-test"
-              class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
-        Làm full test
-      </button>
-      <button type="button" 
-              id="tab-discussion"
-              class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
-        Thảo luận
-      </button>
-    </nav>
-  </div>
-
-  <!-- Tab Content: Practice -->
-  <div id="content-practice" class="tab-content">
-    <!-- Pro Tips -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-      <div class="flex items-start gap-3">
-        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
-        <div>
-          <div class="font-semibold text-blue-900 mb-1">Pro tips:</div>
-          <div class="text-sm text-blue-800">
-            Hình thức luyện tập từng phần và chọn mức thời gian phù hợp sẽ giúp bạn tập trung vào giải đúng các câu hỏi thay vì phải chịu áp lực hoàn thành bài thi.
-          </div>
+            {% endif %}
         </div>
-      </div>
+        <h1 class="text-3xl font-bold text-slate-900">{{ template.title }}</h1>
     </div>
 
-    <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="practice-form">
-      {% csrf_token %}
-      <input type="hidden" name="mode" value="practice">
-      
-      <!-- Chọn phần thi -->
-      {% if template.level == "TOEIC" and parts_list %}
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-6">
-        <h3 class="text-base font-semibold text-slate-900 mb-3">Chọn phần thi bạn muốn làm</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-          {% for part_info in parts_list %}
-          <label class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
-            <input type="checkbox" 
-                   name="selected_parts" 
-                   value="{{ part_info.part }}"
-                   class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 flex-shrink-0">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-slate-900 truncate">
-                {{ part_info.part_display }}
-              </div>
-              <div class="text-xs text-slate-500">
-                {{ part_info.question_count }} câu
-              </div>
-            </div>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- Giới hạn thời gian -->
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
-        <label for="time-limit" class="block text-sm font-semibold text-slate-900 mb-2">
-          Giới hạn thời gian (Để trống để làm bài không giới hạn)
-        </label>
-        <select id="time-limit" 
-                name="time_limit"
-                class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="">-- Chọn thời gian --</option>
-          <option value="0">0 phút</option>
-          <option value="5">5 phút</option>
-          <option value="10">10 phút</option>
-          <option value="15">15 phút</option>
-          <option value="20">20 phút</option>
-          <option value="25">25 phút</option>
-          <option value="30">30 phút</option>
-          <option value="35">35 phút</option>
-          <option value="40">40 phút</option>
-          <option value="45">45 phút</option>
-          <option value="50">50 phút</option>
-          <option value="55">55 phút</option>
-          <option value="60">60 phút</option>
-        </select>
-      </div>
-
-      <!-- Submit Button -->
-      <div class="flex justify-start">
-        <button type="submit" 
-                class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-          LUYỆN TẬP
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Tab Content: Full Test -->
-  <div id="content-full-test" class="tab-content hidden">
-    <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="full-test-form">
-      {% csrf_token %}
-      <input type="hidden" name="mode" value="full_test">
-      
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
-        <p class="text-slate-700 mb-4">
-          Làm toàn bộ đề thi với thời gian và điều kiện như thi thật.
-        </p>
-        
-        <!-- Giới hạn thời gian -->
-        <label for="time-limit-full" class="block text-sm font-semibold text-slate-900 mb-2">
-          Giới hạn thời gian (Để trống để làm bài không giới hạn)
-        </label>
-        <select id="time-limit-full" 
-                name="time_limit"
-                class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="">-- Chọn thời gian --</option>
-          <option value="0">0 phút</option>
-          <option value="5">5 phút</option>
-          <option value="10">10 phút</option>
-          <option value="15">15 phút</option>
-          <option value="20">20 phút</option>
-          <option value="25">25 phút</option>
-          <option value="30">30 phút</option>
-          <option value="35">35 phút</option>
-          <option value="40">40 phút</option>
-          <option value="45">45 phút</option>
-          <option value="50">50 phút</option>
-          <option value="55">55 phút</option>
-          <option value="60">60 phút</option>
-        </select>
-      </div>
-
-      <!-- Submit Button -->
-      <div class="flex justify-start">
-        <button type="submit" 
-                class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-          LÀM FULL TEST
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Tab Content: Discussion -->
-  <div id="content-discussion" class="tab-content hidden">
-    <div class="space-y-6">
-      <!-- Form thêm comment -->
-      {% if user.is_authenticated %}
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Thêm bình luận</h3>
-        <form method="post" action="{% url 'exam:exam_detail' template.slug %}" id="comment-form">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="add_comment">
-          <textarea 
-            name="content" 
-            id="comment-content"
-            rows="4"
-            maxlength="2000"
-            placeholder="Nhập bình luận của bạn (tối đa 2000 ký tự)..."
-            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-            required></textarea>
-          <div class="flex items-center justify-between mt-3">
-            <span class="text-xs text-slate-500">
-              <span id="char-count">0</span> / 2000 ký tự
-            </span>
-            <button type="submit" 
-                    class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-              Gửi bình luận
-            </button>
-          </div>
-        </form>
-      </div>
-      {% else %}
-      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <p class="text-sm text-blue-800">
-          <a href="{% url 'account_login' %}" class="font-semibold hover:underline">Đăng nhập</a> để tham gia thảo luận.
-        </p>
-      </div>
-      {% endif %}
-
-      <!-- Danh sách comments -->
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">
-          Bình luận ({{ comment_count }})
-        </h3>
-        
-        {% if comments %}
-        <div class="space-y-4">
-          {% for comment in comments %}
-          <div class="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <span class="text-blue-600 font-semibold text-sm">
-                  {{ comment.user.username|first|upper }}
+    <!-- Thông tin đề thi -->
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+        <div class="space-y-3">
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>
+                    Thời gian làm bài:
+                    {% if template.level == "TOEIC" %}
+                    {% if template.category == "LISTENING" %}
+                    40 phút
+                    {% elif template.category == "READING" %}
+                    60 phút
+                    {% elif template.category == "TOEIC_FULL" %}
+                    {{ template.listening_time_limit_minutes|default:45 }} + {{
+                    template.reading_time_limit_minutes|default:75 }} phút
+                    {% else %}
+                    {{ template.time_limit_minutes|default:60 }} phút
+                    {% endif %}
+                    {% else %}
+                    {{ template.time_limit_minutes|default:60 }} phút
+                    {% endif %}
                 </span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-semibold text-slate-900">{{ comment.user.username }}</span>
-                  <span class="text-xs text-slate-500">
-                    {{ comment.created_at|timesince }} trước
-                  </span>
-                </div>
-                <div class="text-slate-700 whitespace-pre-wrap break-words">
-                  {{ comment.content }}
-                </div>
-              </div>
+                <span>|</span>
+                <span>
+                    {% if template.level == "TOEIC" %}
+                    {% if template.category == "LISTENING" %}
+                    4 phần thi
+                    {% elif template.category == "READING" %}
+                    3 phần thi
+                    {% elif template.category == "TOEIC_FULL" %}
+                    7 phần thi
+                    {% else %}
+                    {{ template.total_questions }} câu hỏi
+                    {% endif %}
+                    {% else %}
+                    {{ template.total_questions }} câu hỏi
+                    {% endif %}
+                </span>
+                <span>|</span>
+                <span>{{ template.total_questions }} câu hỏi</span>
+                <span>|</span>
+                <span>{{ comment_count|floatformat:0 }} bình luận</span>
             </div>
-          </div>
-          {% endfor %}
+
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>{{ attempt_count|floatformat:0 }} người đã luyện tập đề thi này</span>
+            </div>
+
+            {% if template.level == "TOEIC" %}
+            <div class="text-sm text-red-600 font-medium">
+                <strong>Chú ý:</strong> để được quy đổi sang scaled score (ví dụ trên thang điểm 990 cho TOEIC hoặc 9.0
+                cho IELTS), vui lòng chọn chế độ làm FULL TEST.
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="text-center py-8 text-slate-500">
-          <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
-        </div>
-        {% endif %}
-      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="border-b border-slate-200">
+        <nav class="flex gap-6">
+            <button type="button" id="tab-practice"
+                class="px-4 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 -mb-px">
+                Luyện tập
+            </button>
+            <button type="button" id="tab-full-test"
+                class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
+                Làm full test
+            </button>
+            <button type="button" id="tab-discussion"
+                class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
+                Thảo luận
+            </button>
+        </nav>
     </div>
-  </div>
+
+    <!-- Tab Content: Practice -->
+    <div id="content-practice" class="tab-content">
+        <!-- Pro Tips -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <div>
+                    <div class="font-semibold text-blue-900 mb-1">Pro tips:</div>
+                    <div class="text-sm text-blue-800">
+                        Hình thức luyện tập từng phần và chọn mức thời gian phù hợp sẽ giúp bạn tập trung vào giải đúng
+                        các câu hỏi thay vì phải chịu áp lực hoàn thành bài thi.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="practice-form">
+            {% csrf_token %}
+            <input type="hidden" name="mode" value="practice">
+
+            <!-- Chọn phần thi -->
+            {% if template.level == "TOEIC" and parts_list %}
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-6">
+                <h3 class="text-base font-semibold text-slate-900 mb-3">Chọn phần thi bạn muốn làm</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                    {% for part_info in parts_list %}
+                    <label
+                        class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" name="selected_parts" value="{{ part_info.part }}"
+                            class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-slate-900 truncate">
+                                {{ part_info.part_display }}
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {{ part_info.question_count }} câu
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Giới hạn thời gian -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
+                <label for="time-limit" class="block text-sm font-semibold text-slate-900 mb-2">
+                    Giới hạn thời gian (Để trống để làm bài không giới hạn)
+                </label>
+                <select id="time-limit" name="time_limit"
+                    class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Chọn thời gian --</option>
+                    <option value="0">0 phút</option>
+                    <option value="5">5 phút</option>
+                    <option value="10">10 phút</option>
+                    <option value="15">15 phút</option>
+                    <option value="20">20 phút</option>
+                    <option value="25">25 phút</option>
+                    <option value="30">30 phút</option>
+                    <option value="35">35 phút</option>
+                    <option value="40">40 phút</option>
+                    <option value="45">45 phút</option>
+                    <option value="50">50 phút</option>
+                    <option value="55">55 phút</option>
+                    <option value="60">60 phút</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-start">
+                <button type="submit"
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                    LUYỆN TẬP
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tab Content: Full Test -->
+    <div id="content-full-test" class="tab-content hidden">
+        <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="full-test-form">
+            {% csrf_token %}
+            <input type="hidden" name="mode" value="full_test">
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
+                <p class="text-slate-700 mb-4">
+                    Làm toàn bộ đề thi với thời gian và điều kiện như thi thật.
+                </p>
+
+                <!-- Giới hạn thời gian -->
+                <label for="time-limit-full" class="block text-sm font-semibold text-slate-900 mb-2">
+                    Giới hạn thời gian (Để trống để làm bài không giới hạn)
+                </label>
+                <select id="time-limit-full" name="time_limit"
+                    class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Chọn thời gian --</option>
+                    <option value="0">0 phút</option>
+                    <option value="5">5 phút</option>
+                    <option value="10">10 phút</option>
+                    <option value="15">15 phút</option>
+                    <option value="20">20 phút</option>
+                    <option value="25">25 phút</option>
+                    <option value="30">30 phút</option>
+                    <option value="35">35 phút</option>
+                    <option value="40">40 phút</option>
+                    <option value="45">45 phút</option>
+                    <option value="50">50 phút</option>
+                    <option value="55">55 phút</option>
+                    <option value="60">60 phút</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-start">
+                <button type="submit"
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                    LÀM FULL TEST
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tab Content: Discussion -->
+    <div id="content-discussion" class="tab-content hidden">
+        <div class="space-y-6">
+            <!-- Form thêm comment -->
+            {% if user.is_authenticated %}
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4">Thêm bình luận</h3>
+                <form method="post" action="{% url 'exam:exam_detail' template.slug %}" id="comment-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_comment">
+                    <textarea name="content" id="comment-content" rows="4" maxlength="2000"
+                        placeholder="Nhập bình luận của bạn (tối đa 2000 ký tự)..."
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        required></textarea>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="text-xs text-slate-500">
+                            <span id="char-count">0</span> / 2000 ký tự
+                        </span>
+                        <button type="submit"
+                            class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                            Gửi bình luận
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p class="text-sm text-blue-800">
+                    <a href="{% url 'account_login' %}" class="font-semibold hover:underline">Đăng nhập</a> để tham gia
+                    thảo luận.
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Danh sách comments -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4">
+                    Bình luận ({{ comment_count }})
+                </h3>
+
+                {% if comments %}
+                <div class="space-y-4">
+                    {% for comment in comments %}
+                    <div class="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <span class="text-blue-600 font-semibold text-sm">
+                                    {{ comment.user.username|first|upper }}
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-semibold text-slate-900">{{ comment.user.username }}</span>
+                                    <span class="text-xs text-slate-500">
+                                        {{ comment.created_at|timesince }} trước
+                                    </span>
+                                </div>
+                                <div class="text-slate-700 whitespace-pre-wrap break-words">
+                                    {{ comment.content }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-slate-500">
+                    <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-(function() {
-  const tabs = {
-    'tab-practice': 'content-practice',
-    'tab-full-test': 'content-full-test',
-    'tab-discussion': 'content-discussion'
-  };
+    (function () {
+        const tabs = {
+            'tab-practice': 'content-practice',
+            'tab-full-test': 'content-full-test',
+            'tab-discussion': 'content-discussion'
+        };
 
-  Object.keys(tabs).forEach(tabId => {
-    const tabBtn = document.getElementById(tabId);
-    const contentId = tabs[tabId];
-    const content = document.getElementById(contentId);
-    
-    if (tabBtn && content) {
-      tabBtn.addEventListener('click', () => {
-        // Hide all tabs and contents
-        Object.keys(tabs).forEach(id => {
-          const btn = document.getElementById(id);
-          const cnt = document.getElementById(tabs[id]);
-          if (btn) {
-            btn.classList.remove('text-blue-600', 'border-blue-600');
-            btn.classList.add('text-slate-600', 'border-transparent');
-          }
-          if (cnt) cnt.classList.add('hidden');
+        Object.keys(tabs).forEach(tabId => {
+            const tabBtn = document.getElementById(tabId);
+            const contentId = tabs[tabId];
+            const content = document.getElementById(contentId);
+
+            if (tabBtn && content) {
+                tabBtn.addEventListener('click', () => {
+                    // Hide all tabs and contents
+                    Object.keys(tabs).forEach(id => {
+                        const btn = document.getElementById(id);
+                        const cnt = document.getElementById(tabs[id]);
+                        if (btn) {
+                            btn.classList.remove('text-blue-600', 'border-blue-600');
+                            btn.classList.add('text-slate-600', 'border-transparent');
+                        }
+                        if (cnt) cnt.classList.add('hidden');
+                    });
+
+                    // Show selected tab and content
+                    tabBtn.classList.remove('text-slate-600', 'border-transparent');
+                    tabBtn.classList.add('text-blue-600', 'border-blue-600');
+                    content.classList.remove('hidden');
+                });
+            }
         });
-        
-        // Show selected tab and content
-        tabBtn.classList.remove('text-slate-600', 'border-transparent');
-        tabBtn.classList.add('text-blue-600', 'border-blue-600');
-        content.classList.remove('hidden');
-      });
-    }
-  });
 
-  // Form validation
-  const practiceForm = document.getElementById('practice-form');
-  if (practiceForm) {
-    practiceForm.addEventListener('submit', (e) => {
-      const checkboxes = practiceForm.querySelectorAll('input[name="selected_parts"]:checked');
-      if (checkboxes.length === 0) {
-        e.preventDefault();
-        alert('Vui lòng chọn ít nhất một phần thi để luyện tập.');
-        return false;
-      }
-    });
-  }
-})();
+        // Form validation
+        const practiceForm = document.getElementById('practice-form');
+        if (practiceForm) {
+            practiceForm.addEventListener('submit', (e) => {
+                const checkboxes = practiceForm.querySelectorAll('input[name="selected_parts"]:checked');
+                if (checkboxes.length === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một phần thi để luyện tập.');
+                    return false;
+                }
+            });
+        }
+    })();
 </script>
 {% endblock %}
-

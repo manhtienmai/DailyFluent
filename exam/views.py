@@ -85,13 +85,17 @@ def build_mondai_groups(questions):
 
 @login_required
 def exam_list(request):
+    from django.db.models import Count, Q
+    
     selected_level = request.GET.get("level") or ""
 
-    templates = ExamTemplate.objects.filter(is_active=True)
+    templates = ExamTemplate.objects.filter(is_active=True).annotate(
+        attempt_count=Count('attempts', filter=Q(attempts__status=ExamAttempt.Status.SUBMITTED))
+    )
     if selected_level:
         templates = templates.filter(level=selected_level)
 
-    levels = ["N5", "N4", "N3", "N2", "N1"]
+    levels = ["TOEIC", "N5", "N4", "N3", "N2", "N1"]
 
     return render(
         request,
@@ -524,7 +528,7 @@ def exam_result_question_detail(request, session_id, question_id):
     
     # Get topic from conversation metadata if exists
     topic = None
-    if q.listening_conversation and q.listening_conversation.metadata:
+    if q.listening_conversation and hasattr(q.listening_conversation, 'metadata') and q.listening_conversation.metadata:
         topic = q.listening_conversation.metadata.get("topic")
     
     # Build response data
@@ -567,6 +571,56 @@ def exam_result_question_detail(request, session_id, question_id):
         }
     
     return JsonResponse(data)
+
+
+@login_required
+def redo_wrong_questions(request, session_id):
+    """
+    Tạo một attempt mới chỉ với các câu sai từ attempt trước.
+    Không tính thời gian (unlimited time).
+    """
+    if request.method != "POST":
+        return redirect("exam:exam_result", session_id=session_id)
+    
+    # Lấy attempt gốc
+    original_attempt = get_object_or_404(
+        ExamAttempt,
+        id=session_id,
+        user=request.user,
+        status=ExamAttempt.Status.SUBMITTED,
+    )
+    
+    # Lấy danh sách question IDs từ form
+    question_ids = request.POST.getlist('question_ids')
+    if not question_ids:
+        return redirect("exam:exam_result", session_id=session_id)
+    
+    # Chuyển đổi sang int
+    question_ids = [int(qid) for qid in question_ids if qid.isdigit()]
+    
+    # Lấy các questions
+    questions = original_attempt.template.questions.filter(id__in=question_ids)
+    
+    if not questions.exists():
+        return redirect("exam:exam_result", session_id=session_id)
+    
+    # Tạo attempt mới
+    new_attempt = ExamAttempt.objects.create(
+        user=request.user,
+        template=original_attempt.template,
+        total_questions=questions.count(),
+        data={
+            'mode': 'redo_wrong',
+            'original_attempt_id': original_attempt.id,
+            'question_ids': list(question_ids),
+            'time_limit_minutes': None,  # No time limit
+        }
+    )
+    
+    # Redirect đến trang làm bài
+    if original_attempt.template.level == ExamLevel.TOEIC:
+        return redirect("exam:take_toeic_exam", session_id=new_attempt.id)
+    return redirect("exam:take_exam", session_id=new_attempt.id)
 
 
 def get_question_sub_type(question, part):
@@ -729,8 +783,18 @@ def take_toeic_exam(request, session_id):
     # Lấy questions dựa trên attempt data (nếu là practice mode với selected_parts)
     attempt_data = getattr(attempt, 'data', None) or {}
     selected_parts = attempt_data.get('selected_parts', [])
+    redo_question_ids = attempt_data.get('question_ids', [])  # For redo_wrong mode
     
-    if selected_parts:
+    if redo_question_ids:
+        # Redo wrong mode: chỉ lấy các câu sai cần làm lại
+        questions = (
+            template.questions
+            .filter(id__in=redo_question_ids)
+            .select_related("passage", "listening_conversation", "listening_conversation__template")
+            .prefetch_related("listening_conversation__questions")
+            .order_by("toeic_part", "order", "id")
+        )
+    elif selected_parts:
         # Practice mode: chỉ lấy questions của các part được chọn
         questions = (
             template.questions
@@ -862,7 +926,13 @@ def take_toeic_exam(request, session_id):
     is_reading = any(p["part"] in [TOEICPart.READING_5, TOEICPart.READING_6, TOEICPart.READING_7] 
                     for p in parts_list)
     
-    if template.is_full_toeic:
+    # Check if this is redo_wrong mode
+    is_redo_mode = attempt_data.get('mode') == 'redo_wrong'
+    
+    # Tính thời gian (0 for redo mode = no timer)
+    if is_redo_mode:
+        total_minutes = 0  # No timer for redo mode
+    elif template.is_full_toeic:
         # Full test: có cả listening và reading
         total_minutes = (template.listening_time_limit_minutes or 45) + (template.reading_time_limit_minutes or 75)
     elif is_listening:
@@ -915,5 +985,6 @@ def take_toeic_exam(request, session_id):
             "parts_list_json": mark_safe(json.dumps(parts_list_json)),
             "total_questions": questions.count(),
             "total_minutes": total_minutes,
+            "is_redo_mode": is_redo_mode,
         },
     )

@@ -18,258 +18,330 @@
     </div>
 
     {% if user.is_authenticated %}
-      <div class="hidden sm:block text-right text-xs text-slate-500">
-        <p>Đã đăng nhập</p>
-        <p class="font-medium text-slate-700">Tiếp tục giữ nhịp mỗi ngày nhé!</p>
-      </div>
+    <div class="hidden sm:block text-right text-xs text-slate-500">
+      <p>Đã đăng nhập</p>
+      <p class="font-medium text-slate-700">Tiếp tục giữ nhịp mỗi ngày nhé!</p>
+    </div>
     {% endif %}
   </div>
 
   {% if user.is_authenticated %}
-    <!-- CARD STREAK CHÍNH -->
-    <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-            <span class="text-2xl">🔥</span>
-          </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Chuỗi ngày học liên tục
-            </p>
-
-            {% if streak and streak.current_streak > 0 %}
-              <p class="text-3xl font-bold text-slate-900" id="streak-number" data-streak="{{ streak.current_streak }}">
-                {{ streak.current_streak }}
-              </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Kỷ lục dài nhất:
-                <span class="font-semibold text-slate-800">{{ streak.longest_streak }} ngày</span>
-              </p>
-            {% else %}
-              <p class="text-sm text-slate-700 mt-1">
-                Bạn chưa có streak nào. Bắt đầu ngay hôm nay bằng cách hoàn thành 1 bài học hoặc ôn từ vựng. ✨
-              </p>
-            {% endif %}
-          </div>
+  <!-- CARD STREAK CHÍNH -->
+  <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+          <span class="text-2xl">🔥</span>
         </div>
-
-        <div class="flex flex-col items-start sm:items-end gap-2">
-          <p class="text-xs text-slate-500">
-            Mục tiêu gợi ý: ít nhất <span class="font-semibold">10–15 phút</span> học mỗi ngày.
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            Chuỗi ngày học liên tục
           </p>
-          <div class="flex flex-wrap gap-2">
-            <a href="{% url 'vocab:list' %}"
-               class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">
-              Ôn từ vựng ngay
-            </a>
-            <a href="{% url 'video:list' %}"
-               class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-slate-200 text-xs text-slate-700 hover:bg-slate-50">
-              Xem video luyện nghe
-            </a>
-          </div>
+
+          {% if streak and streak.current_streak > 0 %}
+          <p class="text-3xl font-bold text-slate-900" id="streak-number" data-streak="{{ streak.current_streak }}">
+            {{ streak.current_streak }}
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            Kỷ lục dài nhất:
+            <span class="font-semibold text-slate-800">{{ streak.longest_streak }} ngày</span>
+          </p>
+          {% else %}
+          <p class="text-sm text-slate-700 mt-1">
+            Bạn chưa có streak nào. Bắt đầu ngay hôm nay bằng cách hoàn thành 1 bài học hoặc ôn từ vựng. ✨
+          </p>
+          {% endif %}
         </div>
       </div>
 
-      {% if streak and streak.current_streak > 0 %}
-        <div class="mt-5 grid sm:grid-cols-2 gap-3 text-xs">
-          <div class="bg-slate-50 rounded-2xl p-3">
-            <p class="text-[11px] text-slate-500 mb-1">Trạng thái hiện tại</p>
-            <p class="text-sm font-semibold text-slate-800">
-              Bạn đang giữ chuỗi {{ streak.current_streak }} ngày liên tục. Đừng để bị ngắt nhé!
-            </p>
-            {% if minutes_today is not None %}
-            <p class="text-[11px] text-slate-500 mt-1">
-              Hôm nay bạn đã học <span class="font-semibold text-slate-800">{{ minutes_today }}</span> phút flashcard.
-            </p>
-            {% endif %}
-            {% if cards_today is not None %}
-            <p class="text-[11px] text-slate-500 mt-1">
-              Hôm nay bạn đã ôn <span class="font-semibold text-slate-800">{{ cards_today }}</span> thẻ
-              <span class="text-slate-400">(mới: {{ new_cards_today }}, ôn: {{ reviews_today }})</span>.
-            </p>
-            {% endif %}
-          </div>
-          <div class="bg-slate-50 rounded-2xl p-3">
-            <p class="text-[11px] text-slate-500 mb-1">Gợi ý hôm nay</p>
-            <p class="text-sm text-slate-800">
-              Hoàn thành 1 video hoặc 1 bộ từ vựng là đủ để giữ streak. Không cần học quá nhiều một lúc.
-            </p>
-          </div>
+      <div class="flex flex-col items-start sm:items-end gap-2">
+        <p class="text-xs text-slate-500">
+          Mục tiêu gợi ý: ít nhất <span class="font-semibold">10–15 phút</span> học mỗi ngày.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <a href="{% url 'vocab:list' %}"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">
+            Ôn từ vựng ngay
+          </a>
+          <a href="{% url 'video:list' %}"
+            class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-slate-200 text-xs text-slate-700 hover:bg-slate-50">
+            Xem video luyện nghe
+          </a>
         </div>
-      {% endif %}
-    </section>
-
-    <!-- Daily goal + Heatmap -->
-    <div class="grid md:grid-cols-2 gap-4 mt-4">
-      {% include "streak/_daily_goal.html" %}
-      {% include "streak/_heatmap.html" %}
+      </div>
     </div>
 
-    <!-- Todo List - Mục tiêu hàng ngày -->
-    <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 sm:p-6 mt-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center">
-            <span class="text-xl">📝</span>
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-slate-900">Mục tiêu</h2>
-            <p class="text-xs text-slate-500">Ghi lại những mục tiêu bạn muốn hoàn thành</p>
-          </div>
-        </div>
+    {% if streak and streak.current_streak > 0 %}
+    <div class="mt-5 grid sm:grid-cols-2 gap-3 text-xs">
+      <div class="bg-slate-50 rounded-2xl p-3">
+        <p class="text-[11px] text-slate-500 mb-1">Trạng thái hiện tại</p>
+        <p class="text-sm font-semibold text-slate-800">
+          Bạn đang giữ chuỗi {{ streak.current_streak }} ngày liên tục. Đừng để bị ngắt nhé!
+        </p>
+        {% if minutes_today is not None %}
+        <p class="text-[11px] text-slate-500 mt-1">
+          Hôm nay bạn đã học <span class="font-semibold text-slate-800">{{ minutes_today }}</span> phút flashcard.
+        </p>
+        {% endif %}
+        {% if cards_today is not None %}
+        <p class="text-[11px] text-slate-500 mt-1">
+          Hôm nay bạn đã ôn <span class="font-semibold text-slate-800">{{ cards_today }}</span> thẻ
+          <span class="text-slate-400">(mới: {{ new_cards_today }}, ôn: {{ reviews_today }})</span>.
+        </p>
+        {% endif %}
       </div>
-
-      <!-- Tabs -->
-      <div class="flex gap-2 mb-4 border-b border-slate-200">
-        <button
-          type="button"
-          class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'day' or not request.GET.period %}border-blue-600 text-blue-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
-          data-period="day"
-        >
-          Ngày
-        </button>
-        <button
-          type="button"
-          class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'week' %}border-purple-600 text-purple-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
-          data-period="week"
-        >
-          Tuần
-        </button>
-        <button
-          type="button"
-          class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'month' %}border-orange-600 text-orange-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
-          data-period="month"
-        >
-          Tháng
-        </button>
-        <button
-          type="button"
-          class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'year' %}border-green-600 text-green-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
-          data-period="year"
-        >
-          Năm
-        </button>
+      <div class="bg-slate-50 rounded-2xl p-3">
+        <p class="text-[11px] text-slate-500 mb-1">Gợi ý hôm nay</p>
+        <p class="text-sm text-slate-800">
+          Hoàn thành 1 video hoặc 1 bộ từ vựng là đủ để giữ streak. Không cần học quá nhiều một lúc.
+        </p>
       </div>
+    </div>
+    {% endif %}
+  </section>
 
-      <!-- Add todo form -->
-      <form id="todo-form" class="mb-4">
-        <div class="flex gap-2">
-          <input
-            type="text"
-            id="todo-input"
-            placeholder="Thêm mục tiêu mới..."
-            class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-            maxlength="200"
-            required
-          />
-          <select
-            id="todo-period-type"
-            class="px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
-          >
-            <option value="day">Ngày</option>
-            <option value="week">Tuần</option>
-            <option value="month">Tháng</option>
-            <option value="year">Năm</option>
-          </select>
-          <button
-            type="submit"
-            class="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold text-sm transition-colors"
-          >
-            Thêm
-          </button>
-        </div>
-      </form>
+  <!-- Daily goal + Heatmap -->
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    {% include "streak/_daily_goal.html" %}
+    {% include "streak/_heatmap.html" %}
+  </div>
 
-      <!-- Todo list -->
-      <div id="todo-list" class="space-y-2">
-        {% for todo in todo_items %}
-        <div class="df-todo-item flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" data-todo-id="{{ todo.id }}">
-          <button
-            type="button"
-            class="df-todo-checkbox flex-shrink-0 w-6 h-6 rounded-lg border-2 {% if todo.completed %}bg-blue-600 border-blue-600{% else %}border-slate-300{% endif %} flex items-center justify-center transition-all hover:scale-110"
-            data-todo-id="{{ todo.id }}"
-            title="{% if todo.completed %}Đánh dấu chưa hoàn thành{% else %}Đánh dấu đã hoàn thành{% endif %}"
-          >
-            {% if todo.completed %}
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-            </svg>
-            {% endif %}
-          </button>
-          <div class="df-todo-title-wrapper flex-1 flex items-center gap-2">
-            <span class="df-todo-title-display px-3 py-1.5 text-sm {% if todo.completed %}line-through text-slate-400{% else %}text-slate-900{% endif %} cursor-pointer hover:bg-slate-100 rounded-lg transition-colors" data-todo-id="{{ todo.id }}">
-              {{ todo.title }}
-            </span>
-            <span class="text-xs px-2 py-0.5 rounded {% if todo.period_type == 'day' %}bg-blue-100 text-blue-700{% elif todo.period_type == 'week' %}bg-purple-100 text-purple-700{% elif todo.period_type == 'month' %}bg-orange-100 text-orange-700{% else %}bg-green-100 text-green-700{% endif %}">
-              {% if todo.period_type == 'day' %}Ngày{% elif todo.period_type == 'week' %}Tuần{% elif todo.period_type == 'month' %}Tháng{% else %}Năm{% endif %}
-            </span>
+  <!-- My Courses + Recent Exam Results - 2 columns -->
+  <div class="grid md:grid-cols-2 gap-4 mt-4">
+    <!-- Khóa học của tôi -->
+    <section class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          📚 Khóa học của tôi
+        </h2>
+        <a href="{% url 'core:course_list' %}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+          Xem tất cả →
+        </a>
+      </div>
+      {% if enrolled_courses %}
+      <div class="space-y-2">
+        {% for enrollment in enrolled_courses %}
+        <a href="{% url 'core:course_detail' enrollment.course.slug %}"
+          class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <div
+            class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+            {{ enrollment.course.title|slice:":2"|upper }}
           </div>
-          <button
-            type="button"
-            class="df-todo-edit flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 flex items-center justify-center transition-colors"
-            data-todo-id="{{ todo.id }}"
-            title="Chỉnh sửa"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="df-todo-delete flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
-            data-todo-id="{{ todo.id }}"
-            title="Xóa"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-          </button>
-        </div>
-        {% empty %}
-        <div class="text-center py-8 text-slate-400">
-          <p class="text-sm">Chưa có mục tiêu nào. Hãy thêm mục tiêu đầu tiên của bạn!</p>
-        </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-slate-900 truncate">{{ enrollment.course.title }}</p>
+            <p class="text-xs text-slate-500">
+              {% if enrollment.progress %}{{ enrollment.progress }}% hoàn thành{% else %}Chưa bắt đầu{% endif %}
+            </p>
+          </div>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
         {% endfor %}
       </div>
-      
-      {% if todo_items|length >= 5 %}
-      <div class="mt-4 text-center">
-        <a href="{% url 'todos:todo_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-          Xem tất cả mục tiêu →
+      {% else %}
+      <div class="text-center py-6">
+        <p class="text-sm text-slate-500 mb-2">Bạn chưa đăng ký khóa học nào</p>
+        <a href="{% url 'core:course_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+          Khám phá khóa học →
         </a>
       </div>
       {% endif %}
     </section>
-    
-    <script>
-    (function() {
+
+    <!-- Kết quả luyện thi gần nhất -->
+    <section class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          📊 Kết quả luyện thi
+        </h2>
+        <a href="{% url 'core:profile' %}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+          Xem tất cả →
+        </a>
+      </div>
+      {% if recent_exam_results %}
+      <div class="space-y-2">
+        {% for result in recent_exam_results %}
+        <a href="{% url 'exam:exam_result' result.id %}"
+          class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0
+              {% if result.score >= 80 %}bg-green-100 text-green-700
+              {% elif result.score >= 60 %}bg-yellow-100 text-yellow-700
+              {% else %}bg-red-100 text-red-700{% endif %}">
+            {{ result.score|floatformat:0 }}%
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-slate-900 truncate">{{ result.template.title }}</p>
+            <p class="text-xs text-slate-500">
+              {{ result.submitted_at|date:"d/m/Y" }} • {{ result.correct_count }}/{{ result.total_questions }} câu đúng
+            </p>
+          </div>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-6">
+        <p class="text-sm text-slate-500 mb-2">Bạn chưa làm bài thi nào</p>
+        <a href="{% url 'exam:exam_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+          Làm bài thi ngay →
+        </a>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <!-- Todo List - Mục tiêu hàng ngày -->
+  <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 sm:p-6 mt-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center">
+          <span class="text-xl">📝</span>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Mục tiêu</h2>
+          <p class="text-xs text-slate-500">Ghi lại những mục tiêu bạn muốn hoàn thành</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-4 border-b border-slate-200">
+      <button type="button"
+        class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'day' or not request.GET.period %}border-blue-600 text-blue-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
+        data-period="day">
+        Ngày
+      </button>
+      <button type="button"
+        class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'week' %}border-purple-600 text-purple-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
+        data-period="week">
+        Tuần
+      </button>
+      <button type="button"
+        class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'month' %}border-orange-600 text-orange-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
+        data-period="month">
+        Tháng
+      </button>
+      <button type="button"
+        class="df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 {% if request.GET.period == 'year' %}border-green-600 text-green-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}"
+        data-period="year">
+        Năm
+      </button>
+    </div>
+
+    <!-- Add todo form -->
+    <form id="todo-form" class="mb-4">
+      <div class="flex gap-2">
+        <input type="text" id="todo-input" placeholder="Thêm mục tiêu mới..."
+          class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          maxlength="200" required />
+        <select id="todo-period-type"
+          class="px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+          <option value="day">Ngày</option>
+          <option value="week">Tuần</option>
+          <option value="month">Tháng</option>
+          <option value="year">Năm</option>
+        </select>
+        <button type="submit"
+          class="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold text-sm transition-colors">
+          Thêm
+        </button>
+      </div>
+    </form>
+
+    <!-- Todo list -->
+    <div id="todo-list" class="space-y-2">
+      {% for todo in todo_items %}
+      <div
+        class="df-todo-item flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
+        data-todo-id="{{ todo.id }}">
+        <button type="button"
+          class="df-todo-checkbox flex-shrink-0 w-6 h-6 rounded-lg border-2 {% if todo.completed %}bg-blue-600 border-blue-600{% else %}border-slate-300{% endif %} flex items-center justify-center transition-all hover:scale-110"
+          data-todo-id="{{ todo.id }}"
+          title="{% if todo.completed %}Đánh dấu chưa hoàn thành{% else %}Đánh dấu đã hoàn thành{% endif %}">
+          {% if todo.completed %}
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+          {% endif %}
+        </button>
+        <div class="df-todo-title-wrapper flex-1 flex items-center gap-2">
+          <span
+            class="df-todo-title-display px-3 py-1.5 text-sm {% if todo.completed %}line-through text-slate-400{% else %}text-slate-900{% endif %} cursor-pointer hover:bg-slate-100 rounded-lg transition-colors"
+            data-todo-id="{{ todo.id }}">
+            {{ todo.title }}
+          </span>
+          <span
+            class="text-xs px-2 py-0.5 rounded {% if todo.period_type == 'day' %}bg-blue-100 text-blue-700{% elif todo.period_type == 'week' %}bg-purple-100 text-purple-700{% elif todo.period_type == 'month' %}bg-orange-100 text-orange-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {% if todo.period_type == 'day' %}Ngày{% elif todo.period_type == 'week' %}Tuần{% elif todo.period_type ==
+            'month' %}Tháng{% else %}Năm{% endif %}
+          </span>
+        </div>
+        <button type="button"
+          class="df-todo-edit flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 flex items-center justify-center transition-colors"
+          data-todo-id="{{ todo.id }}" title="Chỉnh sửa">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+            </path>
+          </svg>
+        </button>
+        <button type="button"
+          class="df-todo-delete flex-shrink-0 w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors"
+          data-todo-id="{{ todo.id }}" title="Xóa">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+            </path>
+          </svg>
+        </button>
+      </div>
+      {% empty %}
+      <div class="text-center py-8 text-slate-400">
+        <p class="text-sm">Chưa có mục tiêu nào. Hãy thêm mục tiêu đầu tiên của bạn!</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if todo_items|length >= 5 %}
+    <div class="mt-4 text-center">
+      <a href="{% url 'todos:todo_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        Xem tất cả mục tiêu →
+      </a>
+    </div>
+    {% endif %}
+  </section>
+
+  <script>
+    (function () {
       const todoForm = document.getElementById('todo-form');
       const todoInput = document.getElementById('todo-input');
       const todoPeriodType = document.getElementById('todo-period-type');
       const todoList = document.getElementById('todo-list');
       const currentPeriod = '{{ request.GET.period|default:"day" }}';
-      
+
       // Set default period type in form based on current tab
       if (todoPeriodType) {
         todoPeriodType.value = currentPeriod;
       }
-      
+
       // Function to load todos by period
       async function loadTodosByPeriod(period) {
         try {
           const response = await fetch(`{% url "todos:todo_list_api" %}?period=${period}`);
           const data = await response.json();
-          
+
           if (data.success) {
             // Clear current list
             todoList.innerHTML = '';
-            
+
             // Update period type in form
             if (todoPeriodType) {
               todoPeriodType.value = period;
             }
-            
+
             // Update active tab
             document.querySelectorAll('.df-todo-tab').forEach(tab => {
               const tabPeriod = tab.dataset.period;
@@ -286,12 +358,12 @@
                 tab.className = 'df-todo-tab px-4 py-2 text-sm font-medium transition-colors border-b-2 border-transparent text-slate-500 hover:text-slate-700';
               }
             });
-            
+
             // Update URL without reload
             const url = new URL(window.location);
             url.searchParams.set('period', period);
-            window.history.pushState({period: period}, '', url.toString());
-            
+            window.history.pushState({ period: period }, '', url.toString());
+
             // Render todos
             if (data.todos.length === 0) {
               todoList.innerHTML = '<div class="text-center py-8 text-slate-400"><p class="text-sm">Chưa có mục tiêu nào. Hãy thêm mục tiêu đầu tiên của bạn!</p></div>';
@@ -300,12 +372,12 @@
                 const todoHTML = createTodoItemHTML(todo);
                 todoList.insertAdjacentHTML('beforeend', todoHTML);
               });
-              
+
               // Attach event listeners to all todos
               todoList.querySelectorAll('.df-todo-item').forEach(item => {
                 attachTodoListeners(item);
               });
-              
+
               // Sort todos: incomplete first, then completed
               sortTodos();
             }
@@ -314,15 +386,15 @@
           console.error('Error loading todos:', error);
         }
       }
-      
+
       // Tab switching
       document.querySelectorAll('.df-todo-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
           const period = this.dataset.period;
           loadTodosByPeriod(period);
         });
       });
-      
+
       // Helper function to get period badge HTML
       function getPeriodBadge(periodType) {
         const badges = {
@@ -333,14 +405,14 @@
         };
         return badges[periodType] || badges['day'];
       }
-      
+
       // Helper function to create todo item HTML
       function createTodoItemHTML(todo) {
         const completed = todo.completed || false;
         const completedClass = completed ? 'line-through text-slate-400' : 'text-slate-900';
         const checkboxClass = completed ? 'bg-blue-600 border-blue-600' : 'border-slate-300';
         const checkmark = completed ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : '';
-        
+
         return `
           <div class="df-todo-item flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" data-todo-id="${todo.id}">
             <button
@@ -380,18 +452,18 @@
           </div>
         `;
       }
-      
+
       // Create todo
-      todoForm.addEventListener('submit', async function(e) {
+      todoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const title = todoInput.value.trim();
         if (!title) return;
-        
+
         const submitBtn = todoForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Đang thêm...';
-        
+
         try {
           const response = await fetch('{% url "todos:todo_create" %}', {
             method: 'POST',
@@ -399,12 +471,12 @@
               'Content-Type': 'application/json',
               'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               title: title,
               period_type: todoPeriodType.value || currentPeriod
             })
           });
-          
+
           const data = await response.json();
           if (data.success) {
             todoInput.value = '';
@@ -413,14 +485,14 @@
               // Remove empty message if exists
               const emptyMsg = todoList.querySelector('.text-center');
               if (emptyMsg) emptyMsg.remove();
-              
+
               // Add new todo at the top
               const newTodoHTML = createTodoItemHTML(data.todo);
               todoList.insertAdjacentHTML('afterbegin', newTodoHTML);
-              
+
               // Attach event listeners to new todo
               attachTodoListeners(todoList.querySelector(`[data-todo-id="${data.todo.id}"]`));
-              
+
               // Sort todos: incomplete first, then completed
               sortTodos();
             } else {
@@ -438,7 +510,7 @@
           submitBtn.textContent = originalText;
         }
       });
-      
+
       // Sort todos: incomplete first, then completed
       function sortTodos() {
         const items = Array.from(todoList.querySelectorAll('.df-todo-item'));
@@ -450,20 +522,20 @@
         });
         items.forEach(item => todoList.appendChild(item));
       }
-      
+
       // Attach event listeners to a todo item
       function attachTodoListeners(todoItem) {
         if (!todoItem) return;
-        
+
         const todoId = todoItem.dataset.todoId;
         const checkbox = todoItem.querySelector('.df-todo-checkbox');
         const titleDisplay = todoItem.querySelector('.df-todo-title-display');
         const editBtn = todoItem.querySelector('.df-todo-edit');
         const deleteBtn = todoItem.querySelector('.df-todo-delete');
-        
+
         // Toggle completed
         if (checkbox) {
-          checkbox.addEventListener('click', async function() {
+          checkbox.addEventListener('click', async function () {
             try {
               const response = await fetch(`/todos/${todoId}/toggle/`, {
                 method: 'POST',
@@ -471,7 +543,7 @@
                   'X-CSRFToken': '{{ csrf_token }}'
                 }
               });
-              
+
               const data = await response.json();
               if (data.success) {
                 const completed = data.completed;
@@ -496,29 +568,29 @@
             }
           });
         }
-        
+
         // Edit title
         if (editBtn) {
-          editBtn.addEventListener('click', function() {
+          editBtn.addEventListener('click', function () {
             const currentTitle = titleDisplay.textContent.trim();
             const input = document.createElement('input');
             input.type = 'text';
             input.value = currentTitle;
             input.className = 'flex-1 px-3 py-1.5 text-sm border border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none';
             input.maxLength = 200;
-            
+
             const wrapper = titleDisplay.parentElement;
             wrapper.replaceChild(input, titleDisplay);
             input.focus();
             input.select();
-            
+
             const saveEdit = async () => {
               const newTitle = input.value.trim();
               if (!newTitle) {
                 wrapper.replaceChild(titleDisplay, input);
                 return;
               }
-              
+
               try {
                 const response = await fetch(`/todos/${todoId}/update/`, {
                   method: 'POST',
@@ -528,7 +600,7 @@
                   },
                   body: JSON.stringify({ title: newTitle })
                 });
-                
+
                 const data = await response.json();
                 if (data.success) {
                   titleDisplay.textContent = newTitle;
@@ -543,9 +615,9 @@
                 wrapper.replaceChild(titleDisplay, input);
               }
             };
-            
+
             input.addEventListener('blur', saveEdit);
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 saveEdit();
@@ -555,12 +627,12 @@
             });
           });
         }
-        
+
         // Delete todo
         if (deleteBtn) {
-          deleteBtn.addEventListener('click', async function() {
+          deleteBtn.addEventListener('click', async function () {
             if (!confirm('Bạn có chắc muốn xóa mục tiêu này?')) return;
-            
+
             try {
               const response = await fetch(`/todos/${todoId}/delete/`, {
                 method: 'POST',
@@ -568,7 +640,7 @@
                   'X-CSRFToken': '{{ csrf_token }}'
                 }
               });
-              
+
               const data = await response.json();
               if (data.success) {
                 todoItem.remove();
@@ -585,113 +657,118 @@
           });
         }
       }
-      
+
       // Attach listeners to existing todos
       document.querySelectorAll('.df-todo-item').forEach(item => {
         attachTodoListeners(item);
       });
     })();
-    </script>
+  </script>
 
   {% endif %}
 
   <!-- Đề thi mới nhất (hiển thị cho cả logged in và not logged in) -->
   {% if latest_exams %}
-  <section class="bg-white border border-slate-100 rounded-3xl shadow-sm p-6 {% if user.is_authenticated %}mt-6{% endif %}">
+  <section
+    class="bg-white border border-slate-100 rounded-3xl shadow-sm p-6 {% if user.is_authenticated %}mt-6{% endif %}">
     <h2 class="text-xl font-bold text-slate-900 mb-6">Đề thi mới nhất</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {% for exam in latest_exams %}
       <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 hover:shadow-md transition-shadow">
         <h3 class="text-sm font-semibold text-slate-900 mb-3 line-clamp-2">{{ exam.title }}</h3>
-        
+
         <div class="space-y-2 text-xs text-slate-600 mb-3">
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>
               {% if exam.level == "TOEIC" %}
-                {% if exam.category == "LISTENING" %}
-                  40 phút
-                {% elif exam.category == "READING" %}
-                  60 phút
-                {% elif exam.category == "TOEIC_FULL" %}
-                  {{ exam.listening_time_limit_minutes|default:45 }} + {{ exam.reading_time_limit_minutes|default:75 }} phút
-                {% else %}
-                  {{ exam.time_limit_minutes|default:60 }} phút
-                {% endif %}
+              {% if exam.category == "LISTENING" %}
+              40 phút
+              {% elif exam.category == "READING" %}
+              60 phút
+              {% elif exam.category == "TOEIC_FULL" %}
+              {{ exam.listening_time_limit_minutes|default:45 }} + {{ exam.reading_time_limit_minutes|default:75 }} phút
               {% else %}
-                {{ exam.time_limit_minutes|default:60 }} phút
+              {{ exam.time_limit_minutes|default:60 }} phút
+              {% endif %}
+              {% else %}
+              {{ exam.time_limit_minutes|default:60 }} phút
               {% endif %}
             </span>
           </div>
-          
+
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             <span>{{ exam.attempt_count|default:0|floatformat:0 }}</span>
           </div>
-          
+
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
             <span>{{ exam.comment_count|default:0|floatformat:0 }}</span>
           </div>
-          
+
           <div class="text-xs text-slate-500 pt-1">
             {% if exam.level == "TOEIC" %}
-              {% if exam.category == "LISTENING" %}
-                4 phần thi | {{ exam.total_questions }} câu hỏi
-              {% elif exam.category == "READING" %}
-                3 phần thi | {{ exam.total_questions }} câu hỏi
-              {% elif exam.category == "TOEIC_FULL" %}
-                7 phần thi | {{ exam.total_questions }} câu hỏi
-              {% else %}
-                {{ exam.total_questions }} câu hỏi
-              {% endif %}
+            {% if exam.category == "LISTENING" %}
+            4 phần thi | {{ exam.total_questions }} câu hỏi
+            {% elif exam.category == "READING" %}
+            3 phần thi | {{ exam.total_questions }} câu hỏi
+            {% elif exam.category == "TOEIC_FULL" %}
+            7 phần thi | {{ exam.total_questions }} câu hỏi
             {% else %}
-              {{ exam.total_questions }} câu hỏi
+            {{ exam.total_questions }} câu hỏi
+            {% endif %}
+            {% else %}
+            {{ exam.total_questions }} câu hỏi
             {% endif %}
           </div>
         </div>
-        
+
         <div class="flex flex-wrap gap-1 mb-3">
           {% if exam.level == "TOEIC" %}
-            <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#IELTS Academic</span>
-            {% if exam.category == "LISTENING" %}
-              <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#Listening</span>
-            {% elif exam.category == "READING" %}
-              <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#Reading</span>
-            {% endif %}
+          <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#IELTS Academic</span>
+          {% if exam.category == "LISTENING" %}
+          <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#Listening</span>
+          {% elif exam.category == "READING" %}
+          <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#Reading</span>
+          {% endif %}
           {% else %}
-            <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#{{ exam.get_level_display }}</span>
-            {% if exam.category %}
-              <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#{{ exam.get_category_display }}</span>
-            {% endif %}
+          <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#{{ exam.get_level_display }}</span>
+          {% if exam.category %}
+          <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded">#{{ exam.get_category_display
+            }}</span>
+          {% endif %}
           {% endif %}
         </div>
-        
-          <a href="{% url 'exam:exam_detail' exam.slug %}"
-           class="block w-full text-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+
+        <a href="{% url 'exam:exam_detail' exam.slug %}"
+          class="block w-full text-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
           Chi tiết
         </a>
       </div>
       {% endfor %}
-      </div>
-    </section>
+    </div>
+  </section>
   {% endif %}
 </div>
 
 <!-- Why Choose Us Section - Only for non-authenticated users -->
 {% if not user.is_authenticated %}
-  {% include "components/landing/why_choose_us.html" %}
+{% include "components/landing/why_choose_us.html" %}
 {% endif %}
 
 <!-- Student Stories Section - Only for non-authenticated users -->
 {% if not user.is_authenticated %}
-  {% include "components/landing/student_stories.html" %}
+{% include "components/landing/student_stories.html" %}
 {% endif %}
 
 {% if user.is_authenticated and streak and streak.current_streak > 0 %}

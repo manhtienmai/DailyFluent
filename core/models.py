@@ -219,3 +219,38 @@ class DictationSegment(models.Model):
         return self.end_time - self.start_time
 
 
+class Enrollment(models.Model):
+    """
+    Theo dõi người dùng đã đăng ký khóa học nào.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    progress = models.PositiveIntegerField(
+        default=0,
+        help_text="Phần trăm hoàn thành khóa học (0-100)"
+    )
+    last_accessed = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Lần truy cập khóa học gần nhất"
+    )
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-enrolled_at"]
+        unique_together = ("user", "course")
+        verbose_name = "Enrollment"
+        verbose_name_plural = "Enrollments"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title}"

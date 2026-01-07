@@ -1,0 +1,276 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | DailyFluent Admin{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:exam_examtemplate_changelist' %}">Exam Templates</a>
+    &rsaquo; <a href="{% url 'admin:exam_examtemplate_change' template.id %}">{{ template.title }}</a>
+    &rsaquo; Import Audio Files
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .df-audio-import-container {
+    background: #e5e7eb;
+    padding: 16px;
+    border-radius: 6px;
+    margin-top: 10px;
+  }
+
+  .df-audio-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    color: #111827;
+  }
+
+  .df-audio-table thead {
+    background: #e5e7f0;
+  }
+
+  .df-audio-table th,
+  .df-audio-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .df-audio-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+
+  .df-badge-ok {
+    color: #14532d;
+    font-weight: 600;
+  }
+
+  .df-badge-missing {
+    color: #9ca3af;
+  }
+
+  .df-audio-filename {
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: monospace;
+    font-size: 11px;
+  }
+</style>
+
+<h1>{{ title }}</h1>
+
+<div class="df-audio-import-container">
+    <h2 style="color:#111827;">Hướng dẫn</h2>
+    <div style="background: #e5e7eb; padding: 12px 14px; border-radius: 5px; margin-bottom: 16px; border: 1px solid #cbd5e1; color:#111827;">
+        <p><strong>Format tên file:</strong></p>
+        <ul>
+            <li><code>E26-T01-01.mp3</code> → Gán cho question có order = 1</li>
+            <li><code>E26-T01-32-34.mp3</code> → Gán cho questions từ order 32 đến 34 (conversation)</li>
+        </ul>
+        <p><strong>Logic xử lý:</strong></p>
+        <ul>
+            <li>Nếu question có <code>listening_conversation</code> → Audio sẽ được gán vào <strong>conversation</strong> (không gán vào question)</li>
+            <li>Nếu question không có conversation → Audio sẽ được gán vào <strong>question</strong></li>
+            <li>Conversation audio (32-34) sẽ được gán cho conversation nếu tất cả questions trong range đều thuộc cùng một conversation</li>
+        </ul>
+        <p><strong>Lưu ý:</strong></p>
+        <ul>
+            <li>Chọn nhiều file audio cùng lúc</li>
+            <li>Files sẽ được sắp xếp theo tên trước khi xử lý</li>
+            <li>Nếu question/conversation không tồn tại, file sẽ bị bỏ qua</li>
+        </ul>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <fieldset class="module aligned" style="background: #e5e7eb; border-radius: 6px; padding: 10px 12px; border: 1px solid #cbd5e1; color:#111827;">
+            <div class="form-row">
+                <div>
+                    <label for="id_audio_files"><strong>Chọn audio files:</strong></label>
+                    <input type="file" name="audio_files" id="id_audio_files" multiple accept="audio/*" required>
+                    <p class="help">Có thể chọn nhiều file cùng lúc (Ctrl+Click hoặc Shift+Click)</p>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="submit-row">
+            <input type="submit" value="Import Audio Files" class="default">
+            <a href="{% url 'admin:exam_examtemplate_change' template.id %}" class="button">Cancel</a>
+        </div>
+    </form>
+
+    <div class="module" style="margin-top: 20px;">
+        <h2 style="color:#111827;">Preview tất cả Listening questions ({{ listening_questions|length }})</h2>
+        <p class="help" style="color:#374151;">Dùng bảng này để kiểm tra nhanh câu nào đã có audio (theo conversation hoặc question).</p>
+        <div style="max-height: 480px; overflow: auto; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; margin-bottom: 16px;">
+            <table class="df-audio-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Order</th>
+                        <th>Part</th>
+                        <th>Conversation</th>
+                        <th>Audio gắn với câu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in listening_questions %}
+                    <tr data-order="{{ question.order }}" data-has-conv="{% if question.listening_conversation %}1{% else %}0{% endif %}" data-conv-order="{% if question.listening_conversation %}{{ question.listening_conversation.order }}{% else %}{% endif %}">
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ question.order }}</strong></td>
+                        <td>{{ question.get_toeic_part_display|default:"-" }}</td>
+                        <td>
+                            {% if question.listening_conversation %}
+                                <span class="df-badge-ok">
+                                    Conv {{ question.listening_conversation.order }}
+                                </span>
+                            {% else %}
+                                <span class="df-badge-missing">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if question.listening_conversation %}
+                                {% if question.listening_conversation.audio %}
+                                    <span class="df-badge-ok">Conversation Audio</span>
+                                    <span class="df-audio-filename">{{ question.listening_conversation.audio.name }}</span>
+                                {% else %}
+                                    <span class="df-badge-missing">Chưa có audio cho conversation</span>
+                                {% endif %}
+                            {% else %}
+                                {% if question.audio %}
+                                    <span class="df-badge-ok">Question Audio</span>
+                                    <span class="df-audio-filename">{{ question.audio.name }}</span>
+                                {% else %}
+                                    <span class="df-badge-missing">Chưa có audio</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;" class="df-badge-missing">Chưa có questions nào</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="color:#111827; margin-top: 12px;">Preview mapping từ filenames (chưa lưu)</h3>
+        <p class="help" style="color:#374151;">Dựa trên tên file đã chọn, hệ thống dự đoán audio sẽ được gán vào range câu/conversation nào.</p>
+        <div style="max-height: 260px; overflow: auto; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff;">
+            <table class="df-audio-table" id="df-audio-mapping-table">
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Range</th>
+                        <th>Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" class="df-badge-missing" style="text-align:center;">Chọn files để xem preview mapping</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('id_audio_files').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files || []);
+    const tableBody = document.querySelector('#df-audio-mapping-table tbody');
+
+    // Build question meta map from DOM
+    const rows = document.querySelectorAll('.df-audio-table tbody tr[data-order]');
+    const questionMap = {};
+    rows.forEach(row => {
+        const order = parseInt(row.getAttribute('data-order'), 10);
+        if (!order) return;
+        questionMap[order] = {
+            hasConv: row.getAttribute('data-has-conv') === '1',
+            convOrder: row.getAttribute('data-conv-order') || null
+        };
+    });
+
+    // Clear previous preview
+    tableBody.innerHTML = '';
+
+    if (!files.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="3" class="df-badge-missing" style="text-align:center;">Chọn files để xem preview mapping</td>';
+        tableBody.appendChild(tr);
+        return;
+    }
+
+    const regex = /^.+-(\d+)(?:-(\d+))?\.(mp3|wav|m4a)$/i;
+
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
+    files.forEach(file => {
+        const name = file.name;
+        const m = name.match(regex);
+        let rangeText = '—';
+        let targetText = 'Không parse được từ tên file';
+
+        if (m) {
+            const first = parseInt(m[1], 10);
+            const second = m[2] ? parseInt(m[2], 10) : null;
+
+            if (second) {
+                const start = first;
+                const end = second;
+                rangeText = `${start}–${end}`;
+
+                // Collect question meta in range
+                const metas = [];
+                for (let i = start; i <= end; i++) {
+                    if (questionMap[i]) metas.push({order: i, ...questionMap[i]});
+                }
+
+                if (!metas.length) {
+                    targetText = 'Không tìm thấy câu hỏi nào trong range này (chỉ hiển thị Listening L1–L4).';
+                } else {
+                    const withConv = metas.filter(mo => mo.hasConv);
+                    const uniqueConvOrders = Array.from(new Set(withConv.map(mo => mo.convOrder).filter(Boolean)));
+                    if (withConv.length === metas.length && uniqueConvOrders.length === 1) {
+                        targetText = `Sẽ gán vào conversation Conv ${uniqueConvOrders[0]} (câu ${start}–${end}).`;
+                    } else {
+                        targetText = `Sẽ gán trực tiếp vào các câu: ${metas.map(mo => mo.order).join(', ')}.`;
+                    }
+                }
+            } else {
+                const order = first;
+                rangeText = `${order}`;
+                const meta = questionMap[order];
+                if (!meta) {
+                    targetText = 'Không tìm thấy câu hỏi này (chỉ hiển thị Listening L1–L4).';
+                } else if (meta.hasConv && meta.convOrder) {
+                    targetText = `Ưu tiên gán vào conversation Conv ${meta.convOrder} (câu ${order}).`;
+                } else {
+                    targetText = `Sẽ gán trực tiếp vào câu số ${order}.`;
+                }
+            }
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="df-audio-filename" title="${name}">${name}</span></td>
+            <td>${rangeText}</td>
+            <td>${targetText}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+});
+</script>
+{% endblock %}
+
+

@@ -1,41 +1,429 @@
 {% extends "base.html" %}
-{% block title %}Đề luyện JLPT | DailyFluent{% endblock %}
-{% block main_classes %}df-page-container-md{% endblock %}
+{% block title %}Đề luyện thi TOEIC & JLPT | DailyFluent{% endblock %}
+{% block main_classes %}df-page-full{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Exam List Page - Modern, Light, Refined */
+  .df-exam-container {
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem 1rem;
+  }
+
+  /* Header */
+  .df-exam-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .df-exam-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+  }
+
+  .df-exam-subtitle {
+    font-size: 1rem;
+    color: #64748b;
+  }
+
+  /* Filter Bar */
+  .df-exam-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .df-exam-filter-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-right: 0.25rem;
+  }
+
+  .df-exam-filter-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .df-exam-filter-btn:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+  }
+
+  .df-exam-filter-btn--active {
+    background: #0f172a;
+    color: #fff;
+    border-color: #0f172a;
+  }
+
+  .df-exam-filter-btn--active:hover {
+    background: #1e293b;
+    border-color: #1e293b;
+  }
+
+  /* Stats Summary */
+  .df-exam-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 1rem;
+  }
+
+  .df-exam-stat {
+    text-align: center;
+  }
+
+  .df-exam-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .df-exam-stat-label {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  /* Exam Grid */
+  .df-exam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* Exam Card */
+  .df-exam-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .df-exam-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .df-exam-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+  }
+
+  .df-exam-card:hover::before {
+    opacity: 1;
+  }
+
+  .df-exam-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .df-exam-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .df-exam-card-level {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 0.25rem;
+  }
+
+  .df-exam-card-users {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .df-exam-card-users svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .df-exam-card-code {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+
+  .df-exam-card-level--toeic {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+    border: 1px solid #fcd34d;
+  }
+
+  .df-exam-card-level--n5 {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .df-exam-card-level--n4 {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .df-exam-card-level--n3 {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .df-exam-card-level--n2 {
+    background: #fce7f3;
+    color: #be185d;
+  }
+
+  .df-exam-card-level--n1 {
+    background: #fae8ff;
+    color: #a21caf;
+  }
+
+  .df-exam-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  .df-exam-card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .df-exam-card-meta-item svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+  }
+
+  .df-exam-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .df-exam-card-attempts {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+  }
+
+  .df-exam-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: #0f172a;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .df-exam-card-btn:hover {
+    background: #1e293b;
+    transform: translateX(2px);
+  }
+
+  .df-exam-card-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+  }
+
+  .df-exam-card-btn:hover svg {
+    transform: translateX(2px);
+  }
+
+  /* Empty State */
+  .df-exam-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    background: #f8fafc;
+    border-radius: 1rem;
+    border: 2px dashed #e2e8f0;
+  }
+
+  .df-exam-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    color: #94a3b8;
+  }
+
+  .df-exam-empty-text {
+    font-size: 1rem;
+    color: #64748b;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .df-exam-container {
+      padding: 1.5rem 1rem;
+    }
+
+    .df-exam-title {
+      font-size: 1.5rem;
+    }
+
+    .df-exam-stats {
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .df-exam-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .df-exam-card-footer {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .df-exam-card-btn {
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">Đề luyện JLPT</h1>
-
-<div class="mb-4">
-  <form method="get" class="flex items-center gap-2 text-sm">
-    <span class="text-slate-600">Level:</span>
-    <select name="level" class="border rounded-lg px-2 py-1" onchange="this.form.submit()">
-        <option value="">Tất cả</option>
-        {% for code in levels %}
-            <option value="{{ code }}" {% if selected_level == code %}selected{% endif %}>
-            {{ code }}
-            </option>
-        {% endfor %}
-    </select>
-  </form>
-</div>
-
-<div class="space-y-4">
-  {% for exam in templates %}
-  <div class="border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
-    <div>
-      <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Mã đề</p>
-      <h2 class="font-semibold text-slate-900">{{ exam.name }}</h2>
-      <p class="text-sm text-slate-600">
-        JLPT {{ exam.level }} ・ {{ exam.questions.count }} câu ・ {{ exam.duration_minutes }} phút
-      </p>
-    </div>
-    <a href="{% url 'exam:start_exam' exam.slug %}"
-       class="inline-flex items-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
-      Bắt đầu
-    </a>
+<div class="df-exam-container">
+  <!-- Header -->
+  <div class="df-exam-header">
+    <h1 class="df-exam-title">📚 Kho đề luyện thi</h1>
+    <p class="df-exam-subtitle">Luyện tập với các đề thi thực tế</p>
   </div>
-  {% empty %}
-  <p class="text-slate-600">Chưa có đề thi nào.</p>
-  {% endfor %}
+
+  <!-- Filter Bar -->
+  <div class="df-exam-filter">
+    <span class="df-exam-filter-label">Cấp độ:</span>
+    <a href="?" class="df-exam-filter-btn {% if not selected_level %}df-exam-filter-btn--active{% endif %}">
+      Tất cả
+    </a>
+    {% for level in levels %}
+    <a href="?level={{ level }}"
+      class="df-exam-filter-btn {% if selected_level == level %}df-exam-filter-btn--active{% endif %}">
+      {{ level }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="df-exam-stats">
+    <div class="df-exam-stat">
+      <div class="df-exam-stat-value">{{ templates|length }}</div>
+      <div class="df-exam-stat-label">Đề thi</div>
+    </div>
+    <div class="df-exam-stat">
+      <div class="df-exam-stat-value">{{ levels|length }}</div>
+      <div class="df-exam-stat-label">Cấp độ</div>
+    </div>
+  </div>
+
+  <!-- Exam Grid -->
+  {% if templates %}
+  <div class="df-exam-grid">
+    {% for exam in templates %}
+    <div class="df-exam-card">
+      <h2 class="df-exam-card-title">{{ exam.title }}</h2>
+
+      <div class="df-exam-card-header">
+        <span class="df-exam-card-level df-exam-card-level--{{ exam.level|lower }}">
+          {{ exam.level }}
+        </span>
+        <span class="df-exam-card-users">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          {{ exam.attempt_count|default:0 }} lượt làm
+        </span>
+      </div>
+
+      <div class="df-exam-card-meta">
+        <span class="df-exam-card-meta-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ exam.questions.count }} câu
+        </span>
+        <span class="df-exam-card-meta-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ exam.duration_minutes }} phút
+        </span>
+      </div>
+
+      <div class="df-exam-card-footer">
+        <span class="df-exam-card-code">
+          Mã đề: {{ exam.slug|upper|truncatechars:10 }}
+        </span>
+        <a href="{% url 'exam:start_exam' exam.slug %}" class="df-exam-card-btn">
+          Bắt đầu
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="df-exam-empty">
+    <svg class="df-exam-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <p class="df-exam-empty-text">Chưa có đề thi nào trong danh mục này</p>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
