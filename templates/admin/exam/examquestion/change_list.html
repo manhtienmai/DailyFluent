@@ -1,6 +1,171 @@
 {% extends "admin/change_list.html" %}
 {% load i18n admin_urls %}
 
+{# Remove the default left sidebar filters #}
+{% block filters %}{% endblock %}
+
+{# Put our filters at the top #}
+{% block search %}
+  <style>
+    .df-admin-topfilters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      margin: 0 0 12px;
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+    }
+    .df-admin-topfilters label { font-weight: 700; color: #e5e7eb; }
+    .df-admin-topfilters select {
+      min-width: 240px;
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+    .df-admin-topfilters select:focus { outline: 2px solid rgba(37, 99, 235, 0.35); outline-offset: 1px; }
+    .df-admin-topfilters .df-small { min-width: 140px; }
+    .df-admin-topfilters .button {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+    .df-admin-topfilters .cancel-link {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+  </style>
+
+  <form method="get" class="df-admin-topfilters" id="df-examquestion-filterbar">
+    <label>Test:</label>
+    <select name="template">
+      <option value="">-- Tất cả --</option>
+      {% for t in template_options %}
+        <option value="{{ t.id }}" {% if selected_template == t.id|stringformat:"s" %}selected{% endif %}>
+          {{ t.title }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label>Part:</label>
+    <select name="toeic_part" class="df-small">
+      <option value="">-- Tất cả --</option>
+      {% for code,label in part_options %}
+        <option value="{{ code }}" {% if selected_part == code %}selected{% endif %}>
+          {{ code }} - {{ label }}
+        </option>
+      {% endfor %}
+    </select>
+
+    {# preserve search query if any #}
+    {% if request.GET.q %}
+      <input type="hidden" name="q" value="{{ request.GET.q }}">
+    {% endif %}
+    {% if request.GET.o %}
+      <input type="hidden" name="o" value="{{ request.GET.o }}">
+    {% endif %}
+    {% if request.GET.p %}
+      <input type="hidden" name="p" value="{{ request.GET.p }}">
+    {% endif %}
+
+    <button type="submit" class="button">Lọc</button>
+    <a class="button cancel-link" href="{% url 'admin:exam_examquestion_changelist' %}">Xóa lọc</a>
+  </form>
+
+  {{ block.super }}
+
+  <script>
+    (function () {
+      function ajaxLoad(url) {
+        return fetch(url, { credentials: 'same-origin' })
+          .then(r => r.text())
+          .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const next = doc.getElementById('changelist');
+            const cur = document.getElementById('changelist');
+            if (next && cur) {
+              cur.innerHTML = next.innerHTML;
+              bind(); // re-bind after replacing DOM
+            } else {
+              // fallback to full navigation
+              window.location.href = url;
+            }
+          })
+          .catch(() => window.location.href = url);
+      }
+
+      function buildUrlFromForm(form) {
+        const url = new URL(window.location.href);
+        // clear old filters
+        url.searchParams.delete('template');
+        url.searchParams.delete('toeic_part');
+        url.searchParams.delete('part'); // legacy param (caused admin to redirect to ?e=1)
+        url.searchParams.delete('p'); // reset pagination when filtering
+
+        const fd = new FormData(form);
+        for (const [k, v] of fd.entries()) {
+          if (v !== null && String(v).trim() !== '') url.searchParams.set(k, String(v));
+        }
+        return url.toString();
+      }
+
+      function bind() {
+        const form = document.getElementById('df-examquestion-filterbar');
+        if (form && !form.dataset.bound) {
+          form.dataset.bound = '1';
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const url = buildUrlFromForm(form);
+            history.pushState({}, '', url);
+            ajaxLoad(url);
+          });
+
+          // auto apply on change
+          form.querySelectorAll('select').forEach(sel => {
+            sel.addEventListener('change', () => {
+              const url = buildUrlFromForm(form);
+              history.pushState({}, '', url);
+              ajaxLoad(url);
+            });
+          });
+        }
+
+        // Intercept pagination/order/search clicks inside changelist
+        const cl = document.getElementById('changelist');
+        if (!cl) return;
+        cl.querySelectorAll('a').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          if (!href.startsWith('?')) return;
+          // ignore object links
+          if (a.classList.contains('changelink')) return;
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            const url = new URL(window.location.href);
+            const nextUrl = new URL(href, url);
+            history.pushState({}, '', nextUrl.toString());
+            ajaxLoad(nextUrl.toString());
+          });
+        });
+      }
+
+      window.addEventListener('popstate', function () {
+        ajaxLoad(window.location.href);
+      });
+
+      bind();
+    })();
+  </script>
+{% endblock %}
+
 {% block object-tools-items %}
   {{ block.super }}
   <li>

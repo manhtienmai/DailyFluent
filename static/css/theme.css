@@ -347,6 +347,33 @@ body.df-admin {
   }
 }
 
+/* =========================
+   Header responsive guardrails
+   - Prevent desktop menu + hamburger showing at the same time
+   - Do not rely on utility ordering (fixes rare Tailwind/override conflicts)
+   Breakpoint matches current templates (sm = 640px)
+   ========================= */
+@media (max-width: 639.98px) {
+  .df-site-header nav {
+    display: none !important;
+  }
+  .df-site-header #mobileMenuButton {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .df-site-header #mobileMenuButton {
+    display: none !important;
+  }
+  .df-site-header #mobileMenu {
+    display: none !important;
+  }
+  .df-site-header nav {
+    display: flex !important;
+  }
+}
+
 /* pill active / default dùng chung cho mọi nơi */
 .df-pill-active {
   background-color: var(--df-primary);

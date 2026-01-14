@@ -1,43 +1,64 @@
 """
 Import JSON data for TOEIC Reading (Part 5, 6, 7) and Listening (Part 1, 2, 3, 4).
 
-JSON Format mới (schema_version 1.0):
+Supports two schema versions:
+
+JSON Format (schema_version 1.0):
 {
   "schema_version": "1.0",
   "test_id": "...",
   "module": "READING" | "LISTENING",
+  "sections": [...],
+  "passages": [{"passage_id": "...", "text": "...", ...}],
+  "questions": [{"stem": "...", "choices": [{key, text}], "answer_key": "A"}]
+}
+
+JSON Format (schema_version 2.1):
+{
+  "schema_version": "2.1",
+  "test_id": "...",
+  "module": "READING" | "LISTENING",
   "sections": [
     {
-      "section_id": "P5" | "P6" | "P7" | "P1" | "P2" | "P3" | "P4",
-      "type": "...",
+      "section_id": "P5" | "P6" | "P7",
+      "type": "incomplete_sentences" | "text_completion" | "reading_comprehension",
       "instruction": "...",
-      "question_numbers": [...] hoặc "passage_ids": [...]
+      "question_numbers": [...] or "passage_ids": [...]
     }
   ],
   "passages": [
     {
       "passage_id": "...",
-      "section_id": "...",
-      "type": "...",
-      "instruction": "...",
-      "question_numbers": [...],
-      "assets": [{"kind": "image", "url": "..."}],
-      "text": "...",
-      "meta": {...}
+      "section_id": "P6",
+      "content_segments": [{"type": "text"|"blank", "text": "...", "id": "131"}],
+      ...
     }
   ],
   "questions": [
     {
-      "question_id": "...",
-      "number": 126,
+      "question_id": "Q101",
+      "number": 101,
       "section_id": "P5",
-      "passage_id": null | "...",
-      "question_type": "...",
-      "stem": "...",
-      "choices": [{"key": "A", "text": "..."}],
-      "answer_key": "A" | "B" | "C" | "D",
-      "explanation": "...",
-      "meta": {...}
+      "stem_segments": [{"type": "text"|"blank", "text": "...", "id": "b101"}],
+      "blanks": [{"id": "b101", "choices": [{key, text}], "answer_key": "C"}]
+    },
+    // P6 questions reference passages, blanks in passage
+    {
+      "question_id": "Q131",
+      "number": 131,
+      "section_id": "P6",
+      "passage_id": "...",
+      "blanks": [{"id": "131", "choices": [{key, text}], "answer_key": "D"}]
+    },
+    // P7 questions have stem_segments for the question text
+    {
+      "question_id": "Q147",
+      "number": 147,
+      "section_id": "P7",
+      "passage_id": "...",
+      "stem_segments": [{"type": "text", "text": "What is NOT offered?"}],
+      "choices": [{key, text}],
+      "answer_key": "D"
     }
   ]
 }
@@ -143,7 +164,63 @@ def convert_choices_keys(choices: list) -> list:
     return converted
 
 
+def parse_segments_to_text(segments: list) -> str:
+    """
+    Convert stem_segments or content_segments array to plain text.
+    Blanks are replaced with _____ in the text.
+    
+    Args:
+        segments: List of segment objects, each with 'type' and optionally 'text' or 'id'
+                  e.g., [{"type": "text", "text": "The car is"}, {"type": "blank", "id": "b101"}, ...]
+    
+    Returns:
+        str: Plain text with _____ for blanks
+    """
+    if not segments:
+        return ""
+    
+    result = []
+    for segment in segments:
+        seg_type = segment.get("type", "text")
+        if seg_type == "blank":
+            result.append("_____")
+        else:
+            result.append(segment.get("text", ""))
+    
+    return "".join(result)
+
+
+def extract_choices_from_blanks(blanks: list) -> tuple[list, str]:
+    """
+    Extract choices array and answer_key from blanks field (schema 2.1).
+    
+    Schema 2.1 stores choices in blanks[0].choices and answer_key in blanks[0].answer_key.
+    
+    Args:
+        blanks: List of blank objects, e.g., [{"id": "b101", "choices": [...], "answer_key": "C"}]
+    
+    Returns:
+        tuple: (choices_list, answer_key)
+            - choices_list: [{"key": "1", "text": "..."}, ...]
+            - answer_key: "1", "2", "3", or "4"
+    """
+    if not blanks:
+        return [], ""
+    
+    # Get first blank (most questions have single blank)
+    first_blank = blanks[0]
+    choices = first_blank.get("choices", [])
+    answer_key = first_blank.get("answer_key", "")
+    
+    # Convert choices keys from A/B/C/D to 1/2/3/4
+    converted_choices = convert_choices_keys(choices)
+    converted_answer = convert_answer_key_to_number(answer_key)
+    
+    return converted_choices, converted_answer
+
+
 def create_or_get_template_from_json(json_data: Dict) -> tuple[ExamTemplate, bool]:
+
     """
     Tự động tạo hoặc lấy ExamTemplate từ JSON data.
     
@@ -196,9 +273,11 @@ def create_or_get_template_from_json(json_data: Dict) -> tuple[ExamTemplate, boo
 
 def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]:
     """
-    Import TOEIC questions từ JSON data (format mới - schema_version 1.0).
+    Import TOEIC questions từ JSON data (supports schema_version 1.0 and 2.1).
     
-    Format mới hỗ trợ:
+    Format hỗ trợ:
+    - Schema 1.0: stem/choices format
+    - Schema 2.1: stem_segments/blanks format
     - Sections (P5, P6, P7 cho Reading; P1-P4 cho Listening)
     - Passages với assets
     - Questions với metadata đầy đủ
@@ -210,7 +289,7 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
     
     Args:
         template: ExamTemplate instance
-        json_data: Dict parsed từ JSON file (format mới)
+        json_data: Dict parsed từ JSON file
         
     Returns:
         Dict với keys:
@@ -229,17 +308,20 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
     category_updated = False
     
     try:
-        # Validate schema version
+        # Validate schema version - support both 1.0 and 2.1
         schema_version = json_data.get("schema_version")
-        if schema_version != "1.0":
+        if schema_version not in ["1.0", "2.1"]:
             return {
                 "success": False,
-                "message": f"Unsupported schema_version: {schema_version}. Only version 1.0 is supported.",
+                "message": f"Unsupported schema_version: {schema_version}. Supported versions: 1.0, 2.1.",
                 "created_passages": 0,
                 "created_conversations": 0,
                 "created_questions": 0,
                 "errors": [f"Unsupported schema_version: {schema_version}"]
             }
+        
+        is_schema_v2 = schema_version == "2.1"
+
         
         # Get module (READING or LISTENING)
         module = json_data.get("module", "").upper()
@@ -255,6 +337,7 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
         
         # Get sections, passages, questions
         sections = json_data.get("sections", [])
+        section_instruction_map = {s.get("section_id"): s.get("instruction", "") for s in sections if s.get("section_id")}
         passages_data = json_data.get("passages", [])
         questions_data = json_data.get("questions", [])
         
@@ -314,12 +397,24 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
                     if not order:
                         order = len(passage_map) + 1
                     
+                    # Handle content_segments (schema 2.1) or text (schema 1.0)
+                    content_segments = passage_data.get("content_segments", [])
+                    if is_schema_v2 and content_segments:
+                        # Schema 2.1: convert segments to plain text, store segments in data
+                        passage_text = parse_segments_to_text(content_segments)
+                        passage_data_field = {"content_segments": content_segments}
+                    else:
+                        # Schema 1.0: use text field directly
+                        passage_text = passage_data.get("text", "")
+                        passage_data_field = {}
+                    
                     # Create ReadingPassage
                     passage = ReadingPassage.objects.create(
                         template=template,
                         order=order,
-                        title=passage_data.get("instruction", ""),
-                        text=passage_data.get("text", ""),
+                        title=passage_data.get("title", passage_data.get("instruction", "")),
+                        text=passage_text,
+                        data=passage_data_field,
                     )
                     
                     # Download image from assets if available
@@ -446,8 +541,22 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
                 if module == "READING" and passage_id:
                     passage = passage_map.get(passage_id)
                     if not passage:
-                        errors.append(f"Question {question_id} references unknown passage_id: {passage_id}")
-                        continue
+                        # For P7, allow questions to create a placeholder passage when not provided
+                        if section_id == "P7":
+                            order = number
+                            placeholder_title = section_instruction_map.get(section_id) or f"Passage {passage_id}"
+                            passage = ReadingPassage.objects.create(
+                                template=template,
+                                order=order,
+                                title=placeholder_title,
+                                text="",
+                                data={},
+                            )
+                            passage_map[passage_id] = passage
+                            created_passages += 1
+                        else:
+                            errors.append(f"Question {question_id} references unknown passage_id: {passage_id}")
+                            continue
                 
                 if module == "LISTENING" and passage_id:
                     listening_conversation = conversation_map.get(passage_id)
@@ -455,13 +564,54 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
                         errors.append(f"Question {question_id} references unknown passage_id: {passage_id}")
                         continue
                 
-                # Convert choices keys from A/B/C/D to 1/2/3/4
-                choices = q_data.get("choices", [])
-                converted_choices = convert_choices_keys(choices)
+                # Handle schema 2.1 (stem_segments + blanks) or schema 1.0 (stem + choices)
+                stem_segments = q_data.get("stem_segments", [])
+                blanks = q_data.get("blanks", [])
                 
-                # Convert answer_key from A/B/C/D to 1/2/3/4
-                answer_key = q_data.get("answer_key", "")
-                correct_answer = convert_answer_key_to_number(answer_key)
+                if is_schema_v2 and blanks:
+                    # Schema 2.1: Extract choices and answer_key from blanks
+                    converted_choices, correct_answer = extract_choices_from_blanks(blanks)
+                    
+                    # Get stem text from stem_segments or empty if not present
+                    if stem_segments:
+                        stem_text = parse_segments_to_text(stem_segments)
+                    else:
+                        stem_text = ""
+                    
+                    # Store original segments in data for UI rendering
+                    question_data = {
+                        "choices": converted_choices,
+                    }
+                    if stem_segments:
+                        question_data["stem_segments"] = stem_segments
+                    if blanks:
+                        question_data["blanks"] = blanks
+                    
+                elif is_schema_v2 and q_data.get("choices"):
+                    # Schema 2.1 P7 questions: have stem_segments but choices/answer_key at top level
+                    choices = q_data.get("choices", [])
+                    converted_choices = convert_choices_keys(choices)
+                    answer_key = q_data.get("answer_key", "")
+                    correct_answer = convert_answer_key_to_number(answer_key)
+                    
+                    if stem_segments:
+                        stem_text = parse_segments_to_text(stem_segments)
+                    else:
+                        stem_text = ""
+                    
+                    question_data = {
+                        "choices": converted_choices,
+                    }
+                    if stem_segments:
+                        question_data["stem_segments"] = stem_segments
+                else:
+                    # Schema 1.0: Use stem and choices directly
+                    choices = q_data.get("choices", [])
+                    converted_choices = convert_choices_keys(choices)
+                    answer_key = q_data.get("answer_key", "")
+                    correct_answer = convert_answer_key_to_number(answer_key)
+                    stem_text = q_data.get("stem", "")
+                    question_data = {"choices": converted_choices}
                 
                 if not correct_answer:
                     errors.append(f"Question {question_id} missing or invalid 'answer_key'")
@@ -472,11 +622,9 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
                     template=template,
                     toeic_part=toeic_part,
                     order=number,
-                    text=q_data.get("stem", ""),
+                    text=stem_text,
                     question_type=QuestionType.MCQ,
-                    data={
-                        "choices": converted_choices
-                    },
+                    data=question_data,
                     correct_answer=correct_answer,
                     explanation_vi=q_data.get("explanation", ""),
                     passage=passage,

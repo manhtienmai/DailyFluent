@@ -811,6 +811,9 @@ def take_toeic_exam(request, session_id):
             .prefetch_related("listening_conversation__questions")
             .order_by("toeic_part", "order", "id")
         )
+    
+    # Prefetch passage images to support multi-image passages (TOEIC R6/R7)
+    questions = questions.prefetch_related("passage__images")
 
     # Xử lý submit
     if request.method == "POST" and attempt.status != ExamAttempt.Status.SUBMITTED:

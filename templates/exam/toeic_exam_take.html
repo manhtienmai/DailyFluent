@@ -6,11 +6,14 @@
 {% block main_classes %}df-page-full{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/exam-take.css' %}?v=20251227">
+<link rel="stylesheet" href="{% static 'css/exam-take.css' %}?v=20260111b">
+<link rel="stylesheet" href="{% static 'css/exam-highlight.css' %}?v=20260113">
 {% endblock %}
 
 {% block content %}
 <div class="df-toeic-exam-container"
+  data-template-id="{{ template_obj.id }}"
+  data-session-id="{{ session.id }}"
   data-template-full-audio="{% if template_obj.audio_file %}{{ template_obj.audio_file.url }}{% endif %}">
   {# ===== HEADER ===== #}
   <div class="df-toeic-header">
@@ -42,8 +45,22 @@
           <input type="checkbox" id="highlight-toggle" checked>
           <span class="df-toeic-switch"></span>
           <span class="df-toeic-highlight-label">Highlight nội dung</span>
-          <span class="df-toeic-info-icon">ℹ️</span>
         </label>
+      </div>
+
+      {# Highlight Toolbar (shown when text is selected) #}
+      <div id="highlight-toolbar" class="df-highlight-toolbar" style="display:none;">
+        <button type="button" class="df-highlight-btn df-highlight-btn--remove" data-color="remove" title="Xóa highlight">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+        <button type="button" class="df-highlight-btn" data-color="#93c5fd" title="Xanh dương" style="background:#93c5fd;"></button>
+        <button type="button" class="df-highlight-btn" data-color="#fca5a5" title="Đỏ nhạt" style="background:#fca5a5;"></button>
+        <button type="button" class="df-highlight-btn" data-color="#86efac" title="Xanh lá" style="background:#86efac;"></button>
+        <button type="button" class="df-highlight-btn" data-color="#fde047" title="Vàng" style="background:#fde047;"></button>
+        <button type="button" class="df-highlight-btn" data-color="#f87171" title="Đỏ" style="background:#f87171;"></button>
+        <button type="button" class="df-highlight-btn df-highlight-btn--underline" data-color="underline" title="Gạch chân">
+          <span style="text-decoration:underline;font-weight:600;">abc</span>
+        </button>
       </div>
 
       {# Audio Player (for Listening Parts) #}
@@ -72,217 +89,243 @@
         <div class="df-toeic-part-section {% if forloop.first %}df-toeic-part-section--active{% endif %}"
           data-part="{{ part_data.part }}" id="part-{{ part_data.part }}">
 
-          {# ===== Part Instruction ===== #}
-          <div class="df-toeic-part-instruction">
-            {% if part_data.part == "L1" %}
-            <div class="df-toeic-part-instruction-title">Part 1</div>
-            <div class="df-toeic-part-instruction-text">
-              Look at the picture. You will hear four statements. Choose the statement that best describes what you see
-              in the picture.
-            </div>
-            {% elif part_data.part == "L2" %}
-            <div class="df-toeic-part-instruction-title">Part 2</div>
-            <div class="df-toeic-part-instruction-text">
-              You will hear a question or statement followed by three responses. Choose the best response.
-            </div>
-            {% elif part_data.part == "L3" %}
-            <div class="df-toeic-part-instruction-title">Part 3</div>
-            <div class="df-toeic-part-instruction-text">
-              You will hear some conversations between two people. You will be asked to answer three questions about
-              what the speakers say in each conversation.
-            </div>
-            {% elif part_data.part == "L4" %}
-            <div class="df-toeic-part-instruction-title">Part 4</div>
-            <div class="df-toeic-part-instruction-text">
-              You will hear some talks given by a single speaker. You will be asked to answer three questions about what
-              the speaker says in each talk.
-            </div>
-            {% elif part_data.part == "R5" %}
-            <div class="df-toeic-part-instruction-title">Part 5</div>
-            <div class="df-toeic-part-instruction-text">
-              A word or phrase is missing in each of the following sentences. Four answer choices are given below each
-              sentence. Select the best answer to complete the sentence.
-            </div>
-            {% elif part_data.part == "R6" %}
-            <div class="df-toeic-part-instruction-title">Part 6</div>
-            <div class="df-toeic-part-instruction-text">
-              Read the texts that follow. A word or phrase is missing in some of the sentences. Four answer choices are
-              given below each of the sentences. Select the best answer to complete the text.
-            </div>
-            {% elif part_data.part == "R7" %}
-            <div class="df-toeic-part-instruction-title">Part 7</div>
-            <div class="df-toeic-part-instruction-text">
-              In this part you will read a selection of texts, such as magazine and newspaper articles, letters, and
-              advertisements. Each text is followed by several questions. Select the best answer for each question.
-            </div>
-            {% endif %}
-          </div>
-
           {# ===== Content by part ===== #}
           {% if part_data.part == "L1" %}
-            {% for q in part_data.questions %}
-              <div class="df-toeic-question-block" data-question-id="{{ q.id }}" data-audio-url="{% if q.audio %}{{ q.audio.url }}{% endif %}">
-                {% if q.image %}
-                  <div class="df-toeic-part1-image">
-                    <img src="{{ q.image.url }}" alt="Part 1 Image">
-                  </div>
-                {% endif %}
+          {% for q in part_data.questions %}
+          <div class="df-toeic-question-block" data-question-id="{{ q.id }}"
+            data-audio-url="{% if q.audio %}{{ q.audio.url }}{% endif %}">
+            {% if q.image %}
+            <div class="df-toeic-part1-image">
+              <img src="{{ q.image.url }}" alt="Part 1 Image">
+            </div>
+            {% endif %}
 
-                <div class="df-toeic-question">
+            <div class="df-toeic-question">
+              <div class="df-toeic-question-header">
+                <button type="button" class="df-toeic-question-number df-toeic-question-number--reviewable"
+                  data-question-id="{{ q.id }}" title="Đánh dấu câu cần xem lại">
+                  {{ q.order }}
+                </button>
+              </div>
+
+              <div class="df-toeic-question-options">
+                {% for choice in q.mcq_choices %}
+                <label class="df-toeic-option">
+                  <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}">
+                  <span class="df-toeic-option-label">{{ choice.key|number_to_letter }} {{ choice.text }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% elif part_data.part == "L2" %}
+          {% for q in part_data.questions %}
+          <div class="df-toeic-question-block" data-question-id="{{ q.id }}"
+            data-audio-url="{% if q.audio %}{{ q.audio.url }}{% endif %}">
+            <div class="df-toeic-question-header">
+              <button type="button" class="df-toeic-question-number df-toeic-question-number--reviewable"
+                data-question-id="{{ q.id }}" title="Đánh dấu câu cần xem lại">
+                {{ q.order }}
+              </button>
+            </div>
+
+            <div class="df-toeic-question-options">
+              {% for choice in q.mcq_choices %}
+                <label class="df-toeic-option">
+                  <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}">
+                  <span class="df-toeic-option-label">{{ choice.key|number_to_letter }} {{ choice.text }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+
+          {% elif part_data.part == "L3" or part_data.part == "L4" %}
+          {% for conv_key, conv_data in part_data.conversations.items %}
+          {% if not forloop.first %}
+          <hr class="df-toeic-passage-divider">{% endif %}
+
+          <div class="df-toeic-conversation-block" data-conv-id="{{ conv_data.conversation.id }}"
+            data-audio-url="{% if conv_data.conversation.audio %}{{ conv_data.conversation.audio.url }}{% endif %}">
+            <div class="df-toeic-conv-grid {% if conv_data.conversation.image %}df-toeic-conv-grid--has-image{% endif %}">
+              {% if conv_data.conversation.image %}
+              <div class="df-toeic-conv-image">
+                <img src="{{ conv_data.conversation.image.url }}" alt="Conversation Image">
+              </div>
+              {% endif %}
+
+              <div class="df-toeic-conv-questions">
+                {% for q in conv_data.questions %}
+                <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
                   <div class="df-toeic-question-header">
-                    <div class="df-toeic-question-number">{{ q.order }}</div>
-                    <button type="button" class="df-toeic-review-toggle" data-question-id="{{ q.id }}">★</button>
+                    <button type="button" class="df-toeic-question-number df-toeic-question-number--reviewable"
+                      data-question-id="{{ q.id }}" title="Đánh dấu câu cần xem lại">
+                      {{ q.order }}
+                    </button>
+                    {% if q.has_meaningful_text %}
+                    <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
+                    {% endif %}
                   </div>
 
                   <div class="df-toeic-question-options">
                     {% for choice in q.mcq_choices %}
-                      <label class="df-toeic-option">
-                        <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}" {% if forloop.first %}checked{% endif %}>
-                        <span class="df-toeic-option-label">{{ choice.key|number_to_letter }} {{ choice.text }}</span>
-                      </label>
+                    <label class="df-toeic-option">
+                      <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}">
+                      <span class="df-toeic-option-label" data-choice-key="{{ choice.key }}">{{ choice.text }}</span>
+                    </label>
                     {% endfor %}
                   </div>
                 </div>
-              </div>
-            {% endfor %}
-
-          {% elif part_data.part == "L2" %}
-            {% for q in part_data.questions %}
-              <div class="df-toeic-question-block" data-question-id="{{ q.id }}" data-audio-url="{% if q.audio %}{{ q.audio.url }}{% endif %}">
-                <div class="df-toeic-question-header">
-                  <div class="df-toeic-question-number">{{ q.order }}</div>
-                  <button type="button" class="df-toeic-review-toggle" data-question-id="{{ q.id }}">★</button>
-                </div>
-
-                <div class="df-toeic-question-options">
-                  {% for choice in q.mcq_choices %}
-                    <label class="df-toeic-option">
-                      <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}" {% if forloop.first %}checked{% endif %}>
-                      <span class="df-toeic-option-label">{{ choice.key|number_to_letter }} {{ choice.text }}</span>
-                    </label>
-                  {% endfor %}
-                </div>
-              </div>
-            {% endfor %}
-
-          {% elif part_data.part == "L3" or part_data.part == "L4" %}
-            {% for conv_key, conv_data in part_data.conversations.items %}
-              {% if not forloop.first %}<hr class="df-toeic-passage-divider">{% endif %}
-
-              <div class="df-toeic-conversation-block" data-conv-id="{{ conv_data.conversation.id }}" data-audio-url="{% if conv_data.conversation.audio %}{{ conv_data.conversation.audio.url }}{% endif %}">
-                {% if conv_data.conversation.image %}
-                  <div class="df-toeic-conv-image">
-                    <img src="{{ conv_data.conversation.image.url }}" alt="Conversation Image" style="max-width:100%;height:auto;">
-                  </div>
-                {% endif %}
-
-                {% for q in conv_data.questions %}
-                  <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
-                    <div class="df-toeic-question-header">
-                      <div class="df-toeic-question-number">{{ q.order }}</div>
-                      {% if q.has_meaningful_text %}
-                        <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
-                      {% endif %}
-                      <button type="button" class="df-toeic-review-toggle" data-question-id="{{ q.id }}">★</button>
-                    </div>
-
-                    <div class="df-toeic-question-options">
-                      {% for choice in q.mcq_choices %}
-                        <label class="df-toeic-option">
-                          <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}" {% if forloop.first %}checked{% endif %}>
-                          <span class="df-toeic-option-label" data-choice-key="{{ choice.key }}">{{ choice.text }}</span>
-                        </label>
-                      {% endfor %}
-                    </div>
-                  </div>
                 {% endfor %}
               </div>
-            {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
 
           {% elif part_data.part == "R5" %}
-            {% for q in part_data.questions %}
-              <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
-                <div class="df-toeic-question-header">
-                  <div class="df-toeic-question-number">{{ q.order }}</div>
-                  {% if q.has_meaningful_text %}
-                    <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
-                  {% endif %}
-                  <button type="button" class="df-toeic-review-toggle" data-question-id="{{ q.id }}">★</button>
-                </div>
+          {% for q in part_data.questions %}
+          <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
+            <div class="df-toeic-question-header">
+              <button type="button" class="df-toeic-question-number df-toeic-question-number--reviewable"
+                data-question-id="{{ q.id }}" title="Đánh dấu câu cần xem lại">
+                {{ q.order }}
+              </button>
+              {% if q.data|has_stem_segments %}
+              {# Schema 2.1: Render stem_segments with blank markers #}
+              <div class="df-toeic-stem-segments">{{ q.data|render_stem_segments }}</div>
+              {% elif q.has_meaningful_text %}
+              {# Schema 1.0: Plain text stem #}
+              <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
+              {% endif %}
+            </div>
 
-                <div class="df-toeic-question-options">
-                  {% for choice in q.mcq_choices %}
-                    <label class="df-toeic-option">
-                      <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}" {% if forloop.first %}checked{% endif %}>
-                      <span class="df-toeic-option-label">{{ choice.key }}. {{ choice.text }}</span>
-                    </label>
-                  {% endfor %}
-                </div>
-              </div>
-            {% endfor %}
+            <div class="df-toeic-question-options">
+              {% for choice in q.mcq_choices %}
+              <label class="df-toeic-option">
+                <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}">
+                <span class="df-toeic-option-label">{{ choice.key|number_to_letter }}. {{ choice.text }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
 
           {% else %}
-            {# R6 / R7 #}
-            {% for passage_key, passage_data in part_data.passages.items %}
-              {% if not forloop.first %}<hr class="df-toeic-passage-divider">{% endif %}
+          {# R6 / R7 #}
+          {% for passage_key, passage_data in part_data.passages.items %}
+          {% if not forloop.first %}
+          <hr class="df-toeic-passage-divider">{% endif %}
 
-              <div class="df-toeic-passage-block" data-passage-id="{{ passage_data.passage.id }}">
-                {% if passage_data.questions %}
-                  {% with first_q=passage_data.questions|first last_q=passage_data.questions|last %}
-                    <div class="df-toeic-passage-header">
-                      Questions {{ first_q.order }}{% if first_q.order != last_q.order %}-{{ last_q.order }}{% endif %}
-                      refer to the following {% if passage_data.passage.title %}{{ passage_data.passage.title|lower }}{% else %}passage{% endif %}.
-                    </div>
-                  {% endwith %}
+          <div class="df-toeic-passage-block" data-passage-id="{{ passage_data.passage.id }}">
+            {% if passage_data.questions %}
+            <!-- {% with first_q=passage_data.questions|first last_q=passage_data.questions|last %}
+            <div class="df-toeic-passage-header">
+              <div class="df-toeic-passage-range">
+                Questions {{ first_q.order }}{% if first_q.order != last_q.order %}-{{ last_q.order }}{% endif %}
+              </div>
+            </div>
+            {% endwith %} -->
+            {% endif %}
+
+            <div class="df-toeic-passage-split">
+              {% if passage_data.passage.content_json|has_documents %}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <!-- <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div> -->
                 {% endif %}
+                {{ passage_data.passage.content_json|render_documents }}
+              </div>
+              {% elif passage_data.passage.content_json|has_content_json %}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div>
+                {% endif %}
+                {{ passage_data.passage.content_json|render_content_json }}
+              </div>
+              {% elif passage_data.passage.data|has_content_segments %}
+              {# Schema 2.1: Render passage with content_segments #}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div>
+                {% endif %}
+                {{ passage_data.passage.data|render_passage_segments }}
+              </div>
+              {% elif passage_data.passage.images.all %}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div>
+                {% endif %}
+                {% for pimg in passage_data.passage.images.all %}
+                <div style="margin-bottom: 0.75rem;">
+                  <img src="{{ pimg.image.url }}" alt="Passage Image {{ forloop.counter }}">
+                </div>
+                {% endfor %}
+              </div>
+              {% elif passage_data.passage.image %}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div>
+                {% endif %}
+                <img src="{{ passage_data.passage.image.url }}" alt="Passage Image">
+              </div>
+              {% elif passage_data.passage.text %}
+              {# Schema 1.0 fallback: show plain text #}
+              <div class="df-toeic-passage-content">
+                {% if passage_data.passage.title %}
+                <div class="df-toeic-passage-inline-title">{{ passage_data.passage.title }}</div>
+                {% endif %}
+                {{ passage_data.passage.text|linebreaksbr }}
+              </div>
+              {% else %}
+              <div class="df-toeic-passage-content">
+                <div class="df-toeic-passage-placeholder">No content available</div>
+              </div>
+              {% endif %}
 
-                <div class="df-toeic-passage-split">
-                  <div class="df-toeic-passage-image">
-                    {% if passage_data.passage.image %}
-                      <img src="{{ passage_data.passage.image.url }}" alt="Passage Image">
-                    {% else %}
-                      <div class="df-toeic-passage-placeholder">No image available</div>
+              <div class="df-toeic-passage-questions">
+                {% for q in passage_data.questions %}
+                <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
+                  <div class="df-toeic-question-header">
+                    <button type="button" class="df-toeic-question-number df-toeic-question-number--reviewable"
+                      data-question-id="{{ q.id }}" title="Đánh dấu câu cần xem lại">
+                      {{ q.order }}
+                    </button>
+                    {% if q.has_meaningful_text %}
+                    <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
                     {% endif %}
                   </div>
 
-                  <div class="df-toeic-passage-questions">
-                    {% for q in passage_data.questions %}
-                      <div class="df-toeic-question-block" data-question-id="{{ q.id }}">
-                        <div class="df-toeic-question-header">
-                          <div class="df-toeic-question-number">{{ q.order }}</div>
-                          {% if q.has_meaningful_text %}
-                            <div class="df-toeic-question-text df-toeic-question-text--inline">{{ q.text }}</div>
-                          {% endif %}
-                          <button type="button" class="df-toeic-review-toggle" data-question-id="{{ q.id }}">★</button>
-                        </div>
-
-                        <div class="df-toeic-question-options">
-                          {% for choice in q.mcq_choices %}
-                            <label class="df-toeic-option">
-                              <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}" {% if forloop.first %}checked{% endif %}>
-                              <span class="df-toeic-option-label" data-choice-key="{{ choice.key }}">{{ choice.text }}</span>
-                            </label>
-                          {% endfor %}
-                        </div>
-                      </div>
+                  <div class="df-toeic-question-options">
+                    {% for choice in q.mcq_choices %}
+                    <label class="df-toeic-option">
+                      <input type="radio" name="q{{ q.id }}" value="{{ choice.key }}">
+                      <span class="df-toeic-option-label" data-choice-key="{{ choice.key }}">{{ choice.text }}</span>
+                    </label>
                     {% endfor %}
                   </div>
                 </div>
+                {% endfor %}
               </div>
-            {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
           {% endif %}
         </div>
-      {% endfor %}
+        {% endfor %}
 
 
         {# Navigation buttons giữa các part #}
         <div class="df-toeic-part-navigation mt-6 pt-6 border-t border-slate-200">
           <div class="flex items-center justify-between">
             <button type="button" id="toeic-prev-part" class="df-toeic-nav-part-btn df-toeic-nav-part-btn--prev"
-              disabled>
+              disabled
+              style="background:#d1d5db!important;color:#0f172a!important;border:1px solid #9ca3af!important;box-shadow:0 0 0 1px rgba(156,163,175,0.6)!important;">
               ‹ Part trước
             </button>
-            <button type="button" id="toeic-next-part" class="df-toeic-nav-part-btn df-toeic-nav-part-btn--next">
+            <button type="button" id="toeic-next-part" class="df-toeic-nav-part-btn df-toeic-nav-part-btn--next"
+              style="background:#d1d5db!important;color:#0f172a!important;border:1px solid #9ca3af!important;box-shadow:0 0 0 1px rgba(156,163,175,0.6)!important;">
               Part sau ›
             </button>
           </div>
@@ -302,7 +345,8 @@
       </div>
 
       {# Submit Button #}
-      <button type="button" id="toeic-submit-sidebar" class="df-toeic-submit-btn">
+      <button type="button" id="toeic-submit-sidebar" class="df-toeic-submit-btn"
+        style="background:#2563eb!important;color:#fff!important;border:1px solid #1d4ed8!important;box-shadow:0 6px 18px rgba(37,99,235,0.25)!important;">
         NỘP BÀI
       </button>
 
@@ -346,13 +390,12 @@
     const sessionId = Number('{{ session.id }}');
     const templateId = Number('{{ template_obj.id }}');
     const containerEl = document.querySelector('.df-toeic-exam-container');
-    const isRedoMode = {{ is_redo_mode| yesno: "true,false"
-  }};
-  // In redo mode, don't use full test audio - use individual audio from questions/conversations
-  const templateFullAudioUrl = isRedoMode ? '' : (containerEl ? (containerEl.getAttribute('data-template-full-audio') || '') : '');
-  let currentPart = partsList[0]?.part || '';
-  let timerInterval = null;
-  let totalSeconds = Number('{{ total_minutes }}') * 60;
+    const isRedoMode = '{{ is_redo_mode|yesno:"true,false" }}' === 'true';
+    // In redo mode, don't use full test audio - use individual audio from questions/conversations
+    const templateFullAudioUrl = isRedoMode ? '' : (containerEl ? (containerEl.getAttribute('data-template-full-audio') || '') : '');
+    let currentPart = partsList[0]?.part || '';
+    let timerInterval = null;
+    let totalSeconds = Number('{{ total_minutes }}') * 60;
 
   // Part Navigation
   document.querySelectorAll('.df-toeic-part-btn').forEach(btn => {
@@ -423,12 +466,13 @@
     });
   }
 
-  // Cập nhật style cho nút review cạnh số câu hỏi
+  // Cập nhật style cho ô số câu hỏi (click để đánh dấu review)
   function updateReviewButtons() {
-    document.querySelectorAll('.df-toeic-review-toggle').forEach(btn => {
+    document.querySelectorAll('.df-toeic-question-number--reviewable').forEach(btn => {
       const questionId = String(btn.dataset.questionId);
       const isReview = reviewQuestions.has(questionId);
-      btn.classList.toggle('df-toeic-review-toggle--active', isReview);
+      btn.classList.toggle('df-toeic-question-number--review', isReview);
+      btn.setAttribute('aria-pressed', isReview ? 'true' : 'false');
     });
   }
 
@@ -513,8 +557,8 @@
     });
   });
 
-  // Nút review cạnh số câu hỏi
-  document.querySelectorAll('.df-toeic-review-toggle').forEach(btn => {
+  // Click vào ô số câu hỏi = toggle review
+  document.querySelectorAll('.df-toeic-question-number--reviewable').forEach(btn => {
     btn.addEventListener('click', function () {
       const questionId = String(this.dataset.questionId);
       if (reviewQuestions.has(questionId)) {
@@ -705,15 +749,19 @@
 
   // Convert choice keys after page load
   convertChoiceKeys();
+
+  // Highlight feature moved to static/js/exam-highlight.js
+
   }) ();
 </script>
+<script src="{% static 'js/exam-highlight.js' %}?v=20260113"></script>
 {% endblock %}
 
 <style>
   .df-toeic-header {
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
-    padding: 1rem 1.5rem;
+    padding: 0.25rem 00.5rem;
   }
 
   .df-toeic-header-top {
@@ -770,7 +818,7 @@
     background: #f1f5f9;
     border: 1px solid #cbd5e1;
     border-radius: 9999px;
-    color: #475569;
+    color: #0f172a;
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 500;
@@ -783,9 +831,11 @@
   }
 
   .df-toeic-part-btn--active {
-    background: #3b82f6;
-    border-color: #3b82f6;
-    color: #ffffff;
+    background: #e8f2ff;
+    border-color: #2563eb;
+    color: #0f172a !important;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
   }
 
   .df-toeic-controls {
@@ -797,6 +847,11 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+  }
+
+  /* Hide the native checkbox (user only sees the switch) */
+  .df-toeic-highlight-toggle input[type="checkbox"] {
+    display: none;
   }
 
   .df-toeic-switch {
@@ -950,36 +1005,61 @@
   }
 
   .df-toeic-question-number {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.9375rem;
-    /* Giảm từ 1rem xuống 0.9375rem */
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 700;
+    color: #0f172a;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    flex: 0 0 auto;
+    user-select: none;
+    position: relative;
   }
 
-  .df-toeic-review-toggle {
-    border: none;
-    background: transparent;
-    color: #cbd5e1;
-    font-size: 0.9rem;
+  .df-toeic-question-number--reviewable {
     cursor: pointer;
-    padding: 0 0.25rem;
+  }
+
+  .df-toeic-question-number--reviewable:hover {
+    border-color: #94a3b8;
+    background: #e2e8f0;
+  }
+
+  .df-toeic-question-number--review {
+    background: #e8f2ff;
+    border-color: #2563eb;
+    color: #1e40af;
+  }
+
+  /* Show blue star badge on question number when marked for review */
+  .df-toeic-question-number--review::after {
+    content: "★";
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
     line-height: 1;
-    transition: color 0.2s ease, transform 0.1s ease;
-  }
-
-  .df-toeic-review-toggle:hover {
-    color: #f59e0b;
-    transform: scale(1.1);
-  }
-
-  .df-toeic-review-toggle--active {
-    color: #f59e0b;
+    font-weight: 800;
+    color: #2563eb;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
   }
 
   .df-toeic-question-text {
-    font-size: 0.875rem;
-    /* Giảm từ 0.9375rem xuống 0.875rem */
-    color: #475569;
+    font-size: 0.85rem;
+    color: #0f172a;
     margin-bottom: 0.5rem;
     /* Giảm từ 1rem xuống 0.5rem */
     line-height: 1.4;
@@ -993,17 +1073,15 @@
   .df-toeic-question-options {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    /* Giảm từ 0.75rem xuống 0.5rem */
+    gap: 0.4rem;
+    /* Nhỏ hơn một chút */
   }
 
   .df-toeic-option {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    /* Giảm từ 0.5rem xuống 0.375rem */
-    padding: 0.375rem 0.5rem;
-    /* Giảm từ 0.5rem 0.75rem xuống 0.375rem 0.5rem */
+    gap: 0.35rem;
+    padding: 0.32rem 0.45rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.375rem;
     /* Giảm từ 0.5rem xuống 0.375rem */
@@ -1017,19 +1095,13 @@
   }
 
   .df-toeic-option input[type="radio"] {
-    margin: 0;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
+    display: none;
   }
 
   .df-toeic-option-label {
-    font-size: 0.875rem;
-    /* Giảm từ 0.9375rem xuống 0.875rem */
+    font-size: 0.85rem;
     color: #1e293b;
-    line-height: 1.4;
-    /* Tăng line-height để dễ đọc hơn */
+    line-height: 1.35;
   }
 
   /* Option đã được chọn (theo từng câu) */
@@ -1058,9 +1130,9 @@
     border: 1px solid #cbd5e1;
     border-radius: 0.5rem;
     background: #fff;
-    color: #475569;
+    color: #0f172a !important;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -1071,19 +1143,22 @@
   }
 
   .df-toeic-nav-part-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    color: #475569 !important;
   }
 
   .df-toeic-nav-part-btn--next {
-    background: #3b82f6;
-    color: #ffffff;
-    border-color: #3b82f6;
+    background: #e8f2ff;
+    color: #0f172a !important;
+    border-color: #2563eb;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
   }
 
   .df-toeic-nav-part-btn--next:hover:not(:disabled) {
-    background: #2563eb;
-    border-color: #2563eb;
+    background: #dbeafe;
+    border-color: #1d4ed8;
   }
 
   /* Part 6-7: Split Screen */
@@ -1093,6 +1168,25 @@
     color: #1e293b;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .df-toeic-passage-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .df-toeic-passage-inline-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid #e2e8f0;
   }
 
@@ -1130,7 +1224,6 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    /* Giảm từ 1.5rem xuống 1rem */
   }
 
   .df-toeic-passage-block {
@@ -1142,10 +1235,10 @@
     background: #fff;
     border-radius: 0.5rem;
     padding: 1.5rem;
-    position: sticky;
-    top: 80px;
+    position: relative;
+    top: 0;
     height: fit-content;
-    /* Bỏ max-height và overflow-y để hiển thị tất cả câu hỏi */
+    /* Không sticky - scroll cùng tốc độ với content */
   }
 
   .df-toeic-timer {
@@ -1168,19 +1261,25 @@
   .df-toeic-submit-btn {
     width: 100%;
     padding: 0.75rem;
-    background: #3b82f6;
+    background: #2563eb;
     color: #fff;
-    border: none;
+    border: 1px solid #1d4ed8;
     border-radius: 0.5rem;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     margin-bottom: 1.5rem;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
   }
 
   .df-toeic-submit-btn:hover {
-    background: #2563eb;
+    background: #1d4ed8;
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.28);
+  }
+
+  .df-toeic-submit-btn:active {
+    transform: translateY(1px);
   }
 
   .df-toeic-instructions {
@@ -1220,9 +1319,9 @@
     border: 1px solid #cbd5e1;
     background: #fff;
     border-radius: 0.25rem;
-    color: #475569;
+    color: #0f172a;
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -1233,10 +1332,11 @@
   }
 
   .df-toeic-nav-qbtn--active {
-    background: #3b82f6;
-    border-color: #3b82f6;
-    color: #fff;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    background: #e8f2ff;
+    border-color: #2563eb;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    font-weight: 700;
   }
 
   /* Answered state - Green background */
@@ -1264,7 +1364,7 @@
     top: -6px;
     right: -6px;
     font-size: 10px;
-    color: #f59e0b;
+    color: #2563eb;
     background: #fff;
     border-radius: 50%;
     width: 16px;
@@ -1278,9 +1378,28 @@
   }
 
   .df-toeic-nav-qbtn--active.df-toeic-nav-qbtn--answered {
-    background: #10b981 !important;
+    background: #d1fae5 !important;
     border-color: #10b981 !important;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    color: #065f46 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  }
+
+  /* Force visible text/background for Part navigation and Submit (override global button reset) */
+  #toeic-prev-part,
+  #toeic-next-part,
+  .df-toeic-nav-part-btn--next,
+  .df-toeic-nav-part-btn--prev {
+    background: #d1d5db !important;
+    color: #0f172a !important;
+    border-color: #9ca3af !important;
+    box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.6);
+  }
+
+  #toeic-submit-sidebar {
+    background: #2563eb !important;
+    color: #fff !important;
+    border: 1px solid #1d4ed8 !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
   }
 
 

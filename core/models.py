@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.conf import settings
 from django.contrib.auth.models import User
 
 
@@ -219,6 +220,39 @@ class DictationSegment(models.Model):
         return self.end_time - self.start_time
 
 
+class DictationProgress(models.Model):
+    """
+    Tiến độ luyện tập dictation cho từng user/bài.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="dictation_progresses",
+    )
+    exercise = models.ForeignKey(
+        DictationExercise,
+        on_delete=models.CASCADE,
+        related_name="progresses",
+    )
+    current_segment = models.PositiveIntegerField(default=0)
+    total_segments = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "exercise")
+        verbose_name = "Dictation Progress"
+        verbose_name_plural = "Dictation Progresses"
+
+    @property
+    def percent(self) -> float:
+        if self.total_segments <= 0:
+            return 0.0
+        return min(100.0, max(0.0, (self.current_segment / self.total_segments) * 100))
+
+    def __str__(self):
+        return f"{self.user} - {self.exercise} ({self.percent:.1f}%)"
+
+
 class Enrollment(models.Model):
     """
     Theo dõi người dùng đã đăng ký khóa học nào.
@@ -254,3 +288,58 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
+
+
+class ExamGoal(models.Model):
+    """
+    Mục tiêu kỳ thi của người dùng.
+    """
+    EXAM_TYPE_CHOICES = [
+        ("TOEIC", "TOEIC"),
+        ("IELTS", "IELTS"),
+        ("JLPT_N5", "JLPT N5"),
+        ("JLPT_N4", "JLPT N4"),
+        ("JLPT_N3", "JLPT N3"),
+        ("JLPT_N2", "JLPT N2"),
+        ("JLPT_N1", "JLPT N1"),
+    ]
+    
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="exam_goal"
+    )
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPE_CHOICES,
+        default="TOEIC",
+        help_text="Loại kỳ thi"
+    )
+    target_score = models.PositiveIntegerField(
+        default=600,
+        help_text="Điểm mục tiêu"
+    )
+    exam_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Ngày dự kiến thi"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Exam Goal"
+        verbose_name_plural = "Exam Goals"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.exam_type} - {self.target_score}"
+
+    @property
+    def days_until_exam(self):
+        """Số ngày còn lại đến ngày thi"""
+        if not self.exam_date:
+            return None
+        from django.utils import timezone
+        today = timezone.localdate()
+        delta = self.exam_date - today
+        return max(0, delta.days)

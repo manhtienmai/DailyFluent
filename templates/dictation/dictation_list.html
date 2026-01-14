@@ -1,54 +1,479 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
 {% block title %}Nghe chép chính tả | DailyFluent{% endblock %}
 
-{% block main_classes %}df-page-container-lg{% endblock %}
+{% block extra_css %}
+<style>
+/* Dictation List Page Styles */
+.df-dictation-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.df-dictation-header {
+  margin-bottom: 2rem;
+}
+
+.df-dictation-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.df-dictation-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.df-dictation-title-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--action-primary), var(--action-primary-hover));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--action-primary-text);
+}
+
+.df-dictation-title-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.df-dictation-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  margin-top: 0.5rem;
+}
+
+/* Stats badges */
+.df-dictation-stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.df-dictation-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.df-dictation-stat-value {
+  font-weight: 700;
+  color: var(--action-primary);
+}
+
+/* Grid */
+.df-dictation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Card */
+.df-dictation-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.df-dictation-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--action-primary), var(--action-accent));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.df-dictation-card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.df-dictation-card:hover::before {
+  opacity: 1;
+}
+
+/* Card header */
+.df-dictation-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.df-dictation-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.df-dictation-card-badge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 20px;
+}
+
+.df-dictation-card-badge--beginner {
+  background: var(--status-success-subtle);
+  color: var(--status-success-text);
+}
+
+.df-dictation-card-badge--intermediate {
+  background: var(--status-info-subtle);
+  color: var(--status-info-text);
+}
+
+.df-dictation-card-badge--advanced {
+  background: var(--action-accent-subtle);
+  color: var(--action-accent);
+}
+
+/* Card description */
+.df-dictation-card-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+/* Card meta */
+.df-dictation-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.df-dictation-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+.df-dictation-card-meta-item svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Progress section */
+.df-dictation-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-interactive);
+  border-radius: 12px;
+}
+
+.df-dictation-progress-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.df-dictation-progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.df-dictation-progress-ring-bg {
+  stroke: var(--progress-track);
+}
+
+.df-dictation-progress-ring-fill {
+  stroke: var(--progress-fill);
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.df-dictation-progress-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.df-dictation-progress-info {
+  flex: 1;
+}
+
+.df-dictation-progress-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--action-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.df-dictation-progress-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--action-primary);
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.df-dictation-progress-detail {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* Course link */
+.df-dictation-card-course {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.df-dictation-card-course svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+}
+
+/* Empty state */
+.df-dictation-empty {
+  background: var(--bg-surface);
+  border: 2px dashed var(--border-default);
+  border-radius: 16px;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.df-dictation-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  background: var(--bg-interactive);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.df-dictation-empty-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.df-dictation-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-dictation-empty-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .df-dictation-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .df-dictation-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .df-dictation-stats {
+    width: 100%;
+  }
+  
+  .df-dictation-stat {
+    flex: 1;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-slate-900">Nghe chép chính tả</h1>
+<div class="df-dictation-page">
+  <!-- Header -->
+  <div class="df-dictation-header">
+    <div class="df-dictation-header-content">
+      <div>
+        <h1 class="df-dictation-title">
+          <span class="df-dictation-title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+              <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </span>
+          Nghe chép chính tả
+        </h1>
+        <p class="df-dictation-subtitle">Luyện nghe và viết để cải thiện kỹ năng nghe hiểu</p>
+      </div>
+      
+      {% if exercises %}
+      <div class="df-dictation-stats">
+        <div class="df-dictation-stat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          </svg>
+          <span class="df-dictation-stat-value">{{ exercises|length }}</span>
+          bài tập
+        </div>
+      </div>
+      {% endif %}
+    </div>
   </div>
 
   {% if exercises %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Grid -->
+    <div class="df-dictation-grid">
       {% for exercise in exercises %}
-        <a href="{% url 'core:dictation_detail' exercise.slug %}" 
-           class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between mb-3">
-            <h3 class="text-lg font-semibold text-slate-900">{{ exercise.title }}</h3>
-            <span class="px-2 py-1 text-xs font-semibold rounded-full 
-              {% if exercise.difficulty == 'beginner' %}bg-green-100 text-green-700
-              {% elif exercise.difficulty == 'intermediate' %}bg-blue-100 text-blue-700
-              {% else %}bg-purple-100 text-purple-700{% endif %}">
+        <a href="{% url 'core:dictation_detail' exercise.slug %}" class="df-dictation-card">
+          <!-- Header -->
+          <div class="df-dictation-card-header">
+            <h3 class="df-dictation-card-title">{{ exercise.title }}</h3>
+            <span class="df-dictation-card-badge df-dictation-card-badge--{{ exercise.difficulty }}">
               {{ exercise.get_difficulty_display }}
             </span>
           </div>
+          
+          <!-- Description -->
           {% if exercise.description %}
-            <p class="text-sm text-slate-600 mb-3">{{ exercise.description|truncatewords:20 }}</p>
+            <p class="df-dictation-card-desc">{{ exercise.description|truncatewords:25 }}</p>
           {% endif %}
-          <div class="flex items-center gap-4 text-xs text-slate-500">
-            <span>{{ exercise.segments.count }} đoạn</span>
+          
+          <!-- Meta -->
+          <div class="df-dictation-card-meta">
+            <span class="df-dictation-card-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="9" y1="9" x2="15" y2="9"/>
+                <line x1="9" y1="13" x2="15" y2="13"/>
+                <line x1="9" y1="17" x2="12" y2="17"/>
+              </svg>
+              {{ exercise.segments.count }} đoạn
+            </span>
             {% if exercise.audio_duration %}
-              <span>{{ exercise.audio_duration|floatformat:0 }} giây</span>
+            <span class="df-dictation-card-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ exercise.audio_duration|floatformat:0 }}s
+            </span>
             {% endif %}
           </div>
+          
+          <!-- Progress -->
+          {% if exercise.progress %}
+            {% with p=exercise.progress.percent %}
+            <div class="df-dictation-card-progress">
+              <div class="df-dictation-progress-ring">
+                <svg viewBox="0 0 36 36">
+                  <circle class="df-dictation-progress-ring-bg" cx="18" cy="18" r="15" fill="none" stroke-width="3"/>
+                  <circle class="df-dictation-progress-ring-fill" cx="18" cy="18" r="15" fill="none" stroke-width="3"
+                    stroke-dasharray="{{ p|floatformat:0 }} 100"/>
+                </svg>
+                <span class="df-dictation-progress-ring-text">{{ p|floatformat:0 }}%</span>
+              </div>
+              <div class="df-dictation-progress-info">
+                <div class="df-dictation-progress-label">Đang học</div>
+                <div class="df-dictation-progress-detail">
+                  Câu {{ exercise.progress.current_segment|add:1 }} / {{ exercise.progress.total_segments }}
+                </div>
+              </div>
+            </div>
+            {% endwith %}
+          {% endif %}
+          
+          <!-- Course link -->
           {% if exercise.lesson %}
-            <div class="mt-3 pt-3 border-t border-slate-100">
-              <p class="text-xs text-slate-500">
-                Thuộc: {{ exercise.lesson.section.course.title }} › {{ exercise.lesson.title }}
-              </p>
+            <div class="df-dictation-card-course">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+              </svg>
+              {{ exercise.lesson.section.course.title }} › {{ exercise.lesson.title }}
             </div>
           {% endif %}
         </a>
       {% endfor %}
     </div>
   {% else %}
-    <div class="bg-white border border-slate-200 rounded-xl p-8 text-center">
-      <p class="text-slate-500">Chưa có bài tập dictation nào.</p>
+    <!-- Empty state -->
+    <div class="df-dictation-empty">
+      <div class="df-dictation-empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </div>
+      <h3 class="df-dictation-empty-title">Chưa có bài tập</h3>
+      <p class="df-dictation-empty-desc">Các bài tập nghe chép chính tả sẽ xuất hiện ở đây.</p>
     </div>
   {% endif %}
 </div>
 {% endblock %}
-

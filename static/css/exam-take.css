@@ -34,9 +34,7 @@
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: static; /* không giữ cố định khi scroll */
 }
 
 .df-toeic-header-top {
@@ -68,9 +66,9 @@
 
 .df-toeic-main-layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 240px;
   gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 0.75rem;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -78,7 +76,7 @@
 .df-toeic-content {
   background: #fff;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 0.75rem;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
@@ -113,9 +111,10 @@
 }
 
 .df-toeic-part-btn--active {
-  background: var(--toeic-primary);
-  border-color: var(--toeic-primary);
-  color: #fff;
+  /* Force readable active state even if global button reset overrides colors */
+  background: var(--toeic-primary) !important;
+  border-color: var(--toeic-primary) !important;
+  color: #fff !important;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
@@ -260,10 +259,33 @@
 
 .df-toeic-conv-image img {
   width: 100%;
-  max-width: 800px;
   height: auto;
   border-radius: 0.5rem;
   border: 1px solid #e2e8f0;
+}
+
+/* Listening conversation: 2-column when image present */
+.df-toeic-conv-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.df-toeic-conv-grid--has-image {
+  grid-template-columns: minmax(0, 40%) minmax(0, 60%);
+}
+
+.df-toeic-conv-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .df-toeic-conv-grid--has-image {
+    grid-template-columns: 1fr;
+  }
 }
 
 .df-toeic-question-header {
@@ -279,25 +301,7 @@
   color: #1e293b;
 }
 
-.df-toeic-review-toggle {
-  border: none;
-  background: transparent;
-  color: #cbd5e1;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0 0.25rem;
-  line-height: 1;
-  transition: color 0.2s ease, transform 0.1s ease;
-}
-
-.df-toeic-review-toggle:hover {
-  color: #f59e0b;
-  transform: scale(1.1);
-}
-
-.df-toeic-review-toggle--active {
-  color: #f59e0b;
-}
+/* Review toggle moved to clicking question number (no ★ button) */
 
 .df-toeic-question-text {
   font-size: 0.875rem;
@@ -314,69 +318,46 @@
 .df-toeic-question-options {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .df-toeic-option {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--toeic-border);
-  border-radius: 0.5rem;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0.2rem 0.2rem;
+  border: none; /* bỏ dạng button khối */
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.1s ease;
-  background: #fff;
+  transition: none;
+  background: transparent;
+  color: #0f172a;
 }
 
 .df-toeic-option:hover:not(.df-toeic-option--selected) {
-  background: var(--toeic-bg-hover);
-  border-color: var(--toeic-border-hover);
+  background: transparent;
+  border-color: transparent;
 }
 
 .df-toeic-option input[type="radio"] {
-  margin: 0;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
-
-/* Visual radio indicator */
-.df-toeic-option::before {
-  content: '';
-  display: inline-flex;
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  border: 2px solid #cbd5e1;
-  border-radius: 50%;
-  background: #fff;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.df-toeic-option:hover::before {
-  border-color: var(--toeic-primary);
-}
-
-.df-toeic-option--selected::before {
-  border-color: var(--toeic-primary);
-  background: var(--toeic-primary);
-  box-shadow: inset 0 0 0 3px #fff;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  margin-top: 2px; /* căn theo dòng đầu */
 }
 
 .df-toeic-option-label {
-  font-size: 0.9375rem;
-  color: var(--toeic-text);
-  line-height: 1.5;
-  min-width: 20px;
+  font-size: 0.85rem;
+  color: #0f172a;
+  line-height: 1.4;
+  min-width: 18px;
 }
 
 .df-toeic-option--selected {
-  background: var(--toeic-primary-light);
-  border-color: var(--toeic-primary);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .df-toeic-option--selected .df-toeic-option-label {
@@ -384,10 +365,21 @@
   font-weight: 600;
 }
 
+/* Passage title placed inside the passage content box */
+.df-toeic-passage-content .df-toeic-passage-inline-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
 .df-toeic-passage-divider {
   border: 0;
   border-top: 2px solid #e2e8f0;
-  margin: 1.5rem 0;
+  /* margin: 4px 0; */
 }
 
 .df-toeic-part-navigation {
@@ -459,9 +451,10 @@
 
 .df-toeic-passage-split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Use minmax to avoid overflow of the questions column */
+  grid-template-columns: minmax(0, 65%) minmax(0, 35%);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.2rem;
   align-items: start;
 }
 
@@ -469,6 +462,10 @@
   position: static;
   height: fit-content;
   align-self: start;
+  background: #f3f4f6;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
 }
 
 .df-toeic-passage-image img {
@@ -489,18 +486,42 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.df-toeic-passage-questions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.df-toeic-passage-questions::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.df-toeic-passage-questions::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .df-toeic-passage-block {
   position: relative;
+  /* margin-bottom: 1.0rem;  */
+  margin-top: 1.0rem;
+  background: #f3f4f6; /* nền xám phủ toàn bộ khu passage */
+  border: 1px solid #e2e8f0;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  padding: 10px;
 }
 
 .df-toeic-sidebar {
   background: #fff;
   border-radius: 0.5rem;
-  padding: 1.5rem;
-  position: sticky;
-  top: 80px;
+  padding: 1rem; /* giảm padding */
+  position: relative;
+  top: 0;
   height: fit-content;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
@@ -525,15 +546,15 @@
 
 .df-toeic-submit-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.6rem; /* nhỏ hơn */
   background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.9rem; /* nhỏ hơn */
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* ít khoảng cách hơn */
   transition: background 0.2s;
 }
 
@@ -559,6 +580,23 @@
   gap: 1.5rem;
 }
 
+/* =========================
+   Single-scroll mode (desktop)
+   - Let the PAGE be the only scroll container
+   - Sidebar + question overview do not scroll independently
+   ========================= */
+@media (min-width: 1025px) {
+  .df-toeic-sidebar {
+    /* Don't constrain height; allow the page to scroll naturally */
+    max-height: none;
+    overflow: visible;
+  }
+
+  .df-toeic-question-nav {
+    overflow: visible;
+  }
+}
+
 .df-toeic-nav-part-title {
   font-size: 0.875rem;
   font-weight: 600;
@@ -568,21 +606,40 @@
 
 .df-toeic-nav-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(5, minmax(28px, 1fr)); /* max 5 per row (desktop) */
+  gap: 0.35rem;
 }
 
 .df-toeic-nav-qbtn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--toeic-border);
   background: #fff;
-  border-radius: 0.375rem;
+  border-radius: 0.35rem;
   color: var(--toeic-text-muted);
-  font-size: 0.8125rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+/* Responsive: fewer columns on small screens */
+@media (max-width: 480px) {
+  .df-toeic-nav-grid {
+    grid-template-columns: repeat(4, minmax(26px, 1fr));
+    gap: 0.3rem;
+  }
+  .df-toeic-nav-qbtn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .df-toeic-nav-grid {
+    grid-template-columns: repeat(3, minmax(26px, 1fr));
+  }
 }
 
 .df-toeic-nav-qbtn:hover {
@@ -593,10 +650,10 @@
 }
 
 .df-toeic-nav-qbtn--active {
-  background: var(--toeic-primary);
-  border-color: var(--toeic-primary);
-  color: #fff;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  background: #e8f2ff;
+  border-color: #2563eb;
+  color: #0f172a !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
   transform: scale(1.05);
 }
 
@@ -638,6 +695,7 @@
 .df-toeic-nav-qbtn--active.df-toeic-nav-qbtn--answered {
   background: #10b981 !important;
   border-color: #10b981 !important;
+  color: #fff !important;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
 }
 
@@ -656,3 +714,258 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   Schema 2.1: Blank Markers
+   ========================= */
+
+/* Blank marker in question stem (Part 5) */
+.df-toeic-blank-marker {
+  display: inline-block;
+  min-width: 80px;
+  padding: 0.125rem 0.5rem;
+  border-bottom: 2px solid var(--toeic-primary);
+  color: var(--toeic-primary);
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0.125rem;
+}
+
+/* Blank marker in passage content (Part 6) */
+.df-toeic-passage-blank {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  background: var(--toeic-primary-light);
+  border: 1px solid var(--toeic-primary);
+  border-radius: 0.25rem;
+  color: var(--toeic-primary);
+  font-weight: 400;
+  font-size: 0.65rem;
+  margin: 0 0.125rem;
+}
+
+/* Stem text container with segments */
+.df-toeic-stem-segments {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #0f172a;
+  flex: 1 1 auto;
+}
+
+/* Passage content with segments */
+.df-toeic-passage-content {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--toeic-text);
+  background: #f3f4f6; /* nền xám cho phần passage */
+  /* padding: 8px; */
+  padding-right: 4px;
+  border: none;
+  border-radius: 8px;
+  /* Allow scrolling to avoid overflowing viewport */
+  max-height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.df-toeic-passage-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.df-toeic-passage-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.df-toeic-passage-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Rich document (invoice/email) styling ===== */
+.df-docs-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.df-doc-label {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.df-doc-keyvalue {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.df-doc-kv-row {
+  display: flex;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.df-doc-kv-key {
+  font-weight: 700;
+}
+
+.df-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+}
+
+.df-doc-table th,
+.df-doc-table td {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.df-doc-table thead th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+/* Chat document */
+.df-doc-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.df-chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.df-chat-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.df-chat-from {
+  font-weight: 700;
+}
+
+.df-chat-time {
+  color: #64748b;
+}
+
+.df-chat-bubble {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 9px;
+  line-height: 1.45;
+}
+
+/* Chat color variants per speaker */
+.df-chat-color-0 .df-chat-bubble { background: #eff6ff; border-color: #bfdbfe; }
+.df-chat-color-1 .df-chat-bubble { background: #ecfeff; border-color: #bae6fd; }
+.df-chat-color-2 .df-chat-bubble { background: #f0fdf4; border-color: #bbf7d0; }
+.df-chat-color-3 .df-chat-bubble { background: #fefce8; border-color: #fde68a; }
+.df-chat-color-4 .df-chat-bubble { background: #fff7ed; border-color: #fed7aa; }
+.df-chat-color-5 .df-chat-bubble { background: #fdf2f8; border-color: #fbcfe8; }
+
+/* Email header */
+.df-email-header {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.df-email-header-row {
+  display: flex;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.df-email-header-key {
+  font-weight: 700;
+  min-width: 70px;
+}
+
+.df-doc-article,
+.df-doc-advertisement {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+}
+
+.df-doc-article p,
+.df-doc-article h1,
+.df-doc-article h2,
+.df-doc-article h3,
+.df-doc-advertisement p,
+.df-doc-advertisement h1,
+.df-doc-advertisement h2,
+.df-doc-advertisement h3 {
+  margin: 6px 0;
+}
+
+.df-doc-article a,
+.df-doc-advertisement a {
+  color: #2563eb;
+  word-break: break-all;
+}
+
+.df-webbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.df-webbar-link {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #0f172a;
+  font-size: 0.85rem;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.df-doc-list {
+  margin: 6px 0 6px 1.25rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.df-doc-list li {
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.df-doc-blank {
+  display: inline-block;
+  padding: 1px 4px;
+  border-bottom: 2px solid #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+  margin: 0 1px;
+}
+
+.df-toeic-passage-content .df-toeic-passage-blank {
+  font-size: 0.8125rem;
+}
+

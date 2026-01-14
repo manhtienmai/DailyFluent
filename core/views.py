@@ -2,6 +2,9 @@
 import json
 import random
 import re
+import os
+from datetime import timedelta
+from urllib.parse import urlsplit
 
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
@@ -9,6 +12,11 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.db import models
+from django.conf import settings
+
+from azure.storage.blob import generate_blob_sas, BlobSasPermissions
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth.decorators import login_required
 from streak.models import StreakStat, DailyActivity
 from vocab.models import UserStudySettings
 
@@ -503,6 +511,10 @@ def home(request):
             user=request.user,
             status=ExamAttempt.Status.SUBMITTED
         ).select_related('template').order_by('-submitted_at')[:5]
+        
+        # Lấy mục tiêu kỳ thi
+        from core.models import ExamGoal
+        exam_goal, _ = ExamGoal.objects.get_or_create(user=request.user)
 
     context = {
         "streak": streak,
@@ -514,6 +526,7 @@ def home(request):
         "todo_items": todo_items,
         "enrolled_courses": enrolled_courses,
         "recent_exam_results": recent_exam_results,
+        "exam_goal": exam_goal if request.user.is_authenticated else None,
     }
     return render(request, "home.html", context)
 
@@ -841,8 +854,19 @@ def lesson_detail(request, course_slug: str, lesson_slug: str):
 def dictation_list(request):
     """Danh sách các bài tập dictation"""
     exercises = DictationExercise.objects.filter(is_active=True).select_related("lesson", "lesson__section", "lesson__section__course").prefetch_related("segments").order_by("order", "title")
-    
-    # Group by lesson if needed
+
+    progress_map = {}
+    if request.user.is_authenticated:
+        ids = list(exercises.values_list("id", flat=True))
+        if ids:
+            from .models import DictationProgress
+            progress_qs = DictationProgress.objects.filter(user=request.user, exercise_id__in=ids)
+            progress_map = {p.exercise_id: p for p in progress_qs}
+
+    # attach progress to exercise for easy access in template
+    for ex in exercises:
+        ex.progress = progress_map.get(ex.id) if progress_map else None
+
     return render(request, "dictation/dictation_list.html", {
         "exercises": exercises,
     })
@@ -872,11 +896,79 @@ def dictation_detail(request, exercise_slug):
         })
     
     segments_json = json.dumps(segments_data, ensure_ascii=False)
+
+    # Load saved progress
+    saved_index = 0
+    saved_percent = 0.0
+    total_segments = len(segments_data)
+    if request.user.is_authenticated:
+        from .models import DictationProgress
+        prog = DictationProgress.objects.filter(user=request.user, exercise=exercise).first()
+        if prog:
+            saved_index = min(max(0, prog.current_segment), max(0, total_segments - 1))
+            saved_percent = prog.percent
     
     return render(request, "dictation/dictation_detail.html", {
         "exercise": exercise,
         "segments": segments,
         "segments_json": segments_json,
+        "saved_index": saved_index,
+        "saved_percent": saved_percent,
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+@ensure_csrf_cookie
+def dictation_progress_update(request):
+    """
+    Cập nhật tiến độ dictation cho user.
+    Body JSON: {exercise_id, current_segment, total_segments}
+    """
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    exercise_id = payload.get("exercise_id")
+    current_segment = payload.get("current_segment", 0)
+    total_segments = payload.get("total_segments", 0)
+
+    if not exercise_id:
+        return JsonResponse({"error": "exercise_id is required"}, status=400)
+
+    try:
+        exercise = DictationExercise.objects.get(pk=exercise_id, is_active=True)
+    except DictationExercise.DoesNotExist:
+        return JsonResponse({"error": "exercise not found"}, status=404)
+
+    try:
+        current_segment = int(current_segment)
+        total_segments = int(total_segments)
+    except (TypeError, ValueError):
+        current_segment = 0
+        total_segments = 0
+
+    if total_segments <= 0:
+        total_segments = exercise.segments.count()
+
+    current_segment = max(0, min(current_segment, max(0, total_segments - 1)))
+
+    from .models import DictationProgress
+
+    prog, _ = DictationProgress.objects.get_or_create(
+        user=request.user, exercise=exercise,
+        defaults={"current_segment": current_segment, "total_segments": total_segments}
+    )
+    prog.current_segment = current_segment
+    prog.total_segments = total_segments
+    prog.save()
+
+    return JsonResponse({
+        "ok": True,
+        "percent": prog.percent,
+        "current_segment": prog.current_segment,
+        "total_segments": prog.total_segments,
     })
 
 
@@ -979,5 +1071,152 @@ def settings(request):
     })
 
 
+@login_required
+def update_exam_goal(request):
+    """
+    API endpoint để cập nhật mục tiêu kỳ thi.
+    """
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+    
+    import json
+    from core.models import ExamGoal
+    from datetime import datetime
+    
+    try:
+        data = json.loads(request.body)
+        exam_goal, _ = ExamGoal.objects.get_or_create(user=request.user)
+        
+        # Update fields
+        if 'exam_type' in data:
+            exam_goal.exam_type = data['exam_type']
+        if 'target_score' in data:
+            exam_goal.target_score = int(data['target_score']) if data['target_score'] else 600
+        if 'exam_date' in data:
+            if data['exam_date']:
+                exam_goal.exam_date = datetime.strptime(data['exam_date'], '%Y-%m-%d').date()
+            else:
+                exam_goal.exam_date = None
+        
+        exam_goal.save()
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+
 def health(request):
     return JsonResponse({"ok": True})
+
+
+# === Direct-to-Azure upload helpers (SAS) ===
+@login_required
+@require_http_methods(["POST"])
+def dictation_upload_sas(request):
+    """
+    Cấp SAS URL để upload trực tiếp từ browser lên Azure.
+    Body (JSON hoặc form):
+      - filename (bắt buộc)
+      - content_type (khuyến nghị)
+    Trả về: uploadUrl (có SAS), blobUrl (không SAS), blobName, expiresAt (iso)
+    """
+    try:
+        if request.content_type == "application/json":
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        else:
+            payload = request.POST
+    except Exception:
+        payload = {}
+
+    filename = (payload.get("filename") or "").strip()
+    content_type = (payload.get("content_type") or "").strip()
+    if not filename:
+        return JsonResponse({"error": "filename is required"}, status=400)
+
+    # Sanitize filename
+    base = os.path.basename(filename)
+    if not base:
+        return JsonResponse({"error": "invalid filename"}, status=400)
+    # optional: prefix with timestamp to avoid collisions
+    ts = timezone.now().strftime("%Y%m%d%H%M%S")
+    blob_name = f"dictation/audio/{ts}-{base}"
+
+    account = settings.AZURE_ACCOUNT_NAME
+    key = settings.AZURE_ACCOUNT_KEY
+    container = getattr(settings, "AZURE_AUDIO_CONTAINER", settings.AZURE_CONTAINER)
+    if not account or not key:
+        return JsonResponse({"error": "Azure storage is not configured"}, status=500)
+
+    expiry = timezone.now() + timedelta(minutes=15)
+    perms = BlobSasPermissions(create=True, write=True)
+    sas = generate_blob_sas(
+        account_name=account,
+        container_name=container,
+        blob_name=blob_name,
+        account_key=key,
+        permission=perms,
+        expiry=expiry,
+        content_type=content_type or None,
+    )
+
+    base_url = f"https://{account}.blob.core.windows.net/{container}/{blob_name}"
+    upload_url = f"{base_url}?{sas}"
+
+    return JsonResponse(
+        {
+            "uploadUrl": upload_url,
+            "blobUrl": base_url,
+            "blobName": blob_name,
+            "expiresAt": expiry.isoformat(),
+        }
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def dictation_upload_complete(request):
+    """
+    Sau khi client upload xong, gọi endpoint này để lưu blob vào DictationExercise.
+    Body (JSON):
+      - exercise_id (bắt buộc)
+      - blob_name hoặc blob_url (một trong hai)
+      - duration (optional, giây)
+    """
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    exercise_id = payload.get("exercise_id")
+    blob_name = (payload.get("blob_name") or "").strip()
+    blob_url = (payload.get("blob_url") or "").strip()
+    duration = payload.get("duration")
+
+    if not exercise_id:
+        return JsonResponse({"error": "exercise_id is required"}, status=400)
+
+    if not blob_name and blob_url:
+        # Extract blob name from URL
+        parts = urlsplit(blob_url)
+        blob_name = parts.path.lstrip("/")
+
+    if not blob_name:
+        return JsonResponse({"error": "blob_name or blob_url is required"}, status=400)
+
+    try:
+        exercise = DictationExercise.objects.get(pk=exercise_id)
+    except DictationExercise.DoesNotExist:
+        return JsonResponse({"error": "exercise not found"}, status=404)
+
+    # Lưu đường dẫn blob vào FileField (giữ nguyên relative path)
+    exercise.audio_file.name = blob_name
+    if duration is not None:
+        try:
+            exercise.audio_duration = float(duration)
+        except (TypeError, ValueError):
+            pass
+    exercise.save(update_fields=["audio_file", "audio_duration", "updated_at"])
+
+    audio_url = getattr(settings, "AUDIO_BASE_URL", "").rstrip("/")
+    full_url = f"{audio_url}/{blob_name}" if audio_url else blob_url or blob_name
+
+    return JsonResponse({"ok": True, "audio_url": full_url})

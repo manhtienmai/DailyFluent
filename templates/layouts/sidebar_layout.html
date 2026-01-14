@@ -1,0 +1,62 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DailyFluent{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'logo_official.png' %}" />
+  <link rel="stylesheet" href="{% static 'css/audio-player.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loader.css' %}">
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=20260114">
+  <link rel="stylesheet" href="{% static 'css/sidebar-layout.css' %}?v=20260114">
+
+  {% tailwind_css %}
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=20260114">
+  
+  {% block extra_css %}{% endblock %}
+
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    html {
+      font-family: "Be Vietnam Pro", system-ui, -apple-system, BlinkMacSystemFont,
+                  "Segoe UI", Roboto, "Helvetica Neue", Arial,
+                  "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN",
+                  "Meiryo", sans-serif;
+    }
+    body {
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body class="df-sidebar-body">
+  
+  {# ========== SIDEBAR ========== #}
+  {% include "components/sidebar/sidebar.html" %}
+  
+  {# ========== MAIN WRAPPER ========== #}
+  <div class="df-main-wrapper">
+    
+    {# ========== TOP HEADER ========== #}
+    {% include "components/sidebar/topbar.html" %}
+    
+    {# ========== MAIN CONTENT ========== #}
+    <main class="df-content-area">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {# ========== USER PROFILE MODAL ========== #}
+  {% include "components/sidebar/user_modal.html" %}
+
+  {# Scripts #}
+  <script src="{% static 'js/sidebar-layout.js' %}?v=20260114"></script>
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>
+

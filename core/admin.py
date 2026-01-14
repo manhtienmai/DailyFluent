@@ -3,9 +3,11 @@ from django.utils.html import format_html
 from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django import forms
+from urllib.parse import urlsplit
 import json
 
-from .models import Course, Section, Lesson, DictationExercise, DictationSegment
+from .models import Course, Section, Lesson, DictationExercise, DictationSegment, DictationProgress
 
 
 @admin.register(Course)
@@ -87,6 +89,55 @@ class DictationSegmentInline(admin.TabularInline):
     ordering = ("order",)
 
 
+class DictationExerciseForm(forms.ModelForm):
+    """
+    Cho phép dán đường dẫn blob (hoặc URL đầy đủ) đã upload sẵn lên Azure,
+    để gán thẳng vào audio_file mà không cần upload qua admin.
+    """
+
+    audio_blob = forms.CharField(
+        required=False,
+        label="Audio blob path/URL (đã upload)",
+        help_text="Dán blob path (ví dụ: dictation/audio/20250114-foo.mp3) hoặc URL đầy đủ trên Azure. "
+                  "Để trống nếu dùng upload file như bình thường.",
+        widget=forms.TextInput(attrs={"style": "width: 100%;"}),
+    )
+
+    class Meta:
+        model = DictationExercise
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and getattr(self.instance, "audio_file", None):
+            self.fields["audio_blob"].initial = self.instance.audio_file.name
+
+    def clean_audio_blob(self):
+        blob = (self.cleaned_data.get("audio_blob") or "").strip()
+        if not blob:
+            return ""
+        # Nếu là URL, trích blob path
+        if "://" in blob:
+            try:
+                parts = urlsplit(blob)
+                path = parts.path.lstrip("/")
+                if path:
+                    return path
+            except Exception:
+                pass
+        return blob
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        blob = self.cleaned_data.get("audio_blob") or ""
+        if blob:
+            obj.audio_file.name = blob
+        if commit:
+            obj.save()
+            self.save_m2m()
+        return obj
+
+
 @admin.register(DictationExercise)
 class DictationExerciseAdmin(admin.ModelAdmin):
     list_display = ("title", "lesson", "difficulty", "segment_count", "is_active", "order")
@@ -95,13 +146,14 @@ class DictationExerciseAdmin(admin.ModelAdmin):
     ordering = ("order", "title")
     prepopulated_fields = {"slug": ("title",)}
     inlines = [DictationSegmentInline]
+    form = DictationExerciseForm
     
     fieldsets = (
         ("Basic Information", {
             "fields": ("title", "slug", "lesson", "description")
         }),
         ("Audio", {
-            "fields": ("audio_file", "audio_duration", "full_transcript")
+            "fields": ("audio_file", "audio_blob", "audio_duration", "full_transcript")
         }),
         ("Settings", {
             "fields": ("difficulty", "is_active", "order")
@@ -146,34 +198,70 @@ class DictationExerciseAdmin(admin.ModelAdmin):
                     data = json.load(json_file)
                 else:
                     data = json.loads(json_text)
-                
-                if not isinstance(data, list):
-                    raise ValueError("JSON must be a list of segments")
-                
-                # Create segments
+
+                # Chấp nhận 2 dạng:
+                # 1) Danh sách segments thuần: [ {start_time, end_time, correct_text} ]
+                # 2) Danh sách các dict có "id" và "segments": [{ "id": "...", "segments": [...] }, ...]
+                segments_data = None
+
+                if isinstance(data, list):
+                    # Nếu là list các object có "segments" -> gộp tất cả segments của mọi id
+                    if data and isinstance(data[0], dict) and "segments" in data[0]:
+                        collected = []
+                        for item in data:
+                            if not isinstance(item, dict) or "segments" not in item:
+                                continue
+                            segs = item.get("segments") or []
+                            if isinstance(segs, list):
+                                collected.extend(segs)
+                        segments_data = collected
+                    else:
+                        # Dạng danh sách segments thuần
+                        segments_data = data
+                elif isinstance(data, dict) and "segments" in data:
+                    segments_data = data.get("segments")
+                else:
+                    raise ValueError("JSON phải là list segments, hoặc list các object có khóa 'segments'.")
+
+                if not isinstance(segments_data, list):
+                    raise ValueError("Trường 'segments' phải là một danh sách.")
+
+                # Xóa cũ, import mới để tránh trùng lặp
+                exercise.segments.all().delete()
+
                 created_count = 0
-                for item in data:
-                    start = item.get('start_time') or item.get('start')
-                    end = item.get('end_time') or item.get('end')
-                    text = item.get('correct_text') or item.get('text')
-                    hint = item.get('hint', '')
-                    
+                for item in segments_data:
+                    if not isinstance(item, dict):
+                        continue
+
+                    # Bỏ qua meta/label/instruction..., chỉ lấy type == content hoặc không có type
+                    seg_type = (item.get("type") or "").lower()
+                    if seg_type in {"meta", "label", "instruction"}:
+                        continue
+                    if seg_type and seg_type != "content":
+                        continue
+
+                    start = item.get("start_time") or item.get("start")
+                    end = item.get("end_time") or item.get("end")
+                    text = item.get("correct_text") or item.get("text")
+                    hint = item.get("hint", "")
+
                     if start is None or end is None or not text:
                         continue
-                        
+
                     DictationSegment.objects.create(
                         exercise=exercise,
                         order=created_count + 1,
                         start_time=float(start),
                         end_time=float(end),
                         correct_text=text,
-                        hint=hint
+                        hint=hint,
                     )
                     created_count += 1
-                
+
                 messages.success(request, f"Đã import thành công {created_count} segments!")
                 return redirect(reverse('admin:core_dictationexercise_change', args=[exercise.id]))
-                
+
             except Exception as e:
                 messages.error(request, f"Lỗi import: {str(e)}")
         
@@ -203,3 +291,15 @@ class DictationSegmentAdmin(admin.ModelAdmin):
             text += "..."
         return text
     preview_text.short_description = "Text Preview"
+
+
+@admin.register(DictationProgress)
+class DictationProgressAdmin(admin.ModelAdmin):
+    list_display = ("user", "exercise", "current_segment", "total_segments", "percent_display", "updated_at")
+    search_fields = ("user__username", "exercise__title")
+    list_filter = ("exercise",)
+    ordering = ("-updated_at",)
+
+    def percent_display(self, obj):
+        return f"{obj.percent:.1f}%"
+    percent_display.short_description = "% Hoàn thành"

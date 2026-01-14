@@ -1,0 +1,138 @@
+{% load static %}
+{% comment %}
+Sidebar Navigation Component
+{% endcomment %}
+
+<aside class="df-sidebar" id="df-sidebar">
+  {# Navigation Items #}
+  <nav class="df-sidebar-nav">
+    <a href="{% url 'home' %}" class="df-sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Trang chủ</span>
+    </a>
+
+    <a href="{% url 'vocab:english_list' %}" class="df-sidebar-item {% if 'vocab' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Bộ từ vựng</span>
+    </a>
+
+    <a href="{% url 'exam:exam_list' %}" class="df-sidebar-item {% if 'exam' in request.path and 'dictation' not in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Đề thi</span>
+    </a>
+
+    <a href="{% url 'core:dictation_list' %}" class="df-sidebar-item {% if 'dictation' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Nghe chép chính tả</span>
+    </a>
+
+    <a href="{% url 'core:course_list' %}" class="df-sidebar-item {% if 'course' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Khóa học</span>
+    </a>
+
+    <a href="#" class="df-sidebar-item">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Cửa hàng</span>
+    </a>
+
+    <a href="{% url 'streak:overview' %}" class="df-sidebar-item {% if 'streak' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 23a7.5 7.5 0 0 1-5.138-12.963C8.204 8.774 11.5 6.5 11 1.5c6 4 9 8 3 14 1 0 2.5 0 5-2.47.27.773.5 1.604.5 2.47A7.5 7.5 0 0 1 12 23z"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Xếp hạng</span>
+    </a>
+
+    <a href="#" class="df-sidebar-item">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="20" x2="12" y2="10"/>
+          <line x1="18" y1="20" x2="18" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="16"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Lộ trình học</span>
+    </a>
+  </nav>
+
+  {# Sidebar Toggle (collapse) #}
+  <button class="df-sidebar-collapse-btn" id="df-sidebar-collapse" title="Thu gọn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="11 17 6 12 11 7"/>
+      <polyline points="18 17 13 12 18 7"/>
+    </svg>
+  </button>
+
+  {# User Profile Section #}
+  <div class="df-sidebar-user" id="df-sidebar-user-btn">
+    <div class="df-sidebar-user-avatar">
+      {% if user.is_authenticated %}
+        {% if user.socialaccount_set.all.0.get_avatar_url %}
+          <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="Avatar">
+        {% else %}
+          <span class="df-sidebar-user-initials">{{ user.username|slice:":2"|upper }}</span>
+        {% endif %}
+      {% else %}
+        <span class="df-sidebar-user-initials">?</span>
+      {% endif %}
+    </div>
+    <div class="df-sidebar-user-info">
+      <span class="df-sidebar-user-name">
+        {% if user.is_authenticated %}
+          {{ user.first_name|default:user.username }}
+        {% else %}
+          Khách
+        {% endif %}
+      </span>
+      <span class="df-sidebar-user-hint">Nhấn để xem hồ sơ</span>
+    </div>
+    <span class="df-sidebar-user-more">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="1"/>
+        <circle cx="12" cy="5" r="1"/>
+        <circle cx="12" cy="19" r="1"/>
+      </svg>
+    </span>
+  </div>
+</aside>
+
+{# Mobile Overlay #}
+<div class="df-sidebar-overlay" id="df-sidebar-overlay"></div>
+

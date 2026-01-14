@@ -68,17 +68,21 @@
 
         <div class="form-row">
             <label>Cách 2: Paste nội dung JSON</label>
-            <textarea name="json_text" rows="10"
+            <textarea name="json_text" rows="12"
                 style="width: 100%; font-family: monospace; border: 1px solid #ccc; padding: 10px;" placeholder='[
   {
-    "start_time": 0.0,
-    "end_time": 5.0,
-    "correct_text": "Hello world"
+    "id": "E26-T02-01",
+    "segments": [
+      { "type": "meta", "text": "Number one.", "start": 0.34, "end": 1.19 },
+      { "type": "content", "text": "Look at the picture...", "start": 1.98, "end": 5.26 }
+    ]
   }
 ]'></textarea>
             <div class="help">
-                Paste trực tiếp nội dung JSON vào đây. Format yêu cầu:<br>
-                <code>[{"start_time": float, "end_time": float, "correct_text": "string", "hint": "optional"}]</code>
+                Hỗ trợ 2 dạng:<br>
+                1) <code>[{"start_time": 0, "end_time": 5, "correct_text": "...", "hint": ""}]</code><br>
+                2) <code>[{"id": "...", "segments": [ {"type": "content", "text": "...", "start": 0, "end": 5}, ... ] }]</code><br>
+                (Sẽ tự bỏ qua <code>type: meta/label</code> và chỉ import <code>content</code>)
             </div>
         </div>
 

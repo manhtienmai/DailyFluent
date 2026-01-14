@@ -12,3 +12,102 @@
   {% endif %}
 {% endblock %}
 
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const textarea = document.getElementById('id_explanation_json');
+      if (!textarea) return;
+
+      const bar = document.createElement('div');
+      bar.style.display = 'flex';
+      bar.style.gap = '8px';
+      bar.style.margin = '8px 0 4px';
+      bar.style.alignItems = 'center';
+
+      const btnGen = document.createElement('button');
+      btnGen.type = 'button';
+      btnGen.className = 'button';
+      btnGen.textContent = 'Tạo mẫu JSON giải thích';
+
+      const btnFmt = document.createElement('button');
+      btnFmt.type = 'button';
+      btnFmt.className = 'button';
+      btnFmt.textContent = 'Format JSON';
+
+      const hint = document.createElement('span');
+      hint.style.color = '#64748b';
+      hint.style.fontSize = '12px';
+      hint.textContent = 'Mẹo: bấm "Tạo mẫu" để có skeleton theo choices/correct_answer.';
+
+      bar.appendChild(btnGen);
+      bar.appendChild(btnFmt);
+      bar.appendChild(hint);
+      textarea.parentNode.insertBefore(bar, textarea);
+
+      function safeParseJson(str) {
+        try {
+          const cleaned = str.replace(/\/\/.*$/gm, '').replace(/,\s*([}\]])/g, '$1');
+          return JSON.parse(cleaned);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function mapKeyToLetter(k) {
+        const s = String(k).trim();
+        const map = { '1': 'A', '2': 'B', '3': 'C', '4': 'D' };
+        return map[s] || s.toUpperCase();
+      }
+
+      btnGen.addEventListener('click', function () {
+        const correct = document.getElementById('id_correct_answer')?.value || '';
+        const toeicPart = document.getElementById('id_toeic_part')?.value || '';
+        const qType = document.getElementById('id_question_type')?.value || '';
+
+        let choices = [];
+        const dataField = document.getElementById('id_data');
+        if (dataField && dataField.value) {
+          const parsed = safeParseJson(dataField.value);
+          if (parsed && Array.isArray(parsed.choices)) choices = parsed.choices;
+        }
+
+        const correctLetter = mapKeyToLetter(correct);
+        const breakdown = {};
+        const letters = ['A', 'B', 'C', 'D'];
+        letters.forEach((L, idx) => {
+          const c = choices[idx] || {};
+          const text = c.text || '';
+          breakdown[L] = {
+            text: text,
+            status: L === correctLetter ? 'correct' : 'wrong',
+            reason: ''
+          };
+        });
+
+        const obj = {
+          meta: { difficulty: 'medium', tags: [toeicPart || 'toeic', qType || 'mcq'].filter(Boolean) },
+          correct_option: correctLetter,
+          content_translation: { en: '', vi: '' },
+          overall_analysis: { summary: '', detail_html: '<p></p>' },
+          options_breakdown: breakdown,
+          vocabulary_extraction: []
+        };
+
+        textarea.value = JSON.stringify(obj, null, 2);
+        textarea.focus();
+      });
+
+      btnFmt.addEventListener('click', function () {
+        const parsed = safeParseJson(textarea.value);
+        if (!parsed) {
+          alert('JSON không hợp lệ. Hãy kiểm tra dấu phẩy / ngoặc.');
+          return;
+        }
+        textarea.value = JSON.stringify(parsed, null, 2);
+        textarea.focus();
+      });
+    })();
+  </script>
+{% endblock %}
+

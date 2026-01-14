@@ -578,7 +578,20 @@
               📷 Upload Passage Image
             </button>
           </div>
-          {% if group.passage.image %}
+          {% if group.passage.images.all %}
+            <div style="margin-top: 0.75rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem;">
+              {% for pimg in group.passage.images.all %}
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:0.375rem; padding:0.5rem;">
+                  <div style="font-size: 0.75rem; color:#64748b; margin-bottom: 0.25rem;">#{{ pimg.order }}</div>
+                  <img src="{{ pimg.image.url }}" alt="Passage Image"
+                       style="width: 100%; max-height: 160px; object-fit: contain; border-radius: 0.25rem;">
+                  {% if pimg.caption %}
+                    <div style="margin-top: 0.25rem; font-size: 0.75rem; color:#475569;">{{ pimg.caption }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% elif group.passage.image %}
             <div style="margin-top: 0.75rem;">
               <img src="{{ group.passage.image.url }}" alt="Passage Image" 
                    style="max-width: 100%; max-height: 200px; border-radius: 0.375rem; border: 1px solid #e2e8f0;">
@@ -761,9 +774,12 @@ function openUploadModal(id, templateTitle, order, type = 'question') {
   if (type === 'passage') {
     currentPassageId = id;
     document.getElementById('modal-title').textContent = `Upload Passage Image - Passage #${order} (${templateTitle})`;
+    // Passage supports multiple images
+    fileInput.multiple = true;
   } else {
     currentQuestionId = id;
     document.getElementById('modal-title').textContent = `Upload Image - Question #${id} (${templateTitle}, Order: ${order})`;
+    fileInput.multiple = false;
   }
   document.getElementById('upload-modal').classList.add('active');
   resetModal();
@@ -823,7 +839,11 @@ uploadZone.addEventListener('click', () => {
 // File input change
 fileInput.addEventListener('change', (e) => {
   if (e.target.files.length > 0) {
-    handleFile(e.target.files[0]);
+    if (uploadType === 'passage') {
+      handleFiles(Array.from(e.target.files));
+    } else {
+      handleFile(e.target.files[0]);
+    }
   }
 });
 
@@ -842,7 +862,11 @@ uploadZone.addEventListener('drop', (e) => {
   uploadZone.classList.remove('dragover');
   
   if (e.dataTransfer.files.length > 0) {
-    handleFile(e.dataTransfer.files[0]);
+    if (uploadType === 'passage') {
+      handleFiles(Array.from(e.dataTransfer.files));
+    } else {
+      handleFile(e.dataTransfer.files[0]);
+    }
   }
 });
 
@@ -903,6 +927,38 @@ function handleFile(file) {
   
   // Upload file
   uploadFile(file);
+}
+
+function handleFiles(files) {
+  if (uploadType !== 'passage') {
+    // Fallback: if somehow called in question mode, just upload first file
+    if (files && files.length) handleFile(files[0]);
+    return;
+  }
+  if (!currentPassageId) return;
+  if (!files || files.length === 0) return;
+
+  // Validate all files quickly
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      showError('Please select image files only');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showError('Each file must be less than 10MB');
+      return;
+    }
+  }
+
+  // Show preview of the first image only
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+    previewContainer.classList.add('active');
+  };
+  reader.readAsDataURL(files[0]);
+
+  uploadFiles(files);
 }
 
 function uploadFile(file) {
@@ -970,6 +1026,60 @@ function uploadFile(file) {
     ? '{% url "admin:exam_examquestion_upload_passage_image_api" %}'
     : '{% url "admin:exam_examquestion_upload_image_api" %}';
   xhr.open('POST', apiUrl);
+  xhr.send(formData);
+}
+
+function uploadFiles(files) {
+  if (uploadType !== 'passage' || !currentPassageId) return;
+
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('images', file);
+  }
+  formData.append('passage_id', currentPassageId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+  // Show progress
+  progressContainer.classList.add('active');
+  progressFill.style.width = '0%';
+  progressText.textContent = '0%';
+  hideAlerts();
+
+  const xhr = new XMLHttpRequest();
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const percent = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = percent + '%';
+      progressText.textContent = percent + '%';
+    }
+  });
+
+  xhr.addEventListener('load', () => {
+    progressContainer.classList.remove('active');
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      if (response.success) {
+        showSuccess(`Uploaded ${response.created_count || files.length} image(s)! Refreshing...`);
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showError(response.error || 'Upload failed');
+      }
+    } else {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        showError(response.error || 'Upload failed');
+      } catch (e) {
+        showError('Upload failed. Please try again.');
+      }
+    }
+  });
+
+  xhr.addEventListener('error', () => {
+    progressContainer.classList.remove('active');
+    showError('Network error. Please try again.');
+  });
+
+  xhr.open('POST', '{% url "admin:exam_examquestion_upload_passage_image_api" %}');
   xhr.send(formData);
 }
 

@@ -1,0 +1,922 @@
+/* ============================================
+   DailyFluent Design System
+   Semantic Color System - Deep Teal Theme
+   
+   Primary Brand: Deep Teal (#0D9488 / #2DD4BF)
+   Accent: Amber (#F59E0B)
+   
+   WCAG AA Compliant
+   ============================================ */
+
+/* ============================================
+   LIGHT MODE (Default)
+   ============================================ */
+:root {
+  /* ----------------------------------------
+     Color Palette (Internal Reference Only)
+     ---------------------------------------- */
+  --_teal-50: #F0FDFA;
+  --_teal-100: #CCFBF1;
+  --_teal-200: #99F6E4;
+  --_teal-300: #5EEAD4;
+  --_teal-400: #2DD4BF;
+  --_teal-500: #14B8A6;
+  --_teal-600: #0D9488;
+  --_teal-700: #0F766E;
+  --_teal-800: #115E59;
+  --_teal-900: #134E4A;
+  --_teal-950: #042F2E;
+
+  --_amber-50: #FFFBEB;
+  --_amber-100: #FEF3C7;
+  --_amber-200: #FDE68A;
+  --_amber-300: #FCD34D;
+  --_amber-400: #FBBF24;
+  --_amber-500: #F59E0B;
+  --_amber-600: #D97706;
+  --_amber-700: #B45309;
+
+  --_red-50: #FEF2F2;
+  --_red-100: #FEE2E2;
+  --_red-500: #EF4444;
+  --_red-600: #DC2626;
+  --_red-700: #B91C1C;
+
+  --_green-50: #F0FDF4;
+  --_green-100: #DCFCE7;
+  --_green-500: #22C55E;
+  --_green-600: #16A34A;
+  --_green-700: #15803D;
+
+  --_blue-50: #EFF6FF;
+  --_blue-100: #DBEAFE;
+  --_blue-500: #3B82F6;
+  --_blue-600: #2563EB;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Background
+     ---------------------------------------- */
+  /* App backgrounds */
+  --bg-app: #FFFFFF;
+  --bg-app-subtle: var(--_teal-50);
+  --bg-app-muted: #F8FAFC;
+  
+  /* Surface backgrounds (cards, modals, dropdowns) */
+  --bg-surface: #FFFFFF;
+  --bg-surface-raised: #FFFFFF;
+  --bg-surface-overlay: rgba(255, 255, 255, 0.95);
+  
+  /* Interactive backgrounds */
+  --bg-interactive: var(--_teal-50);
+  --bg-interactive-hover: var(--_teal-100);
+  --bg-interactive-active: var(--_teal-200);
+  --bg-interactive-selected: var(--_teal-100);
+  
+  /* Inverted (for tooltips, badges on dark) */
+  --bg-inverted: var(--_teal-900);
+  --bg-inverted-subtle: var(--_teal-800);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Text
+     ---------------------------------------- */
+  /* Primary text - highest contrast, main content */
+  --text-primary: #0F172A;
+  
+  /* Secondary text - labels, descriptions */
+  --text-secondary: #475569;
+  
+  /* Tertiary text - placeholders, hints */
+  --text-tertiary: #94A3B8;
+  
+  /* Disabled text */
+  --text-disabled: #CBD5E1;
+  
+  /* Inverted text (on dark backgrounds) */
+  --text-inverted: #FFFFFF;
+  --text-inverted-secondary: rgba(255, 255, 255, 0.8);
+  
+  /* Link text */
+  --text-link: var(--_teal-600);
+  --text-link-hover: var(--_teal-700);
+  --text-link-visited: var(--_teal-800);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Brand / Action
+     ---------------------------------------- */
+  /* Primary action (buttons, links, focus rings) */
+  --action-primary: var(--_teal-600);
+  --action-primary-hover: var(--_teal-700);
+  --action-primary-active: var(--_teal-800);
+  --action-primary-subtle: var(--_teal-50);
+  --action-primary-subtle-hover: var(--_teal-100);
+  
+  /* Primary action text (on primary bg) */
+  --action-primary-text: #FFFFFF;
+  
+  /* Secondary action (outline buttons) */
+  --action-secondary: var(--_teal-600);
+  --action-secondary-hover: var(--_teal-700);
+  --action-secondary-bg-hover: var(--_teal-50);
+  
+  /* Accent (streak, rewards, highlights) */
+  --action-accent: var(--_amber-500);
+  --action-accent-hover: var(--_amber-600);
+  --action-accent-subtle: var(--_amber-50);
+  --action-accent-text: #FFFFFF;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Status / Feedback
+     ---------------------------------------- */
+  /* Success */
+  --status-success: var(--_green-600);
+  --status-success-subtle: var(--_green-50);
+  --status-success-text: var(--_green-700);
+  --status-success-border: var(--_green-500);
+  
+  /* Warning */
+  --status-warning: var(--_amber-500);
+  --status-warning-subtle: var(--_amber-50);
+  --status-warning-text: var(--_amber-700);
+  --status-warning-border: var(--_amber-400);
+  
+  /* Error / Danger */
+  --status-error: var(--_red-600);
+  --status-error-subtle: var(--_red-50);
+  --status-error-text: var(--_red-700);
+  --status-error-border: var(--_red-500);
+  
+  /* Info */
+  --status-info: var(--_blue-600);
+  --status-info-subtle: var(--_blue-50);
+  --status-info-text: var(--_blue-600);
+  --status-info-border: var(--_blue-500);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Border
+     ---------------------------------------- */
+  --border-default: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-strong: #CBD5E1;
+  --border-interactive: var(--_teal-300);
+  --border-focus: var(--_teal-500);
+  --border-error: var(--_red-500);
+  --border-success: var(--_green-500);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Shadow
+     ---------------------------------------- */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  
+  /* Colored shadows for depth */
+  --shadow-primary: 0 4px 14px 0 rgba(13, 148, 136, 0.25);
+  --shadow-accent: 0 4px 14px 0 rgba(245, 158, 11, 0.25);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Focus Ring
+     ---------------------------------------- */
+  --focus-ring: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--action-primary);
+  --focus-ring-error: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--status-error);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Overlay
+     ---------------------------------------- */
+  --overlay-backdrop: rgba(15, 23, 42, 0.5);
+  --overlay-subtle: rgba(15, 23, 42, 0.05);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Skeleton / Loading
+     ---------------------------------------- */
+  --skeleton-base: #E2E8F0;
+  --skeleton-shine: #F1F5F9;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Gamification
+     ---------------------------------------- */
+  /* Streak fire */
+  --streak-flame: var(--_amber-500);
+  --streak-flame-glow: rgba(245, 158, 11, 0.3);
+  
+  /* XP / Points */
+  --xp-color: var(--_teal-500);
+  --xp-bg: var(--_teal-50);
+  
+  /* Coins / Currency */
+  --coin-color: var(--_amber-500);
+  --coin-bg: var(--_amber-50);
+  
+  /* Progress bars */
+  --progress-track: var(--_teal-100);
+  --progress-fill: var(--_teal-500);
+  --progress-fill-success: var(--_green-500);
+  
+  /* Badges / Achievements */
+  --badge-bronze: #CD7F32;
+  --badge-silver: #C0C0C0;
+  --badge-gold: #FFD700;
+  --badge-platinum: #E5E4E2;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Learning States
+     ---------------------------------------- */
+  /* Correct answer */
+  --answer-correct: var(--_green-500);
+  --answer-correct-bg: var(--_green-50);
+  --answer-correct-border: var(--_green-300);
+  
+  /* Wrong answer */
+  --answer-wrong: var(--_red-500);
+  --answer-wrong-bg: var(--_red-50);
+  --answer-wrong-border: var(--_red-300);
+  
+  /* Selected (neutral) */
+  --answer-selected: var(--_teal-500);
+  --answer-selected-bg: var(--_teal-50);
+  --answer-selected-border: var(--_teal-300);
+  
+  /* Highlight (text selection for study) */
+  --highlight-yellow: rgba(250, 204, 21, 0.4);
+  --highlight-green: rgba(74, 222, 128, 0.4);
+  --highlight-blue: rgba(96, 165, 250, 0.4);
+  --highlight-pink: rgba(244, 114, 182, 0.4);
+  --highlight-purple: rgba(192, 132, 252, 0.4);
+
+  /* ----------------------------------------
+     Component Specific
+     ---------------------------------------- */
+  /* Sidebar */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: var(--border-default);
+  --sidebar-item-hover: var(--_teal-50);
+  --sidebar-item-active: var(--_teal-100);
+  --sidebar-item-active-border: var(--_teal-500);
+  --sidebar-text: var(--text-secondary);
+  --sidebar-text-active: var(--_teal-700);
+  
+  /* Topbar */
+  --topbar-bg: #FFFFFF;
+  --topbar-border: var(--border-default);
+  
+  /* Cards */
+  --card-bg: #FFFFFF;
+  --card-border: var(--border-default);
+  --card-hover-border: var(--_teal-200);
+  --card-shadow: var(--shadow-sm);
+  --card-shadow-hover: var(--shadow-md);
+  
+  /* Input fields */
+  --input-bg: #FFFFFF;
+  --input-border: var(--border-default);
+  --input-border-hover: var(--border-strong);
+  --input-border-focus: var(--action-primary);
+  --input-placeholder: var(--text-tertiary);
+  
+  /* Buttons */
+  --btn-primary-bg: var(--action-primary);
+  --btn-primary-bg-hover: var(--action-primary-hover);
+  --btn-primary-text: var(--action-primary-text);
+  --btn-secondary-bg: transparent;
+  --btn-secondary-border: var(--action-secondary);
+  --btn-secondary-text: var(--action-secondary);
+  --btn-ghost-bg-hover: var(--bg-interactive-hover);
+  
+  /* Countdown timer */
+  --countdown-bg: linear-gradient(135deg, #1e293b, #334155);
+  --countdown-segment-bg: #0f172a;
+  --countdown-text: #FFFFFF;
+}
+
+
+/* ============================================
+   DARK MODE
+   Using [data-theme='dark'] selector
+   ============================================ */
+[data-theme='dark'],
+.dark {
+  /* ----------------------------------------
+     Color Palette Overrides
+     ---------------------------------------- */
+  --_teal-adjusted-400: #5EEAD4;  /* Slightly desaturated for dark mode */
+  --_teal-adjusted-500: #2DD4BF;
+  
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Background
+     ---------------------------------------- */
+  /* App backgrounds - using charcoal, not pure black */
+  --bg-app: #0F172A;
+  --bg-app-subtle: #1E293B;
+  --bg-app-muted: #1E293B;
+  
+  /* Surface backgrounds */
+  --bg-surface: #1E293B;
+  --bg-surface-raised: #334155;
+  --bg-surface-overlay: rgba(30, 41, 59, 0.95);
+  
+  /* Interactive backgrounds */
+  --bg-interactive: rgba(45, 212, 191, 0.1);
+  --bg-interactive-hover: rgba(45, 212, 191, 0.15);
+  --bg-interactive-active: rgba(45, 212, 191, 0.2);
+  --bg-interactive-selected: rgba(45, 212, 191, 0.15);
+  
+  /* Inverted */
+  --bg-inverted: var(--_teal-100);
+  --bg-inverted-subtle: var(--_teal-200);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Text
+     ---------------------------------------- */
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --text-disabled: #475569;
+  --text-inverted: #0F172A;
+  --text-inverted-secondary: rgba(15, 23, 42, 0.8);
+  
+  /* Links - brighter in dark mode */
+  --text-link: var(--_teal-adjusted-400);
+  --text-link-hover: var(--_teal-300);
+  --text-link-visited: var(--_teal-adjusted-500);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Brand / Action
+     ---------------------------------------- */
+  /* Primary action - brighter for dark mode contrast */
+  --action-primary: var(--_teal-adjusted-500);
+  --action-primary-hover: var(--_teal-adjusted-400);
+  --action-primary-active: var(--_teal-300);
+  --action-primary-subtle: rgba(45, 212, 191, 0.15);
+  --action-primary-subtle-hover: rgba(45, 212, 191, 0.25);
+  --action-primary-text: #0F172A;
+  
+  /* Secondary action */
+  --action-secondary: var(--_teal-adjusted-500);
+  --action-secondary-hover: var(--_teal-adjusted-400);
+  --action-secondary-bg-hover: rgba(45, 212, 191, 0.1);
+  
+  /* Accent - slightly brighter */
+  --action-accent: #FBBF24;
+  --action-accent-hover: #FCD34D;
+  --action-accent-subtle: rgba(251, 191, 36, 0.15);
+  --action-accent-text: #0F172A;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Status / Feedback
+     (Desaturated/brightened for dark mode)
+     ---------------------------------------- */
+  /* Success */
+  --status-success: #4ADE80;
+  --status-success-subtle: rgba(74, 222, 128, 0.15);
+  --status-success-text: #4ADE80;
+  --status-success-border: #22C55E;
+  
+  /* Warning */
+  --status-warning: #FBBF24;
+  --status-warning-subtle: rgba(251, 191, 36, 0.15);
+  --status-warning-text: #FBBF24;
+  --status-warning-border: #F59E0B;
+  
+  /* Error */
+  --status-error: #F87171;
+  --status-error-subtle: rgba(248, 113, 113, 0.15);
+  --status-error-text: #F87171;
+  --status-error-border: #EF4444;
+  
+  /* Info */
+  --status-info: #60A5FA;
+  --status-info-subtle: rgba(96, 165, 250, 0.15);
+  --status-info-text: #60A5FA;
+  --status-info-border: #3B82F6;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Border
+     ---------------------------------------- */
+  --border-default: #334155;
+  --border-subtle: #1E293B;
+  --border-strong: #475569;
+  --border-interactive: var(--_teal-adjusted-500);
+  --border-focus: var(--_teal-adjusted-500);
+  --border-error: #F87171;
+  --border-success: #4ADE80;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Shadow
+     (More subtle in dark mode)
+     ---------------------------------------- */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  
+  /* Colored shadows - more subtle glow effect */
+  --shadow-primary: 0 4px 20px 0 rgba(45, 212, 191, 0.2);
+  --shadow-accent: 0 4px 20px 0 rgba(251, 191, 36, 0.2);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Focus Ring
+     ---------------------------------------- */
+  --focus-ring: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--action-primary);
+  --focus-ring-error: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--status-error);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Overlay
+     ---------------------------------------- */
+  --overlay-backdrop: rgba(0, 0, 0, 0.7);
+  --overlay-subtle: rgba(0, 0, 0, 0.3);
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Skeleton / Loading
+     ---------------------------------------- */
+  --skeleton-base: #334155;
+  --skeleton-shine: #475569;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Gamification
+     ---------------------------------------- */
+  --streak-flame: #FBBF24;
+  --streak-flame-glow: rgba(251, 191, 36, 0.4);
+  
+  --xp-color: var(--_teal-adjusted-400);
+  --xp-bg: rgba(45, 212, 191, 0.15);
+  
+  --coin-color: #FBBF24;
+  --coin-bg: rgba(251, 191, 36, 0.15);
+  
+  --progress-track: rgba(45, 212, 191, 0.2);
+  --progress-fill: var(--_teal-adjusted-500);
+  --progress-fill-success: #4ADE80;
+
+  /* ----------------------------------------
+     SEMANTIC TOKENS - Learning States
+     ---------------------------------------- */
+  --answer-correct: #4ADE80;
+  --answer-correct-bg: rgba(74, 222, 128, 0.15);
+  --answer-correct-border: rgba(74, 222, 128, 0.5);
+  
+  --answer-wrong: #F87171;
+  --answer-wrong-bg: rgba(248, 113, 113, 0.15);
+  --answer-wrong-border: rgba(248, 113, 113, 0.5);
+  
+  --answer-selected: var(--_teal-adjusted-500);
+  --answer-selected-bg: rgba(45, 212, 191, 0.15);
+  --answer-selected-border: rgba(45, 212, 191, 0.5);
+  
+  /* Highlights - slightly more opaque for dark bg */
+  --highlight-yellow: rgba(250, 204, 21, 0.35);
+  --highlight-green: rgba(74, 222, 128, 0.35);
+  --highlight-blue: rgba(96, 165, 250, 0.35);
+  --highlight-pink: rgba(244, 114, 182, 0.35);
+  --highlight-purple: rgba(192, 132, 252, 0.35);
+
+  /* ----------------------------------------
+     Component Specific Overrides
+     ---------------------------------------- */
+  /* Sidebar */
+  --sidebar-bg: #1E293B;
+  --sidebar-border: #334155;
+  --sidebar-item-hover: rgba(45, 212, 191, 0.1);
+  --sidebar-item-active: rgba(45, 212, 191, 0.15);
+  --sidebar-item-active-border: var(--_teal-adjusted-500);
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: var(--_teal-adjusted-400);
+  
+  /* Topbar */
+  --topbar-bg: #1E293B;
+  --topbar-border: #334155;
+  
+  /* Cards */
+  --card-bg: #1E293B;
+  --card-border: #334155;
+  --card-hover-border: var(--_teal-700);
+  --card-shadow: var(--shadow-sm);
+  --card-shadow-hover: var(--shadow-md);
+  
+  /* Input fields */
+  --input-bg: #0F172A;
+  --input-border: #334155;
+  --input-border-hover: #475569;
+  --input-border-focus: var(--_teal-adjusted-500);
+  --input-placeholder: #64748B;
+  
+  /* Buttons */
+  --btn-primary-bg: var(--action-primary);
+  --btn-primary-bg-hover: var(--action-primary-hover);
+  --btn-primary-text: var(--action-primary-text);
+  --btn-secondary-bg: transparent;
+  --btn-secondary-border: var(--action-secondary);
+  --btn-secondary-text: var(--action-secondary);
+  --btn-ghost-bg-hover: var(--bg-interactive-hover);
+  
+  /* Countdown */
+  --countdown-bg: linear-gradient(135deg, #0F172A, #1E293B);
+  --countdown-segment-bg: #334155;
+  --countdown-text: #F1F5F9;
+}
+
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Background utilities */
+.bg-app { background-color: var(--bg-app); }
+.bg-app-subtle { background-color: var(--bg-app-subtle); }
+.bg-surface { background-color: var(--bg-surface); }
+.bg-surface-raised { background-color: var(--bg-surface-raised); }
+.bg-interactive { background-color: var(--bg-interactive); }
+.bg-primary { background-color: var(--action-primary); }
+.bg-accent { background-color: var(--action-accent); }
+
+/* Text utilities */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-disabled { color: var(--text-disabled); }
+.text-inverted { color: var(--text-inverted); }
+.text-link { color: var(--text-link); }
+.text-action { color: var(--action-primary); }
+.text-accent { color: var(--action-accent); }
+
+/* Status utilities */
+.text-success { color: var(--status-success-text); }
+.text-warning { color: var(--status-warning-text); }
+.text-error { color: var(--status-error-text); }
+.text-info { color: var(--status-info-text); }
+
+.bg-success { background-color: var(--status-success-subtle); }
+.bg-warning { background-color: var(--status-warning-subtle); }
+.bg-error { background-color: var(--status-error-subtle); }
+.bg-info { background-color: var(--status-info-subtle); }
+
+/* Border utilities */
+.border-default { border-color: var(--border-default); }
+.border-subtle { border-color: var(--border-subtle); }
+.border-strong { border-color: var(--border-strong); }
+.border-primary { border-color: var(--action-primary); }
+.border-error { border-color: var(--border-error); }
+.border-success { border-color: var(--border-success); }
+
+/* Shadow utilities */
+.shadow-xs { box-shadow: var(--shadow-xs); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-primary { box-shadow: var(--shadow-primary); }
+.shadow-accent { box-shadow: var(--shadow-accent); }
+
+/* Focus ring */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.focus-ring-error:focus {
+  outline: none;
+  box-shadow: var(--focus-ring-error);
+}
+
+
+/* ============================================
+   BASE ELEMENT STYLES
+   ============================================ */
+
+/* Apply theme to body */
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Links */
+a {
+  color: var(--text-link);
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--text-link-hover);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--action-primary);
+  color: var(--action-primary-text);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-app-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-app-subtle);
+}
+
+
+/* ============================================
+   COMPONENT EXAMPLES
+   ============================================ */
+
+/* Primary Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-bg-hover);
+  box-shadow: var(--shadow-primary);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 2px solid var(--btn-secondary-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--action-secondary-bg-hover);
+}
+
+.btn-secondary:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--btn-ghost-bg-hover);
+  color: var(--text-primary);
+}
+
+/* Card */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Input */
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:hover {
+  border-color: var(--input-border-hover);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
+}
+
+.input.error {
+  border-color: var(--border-error);
+}
+
+.input.error:focus {
+  box-shadow: var(--focus-ring-error);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background-color: var(--action-primary-subtle);
+  color: var(--action-primary);
+}
+
+.badge-success {
+  background-color: var(--status-success-subtle);
+  color: var(--status-success-text);
+}
+
+.badge-warning {
+  background-color: var(--status-warning-subtle);
+  color: var(--status-warning-text);
+}
+
+.badge-error {
+  background-color: var(--status-error-subtle);
+  color: var(--status-error-text);
+}
+
+.badge-accent {
+  background-color: var(--action-accent-subtle);
+  color: var(--action-accent);
+}
+
+/* Progress bar */
+.progress {
+  width: 100%;
+  height: 8px;
+  background-color: var(--progress-track);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--progress-fill);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-bar.success {
+  background-color: var(--progress-fill-success);
+}
+
+/* Streak flame icon */
+.streak-icon {
+  color: var(--streak-flame);
+  filter: drop-shadow(0 0 8px var(--streak-flame-glow));
+}
+
+/* Coin icon */
+.coin-icon {
+  color: var(--coin-color);
+  background-color: var(--coin-bg);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+/* Answer states for quizzes */
+.answer-option {
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-default);
+  border-radius: 0.75rem;
+  background-color: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.answer-option:hover {
+  border-color: var(--border-interactive);
+  background-color: var(--bg-interactive);
+}
+
+.answer-option.selected {
+  border-color: var(--answer-selected-border);
+  background-color: var(--answer-selected-bg);
+}
+
+.answer-option.correct {
+  border-color: var(--answer-correct-border);
+  background-color: var(--answer-correct-bg);
+}
+
+.answer-option.wrong {
+  border-color: var(--answer-wrong-border);
+  background-color: var(--answer-wrong-bg);
+}
+
+/* Alert / Toast */
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+}
+
+.alert-success {
+  background-color: var(--status-success-subtle);
+  border-color: var(--status-success-border);
+  color: var(--status-success-text);
+}
+
+.alert-warning {
+  background-color: var(--status-warning-subtle);
+  border-color: var(--status-warning-border);
+  color: var(--status-warning-text);
+}
+
+.alert-error {
+  background-color: var(--status-error-subtle);
+  border-color: var(--status-error-border);
+  color: var(--status-error-text);
+}
+
+.alert-info {
+  background-color: var(--status-info-subtle);
+  border-color: var(--status-info-border);
+  color: var(--status-info-text);
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 0.25rem;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Text highlights for study mode */
+.highlight-yellow { background-color: var(--highlight-yellow); }
+.highlight-green { background-color: var(--highlight-green); }
+.highlight-blue { background-color: var(--highlight-blue); }
+.highlight-pink { background-color: var(--highlight-pink); }
+.highlight-purple { background-color: var(--highlight-purple); }
+

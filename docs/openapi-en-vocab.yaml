@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: English Vocabulary API
+  version: 1.0.0
+  description: >
+    API tra cứu / chi tiết từ vựng tiếng Anh. Thiết kế sẵn để mở rộng
+    (thêm POST/PUT sau này nếu cần).
+
+servers:
+  - url: https://your-domain.com
+    description: Production
+  - url: http://127.0.0.1:8000
+    description: Local dev
+
+security:
+  - cookieAuth: []
+  - sessionAuth: []
+
+paths:
+  /api/english-vocab/:
+    get:
+      summary: Danh sách từ vựng tiếng Anh
+      description: Tìm kiếm/paginate theo từ, phiên âm, nghĩa, định nghĩa.
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Từ khóa (en_word/phonetic/vi_meaning/en_definition)
+        - in: query
+          name: pos
+          schema: { type: string }
+          description: Lọc theo từ loại (noun/verb/adj...)
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Danh sách từ vựng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  page: { type: integer }
+                  page_size: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EnglishVocabulary"
+
+  /api/english-vocab/{id}/:
+    get:
+      summary: Chi tiết một từ vựng tiếng Anh
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Thông tin chi tiết
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnglishVocabularyDetail"
+        "404":
+          description: Not found
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    sessionAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    EnglishVocabulary:
+      type: object
+      properties:
+        id: { type: integer }
+        en_word: { type: string }
+        phonetic: { type: string }
+        vi_meaning: { type: string }
+        en_definition: { type: string }
+        pos: { type: string }
+        pos_candidates:
+          type: array
+          items: { type: string }
+        audio_us: { type: string, format: uri, nullable: true }
+        audio_uk: { type: string, format: uri, nullable: true }
+        image: { type: string, format: uri, nullable: true }
+        course: { type: string, nullable: true }
+        lesson: { type: string, nullable: true }
+        section: { type: string, nullable: true }
+        is_active: { type: boolean }
+        is_verified: { type: boolean }
+
+    EnglishVocabularyDetail:
+      allOf:
+        - $ref: "#/components/schemas/EnglishVocabulary"
+        - type: object
+          properties:
+            example_en: { type: string }
+            example_vi: { type: string }
+            notes: { type: string }
+            audio_pack_uuid: { type: string, nullable: true }
+            examples:
+              type: array
+              items:
+                $ref: "#/components/schemas/EnglishVocabularyExample"
+
+    EnglishVocabularyExample:
+      type: object
+      properties:
+        id: { type: integer }
+        order: { type: integer }
+        en: { type: string }
+        vi: { type: string }
+        sentence_marked: { type: string, nullable: true }
+        sentence_en: { type: string, nullable: true }
+        context: { type: string, nullable: true }
+        word_count: { type: integer, nullable: true }
+

@@ -6,8 +6,8 @@
 (function() {
   'use strict';
 
-  // Breakpoint for md: (matches Tailwind md: breakpoint)
-  const MD_BREAKPOINT = 768;
+  // Breakpoint for sm (matches Tailwind sm: breakpoint used in header templates)
+  const SM_BREAKPOINT = 640;
 
   document.addEventListener('DOMContentLoaded', function () {
     // Account menu (desktop)
@@ -106,7 +106,7 @@
         const mobileMenuButton = document.getElementById('mobileMenuButton');
         const mobileMenu = document.getElementById('mobileMenu');
         
-        if (window.innerWidth >= MD_BREAKPOINT && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        if (window.innerWidth >= SM_BREAKPOINT && mobileMenu && !mobileMenu.classList.contains('hidden')) {
           closeMobileMenu(mobileMenuButton, mobileMenu);
         }
       }, 100);

@@ -290,7 +290,11 @@ class ReadingPassage(models.Model):
     )
     order = models.PositiveIntegerField(default=1, help_text="Thứ tự passage trong bài")
     title = models.CharField(max_length=255, blank=True)
-    text = models.TextField(help_text="Đoạn văn JP đầy đủ")
+    text = models.TextField(help_text="Đoạn văn JP đầy đủ", blank=True)
+    instruction = models.TextField(help_text="Hướng dẫn đọc hiểu (optional)", blank=True)
+    # Nội dung JSON (ưu tiên render nếu có), cho phép lưu cấu trúc phong phú
+    # Ví dụ: {"html": "<p>...</p>"} hoặc {"content": "plain text"} hoặc {"content_segments": [...]}.
+    content_json = models.JSONField(default=dict, blank=True)
 
     image = models.ImageField(
         upload_to="exam/dokkai_passages/",
@@ -306,6 +310,32 @@ class ReadingPassage(models.Model):
 
     def __str__(self):
         return self.title or f"Passage {self.order} – {self.template}"
+
+
+class ReadingPassageImage(models.Model):
+    """
+    Nhiều ảnh cho 1 passage (đặc biệt hữu ích cho TOEIC Part 6/7: email + bill + schedule...).
+    """
+    passage = models.ForeignKey(
+        ReadingPassage,
+        related_name="images",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(default=1, help_text="Thứ tự hiển thị ảnh trong passage")
+    image = models.ImageField(
+        upload_to="exam/reading_passages/",
+        help_text="Ảnh thuộc passage (có thể upload nhiều ảnh).",
+    )
+    caption = models.CharField(max_length=255, blank=True, help_text="Chú thích (optional)")
+
+    class Meta:
+        ordering = ["passage_id", "order", "id"]
+        unique_together = ("passage", "order")
+        verbose_name = "Reading Passage Image"
+        verbose_name_plural = "Reading Passage Images"
+
+    def __str__(self):
+        return f"PassageImage #{self.order} – Passage {self.passage_id}"
 
 
 # ======================
@@ -458,6 +488,14 @@ class ExamQuestion(models.Model):
         blank=True,
     )
     explanation_vi = models.TextField(blank=True)
+    explanation_json = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=(
+            "JSON giải thích chi tiết đáp án (dùng cho UI kết quả/giải thích). "
+            "Gợi ý schema: meta, correct_option, content_translation, overall_analysis, options_breakdown, vocabulary_extraction."
+        ),
+    )
 
     # Data đặc thù từng type
     # - MCQ  : {"choices": [{"key": "1","text":"..."}, ...]}

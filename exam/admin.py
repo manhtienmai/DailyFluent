@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.contrib.admin.views.main import ChangeList
+from django import forms
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import path, reverse
@@ -7,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db import models
+from django.core.exceptions import ValidationError
 import json
 import uuid
 import re
@@ -19,6 +24,9 @@ from .models import (
     QuestionAnswer,
     ListeningConversation,
     ReadingPassage,
+    ReadingPassageImage,
+    TOEICPart,
+    ExamLevel,
     ExamComment,
 )
 
@@ -55,6 +63,23 @@ class ListeningConversationInline(admin.TabularInline):
         "transcript",
     )
     ordering = ("toeic_part", "order",)
+
+
+class ReadingPassageInline(admin.StackedInline):
+    model = ReadingPassage
+    extra = 0
+    fields = ("order", "title", "text", "image", "data")
+    ordering = ("order",)
+    formfield_overrides = {
+        models.TextField: {"widget": admin.widgets.AdminTextareaWidget(attrs={"rows": 6})},
+    }
+
+
+class ReadingPassageImageInline(admin.TabularInline):
+    model = ReadingPassageImage
+    extra = 0
+    fields = ("order", "image", "caption")
+    ordering = ("order", "id")
 
 
 @admin.register(ExamTemplate)
@@ -144,7 +169,7 @@ class ExamTemplateAdmin(admin.ModelAdmin):
             "fields": ("time_limit_minutes", "is_active")
         }),
     )
-    inlines = [ListeningConversationInline, ExamQuestionInline]
+    inlines = [ListeningConversationInline, ReadingPassageInline, ExamQuestionInline]
     change_list_template = "admin/exam/examtemplate/change_list.html"
     
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -420,22 +445,104 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         "order_in_mondai",
         "source",
     )
-    list_filter = (
-        "question_type",
-        "toeic_part",
-        "template__level",
-        "template__category",
-        "template__book",
-        "source",
-        "mondai",
-    )
+    # Filters moved to a custom top filter bar (template + part).
+    # We intentionally disable the default left sidebar filters.
+    list_filter = ()
     search_fields = ("text",)
+    class ExamQuestionForm(forms.ModelForm):
+        """
+        Admin helper for structured answer explanation JSON.
+        """
+
+        SAMPLE_EXPLANATION_JSON = (
+            '{\n'
+            '  "meta": {\n'
+            '    "difficulty": "medium",\n'
+            '    "tags": ["grammar", "past_simple", "part_5"]\n'
+            '  },\n'
+            '  "correct_option": "A",\n'
+            '  "content_translation": {\n'
+            '    "en": "I went to the supermarket last night.",\n'
+            '    "vi": "Tối qua tôi đã đi siêu thị."\n'
+            '  },\n'
+            '  "overall_analysis": {\n'
+            '    "summary": "Câu này kiểm tra thì Quá khứ đơn (Past Simple).",\n'
+            '    "detail_html": "<p>...</p>"\n'
+            '  },\n'
+            '  "options_breakdown": {\n'
+            '    "A": {"text": "went", "status": "correct", "reason": "..."},\n'
+            '    "B": {"text": "go", "status": "wrong_tense", "reason": "..."},\n'
+            '    "C": {"text": "gone", "status": "wrong_form", "reason": "..."},\n'
+            '    "D": {"text": "going", "status": "wrong_form", "reason": "..."}\n'
+            '  },\n'
+            '  "vocabulary_extraction": [\n'
+            '    {"word": "supermarket", "ipa": "/.../", "meaning": "siêu thị", "type": "noun"}\n'
+            '  ]\n'
+            '}\n'
+        )
+
+        explanation_json = forms.CharField(
+            required=False,
+            widget=forms.Textarea(
+                attrs={
+                    "rows": 18,
+                    "style": "font-family: monospace; width: 100%;",
+                    "placeholder": SAMPLE_EXPLANATION_JSON,
+                }
+            ),
+            help_text="Dán JSON giải thích chi tiết. Có thể dùng nút 'Tạo mẫu/Format' ở dưới.",
+        )
+
+        class Meta:
+            model = ExamQuestion
+            fields = "__all__"
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if not self.is_bound:
+                try:
+                    raw = getattr(self.instance, "explanation_json", None)
+                    if raw:
+                        self.initial["explanation_json"] = json.dumps(raw, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
+
+        def clean_explanation_json(self):
+            raw = self.cleaned_data.get("explanation_json")
+            if raw in (None, ""):
+                return {}
+
+            # already dict/list
+            if isinstance(raw, (dict, list)):
+                return raw
+
+            if not isinstance(raw, str):
+                return {}
+
+            s = raw.strip()
+            if not s:
+                return {}
+
+            # Remove // comments
+            s = re.sub(r"//.*", "", s)
+            # Remove trailing commas: { ... , } or [ ... , ]
+            s = re.sub(r",\s*([}\]])", r"\1", s)
+
+            try:
+                return json.loads(s)
+            except json.JSONDecodeError as e:
+                raise forms.ValidationError(
+                    f"JSON không hợp lệ: {e.msg} (line {e.lineno}, col {e.colno})."
+                )
+
+    form = ExamQuestionForm
+
     fieldsets = (
         ("Basic Information", {
             "fields": ("template", "order", "question_type", "toeic_part")
         }),
         ("Question Content", {
-            "fields": ("text", "explanation_vi", "data", "correct_answer")
+            "fields": ("text", "correct_answer", "explanation_vi", "explanation_json", "data")
         }),
         ("TOEIC Specific", {
             "fields": (
@@ -496,6 +603,68 @@ class ExamQuestionAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + urls
+
+    class _FilteredChangeList(ChangeList):
+        def get_queryset(self, request):
+            qs = super().get_queryset(request)
+            template_id = (request.GET.get("template") or "").strip()
+            toeic_part = (request.GET.get("toeic_part") or request.GET.get("part") or "").strip()
+
+            if template_id:
+                try:
+                    qs = qs.filter(template_id=int(template_id))
+                except ValueError:
+                    pass
+
+            if toeic_part:
+                qs = qs.filter(toeic_part=toeic_part)
+
+            return qs
+
+    def get_changelist(self, request, **kwargs):
+        return self._FilteredChangeList
+
+    def lookup_allowed(self, lookup, value):
+        """
+        Django admin will strip unknown querystring params and redirect to ?e=1.
+        We use custom params (template, part) for our top filter bar, so allow them.
+        """
+        if lookup in {"template", "toeic_part", "part"}:
+            return True
+        return super().lookup_allowed(lookup, value)
+
+    def get_queryset(self, request):
+        """
+        Safety net: ensure filtering still applies even if ChangeList customization
+        is bypassed by Django admin internals.
+        """
+        qs = super().get_queryset(request)
+        template_id = (request.GET.get("template") or "").strip()
+        toeic_part = (request.GET.get("toeic_part") or request.GET.get("part") or "").strip()
+
+        if template_id:
+            try:
+                qs = qs.filter(template_id=int(template_id))
+            except ValueError:
+                pass
+
+        if toeic_part:
+            qs = qs.filter(toeic_part=toeic_part)
+
+        return qs
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+
+        # Options for top filter bar
+        extra_context["template_options"] = (
+            ExamTemplate.objects.order_by("title").only("id", "title")[:500]
+        )
+        extra_context["part_options"] = TOEICPart.choices
+        extra_context["selected_template"] = (request.GET.get("template") or "").strip()
+        extra_context["selected_part"] = (request.GET.get("toeic_part") or request.GET.get("part") or "").strip()
+
+        return super().changelist_view(request, extra_context=extra_context)
     
     def bulk_upload_images_view(self, request):
         """Custom view để hiển thị tất cả questions và upload ảnh nhanh"""
@@ -508,7 +677,12 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         search_query = request.GET.get('search', '')
         
         # Base queryset
-        questions = ExamQuestion.objects.select_related('template', 'passage', 'listening_conversation').order_by('template', 'order', 'id')
+        questions = (
+            ExamQuestion.objects
+            .select_related('template', 'passage', 'listening_conversation')
+            .prefetch_related('passage__images')
+            .order_by('template', 'order', 'id')
+        )
         
         # Apply filters
         if template_id:
@@ -517,15 +691,20 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         if toeic_part:
             questions = questions.filter(toeic_part=toeic_part)
         
-        # Note: has_image filter now checks passage.image, not question.image
+        # Note: has_image filter checks passage.image OR passage.images (multi images)
         if has_image == 'yes':
-            questions = questions.filter(passage__image__isnull=False).exclude(passage__image='')
+            questions = questions.filter(
+                Q(passage__image__isnull=False) & ~Q(passage__image='') |
+                Q(passage__images__isnull=False)
+            ).distinct()
         elif has_image == 'no':
             questions = questions.filter(
-                Q(passage__isnull=True) | 
-                Q(passage__image='') | 
-                Q(passage__image__isnull=True)
-            )
+                Q(passage__isnull=True) |
+                (
+                    (Q(passage__image='') | Q(passage__image__isnull=True))
+                    & Q(passage__images__isnull=True)
+                )
+            ).distinct()
         
         if search_query:
             questions = questions.filter(
@@ -689,7 +868,7 @@ class ExamQuestionAdmin(admin.ModelAdmin):
             }, status=500)
     
     def upload_passage_image_api(self, request):
-        """API endpoint để handle file upload cho passage"""
+        """API endpoint để handle file upload cho passage (supports multiple images per passage)"""
         if request.method != 'POST':
             return JsonResponse({'error': 'Method not allowed'}, status=405)
         
@@ -704,35 +883,50 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         from exam.models import ReadingPassage
         passage = get_object_or_404(ReadingPassage, id=passage_id)
         
-        # Lấy file từ request
-        if 'image' not in request.FILES:
+        # Lấy file(s) từ request
+        images = request.FILES.getlist('images')
+        if not images and 'image' in request.FILES:
+            images = [request.FILES['image']]
+
+        if not images:
             return JsonResponse({'error': 'No image file provided'}, status=400)
-        
-        image_file = request.FILES['image']
         
         # Validate file type
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-        file_ext = Path(image_file.name).suffix.lower()
-        if file_ext not in allowed_extensions:
-            return JsonResponse({
-                'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'
-            }, status=400)
-        
-        # Gán trực tiếp file vào field - Django sẽ tự động upload vào container "media"
-        # (không phải "audio") thông qua AzureMediaStorage backend
+        for f in images:
+            file_ext = Path(f.name).suffix.lower()
+            if file_ext not in allowed_extensions:
+                return JsonResponse({
+                    'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'
+                }, status=400)
+
+        # Lưu nhiều ảnh vào DB (ReadingPassageImage)
         try:
-            # Gán trực tiếp file object, Django sẽ tự động xử lý upload
-            # và sử dụng upload_to từ model field (ReadingPassage.image)
-            passage.image = image_file
-            passage.save()
-            
-            # Get full URL
-            image_url = passage.image.url if passage.image else None
-            
+            from django.db import transaction
+            from django.db.models import Max
+
+            with transaction.atomic():
+                max_order = ReadingPassageImage.objects.filter(passage=passage).aggregate(
+                    m=Max('order')
+                )['m'] or 0
+                next_order = max_order + 1
+
+                created = []
+                for f in images:
+                    obj = ReadingPassageImage.objects.create(
+                        passage=passage,
+                        order=next_order,
+                        image=f,
+                        caption="",
+                    )
+                    created.append(obj)
+                    next_order += 1
+
             return JsonResponse({
                 'success': True,
-                'image_url': image_url,
-                'message': 'Image uploaded successfully'
+                'created_count': len(created),
+                'image_urls': [obj.image.url for obj in created if obj.image],
+                'message': f'Uploaded {len(created)} image(s) successfully'
             })
         except Exception as e:
             import traceback
@@ -1017,6 +1211,213 @@ class ListeningConversationAdmin(admin.ModelAdmin):
         return bool(obj.transcript)
     has_transcript.boolean = True
     has_transcript.short_description = "Transcript"
+
+
+class ReadingPassageForm(forms.ModelForm):
+    """
+    Custom form to provide a friendly JSON editor + sample for content_json.
+    """
+
+    SAMPLE_JSON = (
+        '{\n'
+        '  "content_segments": [\n'
+        '    {"type": "text", "text": "Acme Corp will hold a meeting on "},\n'
+        '    {"type": "blank", "id": "131"},\n'
+        '    {"type": "text", "text": " at the main hall. Please bring the schedule attached below."}\n'
+        '  ]\n'
+        '}\n'
+        '// Hoặc dùng HTML trực tiếp:\n'
+        '{ "html": "<p><strong>Notice</strong><br>...</p><img src=\\"https://example.com/a.png\\">" }\n'
+        '// Hoặc plain text:\n'
+        '{ "content": "Plain text with \\n for line breaks" }'
+    )
+
+    content_json = forms.JSONField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 12,
+                "style": "font-family: monospace; width: 100%;",
+                "placeholder": SAMPLE_JSON,
+            }
+        ),
+        help_text="JSON ưu tiên render. Hỗ trợ: html | content_segments | content. Xem placeholder mẫu.",
+    )
+
+    class Meta:
+        model = ReadingPassage
+        fields = "__all__"
+
+    def clean_content_json(self):
+        """
+        Validate JSON early to provide a clear error if admin paste is invalid.
+        - Accept empty -> {}.
+        - Accept dict/list directly.
+        - Accept string -> json.loads.
+        """
+        value = self.cleaned_data.get("content_json")
+
+        if value in [None, ""]:
+            return {}
+
+        if isinstance(value, (dict, list)):
+            return value
+
+        if isinstance(value, str):
+            raw = value.strip()
+            if raw == "":
+                return {}
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise ValidationError(
+                    f"JSON không hợp lệ: {exc.msg} (line {exc.lineno}, col {exc.colno}). "
+                    "Loại bỏ comment // và đảm bảo đúng format JSON."
+                )
+
+        raise ValidationError("content_json phải là JSON hợp lệ (object hoặc array).")
+
+
+@admin.register(ReadingPassage)
+class ReadingPassageAdmin(admin.ModelAdmin):
+    form = ReadingPassageForm
+    list_display = ("id", "template", "order", "title", "has_image")
+    list_filter = (
+        "template__level",
+        "template__category",
+        "template__book",
+    )
+    search_fields = ("template__title", "title", "text")
+    ordering = ("template_id", "order", "id")
+    fieldsets = (
+        ("Basic Information", {
+            "fields": ("template", "order", "title")
+        }),
+        ("Content", {
+            "fields": ("text", "data", "content_json")
+        }),
+        ("Media", {
+            "fields": ("image",)
+        }),
+    )
+    inlines = [ReadingPassageImageInline]
+    formfield_overrides = {
+        models.TextField: {"widget": admin.widgets.AdminTextareaWidget(attrs={"rows": 8})},
+    }
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "import-content-json/",
+                self.admin_site.admin_view(self.import_content_json_view),
+                name="exam_readingpassage_import_content_json",
+            ),
+        ]
+        return custom_urls + urls
+
+    def import_content_json_view(self, request):
+        """
+        Simple form to paste JSON content and assign to a passage.
+        Find passage by (passage_id) or (template_id + order).
+        """
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Import Passage Content JSON",
+            errors="",
+            success="",
+        )
+
+        # Filters for listing passages + prefill fields
+        template_filter = request.GET.get("template_id", "").strip()
+        part_filter = request.GET.get("part", "").strip()
+        prefill_passage_id = request.GET.get("passage_id", "").strip()
+        prefill_template_id = request.GET.get("prefill_template_id", "").strip()
+        prefill_order = request.GET.get("prefill_order", "").strip()
+
+        # If we come from a specific passage, prefer filtering by its template for faster selection
+        if prefill_passage_id and not template_filter:
+            try:
+                p = ReadingPassage.objects.only("template_id").get(id=int(prefill_passage_id))
+                template_filter = str(p.template_id)
+            except Exception:
+                pass
+
+        if request.method == "POST":
+            passage_id = request.POST.get("passage_id", "").strip()
+            template_id = request.POST.get("template_id", "").strip()
+            order = request.POST.get("order", "").strip()
+            content_raw = request.POST.get("content_json", "").strip()
+            title = request.POST.get("title", "").strip()
+
+            passage = None
+            try:
+                if passage_id:
+                    passage = ReadingPassage.objects.get(id=int(passage_id))
+                elif template_id and order:
+                    passage = ReadingPassage.objects.get(
+                        template_id=int(template_id),
+                        order=int(order),
+                    )
+                else:
+                    context["errors"] = "Cần passage_id hoặc (template_id + order)."
+            except (ReadingPassage.DoesNotExist, ValueError):
+                passage = None
+                context["errors"] = "Không tìm thấy passage theo thông tin cung cấp."
+
+            if passage and content_raw:
+                try:
+                    data = json.loads(content_raw)
+                    passage.content_json = data
+                    if title:
+                        passage.title = title
+                    passage.save()
+                    context["success"] = f"Đã import content_json cho Passage ID {passage.id}"
+                except json.JSONDecodeError as exc:
+                    context["errors"] = f"JSON không hợp lệ: {exc.msg} (line {exc.lineno}, col {exc.colno})"
+
+        # Load passages for quick selection
+        passages_qs = ReadingPassage.objects.select_related("template").order_by("template_id", "order")
+        if template_filter:
+            try:
+                passages_qs = passages_qs.filter(template_id=int(template_filter))
+            except ValueError:
+                pass
+        # Derive part from attached questions (first question's toeic_part)
+        passages = []
+        for p in passages_qs[:300]:  # limit to avoid huge listing
+            first_q = p.questions.order_by("order").first()
+            part_code = first_q.toeic_part if first_q else ""
+            passages.append({
+                "id": p.id,
+                "template_id": p.template_id,
+                "template_title": p.template.title,
+                "order": p.order,
+                "title": p.title,
+                "part": part_code,
+            })
+        if part_filter:
+            passages = [p for p in passages if p["part"] == part_filter]
+
+        # Dropdown options
+        template_options = ExamTemplate.objects.filter(level=ExamLevel.TOEIC).order_by("title")[:300]
+        part_options = TOEICPart.choices
+
+        context["passages"] = passages
+        context["template_filter"] = template_filter
+        context["part_filter"] = part_filter
+        context["template_options"] = template_options
+        context["part_options"] = part_options
+        context["prefill_passage_id"] = prefill_passage_id
+        context["prefill_template_id"] = prefill_template_id
+        context["prefill_order"] = prefill_order
+
+        return render(request, "admin/exam/readingpassage/import_content_json.html", context)
+
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = "Image"
 
 
 @admin.register(QuestionAnswer)

@@ -1,76 +1,143 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
 {% block title %}{{ exercise.title }} | Nghe chép chính tả{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260105">
+<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260114b">
 <style>
   @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-
   .animate-fade-in-up {
     animation: fade-in-up 0.5s ease-out forwards;
+  }
+  
+  /* Dark mode overrides for detail page */
+  .df-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .df-detail-back {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .df-detail-back:hover {
+    color: var(--action-primary);
+  }
+  .df-detail-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 </style>
 {% endblock %}
 
-{% block main_classes %}df-page-container-lg{% endblock %}
-
 {% block content %}
-<div class="dictation-card space-y-6">
+<div class="dictation-card" style="display:flex;flex-direction:column;gap:1.5rem;">
   <!-- Header & Tabs -->
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <a href="{% url 'core:dictation_list' %}" class="text-slate-400 hover:text-slate-600 transition-colors">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </a>
-        <h1 class="text-xl font-bold text-slate-900">{{ exercise.title }}</h1>
-      </div>
+  <div class="df-detail-header">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <a href="{% url 'core:dictation_list' %}" class="df-detail-back">
+        <svg style="width:20px;height:20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </a>
+      <h1 class="df-detail-title">{{ exercise.title }}</h1>
+    </div>
 
-      <!-- Tab Navigation -->
-      <div class="flex gap-1 border-b border-slate-200">
-        <button onclick="switchTab('dictation')" id="tab-btn-dictation"
-          class="tab-btn active">
-          Dictation
-        </button>
-        <button onclick="switchTab('transcript')" id="tab-btn-transcript"
-          class="tab-btn">
-          Full Transcript
-        </button>
-      </div>
+    <!-- Tab Navigation -->
+    <div class="df-tab-container">
+      <button onclick="switchTab('dictation')" id="tab-btn-dictation" class="tab-btn active">
+        Dictation
+      </button>
+      <button onclick="switchTab('transcript')" id="tab-btn-transcript" class="tab-btn">
+        Full Transcript
+      </button>
     </div>
   </div>
 
   <!-- TAB: DICTATION (Original Game) -->
   <div id="view-dictation" class="tab-pane animate-fade-in-up">
 
-    <!-- Progress (Dictation Mode) -->
-    <div class="flex items-center justify-center gap-4 mb-8">
-      <span id="progress-text" class="text-sm text-slate-500 font-medium">1 / {{ segments.count }}</span>
-      <div class="w-48 bg-slate-200 rounded-full h-1.5">
-        <div id="progress-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%">
+    <!-- Main Exercise Card -->
+    <div id="exercise-app" class="df-dictation-shell relative" style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;">
+      <!-- Settings button inside app -->
+      <button id="dict-settings-btn" type="button" title="Cài đặt">
+        <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+      <div id="dict-settings-panel" class="hidden">
+        <div class="dict-settings-header">
+          <div class="dict-settings-title">Cài đặt nhanh</div>
+        </div>
+        <div class="dict-settings-body">
+            <div class="dict-setting-row">
+              <span class="dict-setting-label">Phím phát lại</span>
+              <select id="dict-replay-key" class="dict-setting-input">
+                <option value="Ctrl">Ctrl</option>
+                <option value="Alt">Alt</option>
+                <option value="Shift">Shift</option>
+              </select>
+            </div>
+            <div class="dict-setting-row">
+              <span class="dict-setting-label">Phím Play/Pause</span>
+              <select id="dict-play-key" class="dict-setting-input">
+                <option value="Backtick">` (backtick)</option>
+                <option value="Space">Space</option>
+                <option value="Enter">Enter</option>
+              </select>
+            </div>
+            <div class="dict-setting-row">
+              <span class="dict-setting-label">Tự động phát lại</span>
+              <select id="dict-auto-replay" class="dict-setting-input">
+                <option value="No">Không</option>
+                <option value="Yes">Có</option>
+              </select>
+            </div>
+            <div class="dict-setting-row">
+              <span class="dict-setting-label">Khoảng cách phát (s)</span>
+              <select id="dict-replay-gap" class="dict-setting-input">
+                <option value="0.5">0.5</option>
+                <option value="1" selected>1</option>
+                <option value="1.5">1.5</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+            <div class="dict-setting-row">
+              <span class="dict-setting-label">Hiện mẹo phím tắt</span>
+              <select id="dict-show-tips" class="dict-setting-input">
+                <option value="Show">Hiện</option>
+                <option value="Hide">Ẩn</option>
+              </select>
+            </div>
         </div>
       </div>
-    </div>
 
-    <!-- Main Exercise Card -->
-    <div id="exercise-app" class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- Progress (inside app) -->
+      <div class="dictation-progress" style="padding:1.5rem 1.5rem 0.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <span id="progress-text" style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums;">1 / {{ segments.count }}</span>
+          <div class="dictation-progress-bar" style="flex:1;max-width:240px;">
+            <div id="progress-bar" class="dictation-progress-fill" style="width:0%;"></div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Audio Section -->
-      <div class="p-8 bg-gradient-to-br from-slate-50/50 to-slate-100/50 border-b border-slate-200">
-        <div class="flex flex-col items-center gap-6">
+      <div style="padding:1.5rem 2rem;background:var(--bg-interactive);border-bottom:1px solid var(--border-subtle);">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;max-width:400px;">
           <!-- Visualizer -->
           <div id="audio-viz" class="audio-visualizer paused">
             <div class="bar"></div>
@@ -81,79 +148,73 @@
           </div>
 
           <!-- Controls -->
-          <div class="flex items-center gap-3">
-            <button id="btn-play" type="button"
-              class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <div class="dictation-controls">
+            <button id="btn-play" type="button" class="dictation-btn dictation-btn--primary">
+              <svg style="width:20px;height:20px;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
               Phát
             </button>
-            <button id="btn-replay" type="button"
-              class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-all shadow-sm hover:shadow-md">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button id="btn-replay" type="button" class="dictation-btn dictation-btn--secondary">
+              <svg style="width:20px;height:20px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Nghe lại
             </button>
-            <button id="btn-slow" type="button"
-              class="flex items-center gap-1 px-4 py-2.5 bg-slate-100 border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Chậm
-            </button>
+            <select id="select-speed" class="dictation-speed-select">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
           </div>
 
           <!-- Hint -->
-          <p id="hint-text" class="text-sm text-slate-500 italic hidden"></p>
+          <p id="hint-text" class="dictation-hint hidden"></p>
         </div>
       </div>
 
       <!-- Input Section -->
-      <div class="p-8">
-        <textarea id="user-input"
-          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all resize-none text-lg leading-relaxed"
-          rows="2" placeholder="Nhập nội dung bạn nghe được..."></textarea>
+      <div style="padding:1.5rem 2rem;">
+        <div style="max-width:500px;">
+          <textarea id="user-input" class="dictation-textarea" rows="2" 
+            placeholder="Nhập nội dung bạn nghe được..."></textarea>
 
-        <!-- Actions -->
-        <div class="flex justify-center gap-3 mt-6">
-          <button id="btn-check" type="button"
-            class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-sm">
-            Kiểm tra
-          </button>
-          <button id="btn-next" type="button"
-            class="hidden px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm">
-            Tiếp theo →
-          </button>
+          <!-- Actions -->
+          <div class="dictation-controls" style="justify-content:center;margin-top:1.25rem;">
+            <button id="btn-check" type="button" class="dictation-btn dictation-btn--success">
+              Kiểm tra
+            </button>
+            <button id="btn-next" type="button" class="dictation-btn dictation-btn--primary hidden">
+              Tiếp theo →
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Feedback Section -->
-      <div id="feedback" class="hidden p-8 border-t border-slate-200 bg-slate-50/50">
-        <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Kết quả:</div>
-        <div id="feedback-content" class="text-lg leading-relaxed"></div>
+      <div id="feedback" class="hidden" style="padding:1.5rem 2rem;border-top:1px solid var(--border-subtle);background:var(--bg-interactive);">
+        <div id="feedback-content" style="font-size:1rem;line-height:1.6;"></div>
       </div>
     </div>
 
     <!-- Summary Screen -->
-    <div id="summary-screen" class="hidden bg-white border border-slate-200 rounded-2xl shadow-sm p-10 text-center">
-      <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    <div id="summary-screen" class="hidden" style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;padding:3rem;text-align:center;">
+      <div class="summary-icon">
+        <svg style="width:40px;height:40px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-slate-900 mb-2">Hoàn thành! 🎉</h2>
-      <p class="text-slate-600 mb-2">Bạn đã hoàn thành bài tập với kết quả:</p>
-      <p id="final-score" class="text-3xl font-bold text-emerald-600 mb-6"></p>
-      <div class="flex justify-center gap-3">
-        <button onclick="window.location.reload()"
-          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors">
+      <h2 class="summary-title">Hoàn thành! 🎉</h2>
+      <p class="summary-desc">Bạn đã hoàn thành bài tập với kết quả:</p>
+      <p id="final-score" class="summary-score"></p>
+      <div style="display:flex;justify-content:center;gap:0.75rem;">
+        <button onclick="window.location.reload()" class="dictation-btn dictation-btn--primary">
           Làm lại
         </button>
-        <a href="{% url 'core:dictation_list' %}"
-          class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors">
+        <a href="{% url 'core:dictation_list' %}" class="dictation-btn dictation-btn--secondary">
           Danh sách bài
         </a>
       </div>
@@ -162,96 +223,79 @@
 
   <!-- TAB: FULL TRANSCRIPT -->
   <div id="view-transcript" class="tab-pane hidden animate-fade-in-up">
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row"
-      style="height: 550px;">
+    <div class="df-transcript-layout" style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);min-height:520px;">
 
       <!-- Box Left: Player & Current Text -->
-      <div class="w-full md:w-5/12 bg-gradient-to-br from-slate-800 to-slate-900 text-white p-8 flex flex-col relative justify-between">
+      <div style="background:linear-gradient(135deg, var(--bg-inverted), var(--bg-inverted-subtle));color:var(--text-inverted);padding:2rem;display:flex;flex-direction:column;position:relative;">
 
-        <!-- Decoration -->
-        <div class="absolute top-0 right-0 p-4 opacity-10">
-          <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-          </svg>
-        </div>
-
-        <div class="flex-1 flex flex-col items-center justify-center text-center space-y-4 px-2 z-10">
-          <!-- Icon -->
-          <div class="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center text-white/80 mb-4">
-            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-          </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 0;">
           <!-- Active Text -->
-          <div id="trans-active-text"
-            class="text-lg font-medium leading-relaxed flex items-center justify-center text-white/95 transition-all duration-300 px-4"
-            style="min-height: 80px;">
-            (Bấm play để bắt đầu)
+          <div id="trans-active-text" style="font-size:1.375rem;font-weight:600;line-height:1.6;min-height:80px;transition:all 0.3s ease;">
+            Bấm ▶ để bắt đầu nghe
           </div>
         </div>
 
-        <!-- Compact Controls -->
-        <div class="pt-4 border-t border-white/10 z-10 w-full mt-4">
+        <!-- Controls -->
+        <div style="padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.1);">
           <!-- Progress Bar -->
-          <div class="w-full bg-white/20 h-1.5 rounded-full cursor-pointer relative group mb-3"
-            id="trans-progress-container">
-            <div id="trans-progress-bar"
-              class="bg-blue-500 h-full rounded-full w-0 pointer-events-none transition-[width] duration-100 ease-linear">
-            </div>
-            <div class="absolute -top-2 -bottom-2 w-full cursor-pointer"></div>
+          <div class="transcript-progress-container" id="trans-progress-container" style="margin-bottom:1rem;">
+            <div id="trans-progress-bar" class="transcript-progress-bar" style="width:0%;"></div>
           </div>
 
-          <div class="flex items-center justify-between">
-            <div class="text-xs text-white/80 font-mono w-12 text-left font-medium" id="trans-current-time">00:00</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <div id="trans-current-time" style="font-size:0.75rem;opacity:0.7;font-family:monospace;width:3.5rem;font-variant-numeric:tabular-nums;">00:00</div>
 
-            <div class="flex items-center gap-3">
-              <button id="trans-btn-prev" class="text-white/80 hover:text-white transition-all p-2.5 hover:bg-white/15 rounded-lg active:scale-95"><svg
-                  class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                </svg></button>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <button id="trans-btn-prev" class="transcript-nav-btn" title="Câu trước" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);">
+                <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              </button>
 
-              <button id="trans-btn-play"
-                class="w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-600/40 transition-transform active:scale-95 hover:scale-105">
-                <svg class="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <button id="trans-btn-play" class="transcript-play-main">
+                <svg style="width:24px;height:24px;margin-left:2px;" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </button>
 
-              <button id="trans-btn-replay" class="text-white/80 hover:text-white transition-all p-2.5 hover:bg-white/15 rounded-lg active:scale-95" title="Nghe lại">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <button id="trans-btn-replay" class="transcript-nav-btn" title="Nghe lại" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);">
+                <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
 
-              <button id="trans-btn-next" class="text-white/80 hover:text-white transition-all p-2.5 hover:bg-white/15 rounded-lg active:scale-95"><svg
-                  class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <button id="trans-btn-next" class="transcript-nav-btn" title="Câu sau" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);">
+                <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg></button>
+                </svg>
+              </button>
             </div>
 
-            <div class="text-xs text-white/80 font-mono w-12 text-right font-medium" id="trans-total-time">00:00</div>
+            <div id="trans-total-time" style="font-size:0.75rem;opacity:0.7;font-family:monospace;width:3.5rem;text-align:right;font-variant-numeric:tabular-nums;">00:00</div>
           </div>
         </div>
       </div>
 
       <!-- Box Right: Transcript List -->
-      <div class="w-full md:w-7/12 bg-white flex flex-col border-l border-slate-100">
+      <div class="transcript-list-container" style="border:none;border-radius:0;display:flex;flex-direction:column;">
         <!-- Options Header -->
-        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh sách câu</div>
-          <label
-            class="flex items-center gap-2 cursor-pointer text-sm text-slate-600 select-none hover:text-slate-900 group">
-            <input type="checkbox" id="chk-autoscroll"
-              class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" checked>
-            <span class="font-medium group-hover:text-blue-600 transition-colors">Tự động cuộn</span>
+        <div class="transcript-list-header">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="transcript-list-title">Danh sách câu</span>
+            <span class="transcript-list-badge">{{ segments.count }}</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.8125rem;color:var(--text-secondary);">
+            <input type="checkbox" id="chk-autoscroll" checked style="width:1rem;height:1rem;border-radius:4px;accent-color:var(--action-primary);cursor:pointer;">
+            <span>Tự động cuộn</span>
           </label>
         </div>
 
         <!-- List -->
-        <div id="transcript-list" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
+        <div id="transcript-list" class="custom-scrollbar" style="flex:1;overflow-y:auto;padding:1rem;max-height:420px;">
           <!-- Items will be injected here -->
+        </div>
+        <div style="padding:0.75rem 1.25rem;font-size:0.75rem;color:var(--text-tertiary);background:var(--bg-surface);border-top:1px solid var(--border-subtle);">
+          Space: Play/Pause • ← → : Chuyển câu
         </div>
       </div>
     </div>
@@ -263,62 +307,12 @@
   </audio>
 </div>
 
-<script src="{% static 'js/dictation.js' %}?v=20260105"></script>
-<script>
-  (function () {
-    if (typeof DictationApp === 'undefined') {
-      console.error('DictationApp not loaded!');
-      return;
-    }
-
-    const segments = JSON.parse("{{ segments_json|escapejs }}");
-    const audio = document.getElementById('main-audio');
-
-    if (segments.length === 0) {
-      document.querySelector('.dictation-card').innerHTML = '<div class="p-10 text-center text-slate-500">Chưa có dữ liệu bài tập. Hãy quay lại sau.</div>';
-      return;
-    }
-
-    // Initialize DictationApp
-    const app = new DictationApp({
-      segments: segments,
-      audio: audio,
-      dictationElements: {
-        viz: document.getElementById('audio-viz'),
-        btnPlay: document.getElementById('btn-play'),
-        btnReplay: document.getElementById('btn-replay'),
-        btnSlow: document.getElementById('btn-slow'),
-        btnCheck: document.getElementById('btn-check'),
-        btnNext: document.getElementById('btn-next'),
-        userInput: document.getElementById('user-input'),
-        hintText: document.getElementById('hint-text'),
-        feedback: document.getElementById('feedback'),
-        feedbackContent: document.getElementById('feedback-content'),
-        progressBar: document.getElementById('progress-bar'),
-        progressText: document.getElementById('progress-text'),
-        exerciseApp: document.getElementById('exercise-app'),
-        summaryScreen: document.getElementById('summary-screen'),
-        finalScore: document.getElementById('final-score')
-      },
-      transcriptElements: {
-        activeText: document.getElementById('trans-active-text'),
-        list: document.getElementById('transcript-list'),
-        btnPlay: document.getElementById('trans-btn-play'),
-        btnReplay: document.getElementById('trans-btn-replay'),
-        btnPrev: document.getElementById('trans-btn-prev'),
-        btnNext: document.getElementById('trans-btn-next'),
-        progressBar: document.getElementById('trans-progress-bar'),
-        progressContainer: document.getElementById('trans-progress-container'),
-        currentTime: document.getElementById('trans-current-time'),
-        totalTime: document.getElementById('trans-total-time'),
-        autoScroll: document.getElementById('chk-autoscroll')
-      }
-    });
-
-    // Set up tab switching
-    window.switchTab = (tabName) => {
-      app.switchTab(tabName);
-    };
-  })();
-</script>
+<script id="dict-segments-json" type="application/json">{{ segments_json|safe }}</script>
+<div id="dictation-data"
+  data-initial="{{ saved_index|default:0 }}"
+  data-progress-api="{% url 'core:dictation_progress_update' %}"
+  data-exercise-id="{{ exercise.id }}"
+  data-user-auth="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+  class="hidden"></div>
+<script src="{% static 'js/dictation.js' %}?v=20260114"></script>
 {% endblock %}

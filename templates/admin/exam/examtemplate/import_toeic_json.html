@@ -1,348 +1,853 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}Import TOEIC JSON{% if template %} - {{ template.title }}{% endif %}{% endblock %}
 
+{% block extrahead %}
+{{ block.super }}
+<style>
+  /* Import JSON Page Styles */
+  :root {
+    --import-primary: #3b82f6;
+    --import-primary-hover: #2563eb;
+    --import-success: #10b981;
+    --import-warning: #f59e0b;
+    --import-danger: #ef4444;
+    --import-border: #e2e8f0;
+    --import-bg: #f8fafc;
+  }
+
+  .import-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .import-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .import-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .import-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .import-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .import-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .import-card {
+    background: #fff;
+    border: 1px solid var(--import-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .import-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--import-border);
+    background: var(--import-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .import-card-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .import-card-body {
+    padding: 1.25rem;
+  }
+
+  /* Schema Selector */
+  .schema-selector {
+    display: flex;
+    gap: 0.5rem;
+    background: #fff;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    border: 1px solid var(--import-border);
+  }
+
+  .schema-btn {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .schema-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+
+  .schema-btn.active {
+    background: var(--import-primary);
+    color: #fff;
+  }
+
+  /* File Upload */
+  .file-upload-zone {
+    border: 2px dashed var(--import-border);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    background: var(--import-bg);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .file-upload-zone:hover {
+    border-color: var(--import-primary);
+    background: #eff6ff;
+  }
+
+  .file-upload-zone.dragover {
+    border-color: var(--import-primary);
+    background: #dbeafe;
+  }
+
+  .file-upload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .file-upload-text {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .file-upload-text strong {
+    color: var(--import-primary);
+  }
+
+  .file-name-display {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid var(--import-border);
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    color: #1e293b;
+    display: none;
+  }
+
+  .file-name-display.visible {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* JSON Editor */
+  .json-editor-container {
+    position: relative;
+  }
+
+  .json-editor {
+    width: 100%;
+    min-height: 400px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border: 1px solid var(--import-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #1e293b;
+    color: #e2e8f0;
+    resize: vertical;
+  }
+
+  .json-editor::placeholder {
+    color: #64748b;
+  }
+
+  .json-editor:focus {
+    outline: none;
+    border-color: var(--import-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  /* JSON Stats */
+  .json-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .json-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    background: var(--import-bg);
+    padding: 0.375rem 0.625rem;
+    border-radius: 999px;
+  }
+
+  .json-stat-value {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* Preview Panel */
+  .preview-panel {
+    background: #1e293b;
+    border-radius: 0.5rem;
+    min-height: 400px;
+    max-height: 500px;
+    overflow: auto;
+  }
+
+  .preview-content {
+    padding: 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Syntax Highlighting */
+  .json-key {
+    color: #7dd3fc;
+  }
+
+  .json-string {
+    color: #86efac;
+  }
+
+  .json-number {
+    color: #fcd34d;
+  }
+
+  .json-boolean {
+    color: #f472b6;
+  }
+
+  .json-null {
+    color: #f472b6;
+  }
+
+  .json-bracket {
+    color: #94a3b8;
+  }
+
+  /* Validation Status */
+  .validation-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .validation-status.valid {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+  }
+
+  .validation-status.invalid {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+
+  .validation-status.empty {
+    background: var(--import-bg);
+    color: #64748b;
+    border: 1px solid var(--import-border);
+  }
+
+  /* Action Buttons */
+  .import-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn-import {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    background: var(--import-primary);
+    color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-import:hover:not(:disabled) {
+    background: var(--import-primary-hover);
+    transform: translateY(-1px);
+  }
+
+  .btn-import:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .btn-cancel {
+    padding: 0.875rem 1.5rem;
+    background: #fff;
+    color: #475569;
+    border: 1px solid var(--import-border);
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-cancel:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .quick-btn {
+    padding: 0.375rem 0.625rem;
+    background: #fff;
+    border: 1px solid var(--import-border);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .quick-btn:hover {
+    background: var(--import-bg);
+    color: #1e293b;
+  }
+
+  /* Info Box */
+  .info-box {
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .info-box.blue {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+
+  .info-box.amber {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+
+  /* Schema Examples Toggle */
+  .examples-toggle {
+    margin-top: 1.5rem;
+  }
+
+  .examples-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border: 1px solid var(--import-border);
+    border-radius: 0.75rem;
+    transition: all 0.15s ease;
+  }
+
+  .examples-summary:hover {
+    background: var(--import-bg);
+  }
+
+  .examples-content {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: #fff;
+    border: 1px solid var(--import-border);
+    border-radius: 0.75rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-5xl mx-auto" style="min-height: 100vh; padding: 2rem 1rem;">
-  <div class="mb-4">
-    <h1 class="text-2xl font-semibold text-slate-900">{% trans "Import TOEIC Questions from JSON" %}</h1>
+<div class="import-container">
+  <!-- Header -->
+  <div class="import-header">
+    <h1 class="import-title">🚀 {% trans "Import TOEIC Questions from JSON" %}</h1>
     {% if template %}
-    <p class="mt-1 text-sm text-slate-600">
+    <p class="import-subtitle">
       Template: <strong>{{ template.title }}</strong>
     </p>
     {% else %}
-    <p class="mt-1 text-sm text-blue-600 bg-blue-50 p-2 rounded">
-      <strong>ℹ️ Tự động tạo:</strong> Nếu JSON có <code>test_id</code>, hệ thống sẽ tự động tạo ExamTemplate mới hoặc tìm template đã tồn tại.
+    <p class="import-subtitle">
+      Tự động tạo ExamTemplate mới từ JSON nếu có <code>test_id</code>
     </p>
     {% endif %}
-    <p class="mt-2 text-sm text-slate-500">
-      {% trans "Import TOEIC questions từ file JSON (schema_version 1.0). Hỗ trợ upload file hoặc paste JSON text." %}
-    </p>
-    <p class="mt-1 text-xs text-amber-600 bg-amber-50 p-2 rounded">
-      <strong>⚠️ Lưu ý:</strong> Chỉ hỗ trợ format mới (schema_version 1.0) với cấu trúc sections/passages/questions.
-    </p>
   </div>
 
-  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-    <form method="post" enctype="multipart/form-data" novalidate class="space-y-4">
-      {% csrf_token %}
+  <form method="post" enctype="multipart/form-data" id="importForm">
+    {% csrf_token %}
 
+    <div class="import-layout">
+      <!-- Left Panel: Input -->
       <div>
-        <label for="id_json_file" class="block text-sm font-semibold text-slate-800 mb-1">
-          {% trans "Upload JSON File" %}
-        </label>
-        <input type="file" name="json_file" id="id_json_file" accept=".json,application/json"
-               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
-        <p class="mt-1 text-xs text-slate-500">{% trans "Hoặc paste JSON text bên dưới" %}</p>
-      </div>
+        <div class="import-card">
+          <div class="import-card-header">
+            <h3 class="import-card-title">
+              📝 JSON Input
+            </h3>
+            <div class="schema-selector">
+              <button type="button" class="schema-btn active" data-schema="1.0">v1.0</button>
+              <button type="button" class="schema-btn" data-schema="2.1">v2.1</button>
+            </div>
+          </div>
+          <div class="import-card-body">
+            <!-- File Upload -->
+            <div class="file-upload-zone" id="dropZone">
+              <div class="file-upload-icon">📁</div>
+              <p class="file-upload-text">
+                <strong>Click để chọn file</strong> hoặc kéo thả file JSON vào đây
+              </p>
+              <input type="file" name="json_file" id="jsonFile" accept=".json,application/json" style="display: none;">
+            </div>
+            <div class="file-name-display" id="fileNameDisplay">
+              <span id="fileName"></span>
+              <button type="button" id="clearFile" style="background: none; border: none; cursor: pointer;">✕</button>
+            </div>
 
-      <div class="border-t border-slate-200 pt-4">
-        <label for="id_json_text" class="block text-sm font-semibold text-slate-800 mb-1">
-          {% trans "Hoặc Paste JSON Text" %}
-        </label>
-        <textarea name="json_text" id="id_json_text" rows="20"
-                  class="w-full font-mono text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder='{"schema_version": "1.0", "module": "READING", "sections": [...], "passages": [...], "questions": [...]}'></textarea>
-      </div>
+            <!-- Divider -->
+            <div style="display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0;">
+              <div style="flex: 1; height: 1px; background: var(--import-border);"></div>
+              <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">hoặc paste JSON</span>
+              <div style="flex: 1; height: 1px; background: var(--import-border);"></div>
+            </div>
 
-      <div class="flex items-center gap-2 pt-2">
-        <button type="submit"
-                class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
-          {% trans "Import" %}
-        </button>
-        <a class="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50"
-           href="{% if template %}{% url 'admin:exam_examtemplate_change' template.id %}{% else %}{% url 'admin:exam_examtemplate_changelist' %}{% endif %}">
-          {% trans "Cancel" %}
-        </a>
-      </div>
-    </form>
-  </div>
-
-  <details class="mt-4">
-    <summary class="cursor-pointer text-sm font-semibold text-slate-700">{% trans "JSON Format Examples (schema_version 1.0)" %}</summary>
-    <div class="mt-2 space-y-6">
-      
-      {# Reading Example - Full #}
-      <div>
-        <h3 class="text-base font-semibold text-slate-900 mb-3">{% trans "Reading Module (P5 + P6 + P7)" %}</h3>
-        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">{
+            <!-- JSON Editor -->
+            <div class="json-editor-container">
+              <textarea name="json_text" id="jsonEditor" class="json-editor" placeholder='{
   "schema_version": "1.0",
-  "test_id": "READING_ETS2026_TEST1",
+  "test_id": "TOEIC_TEST_01",
   "module": "READING",
-  "timezone": "Asia/Bangkok",
-  "sections": [
-    {
-      "section_id": "P5",
-      "type": "incomplete_sentences",
-      "instruction": "Choose the best answer to complete the sentence.",
-      "question_numbers": [126, 127, 128, 129, 130]
-    },
-    {
-      "section_id": "P6",
-      "type": "text_completion",
-      "instruction": "Choose the best answer for each blank in the passage.",
-      "passage_ids": [
-        "READING_ETS2026_TEST1_L6_Q131-134",
-        "READING_ETS2026_TEST1_L6_Q135-138"
-      ]
-    },
-    {
-      "section_id": "P7",
-      "type": "reading_comprehension",
-      "instruction": "Read the passage and answer the questions.",
-      "passage_ids": [
-        "READING_ETS2026_TEST1_L7_Q147-148"
-      ]
-    }
-  ],
-  "passages": [
-    {
-      "passage_id": "READING_ETS2026_TEST1_L6_Q131-134",
-      "section_id": "P6",
-      "type": "flyer",
-      "instruction": "Questions 131-134 refer to the following flyer.",
-      "question_numbers": [131, 132, 133, 134],
-      "assets": [
-        {
-          "kind": "image",
-          "url": "https://example.com/assets/READING_ETS2026_TEST1_L6_Q131-134.png"
-        }
-      ],
-      "text": "Sample flyer content with blanks (131)-(134) shown in the image asset.",
-      "meta": {
-        "question_range": [131, 134],
-        "source": "ETS2026"
-      }
-    }
-  ],
-  "questions": [
-    {
-      "question_id": "READING_ETS2026_TEST1_Q126",
-      "number": 126,
-      "section_id": "P5",
-      "passage_id": null,
-      "question_type": "single_blank_sentence",
-      "stem": "With its fixed price ------, Omega Cellular guarantees no phone bill increases for three years.",
-      "choices": [
-        { "key": "A", "text": "assurance" },
-        { "key": "B", "text": "assuredly" },
-        { "key": "C", "text": "assuring" },
-        { "key": "D", "text": "assures" }
-      ],
-      "answer_key": "A",
-      "explanation": "Placeholder explanation",
-      "meta": {}
-    },
-    {
-      "question_id": "READING_ETS2026_TEST1_Q131",
-      "number": 131,
-      "section_id": "P6",
-      "passage_id": "READING_ETS2026_TEST1_L6_Q131-134",
-      "question_type": "passage_blank",
-      "blank_ref": { "blank_number_in_passage": 131 },
-      "stem": "Select the best option to fill blank (131) in the flyer.",
-      "choices": [
-        { "key": "A", "text": "Staff members have written articles..." },
-        { "key": "B", "text": "Installing lights can enhance..." },
-        { "key": "C", "text": "Local competitors cannot beat..." },
-        { "key": "D", "text": "Riessler Landscaping's goal is to make your vision a reality." }
-      ],
-      "answer_key": "D",
-      "explanation": "Placeholder explanation",
-      "meta": {}
-    }
-  ]
-}</pre>
-      </div>
+  "sections": [...],
+  "passages": [...],
+  "questions": [...]
+}'></textarea>
+            </div>
 
-      {# Reading Part 5 Only #}
-      <div>
-        <h3 class="text-base font-semibold text-slate-900 mb-3">{% trans "Reading Part 5 Only (Minimal Example)" %}</h3>
-        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">{
-  "schema_version": "1.0",
-  "module": "READING",
-  "sections": [
-    {
-      "section_id": "P5",
-      "type": "incomplete_sentences",
-      "instruction": "Choose the best answer to complete the sentence.",
-      "question_numbers": [126, 127, 128, 129, 130]
-    }
-  ],
-  "passages": [],
-  "questions": [
-    {
-      "question_id": "Q126",
-      "number": 126,
-      "section_id": "P5",
-      "passage_id": null,
-      "question_type": "single_blank_sentence",
-      "stem": "The meeting will be held _____ the conference room.",
-      "choices": [
-        { "key": "A", "text": "at" },
-        { "key": "B", "text": "in" },
-        { "key": "C", "text": "on" },
-        { "key": "D", "text": "by" }
-      ],
-      "answer_key": "B",
-      "explanation": "Giải thích: 'in' dùng cho không gian kín"
-    }
-  ]
-}</pre>
-      </div>
+            <!-- Quick Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
+              <div class="quick-actions">
+                <button type="button" class="quick-btn" id="formatBtn">✨ Format</button>
+                <button type="button" class="quick-btn" id="clearBtn">🗑️ Clear</button>
+                <button type="button" class="quick-btn" id="sampleBtn">📋 Sample</button>
+              </div>
+              <div class="json-stats" id="jsonStats">
+                <!-- Populated by JS -->
+              </div>
+            </div>
 
-      {# Reading Part 6 Example #}
-      <div>
-        <h3 class="text-base font-semibold text-slate-900 mb-3">{% trans "Reading Part 6 (With Passage)" %}</h3>
-        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">{
-  "schema_version": "1.0",
-  "module": "READING",
-  "sections": [
-    {
-      "section_id": "P6",
-      "type": "text_completion",
-      "instruction": "Choose the best answer for each blank in the passage.",
-      "passage_ids": ["PASSAGE_1"]
-    }
-  ],
-  "passages": [
-    {
-      "passage_id": "PASSAGE_1",
-      "section_id": "P6",
-      "type": "email",
-      "instruction": "Questions 131-134 refer to the following e-mail.",
-      "question_numbers": [131, 132, 133, 134],
-      "assets": [
-        {
-          "kind": "image",
-          "url": "https://example.com/passage1.jpg"
-        }
-      ],
-      "text": "Dear Team,\n\nWe would like to inform you...",
-      "meta": {
-        "question_range": [131, 134]
-      }
-    }
-  ],
-  "questions": [
-    {
-      "question_id": "Q131",
-      "number": 131,
-      "section_id": "P6",
-      "passage_id": "PASSAGE_1",
-      "question_type": "passage_blank",
-      "blank_ref": { "blank_number_in_passage": 131 },
-      "stem": "Select the best option to fill blank (131) in the e-mail.",
-      "choices": [
-        { "key": "A", "text": "Option A" },
-        { "key": "B", "text": "Option B" },
-        { "key": "C", "text": "Option C" },
-        { "key": "D", "text": "Option D" }
-      ],
-      "answer_key": "A"
-    }
-  ]
-}</pre>
-      </div>
-
-      {# Listening Example #}
-      <div>
-        <h3 class="text-base font-semibold text-slate-900 mb-3">{% trans "Listening Module (Example - Part 3)" %}</h3>
-        <pre class="whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs overflow-x-auto">{
-  "schema_version": "1.0",
-  "module": "LISTENING",
-  "sections": [
-    {
-      "section_id": "P3",
-      "type": "short_conversations",
-      "instruction": "Listen to each conversation and answer the questions.",
-      "passage_ids": ["CONV_1", "CONV_2"]
-    }
-  ],
-  "passages": [
-    {
-      "passage_id": "CONV_1",
-      "section_id": "P3",
-      "type": "conversation",
-      "instruction": "Questions 32-34 refer to the following conversation.",
-      "question_numbers": [32, 33, 34],
-      "assets": [
-        {
-          "kind": "audio",
-          "url": "https://example.com/audio/conv1.mp3"
-        }
-      ],
-      "text": "Man: Good morning. I'd like to...",
-      "meta": {
-        "question_range": [32, 34]
-      }
-    }
-  ],
-  "questions": [
-    {
-      "question_id": "Q32",
-      "number": 32,
-      "section_id": "P3",
-      "passage_id": "CONV_1",
-      "question_type": "conversation_question",
-      "stem": "What is the man's main concern?",
-      "choices": [
-        { "key": "A", "text": "The price" },
-        { "key": "B", "text": "The delivery time" },
-        { "key": "C", "text": "The product quality" },
-        { "key": "D", "text": "The warranty" }
-      ],
-      "answer_key": "B"
-    }
-  ]
-}</pre>
-      </div>
-
-      {# Field Descriptions #}
-      <div>
-        <h3 class="text-base font-semibold text-slate-900 mb-3">{% trans "Field Descriptions" %}</h3>
-        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm space-y-2">
-          <div>
-            <strong>schema_version:</strong> <span class="text-slate-600">Bắt buộc. Phải là "1.0"</span>
-          </div>
-          <div>
-            <strong>module:</strong> <span class="text-slate-600">Bắt buộc. "READING" hoặc "LISTENING"</span>
-          </div>
-          <div>
-            <strong>sections:</strong> <span class="text-slate-600">Bắt buộc. Array các section (P5/P6/P7 cho Reading, P1-P4 cho Listening)</span>
-          </div>
-          <div>
-            <strong>passages:</strong> <span class="text-slate-600">Bắt buộc (có thể là array rỗng). Array các passage/conversation</span>
-          </div>
-          <div>
-            <strong>questions:</strong> <span class="text-slate-600">Bắt buộc. Array tất cả các câu hỏi</span>
-          </div>
-          <div>
-            <strong>section_id:</strong> <span class="text-slate-600">P5/P6/P7 (Reading) hoặc P1/P2/P3/P4 (Listening)</span>
-          </div>
-          <div>
-            <strong>passage_id:</strong> <span class="text-slate-600">ID unique của passage/conversation (phải match với passages[].passage_id)</span>
-          </div>
-          <div>
-            <strong>number:</strong> <span class="text-slate-600">Số thứ tự câu hỏi trong đề (126, 127, ...)</span>
-          </div>
-          <div>
-            <strong>stem:</strong> <span class="text-slate-600">Nội dung câu hỏi</span>
-          </div>
-          <div>
-            <strong>choices:</strong> <span class="text-slate-600">Array 4 options với key "A"/"B"/"C"/"D"</span>
-          </div>
-          <div>
-            <strong>answer_key:</strong> <span class="text-slate-600">Bắt buộc. "A", "B", "C", hoặc "D"</span>
-          </div>
-          <div>
-            <strong>assets:</strong> <span class="text-slate-600">Array assets của passage (image cho Reading, audio cho Listening)</span>
+            <!-- Validation Status -->
+            <div class="validation-status empty" id="validationStatus" style="margin-top: 1rem;">
+              <span>⏳</span> Nhập JSON để validate
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Right Panel: Preview -->
+      <div>
+        <div class="import-card">
+          <div class="import-card-header">
+            <h3 class="import-card-title">
+              👁️ Preview
+            </h3>
+            <span style="font-size: 0.75rem; color: #64748b;" id="previewInfo">Syntax Highlighted</span>
+          </div>
+          <div class="import-card-body" style="padding: 0;">
+            <div class="preview-panel" id="previewPanel">
+              <div class="preview-content" id="previewContent">
+                <span style="color: #64748b;">JSON preview sẽ hiển thị ở đây...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Import Info -->
+        <div style="margin-top: 1rem;">
+          {% if auto_create %}
+          <div class="info-box blue">
+            <strong>ℹ️ Auto-create mode:</strong> Hệ thống sẽ tự động tạo ExamTemplate mới từ <code>test_id</code> trong
+            JSON.
+          </div>
+          {% endif %}
+          <div class="info-box amber">
+            <strong>⚠️ Lưu ý:</strong> Hỗ trợ schema 1.0 (stem/choices) và 2.1 (stem_segments/blanks).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="import-actions">
+      <button type="submit" class="btn-import" id="importBtn" disabled>
+        <span>⬆️</span> Import JSON
+      </button>
+      <a class="btn-cancel"
+        href="{% if template %}{% url 'admin:exam_examtemplate_change' template.id %}{% else %}{% url 'admin:exam_examtemplate_changelist' %}{% endif %}">
+        Cancel
+      </a>
+    </div>
+  </form>
+
+  <!-- Schema Examples -->
+  <details class="examples-toggle">
+    <summary class="examples-summary">
+      <span>📚</span> Xem ví dụ JSON format
+    </summary>
+    <div class="examples-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- Schema 1.0 -->
+        <div>
+          <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem;">Schema 1.0 (stem/choices)</h4>
+          <pre
+            style="font-size: 0.7rem; background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; max-height: 300px;">{
+  "schema_version": "1.0",
+  "module": "READING",
+  "sections": [{"section_id": "P5", ...}],
+  "questions": [{
+    "number": 101,
+    "section_id": "P5",
+    "stem": "The report was ___ by the manager.",
+    "choices": [
+      {"key": "A", "text": "reviewed"},
+      {"key": "B", "text": "reviewing"}
+    ],
+    "answer_key": "A"
+  }]
+}</pre>
+        </div>
+        <!-- Schema 2.1 -->
+        <div>
+          <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem;">Schema 2.1 (stem_segments/blanks)
+          </h4>
+          <pre
+            style="font-size: 0.7rem; background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; max-height: 300px;">{
+  "schema_version": "2.1",
+  "module": "READING",
+  "sections": [{"section_id": "P5", ...}],
+  "questions": [{
+    "number": 101,
+    "section_id": "P5",
+    "stem_segments": [
+      {"type": "text", "text": "The report was "},
+      {"type": "blank", "id": "b101"},
+      {"type": "text", "text": " by the manager."}
+    ],
+    "blanks": [{
+      "id": "b101",
+      "choices": [{"key": "A", "text": "reviewed"}],
+      "answer_key": "A"
+    }]
+  }]
+}</pre>
+        </div>
+      </div>
     </div>
   </details>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dropZone = document.getElementById('dropZone');
+    const jsonFile = document.getElementById('jsonFile');
+    const jsonEditor = document.getElementById('jsonEditor');
+    const previewContent = document.getElementById('previewContent');
+    const validationStatus = document.getElementById('validationStatus');
+    const jsonStats = document.getElementById('jsonStats');
+    const importBtn = document.getElementById('importBtn');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const fileName = document.getElementById('fileName');
+    const schemaBtns = document.querySelectorAll('.schema-btn');
+
+    // Schema selector
+    schemaBtns.forEach(btn => {
+      btn.addEventListener('click', function () {
+        schemaBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // File upload handling
+    dropZone.addEventListener('click', () => jsonFile.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        jsonFile.files = e.dataTransfer.files;
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    jsonFile.addEventListener('change', function () {
+      if (this.files.length) {
+        handleFileSelect(this.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      fileName.textContent = file.name;
+      fileNameDisplay.classList.add('visible');
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        jsonEditor.value = e.target.result;
+        validateAndPreview();
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('clearFile').addEventListener('click', function () {
+      jsonFile.value = '';
+      fileNameDisplay.classList.remove('visible');
+    });
+
+    // JSON Editor events
+    jsonEditor.addEventListener('input', debounce(validateAndPreview, 300));
+
+    // Quick actions
+    document.getElementById('formatBtn').addEventListener('click', function () {
+      try {
+        const parsed = JSON.parse(jsonEditor.value);
+        jsonEditor.value = JSON.stringify(parsed, null, 2);
+        validateAndPreview();
+      } catch (e) {
+        // Ignore format errors
+      }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function () {
+      jsonEditor.value = '';
+      validateAndPreview();
+    });
+
+    document.getElementById('sampleBtn').addEventListener('click', function () {
+      const activeSchema = document.querySelector('.schema-btn.active').dataset.schema;
+      if (activeSchema === '2.1') {
+        jsonEditor.value = JSON.stringify({
+          "schema_version": "2.1",
+          "test_id": "SAMPLE_TEST",
+          "module": "READING",
+          "sections": [{ "section_id": "P5", "type": "incomplete_sentences", "question_numbers": [101] }],
+          "passages": [],
+          "questions": [{
+            "question_id": "Q101",
+            "number": 101,
+            "section_id": "P5",
+            "stem_segments": [
+              { "type": "text", "text": "The meeting was " },
+              { "type": "blank", "id": "b101" },
+              { "type": "text", "text": " at noon." }
+            ],
+            "blanks": [{
+              "id": "b101",
+              "choices": [
+                { "key": "A", "text": "scheduled" },
+                { "key": "B", "text": "scheduling" },
+                { "key": "C", "text": "schedule" },
+                { "key": "D", "text": "schedules" }
+              ],
+              "answer_key": "A"
+            }]
+          }]
+        }, null, 2);
+      } else {
+        jsonEditor.value = JSON.stringify({
+          "schema_version": "1.0",
+          "test_id": "SAMPLE_TEST",
+          "module": "READING",
+          "sections": [{ "section_id": "P5", "type": "incomplete_sentences", "question_numbers": [101] }],
+          "passages": [],
+          "questions": [{
+            "question_id": "Q101",
+            "number": 101,
+            "section_id": "P5",
+            "stem": "The meeting was _____ at noon.",
+            "choices": [
+              { "key": "A", "text": "scheduled" },
+              { "key": "B", "text": "scheduling" },
+              { "key": "C", "text": "schedule" },
+              { "key": "D", "text": "schedules" }
+            ],
+            "answer_key": "A"
+          }]
+        }, null, 2);
+      }
+      validateAndPreview();
+    });
+
+    function validateAndPreview() {
+      const text = jsonEditor.value.trim();
+
+      if (!text) {
+        previewContent.innerHTML = '<span style="color: #64748b;">JSON preview sẽ hiển thị ở đây...</span>';
+        validationStatus.className = 'validation-status empty';
+        validationStatus.innerHTML = '<span>⏳</span> Nhập JSON để validate';
+        jsonStats.innerHTML = '';
+        importBtn.disabled = true;
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(text);
+
+        // Syntax highlight
+        previewContent.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
+
+        // Validation
+        const issues = validateToeicJson(parsed);
+        if (issues.length === 0) {
+          validationStatus.className = 'validation-status valid';
+          validationStatus.innerHTML = '<span>✅</span> JSON hợp lệ - Sẵn sàng import';
+          importBtn.disabled = false;
+        } else {
+          validationStatus.className = 'validation-status invalid';
+          validationStatus.innerHTML = `<span>❌</span> ${issues[0]}`;
+          importBtn.disabled = false; // Still allow import, server will validate
+        }
+
+        // Stats
+        updateStats(parsed);
+
+      } catch (e) {
+        previewContent.innerHTML = `<span style="color: #f87171;">❌ JSON Parse Error:\n${escapeHtml(e.message)}</span>`;
+        validationStatus.className = 'validation-status invalid';
+        validationStatus.innerHTML = `<span>❌</span> JSON không hợp lệ: ${e.message}`;
+        jsonStats.innerHTML = '';
+        importBtn.disabled = true;
+      }
+    }
+
+    function validateToeicJson(data) {
+      const issues = [];
+      if (!data.schema_version) issues.push('Thiếu schema_version');
+      else if (!['1.0', '2.1'].includes(data.schema_version)) issues.push('schema_version phải là 1.0 hoặc 2.1');
+      if (!data.module) issues.push('Thiếu module');
+      else if (!['READING', 'LISTENING'].includes(data.module.toUpperCase())) issues.push('module phải là READING hoặc LISTENING');
+      if (!data.sections || !Array.isArray(data.sections)) issues.push('Thiếu sections array');
+      if (!data.questions || !Array.isArray(data.questions)) issues.push('Thiếu questions array');
+      return issues;
+    }
+
+    function updateStats(data) {
+      const stats = [];
+      if (data.schema_version) stats.push(`<div class="json-stat"><span>Version:</span><span class="json-stat-value">${data.schema_version}</span></div>`);
+      if (data.module) stats.push(`<div class="json-stat"><span>Module:</span><span class="json-stat-value">${data.module}</span></div>`);
+      if (data.questions) stats.push(`<div class="json-stat"><span>Questions:</span><span class="json-stat-value">${data.questions.length}</span></div>`);
+      if (data.passages) stats.push(`<div class="json-stat"><span>Passages:</span><span class="json-stat-value">${data.passages.length}</span></div>`);
+      jsonStats.innerHTML = stats.join('');
+    }
+
+    function syntaxHighlight(json) {
+      json = escapeHtml(json);
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      }).replace(/[\[\]{}]/g, '<span class="json-bracket">$&</span>');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Initial validation
+    validateAndPreview();
+  });
+</script>
 {% endblock %}

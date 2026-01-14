@@ -1,0 +1,157 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<style>
+  .df-import-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 1024px) {
+    .df-import-grid { grid-template-columns: 1fr; }
+  }
+  .df-import-pane {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .df-import-pane h2 { margin-top: 0; }
+  .df-json-textarea {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+</style>
+
+<div class="module">
+  <h1>Import Passage Content JSON</h1>
+  {% if errors %}
+  <p style="color:#dc2626;font-weight:600;">{{ errors }}</p>
+  {% endif %}
+  {% if success %}
+  <p style="color:#16a34a;font-weight:600;">{{ success }}</p>
+  {% endif %}
+
+  <div class="df-import-grid">
+    <!-- LEFT: passage list -->
+    <div class="df-import-pane">
+      <h2>Danh sách passage</h2>
+      <form method="get" style="margin-bottom: 0.75rem;">
+    <label>Template:</label>
+    <select name="template_id" style="min-width: 200px; color:#0f172a;">
+      <option value="">-- Tất cả --</option>
+      {% for t in template_options %}
+      <option value="{{ t.id }}" {% if template_filter == t.id|stringformat:"s" %}selected{% endif %}>{{ t.title }}</option>
+      {% endfor %}
+    </select>
+
+    <label style="margin-left:8px;">Part:</label>
+    <select name="part" style="min-width: 100px; color:#0f172a;">
+      <option value="">-- Tất cả --</option>
+      {% for code,label in part_options %}
+      <option value="{{ code }}" {% if part_filter == code %}selected{% endif %}>{{ code }} - {{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="button">Filter</button>
+    <a href="{% url 'admin:exam_readingpassage_import_content_json' %}" class="button cancel-link">Clear</a>
+  </form>
+
+      <table class="adminlist" style="width:100%;">
+        <thead>
+          <tr>
+            <th>Chọn</th>
+            <th>ID</th>
+            <th>Template</th>
+            <th>Order</th>
+            <th>Part</th>
+            <th>Title</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in passages %}
+          <tr>
+            <td>
+              <button type="button" class="button choose-passage"
+                data-pid="{{ p.id }}" data-template="{{ p.template_id }}" data-order="{{ p.order }}">
+                Chọn
+              </button>
+            </td>
+            <td>{{ p.id }}</td>
+            <td>{{ p.template_title }}</td>
+            <td>{{ p.order }}</td>
+            <td>{{ p.part }}</td>
+            <td>{{ p.title }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">Không có passage nào.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT: json form -->
+    <div class="df-import-pane">
+      <h2>Content JSON</h2>
+      <form method="post" id="import-json-form">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+          <div class="form-row">
+            <label>Passage ID:</label>
+            <input type="text" name="passage_id" style="width:200px;" value="{{ prefill_passage_id }}">
+          </div>
+          <div class="form-row">
+            <label>Hoặc Template ID:</label>
+            <input type="text" name="template_id" style="width:200px;" value="{{ prefill_template_id }}">
+            <label style="margin-left:8px;">Order:</label>
+            <input type="text" name="order" style="width:120px;" value="{{ prefill_order }}">
+          </div>
+          <div class="form-row">
+            <label>Title (optional):</label>
+            <input type="text" name="title" style="width:320px;">
+          </div>
+          <div class="form-row">
+            <label>Content JSON:</label><br>
+            <textarea name="content_json" rows="22" class="df-json-textarea">{
+  "group_type": "triple",
+  "instruction": "Questions ...",
+  "documents": [
+    { "doc_type": "article", "body": [ { "type": "paragraph", "inlines": [ { "text": \"...\" } ] } ] }
+  ]
+}</textarea>
+          </div>
+        </fieldset>
+        <div class="submit-row">
+          <input type="submit" value="Import">
+          <a href="{% url 'admin:exam_readingpassage_changelist' %}" class="button cancel-link">Quay lại</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const pidInput = document.querySelector('input[name="passage_id"]');
+    const tidInput = document.querySelector('input[name="template_id"]');
+    const orderInput = document.querySelector('input[name="order"]');
+    const jsonTextarea = document.querySelector('textarea[name="content_json"]');
+    document.querySelectorAll('.choose-passage').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.dataset.pid || '';
+        const tid = btn.dataset.template || '';
+        const ord = btn.dataset.order || '';
+        if (pidInput) pidInput.value = pid;
+        if (tidInput && tid) tidInput.value = tid;
+        if (orderInput && ord) orderInput.value = ord;
+        if (jsonTextarea) jsonTextarea.focus();
+        btn.blur();
+      });
+    });
+  })();
+</script>
+{% endblock %}
+

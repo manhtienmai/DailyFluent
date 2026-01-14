@@ -33,6 +33,15 @@ AZURE_ACCOUNT_NAME = os.getenv("AZURE_ACCOUNT_NAME", "")
 AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
 AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
 AZURE_AUDIO_CONTAINER = os.getenv("AZURE_AUDIO_CONTAINER", "audio")
+# Tăng timeout cho Azure Storage (django-storages)
+AZURE_CONNECTION_TIMEOUT = 6000  # giây
+AZURE_READ_TIMEOUT = 6000        # giây
+# Giảm kích thước block và tăng song song để giảm timeout khi upload file lớn
+# (sử dụng các option mà django-storages chuyển vào BlobServiceClient)
+AZURE_MAX_BLOCK_SIZE = 1024 * 1024  # 1MB mỗi block
+AZURE_MAX_SINGLE_PUT_SIZE = 8 * 1024 * 1024  # 8MB
+AZURE_MAX_CONCURRENCY = 4  # số kết nối song song khi upload
+# (tùy chọn) tăng retry, giảm xác suất timeout mạng tạm thời
 
 STATIC_URL = '/static/'
 STATIC_ROOT = Path(os.getenv("STATIC_ROOT", "/home/mtmanh/apps/DailyFluent/shared/staticfiles"))
@@ -121,6 +130,7 @@ TEMPLATES = [
                 'common.context_processors.navigation_items',  # Navigation menu items
                 'common.context_processors.footer_data',  # Footer data
                 'common.context_processors.landing_page_data',  # Landing page data
+                'common.context_processors.sidebar_data',  # Sidebar layout data
             ],
         },
     },

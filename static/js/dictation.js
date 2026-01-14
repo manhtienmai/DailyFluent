@@ -14,23 +14,56 @@ function formatTime(s) {
   return `${m < 10 ? '0' + m : m}:${sec < 10 ? '0' + sec : sec}`;
 }
 
+/**
+ * Normalize text for comparison: lowercase, remove punctuation
+ */
+function normalizeForCompare(s) {
+  return (s || '').toLowerCase().replace(/[.,?!;:'"…()[\]{}]/g, '').trim();
+}
+
+/**
+ * Generate diff HTML between user input and correct text
+ * - Green: correct words
+ * - Red with strikethrough: wrong words user typed
+ * - Blue: correct word that should have been typed
+ */
 function diffString(userText, correctText) {
-  const u = userText.trim().split(/\s+/);
-  const c = correctText.trim().split(/\s+/);
+  const normalize = w => w.toLowerCase().replace(/[.,?!;:'"…()[\]{}]/g, '');
+  const u = userText.trim().split(/\s+/).filter(w => w);
+  const c = correctText.trim().split(/\s+/).filter(w => w);
   let html = '';
   const len = Math.max(u.length, c.length);
 
   for (let i = 0; i < len; i++) {
     const uw = u[i] || '';
     const cw = c[i] || '';
-    if (uw.toLowerCase() === cw.toLowerCase()) {
-      html += `<span class="text-emerald-600">${cw}</span> `;
+    if (normalize(uw) === normalize(cw)) {
+      // Correct - show in green
+      html += `<span class="diff-correct">${cw}</span> `;
     } else {
-      if (uw) html += `<del class="text-rose-400 decoration-rose-300 decoration-2">${uw}</del> `;
-      if (cw) html += `<ins class="text-blue-600 no-underline font-semibold">${cw}</ins> `;
+      // Wrong
+      if (uw) {
+        html += `<span class="diff-wrong">${uw}</span> `;
+      }
+      if (cw) {
+        html += `<span class="diff-expected">${cw}</span> `;
+      }
     }
   }
   return html.trim();
+}
+
+// CSRF helper
+function getCSRFToken() {
+  const name = 'csrftoken';
+  const cookies = document.cookie ? document.cookie.split(';') : [];
+  for (let i = 0; i < cookies.length; i++) {
+    const c = cookies[i].trim();
+    if (c.startsWith(name + '=')) {
+      return decodeURIComponent(c.substring(name.length + 1));
+    }
+  }
+  return '';
 }
 
 // ==========================================
@@ -42,182 +75,171 @@ class AudioSeeker {
     this.audio = audio;
   }
 
-  /**
-   * Check if audio is ready for seeking
-   */
   checkAudioReady(targetTime) {
     const source = this.audio.querySelector('source');
     const src = source ? source.src : this.audio.src;
 
-    console.log('[AudioSeeker] Audio state check:', {
-      src: src || '(empty)',
-      readyState: this.audio.readyState,
-      networkState: this.audio.networkState,
-      duration: this.audio.duration,
-      currentTime: this.audio.currentTime,
-      error: this.audio.error ? this.audio.error.message : null
-    });
-
-    // Check if src is set
-    if (!src || src === '') {
-      console.error('[AudioSeeker] Audio src is empty!');
-      return false;
-    }
-
-    // Only set audio.src if it's truly empty
+    if (!src || src === '') return false;
     if (!this.audio.src || this.audio.src === '' || this.audio.src === window.location.href) {
-      console.log('[AudioSeeker] Setting audio.src from source element (was empty)');
       this.audio.src = src;
       return false;
     }
-
-    // Check if audio has metadata
-    if (!this.audio.duration || isNaN(this.audio.duration) || this.audio.duration === 0) {
-      console.warn('[AudioSeeker] Audio duration not available');
-      return false;
-    }
-
-    // Check if target time is valid
-    if (targetTime < 0 || targetTime >= this.audio.duration) {
-      console.error('[AudioSeeker] Invalid target time:', targetTime);
-      return false;
-    }
-
-    // Check readyState
-    if (this.audio.readyState < 2) {
-      console.warn('[AudioSeeker] Audio readyState too low:', this.audio.readyState);
-      return false;
-    }
+    if (!this.audio.duration || isNaN(this.audio.duration) || this.audio.duration === 0) return false;
+    if (targetTime < 0 || targetTime >= this.audio.duration) return false;
+    if (this.audio.readyState < 2) return false;
 
     return true;
   }
 
-  /**
-   * Seek to target time and play
-   */
-  async seekAndPlay(targetTime, endTime, onPlay, onEnd) {
+  async seekAndPlay(targetTime, endTime, onPlay, onEnd, continuous = false) {
     const seekAndPlayInternal = () => {
       if (!this.checkAudioReady(targetTime)) {
-        console.log('[AudioSeeker] Audio not ready, waiting...');
         const onCanPlay = () => {
-          console.log('[AudioSeeker] Audio can play');
           this.audio.removeEventListener('canplay', onCanPlay);
           setTimeout(seekAndPlayInternal, 100);
         };
         this.audio.addEventListener('canplay', onCanPlay, { once: true });
-
         if (this.audio.networkState === 0 || this.audio.networkState === 3) {
-          console.log('[AudioSeeker] Forcing audio load');
           this.audio.load();
         }
         return;
       }
 
-      console.log('[AudioSeeker] Attempting to seek to:', targetTime);
       this.audio.currentTime = targetTime;
 
-      // Use seeked event + polling
       let seekCompleted = false;
       const onSeeked = () => {
-        const seekedTime = this.audio.currentTime;
-        const diff = Math.abs(seekedTime - targetTime);
-        console.log('[AudioSeeker] seeked event, diff:', diff);
-
         seekCompleted = true;
         this.audio.removeEventListener('seeked', onSeeked);
-
-        if (diff < 0.3) {
-          console.log('[AudioSeeker] Seek successful!');
-          this.startPlayback(endTime, onPlay, onEnd);
+        const diff = Math.abs(this.audio.currentTime - targetTime);
+        if (diff < 0.5) {
+          this.startPlayback(endTime, onPlay, onEnd, continuous);
         } else {
-          console.warn('[AudioSeeker] Seek time wrong, trying play-then-seek...');
-          this.playThenSeek(targetTime, endTime, onPlay, onEnd);
+          this.playThenSeek(targetTime, endTime, onPlay, onEnd, continuous);
         }
       };
       this.audio.addEventListener('seeked', onSeeked, { once: true });
 
-      // Polling backup
       let attempts = 0;
-      const maxAttempts = 50;
       const poll = setInterval(() => {
         if (seekCompleted) {
           clearInterval(poll);
           return;
         }
-
         attempts++;
-        const currentTime = this.audio.currentTime;
-        const diff = Math.abs(currentTime - targetTime);
-
-        if (diff < 0.3 || attempts >= maxAttempts) {
+        if (Math.abs(this.audio.currentTime - targetTime) < 0.5 || attempts >= 30) {
           clearInterval(poll);
           this.audio.removeEventListener('seeked', onSeeked);
-
-          if (diff < 0.3) {
+          if (!seekCompleted) {
             seekCompleted = true;
-            this.startPlayback(endTime, onPlay, onEnd);
-          } else if (attempts >= maxAttempts) {
-            console.warn('[AudioSeeker] Seek timeout, forcing...');
-            this.audio.currentTime = targetTime;
-            setTimeout(() => {
-              this.startPlayback(endTime, onPlay, onEnd);
-            }, 200);
+            this.startPlayback(endTime, onPlay, onEnd, continuous);
           }
         }
       }, 50);
     };
 
-    if (this.checkAudioReady(targetTime)) {
-      setTimeout(seekAndPlayInternal, 50);
-    } else {
-      seekAndPlayInternal();
-    }
+    seekAndPlayInternal();
   }
 
-  /**
-   * Play-then-seek approach for browsers that need it
-   */
-  async playThenSeek(targetTime, endTime, onPlay, onEnd) {
+  async playThenSeek(targetTime, endTime, onPlay, onEnd, continuous) {
     try {
       await this.audio.play();
       this.audio.pause();
       setTimeout(() => {
         this.audio.currentTime = targetTime;
         setTimeout(() => {
-          const diff = Math.abs(this.audio.currentTime - targetTime);
-          if (diff < 0.5) {
-            this.startPlayback(endTime, onPlay, onEnd);
-          } else {
-            console.error('[AudioSeeker] Play-then-seek failed, proceeding anyway');
-            this.startPlayback(endTime, onPlay, onEnd);
-          }
+          this.startPlayback(endTime, onPlay, onEnd, continuous);
         }, 100);
       }, 50);
     } catch (e) {
-      console.error('[AudioSeeker] Play error:', e);
-      this.startPlayback(endTime, onPlay, onEnd);
+      this.startPlayback(endTime, onPlay, onEnd, continuous);
     }
   }
 
-  /**
-   * Start playback and monitor end time
-   */
-  startPlayback(endTime, onPlay, onEnd) {
+  startPlayback(endTime, onPlay, onEnd, continuous) {
     this.audio.play().then(() => {
-      console.log('[AudioSeeker] Playback started at:', this.audio.currentTime);
       if (onPlay) onPlay();
 
-      const checkInterval = setInterval(() => {
-        if (!this.audio.paused && this.audio.currentTime >= endTime) {
-          console.log('[AudioSeeker] Reached end time');
-          this.audio.pause();
-          clearInterval(checkInterval);
-          if (onEnd) onEnd();
-        }
-      }, 50);
+      if (!continuous && endTime) {
+        const checkInterval = setInterval(() => {
+          if (!this.audio.paused && this.audio.currentTime >= endTime) {
+            this.audio.pause();
+            clearInterval(checkInterval);
+            if (onEnd) onEnd();
+          }
+        }, 50);
+      }
     }).catch(e => {
       console.error('[AudioSeeker] Play error:', e);
     });
+  }
+}
+
+// ==========================================
+// Settings manager
+// ==========================================
+
+class DictationSettings {
+  constructor() {
+    this.storageKey = 'df_dictation_settings';
+    this.defaults = {
+      replayKey: 'Ctrl',
+      playKey: 'Backtick',
+      autoReplay: 'No',
+      replayGap: 1,
+      wordSuggest: 'Disabled',
+      showTips: 'Show',
+    };
+    this.state = { ...this.defaults };
+    this.load();
+  }
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        this.state = { ...this.defaults, ...parsed };
+      }
+    } catch (e) {
+      console.warn('Cannot load dictation settings', e);
+    }
+  }
+
+  save() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.state));
+    } catch (e) {
+      console.warn('Cannot save dictation settings', e);
+    }
+  }
+
+  get(key) {
+    return this.state[key];
+  }
+
+  bindUI() {
+    const bindSelect = (id, key) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // set initial
+      if (this.state[key] !== undefined) {
+        el.value = String(this.state[key]);
+      }
+      el.addEventListener('change', () => {
+        let val = el.value;
+        if (key === 'replayGap') val = parseFloat(val) || this.defaults.replayGap;
+        this.state[key] = val;
+        this.save();
+      });
+    };
+
+    bindSelect('dict-replay-key', 'replayKey');
+    bindSelect('dict-play-key', 'playKey');
+    bindSelect('dict-auto-replay', 'autoReplay');
+    bindSelect('dict-replay-gap', 'replayGap');
+    bindSelect('dict-word-suggest', 'wordSuggest');
+    bindSelect('dict-show-tips', 'showTips');
   }
 }
 
@@ -226,17 +248,19 @@ class AudioSeeker {
 // ==========================================
 
 class DictationMode {
-  constructor(audio, segments, elements) {
+  constructor(audio, segments, elements, settings, opts = {}) {
     this.audio = audio;
     this.segments = segments;
     this.elements = elements;
     this.seeker = new AudioSeeker(audio);
+    this.settings = settings;
+    this.currentIndex = Math.max(0, Math.min(opts.initialIndex || 0, Math.max(0, segments.length - 1)));
 
-    this.currentIndex = 0;
-    this.isSlow = false;
+    this.playbackRate = 1.0;
     this.isChecked = false;
     this.correctCount = 0;
     this.checkInterval = null;
+    this.onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
 
     this.setupEventListeners();
   }
@@ -250,12 +274,18 @@ class DictationMode {
       }
     });
 
-    this.elements.btnSlow.addEventListener('click', () => {
-      this.isSlow = !this.isSlow;
-      this.elements.btnSlow.classList.toggle('bg-blue-50', this.isSlow);
-      this.elements.btnSlow.classList.toggle('border-blue-300', this.isSlow);
-      this.elements.btnSlow.classList.toggle('text-blue-600', this.isSlow);
-    });
+    if (this.elements.speedSelect) {
+      this.elements.speedSelect.addEventListener('change', (e) => {
+        const val = parseFloat(e.target.value);
+        this.playbackRate = isNaN(val) ? 1.0 : val;
+      });
+    }
+
+    if (this.elements.btnReplay) {
+      this.elements.btnReplay.addEventListener('click', () => {
+        this.playCurrentSegment();
+      });
+    }
 
     this.elements.btnCheck.addEventListener('click', () => this.checkAnswer());
     this.elements.btnNext.addEventListener('click', () => this.nextSegment());
@@ -296,6 +326,10 @@ class DictationMode {
 
     this.elements.progressText.textContent = `${this.currentIndex + 1} / ${this.segments.length}`;
     this.elements.progressBar.style.width = `${(this.currentIndex / this.segments.length) * 100}%`;
+
+    if (this.onProgress) {
+      this.onProgress(this.currentIndex, this.segments.length);
+    }
   }
 
   playCurrentSegment() {
@@ -305,18 +339,24 @@ class DictationMode {
     const targetTime = parseFloat(seg.start_time);
     const endTime = parseFloat(seg.end_time);
 
-    console.log('[DictationMode] Playing segment:', this.currentIndex, seg);
-
     if (this.checkInterval) clearInterval(this.checkInterval);
 
     this.audio.pause();
-    this.audio.playbackRate = this.isSlow ? 0.7 : 1.0;
+    this.audio.playbackRate = this.playbackRate || 1.0;
 
     this.seeker.seekAndPlay(
       targetTime,
       endTime,
       () => this.updateVisualizer(true),
-      () => this.updateVisualizer(false)
+      () => {
+        this.updateVisualizer(false);
+        const autoReplay = (this.settings.get('autoReplay') === 'Yes');
+        const gap = parseFloat(this.settings.get('replayGap')) || 1;
+        if (autoReplay) {
+          setTimeout(() => this.playCurrentSegment(), gap * 1000);
+        }
+      },
+      false
     );
   }
 
@@ -334,26 +374,30 @@ class DictationMode {
 
     const seg = this.segments[this.currentIndex];
     const userText = this.elements.userInput.value.trim();
-    const normalize = s => s.toLowerCase().replace(/[.,?!'"]/g, '');
-    const isCorrect = normalize(userText) === normalize(seg.correct_text);
+    const isCorrect = normalizeForCompare(userText) === normalizeForCompare(seg.correct_text);
 
     if (isCorrect) this.correctCount++;
 
     this.elements.feedback.classList.remove('hidden');
     if (isCorrect) {
       this.elements.feedbackContent.innerHTML = `
-        <div class="text-emerald-600 font-bold flex items-center gap-2">
+        <div class="diff-result diff-result--correct">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
           Chính xác!
         </div>
-        <div class="mt-1 text-slate-800">${seg.correct_text}</div>
+        <div class="diff-answer">${seg.correct_text}</div>
       `;
     } else {
       this.elements.feedbackContent.innerHTML = `
-        <div class="text-rose-500 font-bold mb-2">Chưa đúng</div>
-        <div class="leading-relaxed bg-slate-50 p-2 rounded">${diffString(userText, seg.correct_text)}</div>
+        <div class="diff-result diff-result--wrong">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Chưa đúng
+        </div>
+        <div class="diff-box">${diffString(userText, seg.correct_text)}</div>
       `;
     }
 
@@ -389,49 +433,60 @@ class TranscriptMode {
     this.seeker = new AudioSeeker(audio);
 
     this.activeIndex = -1;
-    this.checkInterval = null;
+    this.isPlaying = false;
+    this.continuousMode = true; // play liên tục các segment
+    this.autoStarted = false;
 
     this.setupEventListeners();
     this.renderList();
   }
 
   setupEventListeners() {
+    // Main play/pause button
     this.elements.btnPlay.addEventListener('click', () => {
-      if (this.audio.paused) {
-        this.audio.play();
+      if (this.isPlaying) {
+        this.pause();
       } else {
-        this.audio.pause();
+        this.play(true);
       }
     });
 
+    // Replay current segment
     if (this.elements.btnReplay) {
       this.elements.btnReplay.addEventListener('click', () => {
         if (this.activeIndex >= 0) {
-          this.playSegment(this.activeIndex);
+          this.playSegment(this.activeIndex, false);
         }
       });
     }
 
+    // Previous segment
     this.elements.btnPrev.addEventListener('click', () => {
       let target = this.activeIndex - 1;
       if (target < 0) target = 0;
-      this.playSegment(target);
+      this.playSegment(target, this.continuousMode);
     });
 
+    // Next segment
     this.elements.btnNext.addEventListener('click', () => {
       let target = this.activeIndex + 1;
       if (target >= this.segments.length) target = 0;
-      this.playSegment(target);
+      this.playSegment(target, this.continuousMode);
     });
 
+    // Click on progress bar to seek
     this.elements.progressContainer.addEventListener('click', (e) => {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const pct = x / rect.width;
-      this.audio.currentTime = pct * this.audio.duration;
+      const targetTime = pct * this.audio.duration;
+      this.audio.currentTime = targetTime;
+      if (!this.isPlaying) {
+        this.play(true);
+      }
     });
 
-    // Update progress bar on timeupdate
+    // Update progress bar and highlight on timeupdate
     this.audio.addEventListener('timeupdate', () => {
       const cur = this.audio.currentTime;
       const dur = this.audio.duration;
@@ -442,77 +497,130 @@ class TranscriptMode {
         this.elements.currentTime.textContent = formatTime(cur);
       }
 
+      // Find and highlight current segment
       const idx = this.segments.findIndex(s => cur >= s.start_time && cur < s.end_time);
-      if (idx !== -1) {
+      if (idx !== -1 && idx !== this.activeIndex) {
         this.highlightItem(idx);
       }
     });
 
-    this.audio.addEventListener('play', () => this.updatePlayButton(true));
-    this.audio.addEventListener('pause', () => this.updatePlayButton(false));
+    // Handle audio pause/play events
+    this.audio.addEventListener('pause', () => {
+      this.isPlaying = false;
+      this.updatePlayButton();
+    });
+
+    this.audio.addEventListener('play', () => {
+      this.isPlaying = true;
+      this.updatePlayButton();
+    });
+
     this.audio.addEventListener('ended', () => {
-      this.updatePlayButton(false);
+      this.isPlaying = false;
+      this.updatePlayButton();
     });
 
     // Set total time when metadata loads
     const onMeta = () => {
       this.elements.totalTime.textContent = formatTime(this.audio.duration);
+      this.autoStartIfNeeded();
     };
     this.audio.addEventListener('loadedmetadata', onMeta);
     if (this.audio.readyState >= 1) onMeta();
+
+    // Keyboard navigation (arrow left/right)
+    document.addEventListener('keydown', (e) => {
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        let target = this.activeIndex + 1;
+        if (target >= this.segments.length) target = this.segments.length - 1;
+        this.playSegment(target, this.continuousMode);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        let target = this.activeIndex - 1;
+        if (target < 0) target = 0;
+        this.playSegment(target, this.continuousMode);
+      }
+    });
   }
 
   renderList() {
     this.elements.list.innerHTML = '';
     this.segments.forEach((seg, idx) => {
       const div = document.createElement('div');
-      div.className = `transcript-item group flex gap-3 rounded-lg cursor-pointer`;
+      div.className = `transcript-item group`;
       div.dataset.index = idx;
 
       div.innerHTML = `
-        <div class="flex items-center gap-3 pt-0.5">
-          <button class="play-btn w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 hover:scale-105 transition-all" title="Phát">
-            <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <div class="transcript-item-inner">
+          <button class="transcript-play-btn" title="Phát câu này" data-index="${idx}">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           </button>
+          <span class="transcript-text">${seg.correct_text}</span>
         </div>
-        <div class="t-text flex-1 text-slate-600 text-[15px] leading-relaxed select-text">${seg.correct_text}</div>
       `;
 
-      div.querySelector('.play-btn').onclick = (e) => {
+      div.querySelector('.transcript-play-btn').onclick = (e) => {
         e.stopPropagation();
-        this.playSegment(idx);
+        this.playSegment(idx, false); // Single segment, not continuous
       };
-      div.querySelector('.t-text').onclick = () => {
-        this.playSegment(idx);
+      div.onclick = () => {
+        this.playSegment(idx, this.continuousMode);
       };
 
       this.elements.list.appendChild(div);
     });
+
+    this.updateListButtons(false);
   }
 
-  playSegment(idx) {
+  play() {
+    if (this.activeIndex < 0) {
+      this.playSegment(0, this.continuousMode);
+    } else {
+      this.playSegment(this.activeIndex, this.continuousMode);
+    }
+  }
+
+  pause() {
+    this.audio.pause();
+  }
+
+  playSegment(idx, continuous = true) {
     if (idx < 0 || idx >= this.segments.length) return;
 
     const seg = this.segments[idx];
     const targetTime = parseFloat(seg.start_time);
     const endTime = parseFloat(seg.end_time);
-
-    console.log('[TranscriptMode] Playing segment:', idx, seg);
-
-    if (this.checkInterval) clearInterval(this.checkInterval);
+    const GAP_AFTER_SEGMENT_MS = 1000; // 1s pause between segments
 
     this.highlightItem(idx);
     this.audio.pause();
-    this.audio.playbackRate = 1.0;
+
+    const handleEnd = () => {
+      this.isPlaying = false;
+      this.updatePlayButton();
+      this.updateListButtons(false);
+      if (continuous) {
+        const next = idx + 1;
+        if (next < this.segments.length) {
+          setTimeout(() => this.playSegment(next, true), GAP_AFTER_SEGMENT_MS);
+        }
+      }
+    };
 
     this.seeker.seekAndPlay(
       targetTime,
       endTime,
-      () => this.updatePlayButton(true),
       () => {
-        this.updatePlayButton(false);
-        this.checkInterval = null;
-      }
+        this.isPlaying = true;
+        this.updatePlayButton();
+        this.updateListButtons(true, idx);
+      },
+      handleEnd,
+      false // always segment-bounded playback
     );
   }
 
@@ -536,12 +644,46 @@ class TranscriptMode {
     }
   }
 
-  updatePlayButton(playing) {
-    if (playing) {
-      this.elements.btnPlay.innerHTML = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+  updatePlayButton() {
+    if (this.isPlaying) {
+      this.elements.btnPlay.innerHTML = `
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+        </svg>
+      `;
+      this.elements.btnPlay.classList.add('playing');
     } else {
-      this.elements.btnPlay.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      this.elements.btnPlay.innerHTML = `
+        <svg class="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      `;
+      this.elements.btnPlay.classList.remove('playing');
     }
+
+    this.updateListButtons(this.isPlaying, this.activeIndex);
+  }
+
+  updateListButtons(playing, idx) {
+    const items = Array.from(this.elements.list.querySelectorAll('.transcript-item'));
+    items.forEach((item, i) => {
+      const btn = item.querySelector('.transcript-play-btn');
+      if (!btn) return;
+      if (playing && i === idx) {
+        btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>`;
+      } else {
+        btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+      }
+    });
+  }
+
+  autoStartIfNeeded() {
+    if (this.autoStarted) return;
+    if (!this.segments || this.segments.length === 0) return;
+    const pane = document.getElementById('view-transcript');
+    if (pane && pane.classList.contains('hidden')) return; // chỉ auto khi tab transcript đang mở
+    this.autoStarted = true;
+    this.playSegment(0, true);
   }
 }
 
@@ -554,12 +696,82 @@ class DictationApp {
     this.segments = config.segments;
     this.audio = config.audio;
 
-    // Initialize modes
-    this.dictationMode = new DictationMode(this.audio, this.segments, config.dictationElements);
+    this.settings = new DictationSettings();
+    this.settings.bindUI();
+
+    const initialIndex = config.initialIndex || 0;
+    const onProgress = typeof config.onProgress === 'function' ? config.onProgress : null;
+
+    this.dictationMode = new DictationMode(this.audio, this.segments, config.dictationElements, this.settings, {
+      initialIndex,
+      onProgress,
+    });
     this.transcriptMode = new TranscriptMode(this.audio, this.segments, config.transcriptElements);
 
     // Set initial mode
     this.dictationMode.render();
+
+    // Toggle settings panel
+    const settingsBtn = document.getElementById('dict-settings-btn');
+    const settingsPanel = document.getElementById('dict-settings-panel');
+    if (settingsBtn && settingsPanel) {
+      settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsPanel.classList.toggle('hidden');
+      });
+      document.addEventListener('click', () => {
+        settingsPanel.classList.add('hidden');
+      });
+      settingsPanel.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    // Auto-resize textarea (no manual drag)
+    const textarea = document.getElementById('user-input');
+    if (textarea) {
+      const autoResize = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      };
+      textarea.addEventListener('input', autoResize);
+      // initial
+      autoResize();
+    }
+
+    // Keymap handlers (dictation tab)
+    document.addEventListener('keydown', (e) => {
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || e.metaKey) return;
+      const pane = document.getElementById('view-dictation');
+      if (!pane || pane.classList.contains('hidden')) return;
+
+      const playKey = this.settings.get('playKey');
+      const replayKey = this.settings.get('replayKey');
+
+      // Play/Pause
+      if (
+        (playKey === 'Backtick' && e.key === '`') ||
+        (playKey === 'Space' && e.code === 'Space') ||
+        (playKey === 'Enter' && e.key === 'Enter')
+      ) {
+        e.preventDefault();
+        if (!this.audio.paused) {
+          this.audio.pause();
+        } else {
+          this.dictationMode.playCurrentSegment();
+        }
+        return;
+      }
+
+      // Replay current segment
+      if (
+        (replayKey === 'Ctrl' && e.key === 'Control') ||
+        (replayKey === 'Alt' && e.key === 'Alt') ||
+        (replayKey === 'Shift' && e.key === 'Shift')
+      ) {
+        e.preventDefault();
+        this.dictationMode.playCurrentSegment();
+      }
+    });
   }
 
   switchTab(tabName) {
@@ -577,10 +789,124 @@ class DictationApp {
     document.getElementById('tab-btn-' + tabName).classList.add('active');
 
     if (!this.audio.paused) this.audio.pause();
+
+    if (tabName === 'transcript') {
+      this.transcriptMode.autoStartIfNeeded();
+    }
   }
 }
 
 // Export for global use
 window.DictationApp = DictationApp;
-window.switchTab = null; // Will be set by init function
+window.switchTab = null;
 
+
+// Auto-init using data attributes to avoid inline JSON errors
+document.addEventListener('DOMContentLoaded', () => {
+  const dataEl = document.getElementById('dictation-data');
+  if (!dataEl || typeof DictationApp === 'undefined') return;
+
+  const parseJSONSafe = (str, fallback) => {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      return fallback;
+    }
+  };
+
+  // Prefer JSON from script tag to avoid dataset encoding issues
+  let rawSegments = [];
+  const scriptEl = document.getElementById('dict-segments-json');
+  if (scriptEl) {
+    rawSegments = parseJSONSafe(scriptEl.textContent || '[]', []);
+  } else {
+    rawSegments = parseJSONSafe(dataEl.dataset.segments || '[]', []);
+  }
+  const initialIndex = parseInt(dataEl.dataset.initial || '0', 10) || 0;
+  const progressApi = dataEl.dataset.progressApi || null;
+  const exerciseId = parseInt(dataEl.dataset.exerciseId || '0', 10) || null;
+  const userAuthenticated = (dataEl.dataset.userAuth || 'false') === 'true';
+
+  // Normalize segments: include all if no type, else only content
+  const segments = (rawSegments || [])
+    .filter(function (s) {
+      const t = (s.type || "").toLowerCase();
+      if (!t) return true;
+      return t === "content";
+    })
+    .map(function (s, idx) {
+      return {
+        start_time: parseFloat(s.start_time != null ? s.start_time : s.start) || 0,
+        end_time: parseFloat(s.end_time != null ? s.end_time : s.end) || 0,
+        correct_text: (s.correct_text != null ? s.correct_text : (s.text || "")),
+        hint: s.hint || "",
+        words: s.words || [],
+        order: idx + 1
+      };
+    });
+
+  const audio = document.getElementById('main-audio');
+  if (!audio || !segments.length) {
+    const card = document.querySelector('.dictation-card');
+    if (card) card.innerHTML = '<div class="p-10 text-center text-slate-500">Chưa có dữ liệu bài tập. Hãy quay lại sau.</div>';
+    return;
+  }
+
+  const onProgress = (currentIndex, total) => {
+    if (!progressApi || !exerciseId || !userAuthenticated) return;
+    clearTimeout(window._dictProgressTimer);
+    window._dictProgressTimer = setTimeout(() => {
+      fetch(progressApi, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({
+          exercise_id: exerciseId,
+          current_segment: currentIndex,
+          total_segments: total,
+        }),
+      }).catch(() => {});
+    }, 300);
+  };
+
+  const app = new DictationApp({
+    segments: segments,
+    audio: audio,
+    dictationElements: {
+      viz: document.getElementById('audio-viz'),
+      btnPlay: document.getElementById('btn-play'),
+      btnReplay: document.getElementById('btn-replay'),
+      speedSelect: document.getElementById('select-speed'),
+      btnCheck: document.getElementById('btn-check'),
+      btnNext: document.getElementById('btn-next'),
+      userInput: document.getElementById('user-input'),
+      hintText: document.getElementById('hint-text'),
+      feedback: document.getElementById('feedback'),
+      feedbackContent: document.getElementById('feedback-content'),
+      progressBar: document.getElementById('progress-bar'),
+      progressText: document.getElementById('progress-text'),
+      exerciseApp: document.getElementById('exercise-app'),
+      summaryScreen: document.getElementById('summary-screen'),
+      finalScore: document.getElementById('final-score')
+    },
+    transcriptElements: {
+      activeText: document.getElementById('trans-active-text'),
+      list: document.getElementById('transcript-list'),
+      btnPlay: document.getElementById('trans-btn-play'),
+      btnReplay: document.getElementById('trans-btn-replay'),
+      btnPrev: document.getElementById('trans-btn-prev'),
+      btnNext: document.getElementById('trans-btn-next'),
+      progressBar: document.getElementById('trans-progress-bar'),
+      progressContainer: document.getElementById('trans-progress-container'),
+      currentTime: document.getElementById('trans-current-time'),
+      totalTime: document.getElementById('trans-total-time'),
+      autoScroll: document.getElementById('chk-autoscroll')
+    },
+    initialIndex,
+    onProgress,
+  });
+
+  window.switchTab = (tabName) => app.switchTab(tabName);
+});

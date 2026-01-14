@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {% if original %}
+    <li>
+      <a href="{% url 'admin:exam_readingpassage_import_content_json' %}?passage_id={{ original.id }}&prefill_template_id={{ original.template_id }}&prefill_order={{ original.order }}"
+         class="historylink">
+        Import content JSON
+      </a>
+    </li>
+  {% else %}
+    <li>
+      <a href="{% url 'admin:exam_readingpassage_import_content_json' %}" class="historylink">
+        Import content JSON
+      </a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+

@@ -4,6 +4,41 @@ Provides navigation items and other shared context
 """
 
 
+def sidebar_data(request):
+    """
+    Context processor for sidebar layout.
+    Provides exam_goal, user_streak, user_coins data.
+    """
+    context = {
+        'exam_goal': None,
+        'user_streak': 0,
+        'user_coins': 0,
+    }
+    
+    if request.user.is_authenticated:
+        # Get ExamGoal
+        try:
+            from core.models import ExamGoal
+            context['exam_goal'] = ExamGoal.objects.filter(user=request.user).first()
+        except Exception:
+            pass
+        
+        # Get StreakStat
+        try:
+            from streak.models import StreakStat
+            streak_stat = StreakStat.objects.filter(user=request.user).first()
+            if streak_stat:
+                context['user_streak'] = streak_stat.current_streak
+        except Exception:
+            pass
+        
+        # Get Coins (if you have a coin system, add here)
+        # For now, just a placeholder
+        context['user_coins'] = 0
+    
+    return context
+
+
 def navigation_items(request):
     """
     Context processor that provides navigation menu items
@@ -18,11 +53,6 @@ def navigation_items(request):
         {
             'name': 'Đề thi',
             'url_name': 'exam:exam_list',
-            'icon': None,
-        },
-        {
-            'name': 'TOEIC',
-            'url_name': 'exam:toeic_list',
             'icon': None,
         },
         {
@@ -63,23 +93,19 @@ def footer_data(request):
     Includes footer links, social media, etc.
     """
     footer_courses = [
-        {'name': 'Khóa học N5', 'url_name': 'core:course_list'},
-        {'name': 'Khóa học N4', 'url_name': 'core:course_list'},
-        {'name': 'Khóa học N3', 'url_name': 'core:course_list'},
-        {'name': 'Khóa học N2', 'url_name': 'core:course_list'},
+        # {'name': 'Khóa học N5', 'url_name': 'core:course_list'},
+        # {'name': 'Khóa học N4', 'url_name': 'core:course_list'},
+        # {'name': 'Khóa học N3', 'url_name': 'core:course_list'},
+        # {'name': 'Khóa học N2', 'url_name': 'core:course_list'},
         {'name': 'Khóa học N1', 'url_name': 'core:course_list'},
     ]
     
     footer_company = [
         {'name': 'Về chúng tôi', 'url': '#'},
         {'name': 'Blog', 'url': '#'},
-        {'name': 'Tuyển dụng', 'url': '#'},
-        {'name': 'Đối tác', 'url': '#'},
-        {'name': 'Báo chí', 'url': '#'},
     ]
     
     footer_support = [
-        {'name': 'Trung tâm trợ giúp', 'url': '#'},
         {'name': 'Liên hệ', 'url': '#'},
         {'name': 'Cộng đồng', 'url': '#'},
         {'name': 'Câu hỏi thường gặp', 'url': '#'},
@@ -130,23 +156,23 @@ def landing_page_data(request):
     """
     student_testimonials = [
         {
-            'text': 'DailyFluent giúp tôi chuyển từ marketing sang học tiếng Nhật. Các khóa học được cấu trúc tốt và cộng đồng rất hỗ trợ!',
+            'text': 'Các khóa học được cấu trúc tốt và cộng đồng rất hỗ trợ!',
             'name': 'Nguyễn Thị Lan',
-            'title': 'Lập trình viên',
+            'title': 'Sinh viên',
             'initial': 'L',
             'avatar_color': 'bg-pink-500',
         },
         {
-            'text': 'Khóa học N5-N4 chính xác là những gì tôi cần. Tôi đã đạt được mục tiêu chỉ sau 3 tháng hoàn thành!',
+            'text': 'Khóa học TOEIC chính xác là những gì tôi cần. Tôi đã đạt được mục tiêu chỉ sau 3 tháng hoàn thành!',
             'name': 'Trần Văn Đức',
-            'title': 'Thiết kế UX',
+            'title': 'Học sinh cấp 3',
             'initial': 'Đ',
             'avatar_color': 'bg-blue-500',
         },
         {
-            'text': 'Đầu tư tốt nhất tôi đã làm cho sự nghiệp. Khóa học từ vựng đã cho tôi kỹ năng thực tế tôi sử dụng mỗi ngày.',
+            'text': 'Khóa học từ vựng đã cho tôi kỹ năng thực tế tôi sử dụng mỗi ngày.',
             'name': 'Lê Thị Mai',
-            'title': 'Phân tích dữ liệu',
+            'title': 'Sinh viên',
             'initial': 'M',
             'avatar_color': 'bg-purple-500',
         },

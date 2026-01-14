@@ -4,11 +4,12 @@ Usage: {% include "components/navigation/logo.html" %}
 {% endcomment %}
 {% load static %}
 
-<div class="flex items-center gap-2.5 flex-shrink-0">
+<a href="{% url 'home' %}"
+  class="flex items-center gap-2.5 flex-shrink-0 no-underline hover:opacity-80 transition-opacity">
   <div class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center flex-shrink-0">
     <img src="{% static 'logo_official.png' %}" alt="DailyFluent logo" class="w-full h-full object-contain">
   </div>
   <div class="hidden sm:block">
     <div class="font-bold text-slate-900 text-base">DailyFluent</div>
   </div>
-</div>
+</a>
