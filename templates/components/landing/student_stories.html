@@ -1,51 +1,132 @@
 {% comment %}
-Student Stories Section - Testimonials
+Student Stories Section - TOEIC Success Testimonials
 Usage: {% include "components/landing/student_stories.html" %}
 {% endcomment %}
 
-<section class="py-16 bg-white">
-  <div class="w-full px-4 lg:px-6">
+<section style="padding: 4rem 0; background: var(--bg-surface);">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
     <!-- Header -->
-    <div class="text-center mb-12">
-      <span class="inline-block px-4 py-1.5 rounded-lg bg-green-100 text-green-700 text-sm font-medium mb-4">
-        Câu chuyện học viên
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--status-success-subtle); color: var(--status-success-text); font-size: 0.875rem; font-weight: 600; border-radius: 9999px; margin-bottom: 1rem; border: 1px solid var(--status-success-border);">
+        ⭐ Câu chuyện thành công
       </span>
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900">
-        Học viên nói gì về chúng tôi
+      <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem;">
+        Học viên đã cải thiện điểm TOEIC như thế nào
       </h2>
+      <p style="font-size: 1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+        Hàng nghìn học viên đã đạt mục tiêu điểm TOEIC với DailyFluent
+      </p>
     </div>
 
     <!-- Testimonial Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {% for testimonial in student_testimonials %}
-        <div class="bg-white rounded-xl border border-slate-300 p-6 shadow-sm">
-          <!-- Stars -->
-          <div class="flex items-center gap-1 mb-4">
-            {% for i in "12345" %}
-              <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-              </svg>
-            {% endfor %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;">
+      <!-- Testimonial 1 -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.75rem; position: relative;">
+        <!-- Score Badge -->
+        <div style="position: absolute; top: -12px; right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #10B981, #06B6D4); color: #fff; font-size: 0.875rem; font-weight: 700; border-radius: 9999px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+          450 → 850 điểm
+        </div>
+        
+        <!-- Stars -->
+        <div style="display: flex; gap: 0.25rem; margin-bottom: 1rem; margin-top: 0.5rem;">
+          <span style="color: #FBBF24; font-size: 1.125rem;">★★★★★</span>
+        </div>
+
+        <!-- Quote -->
+        <p style="font-size: 1rem; color: var(--text-primary); line-height: 1.7; margin-bottom: 1.5rem; font-style: italic;">
+          "Mình đã luyện đề trên DailyFluent mỗi ngày trong 3 tháng. Phần giải thích chi tiết giúp mình hiểu tại sao sai và không lặp lại lỗi. Từ 450 lên 850 điểm!"
+        </p>
+
+        <!-- Author -->
+        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #6366F1, #8B5CF6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.125rem;">
+            TL
           </div>
-
-          <!-- Testimonial Text -->
-          <p class="text-slate-700 mb-6 leading-relaxed text-base">
-            "{{ testimonial.text }}"
-          </p>
-
-          <!-- Author -->
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm {{ testimonial.avatar_color }}">
-              {{ testimonial.initial }}
-            </div>
-            <div>
-              <p class="font-semibold text-slate-900 text-sm">{{ testimonial.name }}</p>
-              <p class="text-sm text-slate-500">{{ testimonial.title }}</p>
-            </div>
+          <div>
+            <div style="font-weight: 700; color: var(--text-primary);">Nguyễn Thị Lan</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary);">Nhân viên văn phòng, TP.HCM</div>
           </div>
         </div>
-      {% endfor %}
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.75rem; position: relative;">
+        <!-- Score Badge -->
+        <div style="position: absolute; top: -12px; right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #F97316, #FBBF24); color: #fff; font-size: 0.875rem; font-weight: 700; border-radius: 9999px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);">
+          550 → 900 điểm
+        </div>
+        
+        <!-- Stars -->
+        <div style="display: flex; gap: 0.25rem; margin-bottom: 1rem; margin-top: 0.5rem;">
+          <span style="color: #FBBF24; font-size: 1.125rem;">★★★★★</span>
+        </div>
+
+        <!-- Quote -->
+        <p style="font-size: 1rem; color: var(--text-primary); line-height: 1.7; margin-bottom: 1.5rem; font-style: italic;">
+          "Flashcard với SRS thực sự hiệu quả! Mình học 50 từ/ngày mà vẫn nhớ được hết. Kết hợp với luyện đề, mình đã đạt 900 điểm đúng mục tiêu."
+        </p>
+
+        <!-- Author -->
+        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EC4899, #F43F5E); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.125rem;">
+            VĐ
+          </div>
+          <div>
+            <div style="font-weight: 700; color: var(--text-primary);">Trần Văn Đức</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary);">Sinh viên năm 4, ĐH Bách Khoa</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.75rem; position: relative;">
+        <!-- Score Badge -->
+        <div style="position: absolute; top: -12px; right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; font-size: 0.875rem; font-weight: 700; border-radius: 9999px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          600 → 950 điểm
+        </div>
+        
+        <!-- Stars -->
+        <div style="display: flex; gap: 0.25rem; margin-bottom: 1rem; margin-top: 0.5rem;">
+          <span style="color: #FBBF24; font-size: 1.125rem;">★★★★★</span>
+        </div>
+
+        <!-- Quote -->
+        <p style="font-size: 1rem; color: var(--text-primary); line-height: 1.7; margin-bottom: 1.5rem; font-style: italic;">
+          "Thống kê theo Part giúp mình biết Part 5, 6 đang yếu. Tập trung luyện 2 phần đó trong 1 tháng và tổng điểm tăng 150 điểm. Quá hữu ích!"
+        </p>
+
+        <!-- Author -->
+        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #10B981, #06B6D4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.125rem;">
+            TM
+          </div>
+          <div>
+            <div style="font-weight: 700; color: var(--text-primary);">Lê Thị Mai</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary);">Kế toán, Công ty ABC</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align: center; margin-top: 3rem;">
+      <a href="{% url 'account_signup' %}" style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem; background: var(--action-primary); color: var(--action-primary-text); font-size: 1rem; font-weight: 700; border-radius: 0.75rem; text-decoration: none; transition: all 0.2s; box-shadow: var(--shadow-primary);">
+        🚀 Bắt đầu luyện thi miễn phí
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+      <p style="font-size: 0.875rem; color: var(--text-tertiary); margin-top: 1rem;">
+        Không cần thẻ tín dụng • Đăng ký trong 30 giây
+      </p>
     </div>
   </div>
 </section>
 
+<style>
+  @media (max-width: 768px) {
+    section > div > div:nth-child(2) {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

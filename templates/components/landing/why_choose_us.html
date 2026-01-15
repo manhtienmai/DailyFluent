@@ -1,59 +1,117 @@
 {% comment %}
-Why Choose Us Section - Features
+Why Choose Us Section - TOEIC Focused Features
 Usage: {% include "components/landing/why_choose_us.html" %}
 {% endcomment %}
 
-<section class="py-16 bg-orange-50">
-  <div class="w-full px-4 lg:px-6">
+<section style="padding: 4rem 0; background: var(--bg-app-subtle);">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
     <!-- Header -->
-    <div class="text-center mb-12">
-      <span class="inline-block px-4 py-1.5 rounded-full bg-pink-100 text-slate-900 text-sm font-medium mb-4">
-        Tại sao chọn chúng tôi
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, var(--action-primary), var(--action-accent)); color: #fff; font-size: 0.875rem; font-weight: 600; border-radius: 9999px; margin-bottom: 1rem;">
+        🎯 Tại sao chọn DailyFluent
       </span>
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-900">
-        Mọi thứ bạn cần để thành công
+      <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem;">
+        Công cụ luyện thi TOEIC hiệu quả nhất
       </h2>
+      <p style="font-size: 1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+        Được thiết kế bởi đội ngũ đã đạt 990 điểm TOEIC, giúp bạn cải thiện điểm số nhanh chóng
+      </p>
     </div>
 
     <!-- Feature Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {% for feature in why_choose_us_features %}
-        <div class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-          <!-- Icon -->
-          <div class="w-14 h-14 rounded-lg flex items-center justify-center mb-4 mx-auto {{ feature.icon_bg }} transition-all duration-300 group-hover:scale-105 group-hover:shadow-sm">
-            {% if feature.icon == 'clock' %}
-              <svg class="w-7 h-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            {% elif feature.icon == 'graduation' %}
-              <svg class="w-7 h-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v9M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-              </svg>
-            {% elif feature.icon == 'certificate' %}
-              <svg class="w-7 h-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-              </svg>
-            {% elif feature.icon == 'community' %}
-              <svg class="w-7 h-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
-            {% endif %}
-          </div>
-
-          <!-- Title -->
-          <h3 class="text-lg font-bold text-slate-900 mb-2">
-            {{ feature.title }}
-          </h3>
-
-          <!-- Description -->
-          <p class="text-sm text-slate-600 leading-relaxed">
-            {{ feature.description }}
-          </p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+      <!-- Feature 1: Đề thi thật -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #F97316, #FBBF24); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.75rem;">
+          📝
         </div>
-      {% endfor %}
+        <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+          Đề thi chuẩn format ETS
+        </h3>
+        <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6;">
+          Hơn 50+ đề thi TOEIC được biên soạn theo chuẩn ETS, cập nhật định dạng mới nhất 2024.
+        </p>
+      </div>
+
+      <!-- Feature 2: Giải thích chi tiết -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #10B981, #06B6D4); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.75rem;">
+          💡
+        </div>
+        <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+          Giải thích chi tiết bằng tiếng Việt
+        </h3>
+        <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6;">
+          Mỗi câu hỏi đều có transcript, dịch nghĩa và giải thích tại sao đáp án đúng/sai.
+        </p>
+      </div>
+
+      <!-- Feature 3: Flashcard thông minh -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6366F1, #8B5CF6); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.75rem;">
+          🧠
+        </div>
+        <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+          Flashcard với thuật toán SRS
+        </h3>
+        <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6;">
+          Học từ vựng TOEIC với phương pháp lặp lại ngắt quãng, nhớ lâu gấp 3 lần.
+        </p>
+      </div>
+
+      <!-- Feature 4: Thống kê chi tiết -->
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 1.25rem; padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #EC4899, #F43F5E); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.75rem;">
+          📊
+        </div>
+        <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+          Phân tích điểm yếu theo Part
+        </h3>
+        <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6;">
+          Thống kê chi tiết từng Part, biết chính xác cần cải thiện phần nào để tăng điểm.
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Banner -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, var(--action-primary), var(--action-accent)); border-radius: 1.5rem;">
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #fff;">50+</div>
+        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.85);">Đề thi TOEIC</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #fff;">10,000+</div>
+        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.85);">Câu hỏi</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #fff;">5,000+</div>
+        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.85);">Từ vựng TOEIC</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #fff;">100%</div>
+        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.85);">Miễn phí</div>
+      </div>
     </div>
   </div>
 </section>
 
+<style>
+  @media (max-width: 768px) {
+    section > div > div:last-child {
+      grid-template-columns: repeat(2, 1fr) !important;
+      padding: 1.5rem !important;
+    }
+    section > div > div:last-child > div {
+      font-size: 0.8125rem !important;
+    }
+    section > div > div:last-child > div > div:first-child {
+      font-size: 1.75rem !important;
+    }
+  }
+  @media (max-width: 480px) {
+    section > div > div:last-child {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 1rem !important;
+    }
+  }
+</style>
