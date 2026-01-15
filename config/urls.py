@@ -22,6 +22,7 @@ urlpatterns = [
     path("feedback/", include("feedback.urls", namespace="feedback")),
     path("api/wallet/", include("wallet.urls", namespace="wallet")),
     path("health", health),
+    path("", include("analytics.urls", namespace="analytics")),
 ]
 
 if settings.DEBUG:

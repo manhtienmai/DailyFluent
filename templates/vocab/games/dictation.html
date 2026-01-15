@@ -5,21 +5,509 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260115">
+<style>
+  /* Dictation Game - Enhanced Modern UI */
+  .df-dictation-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+
+  /* Header */
+  .df-dictation-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .df-dictation-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.375rem;
+  }
+
+  .df-dictation-subtitle {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  /* Score Badge */
+  .df-dictation-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    background: var(--status-success-subtle);
+    border: 1px solid var(--status-success-border);
+    border-radius: 1rem;
+    min-width: 80px;
+  }
+
+  .df-dictation-score-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--status-success-text);
+    line-height: 1;
+  }
+
+  .df-dictation-score-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--status-success-text);
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+
+  /* Progress Bar */
+  .df-dictation-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-dictation-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-interactive);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .df-dictation-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--action-primary), var(--action-accent));
+    border-radius: 9999px;
+    transition: width 0.4s ease;
+  }
+
+  .df-dictation-progress-text {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  /* Main Card */
+  .df-dictation-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .df-dictation-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  /* Audio Button */
+  .df-dictation-audio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .df-dictation-audio-btn {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--action-primary), var(--action-accent));
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+  }
+
+  .df-dictation-audio-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
+  }
+
+  .df-dictation-audio-btn:active {
+    transform: scale(0.95);
+  }
+
+  .df-dictation-audio-btn svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .df-dictation-audio-hint {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  /* Input */
+  .df-dictation-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 2px solid var(--border-default);
+    border-radius: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-dictation-input:focus {
+    border-color: var(--action-primary);
+    box-shadow: 0 0 0 4px var(--action-primary-subtle);
+  }
+
+  .df-dictation-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .df-dictation-input--correct {
+    border-color: var(--status-success) !important;
+    background: var(--status-success-subtle) !important;
+    color: var(--status-success-text) !important;
+  }
+
+  .df-dictation-input--wrong {
+    border-color: var(--status-error) !important;
+    background: var(--status-error-subtle) !important;
+    color: var(--status-error-text) !important;
+  }
+
+  /* Check Button */
+  .df-dictation-check-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    background: var(--action-primary);
+    border: none;
+    border-radius: 0.75rem;
+    color: var(--action-primary-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .df-dictation-check-btn:hover:not(:disabled) {
+    background: var(--action-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .df-dictation-check-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Feedback */
+  .df-dictation-feedback {
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .df-dictation-feedback--correct {
+    background: var(--status-success-subtle);
+    border: 1px solid var(--status-success-border);
+  }
+
+  .df-dictation-feedback--correct .df-dictation-feedback-title {
+    color: var(--status-success-text);
+  }
+
+  .df-dictation-feedback--wrong {
+    background: var(--status-error-subtle);
+    border: 1px solid var(--status-error-border);
+  }
+
+  .df-dictation-feedback--wrong .df-dictation-feedback-title {
+    color: var(--status-error-text);
+  }
+
+  .df-dictation-feedback-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .df-dictation-feedback-text {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  .df-dictation-feedback-text strong {
+    color: var(--text-primary);
+  }
+
+  /* Navigation */
+  .df-dictation-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .df-dictation-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.625rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .df-dictation-nav-btn--secondary {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+  }
+
+  .df-dictation-nav-btn--secondary:hover:not(:disabled) {
+    background: var(--bg-interactive);
+    border-color: var(--border-interactive);
+  }
+
+  .df-dictation-nav-btn--secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: var(--text-tertiary);
+  }
+
+  .df-dictation-nav-btn--primary {
+    background: var(--action-primary);
+    color: var(--action-primary-text);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .df-dictation-nav-btn--primary:hover:not(:disabled) {
+    background: var(--action-primary-hover);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .df-dictation-nav-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Complete Screen */
+  .df-dictation-complete {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .df-dictation-complete-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    background: var(--status-success-subtle);
+    border: 1px solid var(--status-success-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    animation: popIn 0.5s ease-out;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .df-dictation-complete-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .df-dictation-complete-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .df-dictation-complete-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-interactive);
+    border-radius: 1rem;
+  }
+
+  .df-dictation-complete-stat {
+    text-align: center;
+  }
+
+  .df-dictation-complete-stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--action-primary);
+    line-height: 1.1;
+  }
+
+  .df-dictation-complete-stat-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  .df-dictation-complete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: var(--action-primary);
+    color: var(--action-primary-text);
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+  }
+
+  .df-dictation-complete-btn:hover {
+    background: var(--action-primary-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Empty State */
+  .df-dictation-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-surface);
+    border-radius: 1.5rem;
+    border: 2px dashed var(--border-default);
+  }
+
+  .df-dictation-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    background: var(--bg-interactive);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .df-dictation-empty-icon svg {
+    width: 40px;
+    height: 40px;
+    color: var(--text-tertiary);
+  }
+
+  .df-dictation-empty-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .df-dictation-empty-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .df-dictation-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .df-dictation-card {
+      padding: 1.5rem;
+    }
+
+    .df-dictation-audio-btn {
+      width: 72px;
+      height: 72px;
+    }
+
+    .df-dictation-nav {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .df-dictation-nav-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .df-dictation-complete-stats {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="df-game-container">
+<div class="df-dictation-container">
   <!-- Header -->
-  <div class="df-game-header">
+  <div class="df-dictation-header">
     <div>
-      <h1 class="df-game-title">✍ Nghe chính tả</h1>
-      <p class="df-game-subtitle">Nghe phát âm và gõ từ</p>
+      <h1 class="df-dictation-title">✍️ Nghe chính tả</h1>
+      <p class="df-dictation-subtitle">Nghe phát âm và gõ từ</p>
     </div>
-    <div class="df-game-stats">
-      <div class="df-game-stat">
-        <span class="df-game-stat-value" id="correct-count">0</span>
-        <span class="df-game-stat-label">Đúng</span>
-      </div>
+    <div class="df-dictation-score">
+      <span class="df-dictation-score-value" id="correct-count">0</span>
+      <span class="df-dictation-score-label">Đúng</span>
     </div>
   </div>
 
@@ -28,46 +516,44 @@
 
   <div id="game-container">
     <!-- Progress -->
-    <div class="df-game-progress">
-      <div class="df-game-progress-bar">
-        <div id="progress-fill" class="df-game-progress-fill" style="width: 0%"></div>
+    <div class="df-dictation-progress">
+      <div class="df-dictation-progress-bar">
+        <div id="progress-fill" class="df-dictation-progress-fill" style="width: 0%"></div>
       </div>
-      <span id="progress-text" class="df-game-progress-text">1 / {{ total_count }}</span>
+      <span id="progress-text" class="df-dictation-progress-text">1 / {{ total_count }}</span>
     </div>
 
     <!-- Question Card -->
-    <div class="df-game-card">
-      <div class="df-game-question-label">Nghe và gõ từ bạn nghe được:</div>
+    <div class="df-dictation-card">
+      <div class="df-dictation-label">Nghe và gõ từ bạn nghe được:</div>
       
       <!-- Audio Player -->
-      <div class="df-game-audio">
-        <button type="button" id="btn-play" class="df-game-audio-btn" title="Phát âm thanh">
+      <div class="df-dictation-audio">
+        <button type="button" id="btn-play" class="df-dictation-audio-btn" title="Phát âm thanh">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
           </svg>
         </button>
-        <span style="font-size: 0.875rem; color: var(--text-tertiary);">Nhấn để nghe (Space)</span>
+        <span class="df-dictation-audio-hint">Nhấn để nghe (Space)</span>
       </div>
       
-      <div class="df-game-input-wrap">
-        <input type="text" id="answer-input" class="df-game-input" placeholder="Gõ từ bạn nghe được..." autocomplete="off" autofocus>
-      </div>
+      <input type="text" id="answer-input" class="df-dictation-input" placeholder="Gõ từ bạn nghe được..." autocomplete="off" autofocus>
       
-      <button type="button" id="btn-check" class="df-game-submit">
+      <button type="button" id="btn-check" class="df-dictation-check-btn">
         Kiểm tra
       </button>
     </div>
 
     <!-- Feedback -->
-    <div id="feedback" class="df-game-feedback hidden"></div>
+    <div id="feedback" class="df-dictation-feedback hidden"></div>
 
     <!-- Navigation -->
-    <div class="df-game-nav">
-      <button type="button" id="btn-prev" class="df-game-nav-btn df-game-nav-btn--secondary" disabled>
+    <div class="df-dictation-nav">
+      <button type="button" id="btn-prev" class="df-dictation-nav-btn df-dictation-nav-btn--secondary" disabled>
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         Câu trước
       </button>
-      <button type="button" id="btn-next" class="df-game-nav-btn df-game-nav-btn--primary">
+      <button type="button" id="btn-next" class="df-dictation-nav-btn df-dictation-nav-btn--primary">
         Câu sau
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
@@ -75,29 +561,32 @@
   </div>
 
   <!-- Complete Screen -->
-  <div id="complete-screen" class="df-game-complete hidden">
-    <div class="df-game-complete-icon">🎉</div>
-    <h2 class="df-game-complete-title">Hoàn thành!</h2>
-    <div class="df-game-complete-stats">
-      <div class="df-game-complete-stat">
-        <div id="final-correct" class="df-game-complete-stat-value">0</div>
-        <div class="df-game-complete-stat-label">Đúng</div>
+  <div id="complete-screen" class="df-dictation-complete hidden">
+    <div class="df-dictation-complete-icon">🎉</div>
+    <h2 class="df-dictation-complete-title">Xuất sắc!</h2>
+    <p class="df-dictation-complete-subtitle">Bạn đã hoàn thành bài luyện nghe chính tả</p>
+    <div class="df-dictation-complete-stats">
+      <div class="df-dictation-complete-stat">
+        <div id="final-correct" class="df-dictation-complete-stat-value">0</div>
+        <div class="df-dictation-complete-stat-label">Đúng</div>
       </div>
-      <div class="df-game-complete-stat">
-        <div id="final-total" class="df-game-complete-stat-value">0</div>
-        <div class="df-game-complete-stat-label">Tổng</div>
+      <div class="df-dictation-complete-stat">
+        <div id="final-total" class="df-dictation-complete-stat-value">0</div>
+        <div class="df-dictation-complete-stat-label">Tổng</div>
       </div>
     </div>
-    <a href="{% url 'vocab:games' %}" class="df-game-complete-btn">Quay lại</a>
+    <a href="{% url 'vocab:games' %}" class="df-dictation-complete-btn">
+      ← Quay lại trò chơi
+    </a>
   </div>
 
   {% else %}
-  <div class="df-game-empty">
-    <div class="df-game-empty-icon">
+  <div class="df-dictation-empty">
+    <div class="df-dictation-empty-icon">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     </div>
-    <h2 class="df-game-empty-title">Chưa có từ vựng có audio</h2>
-    <p class="df-game-empty-text">Hãy thêm từ vựng có audio để chơi trò này.</p>
+    <h2 class="df-dictation-empty-title">Chưa có từ vựng có audio</h2>
+    <p class="df-dictation-empty-text">Hãy thêm từ vựng có audio để chơi trò này.</p>
   </div>
   {% endif %}
 </div>
@@ -135,6 +624,10 @@
     if (audio) audio.pause();
     audio = new Audio(getAudioUrl(q.audio_pack_uuid));
     audio.play().catch(() => {});
+    
+    // Add pulse animation to button
+    btnPlay.style.transform = 'scale(0.9)';
+    setTimeout(() => { btnPlay.style.transform = ''; }, 150);
   }
   
   function render() {
@@ -147,11 +640,18 @@
     progressText.textContent = `${idx + 1} / ${questions.length}`;
     
     btnPrev.disabled = idx === 0;
-    btnNext.textContent = idx >= questions.length - 1 ? 'Hoàn thành' : 'Câu sau';
+    
+    // Update next button
+    const nextBtnText = btnNext.querySelector('span') || btnNext.childNodes[0];
+    if (idx >= questions.length - 1) {
+      btnNext.innerHTML = 'Hoàn thành <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+    } else {
+      btnNext.innerHTML = 'Câu sau <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+    }
     
     // Reset input
     inputEl.value = '';
-    inputEl.className = 'df-game-input';
+    inputEl.className = 'df-dictation-input';
     inputEl.disabled = false;
     btnCheck.disabled = false;
     feedbackDiv.classList.add('hidden');
@@ -160,7 +660,7 @@
       inputEl.value = answered[idx].input;
       inputEl.disabled = true;
       btnCheck.disabled = true;
-      inputEl.className = 'df-game-input ' + (answered[idx].correct ? 'df-game-input--correct' : 'df-game-input--wrong');
+      inputEl.className = 'df-dictation-input ' + (answered[idx].correct ? 'df-dictation-input--correct' : 'df-dictation-input--wrong');
       showFeedback(answered[idx].correct, q);
     } else {
       inputEl.focus();
@@ -182,15 +682,15 @@
     
     inputEl.disabled = true;
     btnCheck.disabled = true;
-    inputEl.className = 'df-game-input ' + (isCorrect ? 'df-game-input--correct' : 'df-game-input--wrong');
+    inputEl.className = 'df-dictation-input ' + (isCorrect ? 'df-dictation-input--correct' : 'df-dictation-input--wrong');
     showFeedback(isCorrect, q);
   }
   
   function showFeedback(isCorrect, q) {
-    feedbackDiv.className = 'df-game-feedback ' + (isCorrect ? 'df-game-feedback--correct' : 'df-game-feedback--wrong');
+    feedbackDiv.className = 'df-dictation-feedback ' + (isCorrect ? 'df-dictation-feedback--correct' : 'df-dictation-feedback--wrong');
     feedbackDiv.innerHTML = isCorrect 
-      ? `<div class="df-game-feedback-title">✓ Chính xác!</div><div class="df-game-feedback-text">${q.display_answer} ${q.phonetic ? '(' + q.phonetic + ')' : ''} - ${q.meaning}</div>`
-      : `<div class="df-game-feedback-title">✗ Sai rồi</div><div class="df-game-feedback-text">Đáp án: <strong>${q.display_answer}</strong> ${q.phonetic ? '(' + q.phonetic + ')' : ''} - ${q.meaning}</div>`;
+      ? `<div class="df-dictation-feedback-title">✓ Chính xác!</div><div class="df-dictation-feedback-text">${q.display_answer} ${q.phonetic ? '(' + q.phonetic + ')' : ''} - ${q.meaning}</div>`
+      : `<div class="df-dictation-feedback-title">✗ Sai rồi</div><div class="df-dictation-feedback-text">Đáp án: <strong>${q.display_answer}</strong> ${q.phonetic ? '(' + q.phonetic + ')' : ''} - ${q.meaning}</div>`;
     feedbackDiv.classList.remove('hidden');
   }
   

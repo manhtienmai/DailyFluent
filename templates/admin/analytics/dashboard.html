@@ -1,0 +1,453 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Thống kê truy cập | Admin{% endblock %}
+
+{% block extrahead %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .analytics-dashboard {
+    padding: 20px;
+  }
+  
+  .analytics-header {
+    margin-bottom: 30px;
+  }
+  
+  .analytics-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--df-text, #1a1a1a);
+    margin-bottom: 8px;
+  }
+  
+  .analytics-header p {
+    color: var(--df-muted, #666);
+    font-size: 14px;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  
+  .stat-card {
+    background: var(--df-panel, #fff);
+    border: 1px solid var(--df-border, #e0e0e0);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .stat-card--primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: #fff;
+  }
+  
+  .stat-card--primary .stat-label {
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    color: var(--df-text, #1a1a1a);
+  }
+  
+  .stat-card--primary .stat-value {
+    color: #fff;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+    color: var(--df-muted, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .chart-section {
+    background: var(--df-panel, #fff);
+    border: 1px solid var(--df-border, #e0e0e0);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .chart-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--df-text, #1a1a1a);
+    margin-bottom: 20px;
+  }
+  
+  .two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  
+  @media (max-width: 900px) {
+    .two-column {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .table-section {
+    background: var(--df-panel, #fff);
+    border: 1px solid var(--df-border, #e0e0e0);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .table-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--df-text, #1a1a1a);
+    margin-bottom: 16px;
+  }
+  
+  .analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .analytics-table th,
+  .analytics-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--df-border, #eee);
+    color: var(--df-text, #1a1a1a);
+  }
+  
+  .analytics-table th {
+    font-weight: 600;
+    color: var(--df-muted, #666);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .analytics-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .analytics-table tr:hover td {
+    background: rgba(102, 126, 234, 0.05);
+  }
+  
+  .analytics-table .path {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: var(--df-text, #1a1a1a);
+  }
+  
+  .analytics-table .views {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 15px;
+  }
+  
+  .device-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .device-stat {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 16px 24px;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 100px;
+    border: 1px solid var(--df-border, transparent);
+  }
+  
+  .device-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #667eea;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  
+  .device-stat-label {
+    font-size: 12px;
+    color: var(--df-muted, #666);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  
+  .empty-data {
+    color: var(--df-muted, #999);
+    text-align: center;
+    padding: 24px;
+    font-style: italic;
+  }
+
+  /* Dark mode specific overrides */
+  @media (prefers-color-scheme: dark) {
+    .stat-card {
+      background: var(--df-panel);
+      border-color: var(--df-border);
+    }
+    
+    .stat-value {
+      color: var(--df-text);
+    }
+    
+    .stat-label {
+      color: var(--df-muted);
+    }
+    
+    .chart-section,
+    .table-section {
+      background: var(--df-panel);
+      border-color: var(--df-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .chart-section h2,
+    .table-section h2 {
+      color: var(--df-text);
+    }
+    
+    .analytics-table th,
+    .analytics-table td {
+      border-color: var(--df-border);
+      color: var(--df-text);
+    }
+    
+    .analytics-table th {
+      color: var(--df-muted);
+    }
+    
+    .analytics-table tr:hover td {
+      background: rgba(102, 126, 234, 0.1);
+    }
+    
+    .analytics-table .path {
+      color: var(--df-text);
+    }
+    
+    .device-stat {
+      background: rgba(102, 126, 234, 0.15);
+      border-color: var(--df-border);
+    }
+    
+    .device-stat-label {
+      color: var(--df-muted);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-dashboard">
+  <div class="analytics-header">
+    <h1>📊 Thống kê truy cập</h1>
+    <p>Xem số liệu truy cập website theo thời gian thực</p>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-card--primary">
+      <div class="stat-value">{{ today_views|default:0 }}</div>
+      <div class="stat-label">Lượt xem hôm nay</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ today_visitors|default:0 }}</div>
+      <div class="stat-label">Khách hôm nay</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ today_users|default:0 }}</div>
+      <div class="stat-label">User đăng nhập</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ total_views_week|default:0 }}</div>
+      <div class="stat-label">7 ngày qua</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ total_views_month|default:0 }}</div>
+      <div class="stat-label">30 ngày qua</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ total_views|default:0 }}</div>
+      <div class="stat-label">Tổng tất cả</div>
+    </div>
+  </div>
+  
+  <!-- Chart -->
+  <div class="chart-section">
+    <h2>📈 Lượt xem 7 ngày qua</h2>
+    <canvas id="viewsChart" height="80"></canvas>
+  </div>
+  
+  <!-- Two Column: Top Pages -->
+  <div class="two-column">
+    <div class="table-section">
+      <h2>🔥 Top 10 trang hôm nay</h2>
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>Đường dẫn</th>
+            <th style="text-align: right;">Lượt xem</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for page in top_pages_today %}
+          <tr>
+            <td class="path" title="{{ page.path }}">{{ page.path }}</td>
+            <td class="views" style="text-align: right;">{{ page.views }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="table-section">
+      <h2>📊 Top 10 trang tuần này</h2>
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>Đường dẫn</th>
+            <th style="text-align: right;">Lượt xem</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for page in top_pages_week %}
+          <tr>
+            <td class="path" title="{{ page.path }}">{{ page.path }}</td>
+            <td class="views" style="text-align: right;">{{ page.views }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Device & Browser Stats -->
+  <div class="two-column" style="margin-top: 24px;">
+    <div class="table-section">
+      <h2>🌐 Trình duyệt (7 ngày)</h2>
+      <div class="device-stats">
+        {% for stat in browser_stats %}
+        <div class="device-stat">
+          <div class="device-stat-value">{{ stat.count }}</div>
+          <div class="device-stat-label">{{ stat.browser }}</div>
+        </div>
+        {% empty %}
+        <p class="empty-data">Chưa có dữ liệu</p>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <div class="table-section">
+      <h2>📱 Thiết bị (7 ngày)</h2>
+      <div class="device-stats">
+        {% for stat in device_stats %}
+        <div class="device-stat">
+          <div class="device-stat-value">{{ stat.count }}</div>
+          <div class="device-stat-label">{{ stat.device }}</div>
+        </div>
+        {% empty %}
+        <p class="empty-data">Chưa có dữ liệu</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="table-section" style="margin-top: 24px;">
+    <h2>💻 Hệ điều hành (7 ngày)</h2>
+    <div class="device-stats">
+      {% for stat in os_stats %}
+      <div class="device-stat">
+        <div class="device-stat-value">{{ stat.count }}</div>
+        <div class="device-stat-label">{{ stat.os }}</div>
+      </div>
+      {% empty %}
+      <p class="empty-data">Chưa có dữ liệu</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('viewsChart').getContext('2d');
+  
+  // Check if dark mode
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? '#f1f5f9' : '#1a1a1a';
+  const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+  
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Lượt xem',
+        data: {{ chart_data|safe }},
+        borderColor: '#667eea',
+        backgroundColor: isDark ? 'rgba(102, 126, 234, 0.2)' : 'rgba(102, 126, 234, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointBackgroundColor: '#667eea',
+        pointBorderColor: isDark ? '#1e293b' : '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0,
+            color: textColor
+          },
+          grid: {
+            color: gridColor
+          }
+        },
+        x: {
+          ticks: {
+            color: textColor
+          },
+          grid: {
+            color: gridColor
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

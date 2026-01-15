@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'payment',
     'feedback',
     'wallet',
+    'analytics',
     'rest_framework',
 ]
 
@@ -116,6 +117,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
+    # Analytics tracking
+    'analytics.middleware.AnalyticsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
