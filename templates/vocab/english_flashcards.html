@@ -1,7 +1,7 @@
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
-{% block title %}Luyện Flashcard | DailyFluent{% endblock %}
+{% block title %}English Flashcard | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/flashcard.css' %}?v=20260115">
@@ -12,7 +12,7 @@
   <!-- Header -->
   <div class="df-fc-header">
     <div>
-      <h1 class="df-fc-title">🎴 Luyện Flashcard</h1>
+      <h1 class="df-fc-title">🇬🇧 English Flashcard</h1>
       {% if stats %}
       <div class="df-fc-stats">
         <span class="df-fc-stat df-fc-stat--learning">
@@ -32,7 +32,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       </svg>
-      <span id="fc-remaining">{{ states|length }}</span> thẻ
+      <span id="fc-remaining">{{ states|length }}</span> cards
     </div>
   </div>
 
@@ -47,7 +47,7 @@
       <div id="fc-goal-label" class="df-fc-goal-label">0%</div>
     </div>
     <div class="df-fc-goal-info">
-      <div class="df-fc-goal-title">Mục tiêu 10 phút</div>
+      <div class="df-fc-goal-title">Daily Goal: 10 mins</div>
       <div id="fc-goal-minutes">0/10 phút</div>
     </div>
   </div>
@@ -73,15 +73,15 @@
       <div class="df-fc-card">
         <!-- Front Side -->
         <div class="df-fc-front" id="fc-front">
-          <div id="fc-main-word" class="df-fc-main-word df-fc-main-word--jp"></div>
-          <div id="fc-phonetic" class="df-fc-phonetic hidden"></div>
+          <div id="fc-main-word" class="df-fc-main-word df-fc-main-word--en"></div>
+          <div id="fc-phonetic" class="df-fc-phonetic"></div>
           
           <button type="button" id="fc-flip-btn" class="df-fc-flip-btn">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Lật thẻ
+            Flip
           </button>
         </div>
 
@@ -89,14 +89,20 @@
         <div class="df-fc-back hidden" id="fc-back">
           <!-- Header -->
           <div class="df-fc-back-header">
-            <div id="fc-back-word" class="df-fc-back-word df-fc-back-word--jp"></div>
-            <div id="fc-back-reading" class="df-fc-reading df-fc-reading--jp"></div>
+            <div id="fc-back-word" class="df-fc-back-word df-fc-back-word--en"></div>
+            <div id="fc-back-reading" class="df-fc-reading"></div>
           </div>
 
-          <!-- Sino Vietnamese (Japanese only) -->
-          <div id="fc-sino-block" class="hidden" style="margin-bottom: 1rem;">
+          <!-- Sino Vietnamese (hidden for English) -->
+          <div id="fc-sino-block" class="hidden">
             <span class="df-fc-label df-fc-label--sino">Âm Hán Việt</span>
             <div id="fc-sino-vi" class="df-fc-sino"></div>
+          </div>
+
+          <!-- Definition -->
+          <div id="fc-definition" style="margin-bottom: 1rem;">
+            <span class="df-fc-label df-fc-label--definition">Definition</span>
+            <div class="df-fc-definition"></div>
           </div>
 
           <!-- Meaning -->
@@ -104,9 +110,6 @@
             <span class="df-fc-label df-fc-label--meaning">Nghĩa</span>
             <div id="fc-meaning" class="df-fc-meaning"></div>
           </div>
-
-          <!-- English Definition (English only) -->
-          <div id="fc-definition" class="df-fc-definition hidden"></div>
 
           <!-- Example -->
           <div id="fc-example" class="df-fc-example hidden">
@@ -127,25 +130,25 @@
           <div id="fc-grades" class="df-fc-grades">
             <button type="button" data-rating="again" class="df-fc-grade-btn df-fc-grade-btn--again">
               <span class="df-fc-grade-emoji">😵</span>
-              <span class="df-fc-grade-label">Quên</span>
+              <span class="df-fc-grade-label">Again</span>
               <span class="df-fc-grade-interval" data-interval="again"></span>
             </button>
 
             <button type="button" data-rating="hard" class="df-fc-grade-btn df-fc-grade-btn--hard">
               <span class="df-fc-grade-emoji">😣</span>
-              <span class="df-fc-grade-label">Khó</span>
+              <span class="df-fc-grade-label">Hard</span>
               <span class="df-fc-grade-interval" data-interval="hard"></span>
             </button>
 
             <button type="button" data-rating="good" class="df-fc-grade-btn df-fc-grade-btn--good">
               <span class="df-fc-grade-emoji">🙂</span>
-              <span class="df-fc-grade-label">Tốt</span>
+              <span class="df-fc-grade-label">Good</span>
               <span class="df-fc-grade-interval" data-interval="good"></span>
             </button>
 
             <button type="button" data-rating="easy" class="df-fc-grade-btn df-fc-grade-btn--easy">
               <span class="df-fc-grade-emoji">😌</span>
-              <span class="df-fc-grade-label">Dễ</span>
+              <span class="df-fc-grade-label">Easy</span>
               <span class="df-fc-grade-interval" data-interval="easy"></span>
             </button>
           </div>
@@ -156,12 +159,12 @@
     <!-- Completion Message -->
     <div id="fc-complete" class="df-fc-complete hidden">
       <div class="df-fc-complete-icon">🎉</div>
-      <h2 class="df-fc-complete-title">Hết thẻ trong phiên này</h2>
+      <h2 class="df-fc-complete-title">Session Complete!</h2>
       <p class="df-fc-complete-text">
-        Bạn đã hoàn thành {{ states|length }} thẻ của phiên hiện tại. Muốn tiếp tục ôn nữa không?
+        You've completed {{ states|length }} cards in this session. Want to continue?
       </p>
-      <a href="{% url 'vocab:flashcards' %}" class="df-fc-complete-btn">
-        Tiếp tục học thêm
+      <a href="{% url 'vocab:flashcards_english' %}" class="df-fc-complete-btn">
+        Continue Learning
       </a>
     </div>
   </div>
@@ -175,9 +178,9 @@
           d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       </svg>
     </div>
-    <h2 class="df-fc-empty-title">Chưa có thẻ nào</h2>
+    <h2 class="df-fc-empty-title">No cards available</h2>
     <p class="df-fc-empty-text">
-      Hiện chưa có thẻ nào đến hạn để ôn. Hãy thêm từ vựng mới hoặc quay lại sau.
+      There are no cards due for review. Add more vocabulary or check back later.
     </p>
   </div>
   {% endif %}
@@ -188,11 +191,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   new FlashcardApp({
-    language: 'japanese',
+    language: 'english',
     containerId: 'flashcard-container',
     cardsDataId: 'flashcards-data',
     csrfFormId: 'csrf-form',
-    gradeUrl: "{% url 'vocab:flashcard_grade' %}",
+    gradeUrl: "{% url 'vocab:flashcard_grade_english' %}",
     streakStatusUrl: "{% url 'streak:status_api' %}",
     logTimeUrl: "{% url 'streak:log_flashcard_minutes' %}",
     goalMinutes: 10

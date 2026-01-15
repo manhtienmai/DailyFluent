@@ -515,6 +515,52 @@ def home(request):
         # Lấy mục tiêu kỳ thi
         from core.models import ExamGoal
         exam_goal, _ = ExamGoal.objects.get_or_create(user=request.user)
+        
+        # Build vocab stats for dashboard
+        from vocab.models import FsrsCardStateEn
+        total_vocab = FsrsCardStateEn.objects.filter(user=request.user).count()
+        mastered = FsrsCardStateEn.objects.filter(
+            user=request.user,
+            total_reviews__gte=3,
+            successful_reviews__gte=2
+        ).count()
+        learning = total_vocab - mastered
+        progress = f"{int((mastered / total_vocab) * 100)}%" if total_vocab > 0 else "0%"
+        
+        vocab_stats = {
+            "mastered": mastered,
+            "learning": learning,
+            "total": total_vocab,
+            "progress": progress,
+        }
+        
+        # Build week days for streak display
+        from datetime import timedelta
+        today = timezone.localdate()
+        day_labels = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
+        week_days = []
+        
+        # Get last 7 days of activity
+        week_start = today - timedelta(days=6)
+        activities = DailyActivity.objects.filter(
+            user=request.user,
+            date__gte=week_start,
+            date__lte=today
+        ).values_list('date', flat=True)
+        activity_dates = set(activities)
+        
+        for i in range(7):
+            day = week_start + timedelta(days=i)
+            weekday_idx = day.weekday()  # 0=Monday
+            week_days.append({
+                "label": day_labels[weekday_idx],
+                "studied": day in activity_dates,
+                "is_today": day == today,
+            })
+    else:
+        vocab_stats = {}
+        week_days = []
+        exam_goal = None
 
     context = {
         "streak": streak,
@@ -523,10 +569,10 @@ def home(request):
         "new_cards_today": new_cards_today,
         "reviews_today": reviews_today,
         "latest_exams": latest_exams,
-        "todo_items": todo_items,
         "enrolled_courses": enrolled_courses,
         "recent_exam_results": recent_exam_results,
-        "exam_goal": exam_goal if request.user.is_authenticated else None,
+        "vocab_stats": vocab_stats,
+        "week_days": week_days,
     }
     return render(request, "home.html", context)
 

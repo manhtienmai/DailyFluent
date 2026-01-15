@@ -1,0 +1,556 @@
+/* ========================================
+   Vocabulary Games - Shared Styles
+   ======================================== */
+
+/* Container */
+.df-game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* Header */
+.df-game-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-game-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Stats */
+.df-game-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.df-game-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-interactive);
+  border-radius: 0.75rem;
+}
+
+.df-game-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.df-game-stat-label {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+/* Progress */
+.df-game-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-interactive);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.df-game-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--action-primary), var(--action-accent));
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.df-game-progress-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Question Card */
+.df-game-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-question-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 0.75rem;
+}
+
+.df-game-question {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-question--large {
+  font-size: 2.5rem;
+}
+
+.df-game-question--jp {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.df-game-hint {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* MCQ Options */
+.df-game-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.df-game-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-default);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.df-game-option:hover:not(:disabled) {
+  border-color: var(--action-primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.df-game-option--selected {
+  border-color: var(--action-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.df-game-option--correct {
+  border-color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #059669;
+}
+
+.df-game-option--wrong {
+  border-color: #EF4444 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #DC2626;
+}
+
+.df-game-option:disabled {
+  cursor: default;
+}
+
+.df-game-option-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-interactive);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* Matching Game */
+.df-game-match-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.df-game-match-tile {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-default);
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  word-break: break-word;
+}
+
+.df-game-match-tile:hover:not(:disabled) {
+  border-color: var(--action-primary);
+  transform: scale(1.02);
+}
+
+.df-game-match-tile--selected {
+  border-color: var(--action-primary);
+  background: rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.df-game-match-tile--matched {
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  cursor: default;
+}
+
+.df-game-match-tile--word {
+  font-weight: 600;
+}
+
+.df-game-match-tile--meaning {
+  font-size: 0.8125rem;
+}
+
+/* Input Game (Fill/Dictation) */
+.df-game-input-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.df-game-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 2px solid var(--border-default);
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.df-game-input:focus {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.df-game-input--correct {
+  border-color: #10B981 !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.df-game-input--wrong {
+  border-color: #EF4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.df-game-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Audio Player */
+.df-game-audio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-audio-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--action-primary), var(--action-accent));
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.df-game-audio-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.df-game-audio-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.df-game-audio-btn--small {
+  width: 40px;
+  height: 40px;
+}
+
+.df-game-audio-btn--small svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Feedback */
+.df-game-feedback {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-game-feedback--correct {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+.df-game-feedback--wrong {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #DC2626;
+}
+
+.df-game-feedback-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.df-game-feedback-text {
+  font-size: 0.875rem;
+}
+
+/* Navigation */
+.df-game-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+}
+
+.df-game-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.df-game-nav-btn--secondary {
+  background: var(--bg-interactive);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+
+.df-game-nav-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-surface);
+}
+
+.df-game-nav-btn--primary {
+  background: var(--action-primary);
+  border: none;
+  color: var(--action-primary-text);
+}
+
+.df-game-nav-btn--primary:hover:not(:disabled) {
+  background: var(--action-primary-hover);
+}
+
+.df-game-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.df-game-nav-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Submit Button */
+.df-game-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--action-primary);
+  border: none;
+  border-radius: 0.75rem;
+  color: var(--action-primary-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.df-game-submit:hover:not(:disabled) {
+  background: var(--action-primary-hover);
+  transform: translateY(-1px);
+}
+
+.df-game-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Complete Screen */
+.df-game-complete {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.df-game-complete-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.df-game-complete-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-game-complete-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0;
+}
+
+.df-game-complete-stat {
+  text-align: center;
+}
+
+.df-game-complete-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--action-primary);
+}
+
+.df-game-complete-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.df-game-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: var(--action-primary);
+  color: var(--action-primary-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.df-game-complete-btn:hover {
+  background: var(--action-primary-hover);
+  transform: translateY(-2px);
+}
+
+/* Empty State */
+.df-game-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.df-game-empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: var(--bg-interactive);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-game-empty-icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--text-tertiary);
+}
+
+.df-game-empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-game-empty-text {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .df-game-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .df-game-match-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .df-game-question--large {
+    font-size: 1.75rem;
+  }
+}

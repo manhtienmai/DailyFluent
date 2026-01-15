@@ -19,6 +19,8 @@ urlpatterns = [
     path("grammar/", include("grammar.urls", namespace="grammar")),
     path("todos/", include("todos.urls", namespace="todos")),
     path("payment/", include("payment.urls", namespace="payment")),
+    path("feedback/", include("feedback.urls", namespace="feedback")),
+    path("api/wallet/", include("wallet.urls", namespace="wallet")),
     path("health", health),
 ]
 

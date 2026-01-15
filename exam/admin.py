@@ -242,14 +242,29 @@ class ExamTemplateAdmin(admin.ModelAdmin):
             
             # Nếu không có template_id, tự động tạo hoặc tìm template từ JSON
             if not template:
+                # Bilingual format là list - cần có template_id trước
+                if isinstance(json_data, list):
+                    messages.error(request, "JSON format bilingual (list) yêu cầu chọn template trước. Vui lòng vào trang chi tiết template và import từ đó.")
+                    return render(request, 'admin/exam/examtemplate/import_toeic_json.html', {
+                        'template': template,
+                        'opts': self.model._meta,
+                        'has_view_permission': True,
+                        'auto_create': template_id is None,
+                    })
                 from .import_json import create_or_get_template_from_json
                 template, auto_created = create_or_get_template_from_json(json_data)
                 if auto_created:
                     messages.info(request, f"Đã tự động tạo ExamTemplate: {template.title}")
             
-            # Import (format mới - schema_version 1.0)
-            from .import_json import import_toeic_json
-            result = import_toeic_json(template, json_data)
+            # Detect format và import
+            if isinstance(json_data, list):
+                # Bilingual format (list with type=single/group)
+                from .import_json import import_bilingual_listening_json
+                result = import_bilingual_listening_json(template, json_data)
+            else:
+                # Standard format (schema_version 1.0/2.1)
+                from .import_json import import_toeic_json
+                result = import_toeic_json(template, json_data)
             
             if result['success']:
                 messages.success(request, result['message'])

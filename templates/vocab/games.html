@@ -1,0 +1,358 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Trò chơi từ vựng - DailyFluent{% endblock %}
+
+{% block extra_css %}
+<style>
+  .df-games-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0.5rem 0.5rem;
+  }
+
+  .df-games-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-games-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .df-games-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  /* Ready Badge */
+  .df-games-ready {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    background: var(--bg-interactive);
+    border: 1px solid var(--border-default);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+  }
+  
+  .df-games-ready-count {
+    font-weight: 700;
+    color: var(--action-primary);
+  }
+
+  /* SRS Review Banner */
+  .df-games-srs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-games-srs-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .df-games-srs-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .df-games-srs-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .df-games-srs-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .df-games-srs-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .df-games-srs-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: var(--action-primary);
+    color: var(--action-primary-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 0.625rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .df-games-srs-btn:hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-games-srs-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Section Title */
+  .df-games-section-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Games Grid - Smaller cards */
+  .df-games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .df-games-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Game Card - Compact */
+  .df-game-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .df-game-card:hover {
+    border-color: var(--action-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .df-game-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .df-game-icon svg {
+    width: 20px;
+    height: 20px;
+    color: #fff;
+  }
+
+  .df-game-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .df-game-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+  }
+
+  .df-game-desc {
+    font-size: 0.6875rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-game-coins {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .df-game-hot {
+    position: absolute;
+    top: -0.25rem;
+    right: 0.5rem;
+    padding: 0.125rem 0.375rem;
+    background: linear-gradient(135deg, #F43F5E, #FB923C);
+    border-radius: 4px;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .df-games-srs {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .df-games-srs-left {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-games-container">
+  <!-- Header -->
+  <div class="df-games-header">
+    <h1 class="df-games-title">🎮 Trò chơi từ vựng</h1>
+    <p class="df-games-subtitle">Luyện tập từ vựng tiếng Anh</p>
+  </div>
+
+  <!-- Ready Count -->
+  <div style="text-align: center;">
+    <span class="df-games-ready">
+      <span class="df-games-ready-count">{{ ready_count }}</span> từ sẵn sàng ôn tập
+    </span>
+  </div>
+
+  <!-- SRS Flashcard Banner -->
+  <div class="df-games-srs">
+    <div class="df-games-srs-left">
+      <div class="df-games-srs-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+        </svg>
+      </div>
+      <div>
+        <div class="df-games-srs-title">Flashcard SRS</div>
+        <div class="df-games-srs-desc">Ôn tập lặp lại ngắt quãng</div>
+      </div>
+    </div>
+    <a href="{% url 'vocab:flashcards_english' %}" class="df-games-srs-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+      </svg>
+      Bắt đầu
+    </a>
+  </div>
+
+  <!-- Games Section -->
+  <div class="df-games-section-title">🎯 Các trò chơi</div>
+
+  <div class="df-games-grid">
+    <!-- MCQ -->
+    <a href="{% url 'vocab:game_mcq' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #F97316, #FB923C);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Trắc nghiệm</div>
+        <div class="df-game-desc">Chọn đáp án đúng</div>
+      </div>
+      <span class="df-game-coins">+10 💰</span>
+    </a>
+
+    <!-- Matching -->
+    <a href="{% url 'vocab:game_matching' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Nối từ</div>
+        <div class="df-game-desc">Ghép word ↔ meaning</div>
+      </div>
+      <span class="df-game-coins">+10 💰</span>
+      <span class="df-game-hot">HOT</span>
+    </a>
+
+    <!-- Listening -->
+    <a href="{% url 'vocab:game_listening' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #14B8A6, #2DD4BF);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Nghe từ</div>
+        <div class="df-game-desc">Nghe → chọn từ</div>
+      </div>
+      <span class="df-game-coins">+15 💰</span>
+    </a>
+
+    <!-- Fill -->
+    <a href="{% url 'vocab:game_fill' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #EC4899, #F472B6);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Điền từ</div>
+        <div class="df-game-desc">Xem nghĩa → gõ từ</div>
+      </div>
+      <span class="df-game-coins">+10 💰</span>
+    </a>
+
+    <!-- Dictation -->
+    <a href="{% url 'vocab:game_dictation' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #0EA5E9, #38BDF8);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Nghe chính tả</div>
+        <div class="df-game-desc">Nghe → gõ từ</div>
+      </div>
+      <span class="df-game-coins">+15 💰</span>
+    </a>
+
+    <!-- Progress -->
+    <a href="{% url 'vocab:progress' %}" class="df-game-card">
+      <div class="df-game-icon" style="background: linear-gradient(135deg, #10B981, #34D399);">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      </div>
+      <div class="df-game-content">
+        <div class="df-game-name">Tiến độ</div>
+        <div class="df-game-desc">Xem thống kê</div>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}

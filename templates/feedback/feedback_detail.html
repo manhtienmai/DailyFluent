@@ -1,0 +1,227 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}{{ feedback.title }} - Góc Cải Tiến{% endblock %}
+
+{% block main_classes %}df-page-container-lg{% endblock %}
+
+{% block content %}
+<div class="df-feedback-detail-page">
+    <!-- Back Link -->
+    <a href="{% url 'feedback:list' %}" class="df-feedback-back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Quay lại danh sách
+    </a>
+
+    <!-- Main Content -->
+    <div class="df-feedback-detail-layout">
+        <!-- Left: Feedback Info -->
+        <div class="df-feedback-detail-main">
+            <!-- Feedback Card -->
+            <div class="df-feedback-detail-card">
+                <div class="df-feedback-detail-header">
+                    <!-- Vote Box -->
+                    <div class="df-vote-box-large {% if user_has_voted %}voted{% endif %}" id="voteBox"
+                        onclick="toggleVote()">
+                        <span class="df-vote-count" id="voteCount">{{ feedback.vote_count }}</span>
+                        <svg class="df-vote-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                        <span class="df-vote-label">vote</span>
+                    </div>
+
+                    <!-- Title & Badges -->
+                    <div class="df-feedback-detail-title-section">
+                        <div class="df-feedback-badges">
+                            <span class="df-type-badge df-type-{{ feedback.type }}">
+                                {% if feedback.type == 'feature' %}Tính năng mới{% else %}Báo lỗi{% endif %}
+                            </span>
+                            <span class="df-status-badge df-status-{{ feedback.status }}">
+                                {{ feedback.get_status_display }}
+                            </span>
+                        </div>
+                        <h1 class="df-feedback-detail-title">{{ feedback.title }}</h1>
+                        <div class="df-feedback-detail-meta">
+                            <span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                {{ feedback.user.email }}
+                            </span>
+                            <span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                {{ feedback.created_at|date:"d/m/Y H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="df-feedback-detail-body">
+                    <h3>Mô tả chi tiết</h3>
+                    <div class="df-feedback-description">
+                        {{ feedback.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="df-feedback-comments-section">
+                <h2 class="df-feedback-comments-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    Thảo luận ({{ comments|length }})
+                </h2>
+
+                <!-- Comment Form -->
+                {% if user.is_authenticated %}
+                <form class="df-comment-form" method="post" action="{% url 'feedback:add_comment' pk=feedback.pk %}">
+                    {% csrf_token %}
+                    <textarea name="content" placeholder="Viết bình luận của bạn..." required rows="3"></textarea>
+                    <button type="submit" class="df-comment-submit-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        Gửi bình luận
+                    </button>
+                </form>
+                {% else %}
+                <div class="df-comment-login-prompt">
+                    <p>
+                        <a href="{% url 'account_login' %}?next={{ request.path }}">Đăng nhập</a> để tham gia thảo luận
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                <div class="df-comments-list" id="commentsList">
+                    {% for comment in comments %}
+                    <div class="df-comment {% if comment.is_admin_response %}df-admin-comment{% endif %}">
+                        <div class="df-comment-header">
+                            <div class="df-comment-author">
+                                <div class="df-comment-avatar">
+                                    {{ comment.user.email|first|upper }}
+                                </div>
+                                <div class="df-comment-author-info">
+                                    <span class="df-comment-author-name">
+                                        {{ comment.user.email }}
+                                        {% if comment.is_admin_response %}
+                                        <span class="df-admin-badge">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                            </svg>
+                                            Phản hồi chính thức
+                                        </span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="df-comment-date">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="df-comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="df-comments-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <p>Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Sidebar Info -->
+        <aside class="df-feedback-detail-sidebar">
+            <div class="df-feedback-sidebar-card">
+                <h3>Thông tin</h3>
+                <dl class="df-feedback-info-list">
+                    <div class="df-feedback-info-item">
+                        <dt>Trạng thái</dt>
+                        <dd>
+                            <span class="df-status-badge df-status-{{ feedback.status }}">
+                                {{ feedback.get_status_display }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="df-feedback-info-item">
+                        <dt>Loại</dt>
+                        <dd>
+                            <span class="df-type-badge df-type-{{ feedback.type }}">
+                                {% if feedback.type == 'feature' %}Tính năng{% else %}Báo lỗi{% endif %}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="df-feedback-info-item">
+                        <dt>Tác giả</dt>
+                        <dd>{{ feedback.user.email }}</dd>
+                    </div>
+                    <div class="df-feedback-info-item">
+                        <dt>Ngày tạo</dt>
+                        <dd>{{ feedback.created_at|date:"d/m/Y" }}</dd>
+                    </div>
+                    <div class="df-feedback-info-item">
+                        <dt>Lượt vote</dt>
+                        <dd><strong>{{ feedback.vote_count }}</strong></dd>
+                    </div>
+                </dl>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    function toggleVote() {
+        {% if not user.is_authenticated %}
+        window.location.href = "{% url 'account_login' %}?next={{ request.path }}";
+        return;
+        {% endif %}
+
+        const csrfToken = '{{ csrf_token }}';
+        const voteBox = document.getElementById('voteBox');
+        const voteCount = document.getElementById('voteCount');
+
+        fetch("{% url 'feedback:vote' pk=feedback.pk %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    voteCount.textContent = data.total_votes;
+
+                    if (data.voted) {
+                        voteBox.classList.add('voted');
+                    } else {
+                        voteBox.classList.remove('voted');
+                    }
+                } else if (data.login_required) {
+                    window.location.href = "{% url 'account_login' %}?next={{ request.path }}";
+                }
+            })
+            .catch(error => {
+                console.error('Vote error:', error);
+            });
+    }
+</script>
+{% endblock %}

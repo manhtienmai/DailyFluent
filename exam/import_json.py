@@ -723,3 +723,230 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
 def import_reading_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]:
     """Alias for import_toeic_json (deprecated - use import_toeic_json instead)."""
     return import_toeic_json(template, json_data)
+
+
+def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> Dict[str, any]:
+    """
+    Import TOEIC Listening questions với bilingual transcripts từ JSON.
+    
+    Format JSON: List các objects với type="single" hoặc type="group"
+    """
+    errors = []
+    created_questions = 0
+    updated_questions = 0
+    created_conversations = 0
+    
+    try:
+        if not isinstance(json_data, list):
+            return {
+                "success": False,
+                "message": "JSON phải là một mảng (list) các câu hỏi",
+                "created_questions": 0,
+                "updated_questions": 0,
+                "errors": ["JSON format không hợp lệ"]
+            }
+        
+        for item in json_data:
+            try:
+                item_type = item.get("type", "single")
+                
+                if item_type == "single":
+                    q_num = item.get("question_number")
+                    if not q_num:
+                        errors.append("Question thiếu question_number")
+                        continue
+                    
+                    # Determine TOEIC part
+                    if q_num <= 6:
+                        toeic_part = TOEICPart.LISTENING_1
+                    else:
+                        toeic_part = TOEICPart.LISTENING_2
+                    
+                    # Prepare options data với translations
+                    options = item.get("options", [])
+                    options_data = [
+                        {
+                            "label": opt.get("label", ""),
+                            "text": opt.get("text", ""),
+                            "text_vi": opt.get("text_vi", ""),
+                        }
+                        for opt in options
+                    ]
+                    
+                    # Check if question exists
+                    existing = ExamQuestion.objects.filter(
+                        template=template,
+                        order=q_num
+                    ).first()
+                    
+                    if existing:
+                        existing.audio_transcript = item.get("audio_transcript", "")
+                        existing.audio_transcript_vi = item.get("audio_transcript_vi", "")
+                        existing.transcript_data = {"options": options_data}
+                        existing.toeic_part = toeic_part
+                        existing.save()
+                        updated_questions += 1
+                    else:
+                        ExamQuestion.objects.create(
+                            template=template,
+                            order=q_num,
+                            toeic_part=toeic_part,
+                            question_type=QuestionType.MCQ,
+                            audio_transcript=item.get("audio_transcript", ""),
+                            audio_transcript_vi=item.get("audio_transcript_vi", ""),
+                            transcript_data={"options": options_data},
+                            correct_answer="1",
+                        )
+                        created_questions += 1
+                
+                elif item_type == "group":
+                    group_range = item.get("group_range", "")
+                    questions = item.get("questions", [])
+                    
+                    if not questions:
+                        errors.append(f"Group {group_range} không có câu hỏi")
+                        continue
+                    
+                    # Parse range
+                    try:
+                        first_q = int(group_range.split("-")[0])
+                    except (ValueError, IndexError):
+                        first_q = questions[0].get("question_number", 0)
+                    
+                    # Determine TOEIC part
+                    if first_q <= 70:
+                        toeic_part = TOEICPart.LISTENING_3
+                    else:
+                        toeic_part = TOEICPart.LISTENING_4
+                    
+                    # Calculate conversation order
+                    if toeic_part == TOEICPart.LISTENING_3:
+                        conv_order = (first_q - 32) // 3 + 1
+                    else:
+                        conv_order = (first_q - 71) // 3 + 1
+                    
+                    # Parse transcript into lines
+                    transcript = item.get("conversation_transcript", "")
+                    transcript_vi = item.get("conversation_transcript_vi", "")
+                    lines_data = _parse_transcript_lines(transcript, transcript_vi)
+                    
+                    # Create or update ListeningConversation
+                    conversation, conv_created = ListeningConversation.objects.update_or_create(
+                        template=template,
+                        toeic_part=toeic_part,
+                        order=conv_order,
+                        defaults={
+                            "transcript": transcript,
+                            "transcript_vi": transcript_vi,
+                            "transcript_data": {"lines": lines_data},
+                        }
+                    )
+                    
+                    if conv_created:
+                        created_conversations += 1
+                    
+                    # Process each question in group
+                    for q_item in questions:
+                        q_num = q_item.get("question_number")
+                        if not q_num:
+                            continue
+                        
+                        options = q_item.get("options", [])
+                        options_data = [
+                            {
+                                "label": opt.get("label", ""),
+                                "text": opt.get("text", ""),
+                                "text_vi": opt.get("text_vi", ""),
+                            }
+                            for opt in options
+                        ]
+                        
+                        existing = ExamQuestion.objects.filter(
+                            template=template,
+                            order=q_num
+                        ).first()
+                        
+                        if existing:
+                            existing.text = q_item.get("question_text", "")
+                            existing.text_vi = q_item.get("question_text_vi", "")
+                            existing.transcript_data = {"options": options_data}
+                            existing.toeic_part = toeic_part
+                            existing.listening_conversation = conversation
+                            existing.save()
+                            updated_questions += 1
+                        else:
+                            ExamQuestion.objects.create(
+                                template=template,
+                                order=q_num,
+                                toeic_part=toeic_part,
+                                question_type=QuestionType.MCQ,
+                                listening_conversation=conversation,
+                                text=q_item.get("question_text", ""),
+                                text_vi=q_item.get("question_text_vi", ""),
+                                transcript_data={"options": options_data},
+                                correct_answer="1",
+                            )
+                            created_questions += 1
+            
+            except Exception as e:
+                errors.append(f"Error processing item: {str(e)}")
+                logger.error(f"Error processing item: {str(e)}")
+        
+        message = f"Imported {created_questions} câu mới, cập nhật {updated_questions} câu"
+        if created_conversations > 0:
+            message += f", tạo {created_conversations} conversations"
+        
+        return {
+            "success": len(errors) == 0,
+            "message": message,
+            "created_questions": created_questions,
+            "updated_questions": updated_questions,
+            "created_conversations": created_conversations,
+            "errors": errors
+        }
+    
+    except Exception as e:
+        logger.error(f"Error importing bilingual JSON: {str(e)}", exc_info=True)
+        return {
+            "success": False,
+            "message": f"Error importing bilingual JSON: {str(e)}",
+            "created_questions": 0,
+            "updated_questions": 0,
+            "errors": [str(e)]
+        }
+
+
+def _parse_transcript_lines(transcript: str, transcript_vi: str) -> list:
+    """Parse transcript text into structured lines with speaker labels."""
+    lines = []
+    
+    en_lines = transcript.strip().split("\n") if transcript else []
+    vi_lines = transcript_vi.strip().split("\n") if transcript_vi else []
+    
+    for i, en_line in enumerate(en_lines):
+        en_line = en_line.strip()
+        if not en_line:
+            continue
+        
+        speaker = ""
+        text = en_line
+        if ":" in en_line[:5]:
+            parts = en_line.split(":", 1)
+            speaker = parts[0].strip()
+            text = parts[1].strip() if len(parts) > 1 else ""
+        
+        vi_text = ""
+        if i < len(vi_lines):
+            vi_line = vi_lines[i].strip()
+            if ":" in vi_line[:5]:
+                vi_text = vi_line.split(":", 1)[1].strip() if ":" in vi_line else vi_line
+            else:
+                vi_text = vi_line
+        
+        lines.append({
+            "speaker": speaker,
+            "text": text,
+            "text_vi": vi_text,
+        })
+    
+    return lines

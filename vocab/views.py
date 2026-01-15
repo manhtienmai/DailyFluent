@@ -575,3 +575,496 @@ def flashcard_grade(request):
         "card_state": card_state,
         "due_display": get_interval_display(new_card_json, due_dt),
     })
+
+
+@login_required
+def vocab_games(request):
+    """
+    Trang trung tâm trò chơi từ vựng - hiển thị các game học từ vựng.
+    """
+    user = request.user
+    
+    # Lấy thống kê SRS
+    study_settings = get_or_create_study_settings(user)
+    states, stats = _build_vocab_queue(user)
+    
+    # Đếm từ sẵn sàng để học
+    ready_count = stats.get('total', 0)
+    
+    # Danh sách các game
+    games = [
+        {
+            "id": "flashcard",
+            "name": "Flashcard",
+            "description": "Lật thẻ học từ vựng",
+            "icon": "cards",
+            "color": "#6366F1",  # Indigo
+            "url": "vocab:flashcards",
+            "coins": 5,
+        },
+        {
+            "id": "quiz",
+            "name": "Trắc nghiệm",
+            "description": "Chọn đáp án đúng",
+            "icon": "quiz",
+            "color": "#F97316",  # Orange
+            "url": "vocab:flashcards",  # Link to flashcards for now
+            "coins": 10,
+        },
+        {
+            "id": "match",
+            "name": "Nối từ với nghĩa",
+            "description": "Ghép đôi từ vựng và nghĩa",
+            "icon": "match",
+            "color": "#10B981",  # Green
+            "url": "vocab:flashcards",
+            "coins": 10,
+        },
+        {
+            "id": "typing",
+            "name": "Gõ từ vựng",
+            "description": "Nhìn nghĩa và gõ từ tiếng...",
+            "icon": "typing",
+            "color": "#EC4899",  # Pink
+            "url": "vocab:typing",
+            "coins": 10,
+        },
+        {
+            "id": "listen",
+            "name": "Nghe viết",
+            "description": "Nghe phát âm và viết từ",
+            "icon": "headphones",
+            "color": "#14B8A6",  # Teal
+            "url": "vocab:flashcards",
+            "coins": 15,
+        },
+        {
+            "id": "mixed",
+            "name": "Tổng hợp",
+            "description": "Random trắc nghiệm...",
+            "icon": "shuffle",
+            "color": "#F43F5E",  # Rose
+            "url": "vocab:flashcards",
+            "coins": 20,
+            "hot": True,
+        },
+    ]
+    
+    context = {
+        "games": games,
+        "ready_count": ready_count,
+        "stats": stats,
+        "study_settings": study_settings,
+    }
+    return render(request, "vocab/games.html", context)
+
+
+def _build_english_vocab_queue(user):
+    """
+    Build Anki-like queue for English vocabulary.
+    Similar to _build_vocab_queue but uses EnglishVocabulary and FsrsCardStateEn.
+    """
+    from .models import EnglishVocabulary, FsrsCardStateEn
+    
+    now = timezone.now()
+    study_settings = get_or_create_study_settings(user)
+    learning_threshold = now + timedelta(minutes=LEARNING_THRESHOLD_MINUTES)
+
+    # Fetch all user states for English
+    all_user_states = FsrsCardStateEn.objects.filter(
+        user=user,
+        vocab__is_active=True,
+    ).select_related("vocab")
+
+    # 1. LEARNING / RELEARNING (highest priority)
+    learning_states = []
+    for state in all_user_states.filter(due__lte=learning_threshold):
+        if is_learning_card(state.card_json):
+            learning_states.append(state)
+    learning_states.sort(key=lambda s: s.due)
+
+    # 2. REVIEW (graduated & due)
+    review_states = []
+    remaining_reviews = study_settings.remaining_reviews()
+    if remaining_reviews > 0:
+        for state in all_user_states.filter(due__lte=now).order_by("due"):
+            if state in learning_states:
+                continue
+            if not is_learning_card(state.card_json):
+                review_states.append(state)
+                if len(review_states) >= remaining_reviews:
+                    break
+
+    # 3. NEW (no FsrsCardStateEn yet)
+    new_states = []
+    remaining_new = study_settings.remaining_new()
+    if remaining_new > 0:
+        existing_vocab_ids = FsrsCardStateEn.objects.filter(
+            user=user
+        ).values_list("vocab_id", flat=True)
+
+        new_vocab_qs = (
+            EnglishVocabulary.objects
+            .filter(is_active=True)
+            .exclude(id__in=existing_vocab_ids)
+            .order_by("import_order", "id")[:remaining_new]
+        )
+
+        for vocab in new_vocab_qs:
+            card = create_new_card_state()
+            state = FsrsCardStateEn.objects.create(
+                user=user,
+                vocab=vocab,
+                card_json=card.to_dict(),
+                due=card.due,
+            )
+            new_states.append(state)
+
+    states = learning_states + review_states + new_states
+
+    stats = {
+        "learning_count": len(learning_states),
+        "review_count": len(review_states),
+        "new_count": len(new_states),
+        "total": len(states),
+        "daily_new_limit": study_settings.new_cards_per_day,
+        "daily_new_done": study_settings.new_cards_today,
+        "daily_review_limit": study_settings.reviews_per_day,
+        "daily_review_done": study_settings.reviews_today,
+    }
+
+    return states, stats
+
+
+@login_required
+def english_flashcard_session(request):
+    """
+    Flashcard session for English vocabulary - Anki-style with FSRS.
+    """
+    states, stats = _build_english_vocab_queue(request.user)
+
+    # Limit to 20 cards per session
+    states = states[:20]
+
+    # Build card data with intervals preview
+    cards_data = []
+    for state in states:
+        intervals = preview_intervals(state.card_json)
+        card_state = get_card_state(state.card_json)
+        
+        # Get first example if available
+        example = state.vocab.examples.first()
+        
+        cards_data.append({
+            "state_id": state.id,
+            "vocab_id": state.vocab.id,
+            "en_word": state.vocab.en_word,
+            "phonetic": state.vocab.phonetic or "",
+            "vi_meaning": state.vocab.vi_meaning,
+            "en_definition": state.vocab.en_definition or "",
+            "example_en": example.en if example else (state.vocab.example_en or ""),
+            "example_vi": example.vi if example else (state.vocab.example_vi or ""),
+            "card_state": card_state,
+            "intervals": intervals,
+        })
+    
+    return render(request, "vocab/english_flashcards.html", {
+        "states": states,
+        "cards_data_json": json.dumps(cards_data),
+        "stats": stats,
+    })
+
+
+@login_required
+@require_POST
+def english_flashcard_grade(request):
+    """
+    API grading for English flashcard - same logic as Japanese.
+    """
+    from .models import FsrsCardStateEn
+    
+    state_id = request.POST.get("state_id")
+    rating_key = request.POST.get("rating")
+    is_new_card = request.POST.get("is_new") == "true"
+
+    if not state_id or rating_key not in ("again", "hard", "good", "easy"):
+        return HttpResponseBadRequest("Invalid data")
+
+    try:
+        state = FsrsCardStateEn.objects.select_related("vocab").get(
+            id=state_id,
+            user=request.user,
+        )
+    except FsrsCardStateEn.DoesNotExist:
+        return HttpResponseBadRequest("State not found")
+
+    # Review with FSRS
+    new_card_json, _review_log_json, due_dt = review_card(
+        state.card_json,
+        rating_key,
+    )
+
+    # Update state
+    state.card_json = new_card_json
+    state.due = due_dt
+    state.last_reviewed = timezone.now()
+
+    # Update stats
+    state.total_reviews += 1
+    if rating_key in ("good", "easy"):
+        state.successful_reviews += 1
+    state.last_rating = rating_key
+    state.save()
+    
+    # Update daily counters
+    study_settings = get_or_create_study_settings(request.user)
+    if is_new_card and state.total_reviews == 1:
+        study_settings.new_cards_today += 1
+        study_settings.save(update_fields=['new_cards_today'])
+    else:
+        study_settings.reviews_today += 1
+        study_settings.save(update_fields=['reviews_today'])
+    
+    # Requeue logic
+    should_requeue = should_requeue_in_session(new_card_json, due_dt)
+    
+    requeue_delay_ms = 0
+    if should_requeue:
+        now = timezone.now()
+        delay_seconds = max(0, (due_dt - now).total_seconds())
+        requeue_delay_ms = int(delay_seconds * 1000)
+        requeue_delay_ms = max(1000, requeue_delay_ms)
+    
+    new_intervals = preview_intervals(new_card_json)
+    card_state = get_card_state(new_card_json)
+
+    return JsonResponse({
+        "status": "ok",
+        "requeue": should_requeue,
+        "requeue_delay_ms": requeue_delay_ms,
+        "new_intervals": new_intervals,
+        "card_state": card_state,
+        "due_display": get_interval_display(new_card_json, due_dt),
+    })
+
+
+# ========================================
+# Standalone Vocabulary Games
+# ========================================
+
+def _get_game_vocabulary(user, count=20):
+    """
+    Get vocabulary for games - using English vocabulary from user's SRS queue.
+    Returns list of EnglishVocabulary objects.
+    """
+    from .models import EnglishVocabulary, FsrsCardStateEn
+    
+    # First try to get from user's SRS queue (words they're learning)
+    user_vocab_ids = FsrsCardStateEn.objects.filter(
+        user=user,
+        vocab__is_active=True,
+    ).values_list("vocab_id", flat=True)[:count * 2]  # Get extra for variety
+    
+    vocab_list = list(EnglishVocabulary.objects.filter(
+        id__in=user_vocab_ids,
+        is_active=True,
+    ).order_by("?")[:count])  # Random order
+    
+    # If not enough, supplement with random active vocabulary
+    if len(vocab_list) < count:
+        existing_ids = [v.id for v in vocab_list]
+        additional = EnglishVocabulary.objects.filter(
+            is_active=True,
+        ).exclude(id__in=existing_ids).order_by("?")[:count - len(vocab_list)]
+        vocab_list.extend(additional)
+    
+    return vocab_list
+
+
+def _generate_mcq_wrong_options(correct_word, all_vocab, count=3):
+    """Generate wrong options for MCQ from vocabulary pool."""
+    import random
+    wrong = [v for v in all_vocab if v.en_word.lower() != correct_word.lower()]
+    random.shuffle(wrong)
+    return wrong[:count]
+
+
+@login_required
+def game_mcq(request):
+    """
+    Multiple Choice Quiz - Show meaning, choose correct word.
+    """
+    import random
+    
+    vocab_list = _get_game_vocabulary(request.user, count=15)
+    
+    if not vocab_list:
+        return render(request, "vocab/games/mcq.html", {"questions": []})
+    
+    # Generate MCQ questions
+    questions = []
+    for vocab in vocab_list:
+        # Get wrong options from pool
+        wrong_options = _generate_mcq_wrong_options(vocab.en_word, vocab_list, count=3)
+        
+        options = [vocab.en_word] + [w.en_word for w in wrong_options]
+        random.shuffle(options)
+        
+        questions.append({
+            "id": vocab.id,
+            "question": vocab.vi_meaning,
+            "hint": vocab.en_definition or "",
+            "answer": vocab.en_word,
+            "options": options,
+            "phonetic": vocab.phonetic or "",
+        })
+    
+    return render(request, "vocab/games/mcq.html", {
+        "questions": questions,
+        "questions_json": json.dumps(questions),
+        "total_count": len(questions),
+    })
+
+
+@login_required
+def game_matching(request):
+    """
+    Matching Game - Match words with meanings.
+    """
+    import random
+    
+    vocab_list = _get_game_vocabulary(request.user, count=8)  # 8 pairs = 16 tiles
+    
+    if not vocab_list:
+        return render(request, "vocab/games/matching.html", {"pairs": []})
+    
+    # Generate matching pairs
+    pairs = []
+    for i, vocab in enumerate(vocab_list):
+        pairs.append({
+            "id": vocab.id,
+            "word": vocab.en_word,
+            "meaning": vocab.vi_meaning,
+            "pair_id": i,
+        })
+    
+    # Create tiles
+    tiles = []
+    for pair in pairs:
+        tiles.append({"text": pair["word"], "pair_id": pair["pair_id"], "type": "word"})
+        tiles.append({"text": pair["meaning"], "pair_id": pair["pair_id"], "type": "meaning"})
+    
+    random.shuffle(tiles)
+    
+    return render(request, "vocab/games/matching.html", {
+        "pairs": pairs,
+        "tiles": tiles,
+        "tiles_json": json.dumps(tiles),
+        "total_pairs": len(pairs),
+    })
+
+
+@login_required
+def game_listening(request):
+    """
+    Listening Game - Listen to pronunciation and choose correct word.
+    """
+    import random
+    from .models import EnglishVocabulary
+    
+    # Get vocabulary with audio
+    vocab_with_audio = EnglishVocabulary.objects.filter(
+        is_active=True,
+    ).exclude(audio_pack_uuid="").exclude(audio_pack_uuid__isnull=True).order_by("?")[:15]
+    
+    vocab_list = list(vocab_with_audio)
+    
+    if not vocab_list:
+        return render(request, "vocab/games/listening.html", {"questions": []})
+    
+    # Generate listening questions
+    questions = []
+    for vocab in vocab_list:
+        # Get wrong options
+        wrong_options = _generate_mcq_wrong_options(vocab.en_word, vocab_list, count=3)
+        
+        options = [vocab.en_word] + [w.en_word for w in wrong_options]
+        random.shuffle(options)
+        
+        questions.append({
+            "id": vocab.id,
+            "answer": vocab.en_word,
+            "options": options,
+            "phonetic": vocab.phonetic or "",
+            "meaning": vocab.vi_meaning,
+            "audio_pack_uuid": vocab.audio_pack_uuid,
+        })
+    
+    return render(request, "vocab/games/listening.html", {
+        "questions": questions,
+        "questions_json": json.dumps(questions),
+        "total_count": len(questions),
+    })
+
+
+@login_required
+def game_fill(request):
+    """
+    Fill Game - See meaning (or definition), type the word.
+    """
+    vocab_list = _get_game_vocabulary(request.user, count=15)
+    
+    if not vocab_list:
+        return render(request, "vocab/games/fill.html", {"questions": []})
+    
+    questions = []
+    for vocab in vocab_list:
+        questions.append({
+            "id": vocab.id,
+            "meaning": vocab.vi_meaning,
+            "definition": vocab.en_definition or "",
+            "answer": vocab.en_word.lower().strip(),
+            "display_answer": vocab.en_word,
+            "phonetic": vocab.phonetic or "",
+        })
+    
+    return render(request, "vocab/games/fill.html", {
+        "questions": questions,
+        "questions_json": json.dumps(questions),
+        "total_count": len(questions),
+    })
+
+
+@login_required
+def game_dictation(request):
+    """
+    Dictation Game - Listen to audio and type the word.
+    """
+    from .models import EnglishVocabulary
+    
+    # Get vocabulary with audio
+    vocab_with_audio = EnglishVocabulary.objects.filter(
+        is_active=True,
+    ).exclude(audio_pack_uuid="").exclude(audio_pack_uuid__isnull=True).order_by("?")[:15]
+    
+    vocab_list = list(vocab_with_audio)
+    
+    if not vocab_list:
+        return render(request, "vocab/games/dictation.html", {"questions": []})
+    
+    questions = []
+    for vocab in vocab_list:
+        questions.append({
+            "id": vocab.id,
+            "answer": vocab.en_word.lower().strip(),
+            "display_answer": vocab.en_word,
+            "phonetic": vocab.phonetic or "",
+            "meaning": vocab.vi_meaning,
+            "audio_pack_uuid": vocab.audio_pack_uuid,
+        })
+    
+    return render(request, "vocab/games/dictation.html", {
+        "questions": questions,
+        "questions_json": json.dumps(questions),
+        "total_count": len(questions),
+    })

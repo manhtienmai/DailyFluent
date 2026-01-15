@@ -95,6 +95,9 @@ INSTALLED_APPS = [
     'grammar',
     'todos',
     'payment',
+    'feedback',
+    'wallet',
+    'rest_framework',
 ]
 
 TAILWIND_APP_NAME = 'theme'

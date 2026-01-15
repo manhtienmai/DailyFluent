@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <style>
-  /* Exam List Page - Modern, Light, Refined */
+  /* Exam List Page - Theme-aware Modern Design */
   .df-exam-container {
     width: 100%;
     margin: 0;
@@ -19,58 +19,13 @@
   .df-exam-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
   }
 
   .df-exam-subtitle {
     font-size: 1rem;
-    color: #64748b;
-  }
-
-  /* Filter Bar */
-  .df-exam-filter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .df-exam-filter-label {
-    font-size: 0.875rem;
-    color: #64748b;
-    margin-right: 0.25rem;
-  }
-
-  .df-exam-filter-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #475569;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-  }
-
-  .df-exam-filter-btn:hover {
-    border-color: #94a3b8;
-    background: #f8fafc;
-  }
-
-  .df-exam-filter-btn--active {
-    background: #0f172a;
-    color: #fff;
-    border-color: #0f172a;
-  }
-
-  .df-exam-filter-btn--active:hover {
-    background: #1e293b;
-    border-color: #1e293b;
+    color: var(--text-secondary);
   }
 
   /* Stats Summary */
@@ -79,8 +34,9 @@
     justify-content: center;
     gap: 2rem;
     margin-bottom: 2rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
     border-radius: 1rem;
   }
 
@@ -91,12 +47,12 @@
   .df-exam-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--action-primary);
   }
 
   .df-exam-stat-label {
     font-size: 0.8125rem;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   /* Exam Grid */
@@ -108,8 +64,8 @@
 
   /* Exam Card */
   .df-exam-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 1rem;
     padding: 1.5rem;
     transition: all 0.25s ease;
@@ -124,14 +80,14 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+    background: linear-gradient(90deg, var(--action-primary) 0%, var(--action-accent) 100%);
     opacity: 0;
     transition: opacity 0.25s;
   }
 
   .df-exam-card:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--card-hover-border);
+    box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
   }
 
@@ -142,7 +98,7 @@
   .df-exam-card-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 0.75rem;
     line-height: 1.4;
   }
@@ -157,12 +113,12 @@
   .df-exam-card-level {
     display: inline-flex;
     align-items: center;
-    padding: 0.125rem 0.5rem;
-    font-size: 0.625rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-radius: 0.25rem;
+    border-radius: 0.375rem;
   }
 
   .df-exam-card-users {
@@ -170,7 +126,7 @@
     align-items: center;
     gap: 0.25rem;
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--text-tertiary);
   }
 
   .df-exam-card-users svg {
@@ -178,40 +134,41 @@
     height: 14px;
   }
 
-  .df-exam-card-code {
-    font-size: 0.75rem;
-    color: #94a3b8;
-  }
-
+  /* Level badges with consistent styling */
   .df-exam-card-level--toeic {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #b45309;
-    border: 1px solid #fcd34d;
+    background: rgba(245, 158, 11, 0.15);
+    color: #D97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
   }
 
   .df-exam-card-level--n5 {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.15);
+    color: #2563EB;
+    border: 1px solid rgba(59, 130, 246, 0.3);
   }
 
   .df-exam-card-level--n4 {
-    background: #dcfce7;
-    color: #15803d;
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
   }
 
   .df-exam-card-level--n3 {
-    background: #fef3c7;
-    color: #b45309;
+    background: rgba(249, 115, 22, 0.15);
+    color: #EA580C;
+    border: 1px solid rgba(249, 115, 22, 0.3);
   }
 
   .df-exam-card-level--n2 {
-    background: #fce7f3;
-    color: #be185d;
+    background: rgba(236, 72, 153, 0.15);
+    color: #DB2777;
+    border: 1px solid rgba(236, 72, 153, 0.3);
   }
 
   .df-exam-card-level--n1 {
-    background: #fae8ff;
-    color: #a21caf;
+    background: rgba(139, 92, 246, 0.15);
+    color: #7C3AED;
+    border: 1px solid rgba(139, 92, 246, 0.3);
   }
 
   .df-exam-card-meta {
@@ -220,7 +177,7 @@
     gap: 1rem;
     margin-bottom: 1rem;
     font-size: 0.8125rem;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .df-exam-card-meta-item {
@@ -238,14 +195,9 @@
   .df-exam-card-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding-top: 1rem;
-    border-top: 1px solid #f1f5f9;
-  }
-
-  .df-exam-card-attempts {
-    font-size: 0.8125rem;
-    color: #94a3b8;
+    border-top: 1px solid var(--border-subtle);
   }
 
   .df-exam-card-btn {
@@ -255,16 +207,17 @@
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #fff;
-    background: #0f172a;
+    color: var(--action-primary-text);
+    background: var(--action-primary);
     border-radius: 0.5rem;
     text-decoration: none;
     transition: all 0.2s;
   }
 
   .df-exam-card-btn:hover {
-    background: #1e293b;
+    background: var(--action-primary-hover);
     transform: translateX(2px);
+    box-shadow: var(--shadow-primary);
   }
 
   .df-exam-card-btn svg {
@@ -281,21 +234,21 @@
   .df-exam-empty {
     text-align: center;
     padding: 4rem 1rem;
-    background: #f8fafc;
+    background: var(--bg-surface);
     border-radius: 1rem;
-    border: 2px dashed #e2e8f0;
+    border: 2px dashed var(--border-default);
   }
 
   .df-exam-empty-icon {
     width: 64px;
     height: 64px;
     margin: 0 auto 1rem;
-    color: #94a3b8;
+    color: var(--text-tertiary);
   }
 
   .df-exam-empty-text {
     font-size: 1rem;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   /* Responsive */
@@ -338,20 +291,6 @@
     <p class="df-exam-subtitle">Luyện tập với các đề thi thực tế</p>
   </div>
 
-  <!-- Filter Bar -->
-  <div class="df-exam-filter">
-    <span class="df-exam-filter-label">Cấp độ:</span>
-    <a href="?" class="df-exam-filter-btn {% if not selected_level %}df-exam-filter-btn--active{% endif %}">
-      Tất cả
-    </a>
-    {% for level in levels %}
-    <a href="?level={{ level }}"
-      class="df-exam-filter-btn {% if selected_level == level %}df-exam-filter-btn--active{% endif %}">
-      {{ level }}
-    </a>
-    {% endfor %}
-  </div>
-
   <!-- Stats Summary -->
   <div class="df-exam-stats">
     <div class="df-exam-stat">
@@ -359,8 +298,8 @@
       <div class="df-exam-stat-label">Đề thi</div>
     </div>
     <div class="df-exam-stat">
-      <div class="df-exam-stat-value">{{ levels|length }}</div>
-      <div class="df-exam-stat-label">Cấp độ</div>
+      <div class="df-exam-stat-value">{{ total_questions|default:"500+" }}</div>
+      <div class="df-exam-stat-label">Câu hỏi</div>
     </div>
   </div>
 
@@ -402,13 +341,10 @@
       </div>
 
       <div class="df-exam-card-footer">
-        <span class="df-exam-card-code">
-          Mã đề: {{ exam.slug|upper|truncatechars:10 }}
-        </span>
-        <a href="{% url 'exam:start_exam' exam.slug %}" class="df-exam-card-btn">
-          Bắt đầu
+        <a href="{% url 'exam:exam_detail' exam.slug %}" class="df-exam-card-btn">
+          Chi tiết
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
       </div>

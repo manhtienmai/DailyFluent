@@ -1,0 +1,117 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Tạo đề xuất mới - Góc Cải Tiến{% endblock %}
+
+{% block main_classes %}df-page-container-md{% endblock %}
+
+{% block content %}
+<div class="df-feedback-form-page">
+    <!-- Back Link -->
+    <a href="{% url 'feedback:list' %}" class="df-feedback-back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Quay lại danh sách
+    </a>
+
+    <!-- Form Card -->
+    <div class="df-feedback-form-card">
+        <div class="df-feedback-form-header">
+            <h1>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Tạo đề xuất mới
+            </h1>
+            <p>Chia sẻ ý tưởng tính năng mới hoặc báo lỗi để cải thiện DailyFluent</p>
+        </div>
+
+        <!-- Errors -->
+        {% if errors %}
+        <div class="df-feedback-form-errors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <ul>
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" class="df-feedback-form">
+            {% csrf_token %}
+
+            <!-- Type Selection -->
+            <div class="df-form-group">
+                <label class="df-form-label">Loại đề xuất *</label>
+                <div class="df-type-selector">
+                    <label class="df-type-option">
+                        <input type="radio" name="type" value="feature" {% if type != 'bug' %}checked{% endif %}>
+                        <div class="df-type-option-content df-type-feature">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon
+                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                            <span class="df-type-option-title">Tính năng mới</span>
+                            <span class="df-type-option-desc">Đề xuất tính năng, cải tiến</span>
+                        </div>
+                    </label>
+                    <label class="df-type-option">
+                        <input type="radio" name="type" value="bug" {% if type == 'bug' %}checked{% endif %}>
+                        <div class="df-type-option-content df-type-bug">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <span class="df-type-option-title">Báo lỗi</span>
+                            <span class="df-type-option-desc">Phản hồi lỗi, sự cố</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="df-form-group">
+                <label for="title" class="df-form-label">Tiêu đề *</label>
+                <input type="text" name="title" id="title" class="df-form-input"
+                    placeholder="Nhập tiêu đề ngắn gọn, dễ hiểu..." value="{{ title|default:'' }}" maxlength="200"
+                    required>
+                <span class="df-form-hint">Tối đa 200 ký tự</span>
+            </div>
+
+            <!-- Description -->
+            <div class="df-form-group">
+                <label for="description" class="df-form-label">Mô tả chi tiết *</label>
+                <textarea name="description" id="description" class="df-form-textarea" placeholder="Mô tả chi tiết về đề xuất hoặc lỗi của bạn...
+
+Ví dụ:
+- Vấn đề bạn gặp phải là gì?
+- Tính năng bạn muốn hoạt động như thế nào?
+- Các bước để tái tạo lỗi (nếu là báo lỗi)" rows="8" required>{{ description|default:'' }}</textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="df-form-actions">
+                <a href="{% url 'feedback:list' %}" class="df-form-cancel-btn">Hủy</a>
+                <button type="submit" class="df-form-submit-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                    Gửi đề xuất
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@
  * Handles sidebar toggle, user modal, theme switching, and countdown timer
  */
 
-(function() {
+(function () {
   'use strict';
 
   // Elements
@@ -22,7 +22,7 @@
   // Sidebar Toggle (Desktop collapse)
   // ========================================
   if (collapseBtn) {
-    collapseBtn.addEventListener('click', function() {
+    collapseBtn.addEventListener('click', function () {
       body.classList.toggle('sidebar-collapsed');
       localStorage.setItem('sidebar-collapsed', body.classList.contains('sidebar-collapsed'));
     });
@@ -37,12 +37,12 @@
   // Mobile Menu Toggle
   // ========================================
   if (mobileMenuBtn && sidebar && sidebarOverlay) {
-    mobileMenuBtn.addEventListener('click', function() {
+    mobileMenuBtn.addEventListener('click', function () {
       sidebar.classList.toggle('mobile-open');
       sidebarOverlay.classList.toggle('active');
     });
 
-    sidebarOverlay.addEventListener('click', function() {
+    sidebarOverlay.addEventListener('click', function () {
       sidebar.classList.remove('mobile-open');
       sidebarOverlay.classList.remove('active');
     });
@@ -78,7 +78,7 @@
   }
 
   // Close modal on Escape
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       closeUserModal();
     }
@@ -98,7 +98,7 @@
   }
 
   if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
+    themeToggle.addEventListener('click', function () {
       const isDark = !body.classList.contains('dark');
       setTheme(isDark);
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -123,6 +123,15 @@
 
   if (countdownEl && targetDateStr) {
     const targetDate = new Date(targetDateStr + 'T00:00:00');
+
+    // Set the date label
+    const dateLabel = document.getElementById('cd-date-label');
+    if (dateLabel) {
+      const day = String(targetDate.getDate()).padStart(2, '0');
+      const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const year = targetDate.getFullYear();
+      dateLabel.textContent = `${day}/${month}/${year}`;
+    }
 
     function updateCountdown() {
       const now = new Date();
@@ -156,13 +165,13 @@
   // ========================================
   const examGoalInput = document.getElementById('df-exam-goal-date');
   if (examGoalInput) {
-    examGoalInput.addEventListener('change', function() {
+    examGoalInput.addEventListener('change', function () {
       const newDate = this.value;
       if (!newDate) return;
 
       // Get CSRF token
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                        getCookie('csrftoken');
+        getCookie('csrftoken');
 
       fetch('/api/exam-goal/update/', {
         method: 'POST',
@@ -172,15 +181,15 @@
         },
         body: JSON.stringify({ exam_date: newDate }),
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Update the countdown
-          window.EXAM_TARGET_DATE = newDate;
-          location.reload(); // Simple reload to update countdown
-        }
-      })
-      .catch(err => console.error('Failed to update exam goal:', err));
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update the countdown
+            window.EXAM_TARGET_DATE = newDate;
+            location.reload(); // Simple reload to update countdown
+          }
+        })
+        .catch(err => console.error('Failed to update exam goal:', err));
     });
   }
 

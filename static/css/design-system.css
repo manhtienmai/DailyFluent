@@ -60,18 +60,18 @@
   --bg-app: #FFFFFF;
   --bg-app-subtle: var(--_teal-50);
   --bg-app-muted: #F8FAFC;
-  
+
   /* Surface backgrounds (cards, modals, dropdowns) */
   --bg-surface: #FFFFFF;
   --bg-surface-raised: #FFFFFF;
   --bg-surface-overlay: rgba(255, 255, 255, 0.95);
-  
+
   /* Interactive backgrounds */
   --bg-interactive: var(--_teal-50);
   --bg-interactive-hover: var(--_teal-100);
   --bg-interactive-active: var(--_teal-200);
   --bg-interactive-selected: var(--_teal-100);
-  
+
   /* Inverted (for tooltips, badges on dark) */
   --bg-inverted: var(--_teal-900);
   --bg-inverted-subtle: var(--_teal-800);
@@ -81,20 +81,20 @@
      ---------------------------------------- */
   /* Primary text - highest contrast, main content */
   --text-primary: #0F172A;
-  
+
   /* Secondary text - labels, descriptions */
   --text-secondary: #475569;
-  
+
   /* Tertiary text - placeholders, hints */
   --text-tertiary: #94A3B8;
-  
+
   /* Disabled text */
   --text-disabled: #CBD5E1;
-  
+
   /* Inverted text (on dark backgrounds) */
   --text-inverted: #FFFFFF;
   --text-inverted-secondary: rgba(255, 255, 255, 0.8);
-  
+
   /* Link text */
   --text-link: var(--_teal-600);
   --text-link-hover: var(--_teal-700);
@@ -109,15 +109,15 @@
   --action-primary-active: var(--_teal-800);
   --action-primary-subtle: var(--_teal-50);
   --action-primary-subtle-hover: var(--_teal-100);
-  
+
   /* Primary action text (on primary bg) */
   --action-primary-text: #FFFFFF;
-  
+
   /* Secondary action (outline buttons) */
   --action-secondary: var(--_teal-600);
   --action-secondary-hover: var(--_teal-700);
   --action-secondary-bg-hover: var(--_teal-50);
-  
+
   /* Accent (streak, rewards, highlights) */
   --action-accent: var(--_amber-500);
   --action-accent-hover: var(--_amber-600);
@@ -132,19 +132,19 @@
   --status-success-subtle: var(--_green-50);
   --status-success-text: var(--_green-700);
   --status-success-border: var(--_green-500);
-  
+
   /* Warning */
   --status-warning: var(--_amber-500);
   --status-warning-subtle: var(--_amber-50);
   --status-warning-text: var(--_amber-700);
   --status-warning-border: var(--_amber-400);
-  
+
   /* Error / Danger */
   --status-error: var(--_red-600);
   --status-error-subtle: var(--_red-50);
   --status-error-text: var(--_red-700);
   --status-error-border: var(--_red-500);
-  
+
   /* Info */
   --status-info: var(--_blue-600);
   --status-info-subtle: var(--_blue-50);
@@ -170,7 +170,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  
+
   /* Colored shadows for depth */
   --shadow-primary: 0 4px 14px 0 rgba(13, 148, 136, 0.25);
   --shadow-accent: 0 4px 14px 0 rgba(245, 158, 11, 0.25);
@@ -199,20 +199,20 @@
   /* Streak fire */
   --streak-flame: var(--_amber-500);
   --streak-flame-glow: rgba(245, 158, 11, 0.3);
-  
+
   /* XP / Points */
   --xp-color: var(--_teal-500);
   --xp-bg: var(--_teal-50);
-  
+
   /* Coins / Currency */
   --coin-color: var(--_amber-500);
   --coin-bg: var(--_amber-50);
-  
+
   /* Progress bars */
   --progress-track: var(--_teal-100);
   --progress-fill: var(--_teal-500);
   --progress-fill-success: var(--_green-500);
-  
+
   /* Badges / Achievements */
   --badge-bronze: #CD7F32;
   --badge-silver: #C0C0C0;
@@ -226,17 +226,17 @@
   --answer-correct: var(--_green-500);
   --answer-correct-bg: var(--_green-50);
   --answer-correct-border: var(--_green-300);
-  
+
   /* Wrong answer */
   --answer-wrong: var(--_red-500);
   --answer-wrong-bg: var(--_red-50);
   --answer-wrong-border: var(--_red-300);
-  
+
   /* Selected (neutral) */
   --answer-selected: var(--_teal-500);
   --answer-selected-bg: var(--_teal-50);
   --answer-selected-border: var(--_teal-300);
-  
+
   /* Highlight (text selection for study) */
   --highlight-yellow: rgba(250, 204, 21, 0.4);
   --highlight-green: rgba(74, 222, 128, 0.4);
@@ -255,25 +255,25 @@
   --sidebar-item-active-border: var(--_teal-500);
   --sidebar-text: var(--text-secondary);
   --sidebar-text-active: var(--_teal-700);
-  
+
   /* Topbar */
   --topbar-bg: #FFFFFF;
   --topbar-border: var(--border-default);
-  
+
   /* Cards */
   --card-bg: #FFFFFF;
   --card-border: var(--border-default);
   --card-hover-border: var(--_teal-200);
   --card-shadow: var(--shadow-sm);
   --card-shadow-hover: var(--shadow-md);
-  
+
   /* Input fields */
   --input-bg: #FFFFFF;
   --input-border: var(--border-default);
   --input-border-hover: var(--border-strong);
   --input-border-focus: var(--action-primary);
   --input-placeholder: var(--text-tertiary);
-  
+
   /* Buttons */
   --btn-primary-bg: var(--action-primary);
   --btn-primary-bg-hover: var(--action-primary-hover);
@@ -282,11 +282,17 @@
   --btn-secondary-border: var(--action-secondary);
   --btn-secondary-text: var(--action-secondary);
   --btn-ghost-bg-hover: var(--bg-interactive-hover);
-  
+
   /* Countdown timer */
-  --countdown-bg: linear-gradient(135deg, #1e293b, #334155);
-  --countdown-segment-bg: #0f172a;
+  --countdown-bg: linear-gradient(135deg, #334155, #475569);
+  --countdown-segment-bg: #1e293b;
   --countdown-text: #FFFFFF;
+  --countdown-accent: #60A5FA;
+  --countdown-label-text: rgba(255, 255, 255, 0.9);
+  --countdown-unit-text: rgba(255, 255, 255, 0.65);
+  --countdown-sep-color: rgba(255, 255, 255, 0.4);
+  --countdown-divider: rgba(255, 255, 255, 0.2);
+  --countdown-border: rgba(255, 255, 255, 0.1);
 }
 
 
@@ -299,9 +305,10 @@
   /* ----------------------------------------
      Color Palette Overrides
      ---------------------------------------- */
-  --_teal-adjusted-400: #5EEAD4;  /* Slightly desaturated for dark mode */
+  --_teal-adjusted-400: #5EEAD4;
+  /* Slightly desaturated for dark mode */
   --_teal-adjusted-500: #2DD4BF;
-  
+
   /* ----------------------------------------
      SEMANTIC TOKENS - Background
      ---------------------------------------- */
@@ -309,18 +316,18 @@
   --bg-app: #0F172A;
   --bg-app-subtle: #1E293B;
   --bg-app-muted: #1E293B;
-  
+
   /* Surface backgrounds */
   --bg-surface: #1E293B;
   --bg-surface-raised: #334155;
   --bg-surface-overlay: rgba(30, 41, 59, 0.95);
-  
+
   /* Interactive backgrounds */
   --bg-interactive: rgba(45, 212, 191, 0.1);
   --bg-interactive-hover: rgba(45, 212, 191, 0.15);
   --bg-interactive-active: rgba(45, 212, 191, 0.2);
   --bg-interactive-selected: rgba(45, 212, 191, 0.15);
-  
+
   /* Inverted */
   --bg-inverted: var(--_teal-100);
   --bg-inverted-subtle: var(--_teal-200);
@@ -334,7 +341,7 @@
   --text-disabled: #475569;
   --text-inverted: #0F172A;
   --text-inverted-secondary: rgba(15, 23, 42, 0.8);
-  
+
   /* Links - brighter in dark mode */
   --text-link: var(--_teal-adjusted-400);
   --text-link-hover: var(--_teal-300);
@@ -350,12 +357,12 @@
   --action-primary-subtle: rgba(45, 212, 191, 0.15);
   --action-primary-subtle-hover: rgba(45, 212, 191, 0.25);
   --action-primary-text: #0F172A;
-  
+
   /* Secondary action */
   --action-secondary: var(--_teal-adjusted-500);
   --action-secondary-hover: var(--_teal-adjusted-400);
   --action-secondary-bg-hover: rgba(45, 212, 191, 0.1);
-  
+
   /* Accent - slightly brighter */
   --action-accent: #FBBF24;
   --action-accent-hover: #FCD34D;
@@ -371,19 +378,19 @@
   --status-success-subtle: rgba(74, 222, 128, 0.15);
   --status-success-text: #4ADE80;
   --status-success-border: #22C55E;
-  
+
   /* Warning */
   --status-warning: #FBBF24;
   --status-warning-subtle: rgba(251, 191, 36, 0.15);
   --status-warning-text: #FBBF24;
   --status-warning-border: #F59E0B;
-  
+
   /* Error */
   --status-error: #F87171;
   --status-error-subtle: rgba(248, 113, 113, 0.15);
   --status-error-text: #F87171;
   --status-error-border: #EF4444;
-  
+
   /* Info */
   --status-info: #60A5FA;
   --status-info-subtle: rgba(96, 165, 250, 0.15);
@@ -410,7 +417,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-  
+
   /* Colored shadows - more subtle glow effect */
   --shadow-primary: 0 4px 20px 0 rgba(45, 212, 191, 0.2);
   --shadow-accent: 0 4px 20px 0 rgba(251, 191, 36, 0.2);
@@ -438,13 +445,13 @@
      ---------------------------------------- */
   --streak-flame: #FBBF24;
   --streak-flame-glow: rgba(251, 191, 36, 0.4);
-  
+
   --xp-color: var(--_teal-adjusted-400);
   --xp-bg: rgba(45, 212, 191, 0.15);
-  
+
   --coin-color: #FBBF24;
   --coin-bg: rgba(251, 191, 36, 0.15);
-  
+
   --progress-track: rgba(45, 212, 191, 0.2);
   --progress-fill: var(--_teal-adjusted-500);
   --progress-fill-success: #4ADE80;
@@ -455,15 +462,15 @@
   --answer-correct: #4ADE80;
   --answer-correct-bg: rgba(74, 222, 128, 0.15);
   --answer-correct-border: rgba(74, 222, 128, 0.5);
-  
+
   --answer-wrong: #F87171;
   --answer-wrong-bg: rgba(248, 113, 113, 0.15);
   --answer-wrong-border: rgba(248, 113, 113, 0.5);
-  
+
   --answer-selected: var(--_teal-adjusted-500);
   --answer-selected-bg: rgba(45, 212, 191, 0.15);
   --answer-selected-border: rgba(45, 212, 191, 0.5);
-  
+
   /* Highlights - slightly more opaque for dark bg */
   --highlight-yellow: rgba(250, 204, 21, 0.35);
   --highlight-green: rgba(74, 222, 128, 0.35);
@@ -482,25 +489,25 @@
   --sidebar-item-active-border: var(--_teal-adjusted-500);
   --sidebar-text: #94A3B8;
   --sidebar-text-active: var(--_teal-adjusted-400);
-  
+
   /* Topbar */
   --topbar-bg: #1E293B;
   --topbar-border: #334155;
-  
+
   /* Cards */
   --card-bg: #1E293B;
   --card-border: #334155;
   --card-hover-border: var(--_teal-700);
   --card-shadow: var(--shadow-sm);
   --card-shadow-hover: var(--shadow-md);
-  
+
   /* Input fields */
   --input-bg: #0F172A;
   --input-border: #334155;
   --input-border-hover: #475569;
   --input-border-focus: var(--_teal-adjusted-500);
   --input-placeholder: #64748B;
-  
+
   /* Buttons */
   --btn-primary-bg: var(--action-primary);
   --btn-primary-bg-hover: var(--action-primary-hover);
@@ -509,11 +516,17 @@
   --btn-secondary-border: var(--action-secondary);
   --btn-secondary-text: var(--action-secondary);
   --btn-ghost-bg-hover: var(--bg-interactive-hover);
-  
+
   /* Countdown */
   --countdown-bg: linear-gradient(135deg, #0F172A, #1E293B);
   --countdown-segment-bg: #334155;
   --countdown-text: #F1F5F9;
+  --countdown-accent: #2DD4BF;
+  --countdown-label-text: rgba(241, 245, 249, 0.9);
+  --countdown-unit-text: rgba(241, 245, 249, 0.6);
+  --countdown-sep-color: rgba(241, 245, 249, 0.35);
+  --countdown-divider: rgba(241, 245, 249, 0.15);
+  --countdown-border: rgba(45, 212, 191, 0.2);
 }
 
 
@@ -522,51 +535,153 @@
    ============================================ */
 
 /* Background utilities */
-.bg-app { background-color: var(--bg-app); }
-.bg-app-subtle { background-color: var(--bg-app-subtle); }
-.bg-surface { background-color: var(--bg-surface); }
-.bg-surface-raised { background-color: var(--bg-surface-raised); }
-.bg-interactive { background-color: var(--bg-interactive); }
-.bg-primary { background-color: var(--action-primary); }
-.bg-accent { background-color: var(--action-accent); }
+.bg-app {
+  background-color: var(--bg-app);
+}
+
+.bg-app-subtle {
+  background-color: var(--bg-app-subtle);
+}
+
+.bg-surface {
+  background-color: var(--bg-surface);
+}
+
+.bg-surface-raised {
+  background-color: var(--bg-surface-raised);
+}
+
+.bg-interactive {
+  background-color: var(--bg-interactive);
+}
+
+.bg-primary {
+  background-color: var(--action-primary);
+}
+
+.bg-accent {
+  background-color: var(--action-accent);
+}
 
 /* Text utilities */
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-tertiary { color: var(--text-tertiary); }
-.text-disabled { color: var(--text-disabled); }
-.text-inverted { color: var(--text-inverted); }
-.text-link { color: var(--text-link); }
-.text-action { color: var(--action-primary); }
-.text-accent { color: var(--action-accent); }
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.text-disabled {
+  color: var(--text-disabled);
+}
+
+.text-inverted {
+  color: var(--text-inverted);
+}
+
+.text-link {
+  color: var(--text-link);
+}
+
+.text-action {
+  color: var(--action-primary);
+}
+
+.text-accent {
+  color: var(--action-accent);
+}
 
 /* Status utilities */
-.text-success { color: var(--status-success-text); }
-.text-warning { color: var(--status-warning-text); }
-.text-error { color: var(--status-error-text); }
-.text-info { color: var(--status-info-text); }
+.text-success {
+  color: var(--status-success-text);
+}
 
-.bg-success { background-color: var(--status-success-subtle); }
-.bg-warning { background-color: var(--status-warning-subtle); }
-.bg-error { background-color: var(--status-error-subtle); }
-.bg-info { background-color: var(--status-info-subtle); }
+.text-warning {
+  color: var(--status-warning-text);
+}
+
+.text-error {
+  color: var(--status-error-text);
+}
+
+.text-info {
+  color: var(--status-info-text);
+}
+
+.bg-success {
+  background-color: var(--status-success-subtle);
+}
+
+.bg-warning {
+  background-color: var(--status-warning-subtle);
+}
+
+.bg-error {
+  background-color: var(--status-error-subtle);
+}
+
+.bg-info {
+  background-color: var(--status-info-subtle);
+}
 
 /* Border utilities */
-.border-default { border-color: var(--border-default); }
-.border-subtle { border-color: var(--border-subtle); }
-.border-strong { border-color: var(--border-strong); }
-.border-primary { border-color: var(--action-primary); }
-.border-error { border-color: var(--border-error); }
-.border-success { border-color: var(--border-success); }
+.border-default {
+  border-color: var(--border-default);
+}
+
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+
+.border-strong {
+  border-color: var(--border-strong);
+}
+
+.border-primary {
+  border-color: var(--action-primary);
+}
+
+.border-error {
+  border-color: var(--border-error);
+}
+
+.border-success {
+  border-color: var(--border-success);
+}
 
 /* Shadow utilities */
-.shadow-xs { box-shadow: var(--shadow-xs); }
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-.shadow-xl { box-shadow: var(--shadow-xl); }
-.shadow-primary { box-shadow: var(--shadow-primary); }
-.shadow-accent { box-shadow: var(--shadow-accent); }
+.shadow-xs {
+  box-shadow: var(--shadow-xs);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+.shadow-primary {
+  box-shadow: var(--shadow-primary);
+}
+
+.shadow-accent {
+  box-shadow: var(--shadow-accent);
+}
 
 /* Focus ring */
 .focus-ring:focus {
@@ -893,12 +1008,10 @@ a:hover {
 
 /* Skeleton loading */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--skeleton-base) 25%,
-    var(--skeleton-shine) 50%,
-    var(--skeleton-base) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--skeleton-base) 25%,
+      var(--skeleton-shine) 50%,
+      var(--skeleton-base) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
   border-radius: 0.25rem;
@@ -908,15 +1021,29 @@ a:hover {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
 }
 
 /* Text highlights for study mode */
-.highlight-yellow { background-color: var(--highlight-yellow); }
-.highlight-green { background-color: var(--highlight-green); }
-.highlight-blue { background-color: var(--highlight-blue); }
-.highlight-pink { background-color: var(--highlight-pink); }
-.highlight-purple { background-color: var(--highlight-purple); }
+.highlight-yellow {
+  background-color: var(--highlight-yellow);
+}
 
+.highlight-green {
+  background-color: var(--highlight-green);
+}
+
+.highlight-blue {
+  background-color: var(--highlight-blue);
+}
+
+.highlight-pink {
+  background-color: var(--highlight-pink);
+}
+
+.highlight-purple {
+  background-color: var(--highlight-purple);
+}

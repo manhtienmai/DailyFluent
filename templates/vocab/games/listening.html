@@ -1,0 +1,218 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static vocab_tags %}
+
+{% block title %}Nghe từ vựng | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260115">
+{% endblock %}
+
+{% block content %}
+<div class="df-game-container">
+  <!-- Header -->
+  <div class="df-game-header">
+    <div>
+      <h1 class="df-game-title">🎧 Nghe từ vựng</h1>
+      <p class="df-game-subtitle">Nghe phát âm và chọn từ đúng</p>
+    </div>
+    <div class="df-game-stats">
+      <div class="df-game-stat">
+        <span class="df-game-stat-value" id="correct-count">0</span>
+        <span class="df-game-stat-label">Đúng</span>
+      </div>
+    </div>
+  </div>
+
+  {% if questions %}
+  <script id="questions-data" type="application/json">{{ questions_json|safe }}</script>
+
+  <div id="game-container">
+    <!-- Progress -->
+    <div class="df-game-progress">
+      <div class="df-game-progress-bar">
+        <div id="progress-fill" class="df-game-progress-fill" style="width: 0%"></div>
+      </div>
+      <span id="progress-text" class="df-game-progress-text">1 / {{ total_count }}</span>
+    </div>
+
+    <!-- Question Card -->
+    <div class="df-game-card">
+      <div class="df-game-question-label">Nghe và chọn từ đúng:</div>
+      
+      <!-- Audio Player -->
+      <div class="df-game-audio">
+        <button type="button" id="btn-play" class="df-game-audio-btn" title="Phát âm thanh">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div id="options" class="df-game-options"></div>
+    </div>
+
+    <!-- Feedback -->
+    <div id="feedback" class="df-game-feedback hidden"></div>
+
+    <!-- Navigation -->
+    <div class="df-game-nav">
+      <button type="button" id="btn-prev" class="df-game-nav-btn df-game-nav-btn--secondary" disabled>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Câu trước
+      </button>
+      <button type="button" id="btn-next" class="df-game-nav-btn df-game-nav-btn--primary">
+        Câu sau
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Complete Screen -->
+  <div id="complete-screen" class="df-game-complete hidden">
+    <div class="df-game-complete-icon">🎉</div>
+    <h2 class="df-game-complete-title">Hoàn thành!</h2>
+    <div class="df-game-complete-stats">
+      <div class="df-game-complete-stat">
+        <div id="final-correct" class="df-game-complete-stat-value">0</div>
+        <div class="df-game-complete-stat-label">Đúng</div>
+      </div>
+      <div class="df-game-complete-stat">
+        <div id="final-total" class="df-game-complete-stat-value">0</div>
+        <div class="df-game-complete-stat-label">Tổng</div>
+      </div>
+    </div>
+    <a href="{% url 'vocab:games' %}" class="df-game-complete-btn">Quay lại</a>
+  </div>
+
+  {% else %}
+  <div class="df-game-empty">
+    <div class="df-game-empty-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <h2 class="df-game-empty-title">Chưa có từ vựng có audio</h2>
+    <p class="df-game-empty-text">Hãy thêm từ vựng có audio để chơi trò này.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if questions %}
+<script>
+(function() {
+  const questions = JSON.parse(document.getElementById('questions-data').textContent || '[]');
+  
+  let idx = 0;
+  let correctCount = 0;
+  let answered = new Array(questions.length).fill(null);
+  let audio = null;
+  
+  const optionsDiv = document.getElementById('options');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const feedbackDiv = document.getElementById('feedback');
+  const btnPlay = document.getElementById('btn-play');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const correctEl = document.getElementById('correct-count');
+  const gameContainer = document.getElementById('game-container');
+  const completeScreen = document.getElementById('complete-screen');
+  
+  function getAudioUrl(uuid) {
+    // Build audio URL using the template tag pattern
+    return `/media/en_vocab/audio/${uuid}/word_us.mp3`;
+  }
+  
+  function playAudio() {
+    const q = questions[idx];
+    if (!q || !q.audio_pack_uuid) return;
+    
+    if (audio) audio.pause();
+    audio = new Audio(getAudioUrl(q.audio_pack_uuid));
+    audio.play().catch(() => {});
+  }
+  
+  function render() {
+    const q = questions[idx];
+    if (!q) return;
+    
+    // Options
+    optionsDiv.innerHTML = '';
+    const keys = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'df-game-option';
+      btn.innerHTML = `<span class="df-game-option-key">${keys[i]}</span><span>${opt}</span>`;
+      
+      const isCorrect = opt.toLowerCase() === q.answer.toLowerCase();
+      const wasAnswered = answered[idx];
+      
+      if (wasAnswered !== null) {
+        btn.disabled = true;
+        if (isCorrect) btn.classList.add('df-game-option--correct');
+        else if (wasAnswered === opt) btn.classList.add('df-game-option--wrong');
+      } else {
+        btn.addEventListener('click', () => handleAnswer(opt, isCorrect));
+      }
+      
+      optionsDiv.appendChild(btn);
+    });
+    
+    // Progress
+    const pct = ((idx + 1) / questions.length) * 100;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = `${idx + 1} / ${questions.length}`;
+    
+    btnPrev.disabled = idx === 0;
+    btnNext.textContent = idx >= questions.length - 1 ? 'Hoàn thành' : 'Câu sau';
+    
+    feedbackDiv.classList.add('hidden');
+    if (answered[idx] !== null) {
+      showFeedback(answered[idx] === q.answer);
+    }
+    
+    // Auto-play audio
+    setTimeout(playAudio, 300);
+  }
+  
+  function handleAnswer(selected, isCorrect) {
+    if (answered[idx] !== null) return;
+    answered[idx] = selected;
+    if (isCorrect) correctCount++;
+    correctEl.textContent = correctCount;
+    render();
+    showFeedback(isCorrect);
+  }
+  
+  function showFeedback(isCorrect) {
+    const q = questions[idx];
+    feedbackDiv.className = 'df-game-feedback ' + (isCorrect ? 'df-game-feedback--correct' : 'df-game-feedback--wrong');
+    feedbackDiv.innerHTML = isCorrect 
+      ? `<div class="df-game-feedback-title">✓ Chính xác!</div><div class="df-game-feedback-text">${q.answer} - ${q.meaning}</div>`
+      : `<div class="df-game-feedback-title">✗ Sai rồi</div><div class="df-game-feedback-text">Đáp án: <strong>${q.answer}</strong> - ${q.meaning}</div>`;
+    feedbackDiv.classList.remove('hidden');
+  }
+  
+  function showComplete() {
+    gameContainer.classList.add('hidden');
+    completeScreen.classList.remove('hidden');
+    document.getElementById('final-correct').textContent = correctCount;
+    document.getElementById('final-total').textContent = questions.length;
+  }
+  
+  btnPlay.addEventListener('click', playAudio);
+  btnPrev.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
+  btnNext.addEventListener('click', () => {
+    if (idx < questions.length - 1) { idx++; render(); }
+    else showComplete();
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ') { e.preventDefault(); playAudio(); }
+    if (answered[idx] !== null && (e.key === 'Enter')) { e.preventDefault(); btnNext.click(); }
+  });
+  
+  render();
+})();
+</script>
+{% endif %}
+{% endblock %}

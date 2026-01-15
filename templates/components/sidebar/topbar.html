@@ -7,9 +7,9 @@ Top Bar Component with logo, streak, coins, countdown timer
   {# Mobile menu toggle #}
   <button class="df-topbar-menu-btn" id="df-mobile-menu-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <line x1="3" y1="12" x2="21" y2="12"/>
-      <line x1="3" y1="6" x2="21" y2="6"/>
-      <line x1="3" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   </button>
 
@@ -24,26 +24,29 @@ Top Bar Component with logo, streak, coins, countdown timer
 
   {# Right side items #}
   <div class="df-topbar-right">
-    
-    {# Countdown Timer to Exam #}
+
+    {# Countdown Timer to Exam - Compact Version #}
     {% if user.is_authenticated %}
     <div class="df-topbar-countdown" id="df-countdown-timer" title="Thời gian đến kỳ thi">
-      <div class="df-countdown-segments">
-        <span class="df-countdown-seg" data-label="Ngày"><span id="cd-days">00</span></span>
-        <span class="df-countdown-sep">:</span>
-        <span class="df-countdown-seg" data-label="Giờ"><span id="cd-hours">00</span></span>
-        <span class="df-countdown-sep">:</span>
-        <span class="df-countdown-seg" data-label="Phút"><span id="cd-mins">00</span></span>
-        <span class="df-countdown-sep">:</span>
-        <span class="df-countdown-seg" data-label="Giây"><span id="cd-secs">00</span></span>
-      </div>
+      <span class="df-countdown-value" id="cd-days">00</span>
+      <span class="df-countdown-unit">d</span>
+      <span class="df-countdown-sep">:</span>
+      <span class="df-countdown-value" id="cd-hours">00</span>
+      <span class="df-countdown-unit">h</span>
+      <span class="df-countdown-sep">:</span>
+      <span class="df-countdown-value" id="cd-mins">00</span>
+      <span class="df-countdown-unit">m</span>
+      <span class="df-countdown-sep">:</span>
+      <span class="df-countdown-value" id="cd-secs">00</span>
+      <span class="df-countdown-unit">s</span>
     </div>
     {% endif %}
 
     {# Streak #}
     <div class="df-topbar-stat df-topbar-streak" title="Chuỗi ngày học">
       <svg viewBox="0 0 24 24" fill="currentColor" class="df-stat-icon df-streak-icon">
-        <path d="M12 23a7.5 7.5 0 0 1-5.138-12.963C8.204 8.774 11.5 6.5 11 1.5c6 4 9 8 3 14 1 0 2.5 0 5-2.47.27.773.5 1.604.5 2.47A7.5 7.5 0 0 1 12 23z"/>
+        <path
+          d="M12 23a7.5 7.5 0 0 1-5.138-12.963C8.204 8.774 11.5 6.5 11 1.5c6 4 9 8 3 14 1 0 2.5 0 5-2.47.27.773.5 1.604.5 2.47A7.5 7.5 0 0 1 12 23z" />
       </svg>
       <span class="df-stat-value" id="df-streak-value">{{ user_streak|default:0 }}</span>
     </div>
@@ -51,7 +54,7 @@ Top Bar Component with logo, streak, coins, countdown timer
     {# Coins #}
     <div class="df-topbar-stat df-topbar-coins" title="Xu của bạn">
       <svg viewBox="0 0 24 24" fill="currentColor" class="df-stat-icon df-coins-icon">
-        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="10" />
         <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">$</text>
       </svg>
       <span class="df-stat-value" id="df-coins-value">{{ user_coins|default:0 }}</span>
@@ -60,18 +63,18 @@ Top Bar Component with logo, streak, coins, countdown timer
     {# Theme Toggle #}
     <button class="df-topbar-btn df-theme-toggle" id="df-theme-toggle" title="Đổi giao diện">
       <svg class="df-theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="5"/>
-        <line x1="12" y1="1" x2="12" y2="3"/>
-        <line x1="12" y1="21" x2="12" y2="23"/>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-        <line x1="1" y1="12" x2="3" y2="12"/>
-        <line x1="21" y1="12" x2="23" y2="12"/>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
       </svg>
       <svg class="df-theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       </svg>
     </button>
 
@@ -84,4 +87,3 @@ Top Bar Component with logo, streak, coins, countdown timer
   window.EXAM_TARGET_DATE = "{{ exam_goal.exam_date|date:'Y-m-d' }}";
 </script>
 {% endif %}
-

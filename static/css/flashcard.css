@@ -1,0 +1,596 @@
+/* ========================================
+   Flashcard Core Component - Theme-aware
+   ======================================== */
+
+/* Container */
+.df-fc-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* Header */
+.df-fc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-fc-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Stats Badges */
+.df-fc-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.df-fc-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.df-fc-stat--learning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.df-fc-stat--review {
+  background: rgba(14, 165, 233, 0.15);
+  color: #0284C7;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.df-fc-stat--new {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Cards Counter */
+.df-fc-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background: var(--bg-interactive);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.df-fc-counter svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+}
+
+/* Goal Ring */
+.df-fc-goal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.df-fc-goal-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.df-fc-goal-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.df-fc-goal-ring-bg {
+  fill: none;
+  stroke: var(--border-default);
+  stroke-width: 5;
+}
+
+.df-fc-goal-ring-progress {
+  fill: none;
+  stroke: #10B981;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.df-fc-goal-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.df-fc-goal-info {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.df-fc-goal-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Progress Bar */
+.df-fc-progress {
+  height: 6px;
+  background: var(--bg-interactive);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.df-fc-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--action-primary), var(--action-accent));
+  transition: width 0.4s ease;
+  border-radius: 9999px;
+}
+
+/* Card Container */
+.df-fc-card-wrapper {
+  perspective: 1200px;
+}
+
+.df-fc-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform-style: preserve-3d;
+}
+
+.df-fc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card Front */
+.df-fc-front {
+  padding: 3rem 2rem;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.df-fc-main-word {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+/* Japanese specific */
+.df-fc-main-word--jp {
+  font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", sans-serif;
+}
+
+/* English specific */
+.df-fc-main-word--en {
+  font-size: 3.5rem;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.df-fc-phonetic {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-family: "Inter", system-ui, sans-serif;
+  margin-top: 0.5rem;
+}
+
+/* Flip Button */
+.df-fc-flip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  margin-top: 2rem;
+  background: var(--action-primary);
+  color: var(--action-primary-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.df-fc-flip-btn:hover {
+  background: var(--action-primary-hover);
+  transform: scale(1.05);
+}
+
+.df-fc-flip-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.df-fc-flip-btn:hover svg {
+  transform: rotate(180deg);
+}
+
+/* Card Back */
+.df-fc-back {
+  padding: 2rem;
+  min-height: 320px;
+}
+
+.df-fc-back-header {
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-subtle);
+  margin-bottom: 1.25rem;
+}
+
+.df-fc-back-word {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.df-fc-back-word--jp {
+  font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", sans-serif;
+}
+
+.df-fc-back-word--en {
+  font-size: 2.5rem;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.df-fc-reading {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.df-fc-reading--jp {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+/* Section Label */
+.df-fc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  margin-bottom: 0.375rem;
+}
+
+.df-fc-label--meaning {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.df-fc-label--sino {
+  background: rgba(249, 115, 22, 0.15);
+  color: #EA580C;
+}
+
+.df-fc-label--definition {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366F1;
+}
+
+/* Meaning Text */
+.df-fc-meaning {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.df-fc-sino {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.df-fc-definition {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+/* Example Box */
+.df-fc-example {
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.df-fc-example-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.df-fc-example-text {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.df-fc-example-translation {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.375rem;
+}
+
+/* Audio Button */
+.df-fc-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  background: var(--bg-interactive);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.df-fc-audio-btn:hover {
+  background: var(--action-primary);
+  color: var(--action-primary-text);
+  border-color: var(--action-primary);
+}
+
+.df-fc-audio-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Grade Buttons */
+.df-fc-grades {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.df-fc-grade-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--card-bg);
+}
+
+.df-fc-grade-btn:hover {
+  transform: translateY(-2px);
+}
+
+.df-fc-grade-btn:active {
+  transform: scale(0.95);
+}
+
+.df-fc-grade-btn--again {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+}
+.df-fc-grade-btn--again:hover {
+  border-color: #EF4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.df-fc-grade-btn--hard {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.1);
+}
+.df-fc-grade-btn--hard:hover {
+  border-color: #F59E0B;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.df-fc-grade-btn--good {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+}
+.df-fc-grade-btn--good:hover {
+  border-color: #10B981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.df-fc-grade-btn--easy {
+  border-color: rgba(14, 165, 233, 0.3);
+  background: rgba(14, 165, 233, 0.1);
+}
+.df-fc-grade-btn--easy:hover {
+  border-color: #0EA5E9;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.df-fc-grade-emoji {
+  font-size: 1.25rem;
+}
+
+.df-fc-grade-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.df-fc-grade-btn--again .df-fc-grade-label { color: #DC2626; }
+.df-fc-grade-btn--hard .df-fc-grade-label { color: #D97706; }
+.df-fc-grade-btn--good .df-fc-grade-label { color: #059669; }
+.df-fc-grade-btn--easy .df-fc-grade-label { color: #0284C7; }
+
+.df-fc-grade-interval {
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+}
+
+/* Completion Message */
+.df-fc-complete {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.df-fc-complete-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.df-fc-complete-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-fc-complete-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.df-fc-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--action-primary);
+  color: var(--action-primary-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.df-fc-complete-btn:hover {
+  background: var(--action-primary-hover);
+  transform: translateY(-2px);
+}
+
+/* Empty State */
+.df-fc-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.df-fc-empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: var(--bg-interactive);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.df-fc-empty-icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--text-tertiary);
+}
+
+.df-fc-empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.df-fc-empty-text {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+/* Error Message */
+.df-fc-error {
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.75rem;
+  color: #DC2626;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .df-fc-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .df-fc-main-word {
+    font-size: 4rem;
+  }
+
+  .df-fc-main-word--en {
+    font-size: 2.5rem;
+  }
+
+  .df-fc-back-word {
+    font-size: 3rem;
+  }
+
+  .df-fc-back-word--en {
+    font-size: 2rem;
+  }
+
+  .df-fc-grades {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

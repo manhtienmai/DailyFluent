@@ -19,6 +19,7 @@
   min-height: 100vh;
   background: var(--bg-app-subtle);
   overflow-x: hidden;
+  overflow-y: auto !important;
 }
 
 .df-main-wrapper {
@@ -74,15 +75,15 @@
 .df-sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  margin-bottom: 4px;
-  border-radius: 10px;
+  gap: 14px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: 12px;
   color: var(--sidebar-text);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   white-space: nowrap;
 }
@@ -90,6 +91,7 @@
 .df-sidebar-item:hover {
   background: var(--sidebar-item-hover);
   color: var(--text-primary);
+  transform: translateX(4px);
 }
 
 .df-sidebar-item.active {
@@ -105,23 +107,151 @@
   top: 50%;
   transform: translateY(-50%);
   width: 4px;
-  height: 24px;
-  background: var(--sidebar-item-active-border);
-  border-radius: 0 4px 4px 0;
+  height: 28px;
+  background: linear-gradient(180deg, var(--action-primary), var(--action-accent));
+  border-radius: 0 6px 6px 0;
+  box-shadow: 0 0 8px rgba(var(--action-primary-rgb, 20, 184, 166), 0.4);
 }
 
 .df-sidebar-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
+  padding: 4px;
+  transition: all 0.2s ease;
 }
 
 .df-sidebar-icon svg {
   width: 100%;
   height: 100%;
+}
+
+/* ========================================
+   Colorful Icon System - Each item has unique color
+   ======================================== */
+
+/* Home - Blue/Teal */
+.df-icon-home {
+  color: #0EA5E9;
+  background: rgba(14, 165, 233, 0.1);
+}
+.df-sidebar-item:hover .df-icon-home,
+.df-sidebar-item.active .df-icon-home {
+  color: #0284C7;
+  background: rgba(14, 165, 233, 0.2);
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
+}
+
+/* Vocabulary - Purple */
+.df-icon-vocab {
+  color: #8B5CF6;
+  background: rgba(139, 92, 246, 0.1);
+}
+.df-sidebar-item:hover .df-icon-vocab,
+.df-sidebar-item.active .df-icon-vocab {
+  color: #7C3AED;
+  background: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Exam - Green */
+.df-icon-exam {
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+}
+.df-sidebar-item:hover .df-icon-exam,
+.df-sidebar-item.active .df-icon-exam {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Dictation - Pink/Magenta */
+.df-icon-dictation {
+  color: #EC4899;
+  background: rgba(236, 72, 153, 0.1);
+}
+.df-sidebar-item:hover .df-icon-dictation,
+.df-sidebar-item.active .df-icon-dictation {
+  color: #DB2777;
+  background: rgba(236, 72, 153, 0.2);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+}
+
+/* Course - Indigo */
+.df-icon-course {
+  color: #6366F1;
+  background: rgba(99, 102, 241, 0.1);
+}
+.df-sidebar-item:hover .df-icon-course,
+.df-sidebar-item.active .df-icon-course {
+  color: #4F46E5;
+  background: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+}
+
+/* Store - Emerald/Teal */
+.df-icon-store {
+  color: #14B8A6;
+  background: rgba(20, 184, 166, 0.1);
+}
+.df-sidebar-item:hover .df-icon-store,
+.df-sidebar-item.active .df-icon-store {
+  color: #0D9488;
+  background: rgba(20, 184, 166, 0.2);
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.3);
+}
+
+/* Streak/Ranking - Orange/Fire */
+.df-icon-streak {
+  color: #F97316;
+  background: rgba(249, 115, 22, 0.1);
+}
+.df-sidebar-item:hover .df-icon-streak,
+.df-sidebar-item.active .df-icon-streak {
+  color: #EA580C;
+  background: rgba(249, 115, 22, 0.2);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);
+}
+
+/* Feedback - Amber/Gold */
+.df-sidebar-icon-feedback {
+  color: #F59E0B;
+  background: rgba(245, 158, 11, 0.1);
+}
+.df-sidebar-item:hover .df-sidebar-icon-feedback,
+.df-sidebar-item.active .df-sidebar-icon-feedback {
+  color: #D97706;
+  background: rgba(245, 158, 11, 0.2);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Roadmap - Cyan */
+.df-icon-roadmap {
+  color: #06B6D4;
+  background: rgba(6, 182, 212, 0.1);
+}
+.df-sidebar-item:hover .df-icon-roadmap,
+.df-sidebar-item.active .df-icon-roadmap {
+  color: #0891B2;
+  background: rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+}
+
+/* Games - Gradient Purple/Pink */
+.df-icon-games {
+  color: #A855F7;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15));
+}
+.df-sidebar-item:hover .df-icon-games,
+.df-sidebar-item.active .df-icon-games {
+  color: #9333EA;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25));
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
 }
 
 .df-sidebar-label {
@@ -322,37 +452,38 @@
   gap: 12px;
 }
 
-/* Countdown Timer */
+/* Countdown Timer - Compact Inline Design */
 .df-topbar-countdown {
   display: flex;
   align-items: center;
-  background: var(--countdown-bg);
-  padding: 6px 12px;
-  border-radius: 20px;
-}
-
-.df-countdown-segments {
-  display: flex;
-  align-items: center;
   gap: 2px;
+  background: var(--bg-interactive);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
 }
 
-.df-countdown-seg {
-  background: var(--countdown-segment-bg);
-  color: var(--countdown-text);
-  padding: 4px 8px;
-  border-radius: 6px;
+.df-countdown-value {
   font-size: 13px;
   font-weight: 700;
-  min-width: 32px;
-  text-align: center;
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  min-width: 18px;
+  text-align: center;
+}
+
+.df-countdown-unit {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-right: 4px;
 }
 
 .df-countdown-sep {
   color: var(--text-tertiary);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 12px;
+  margin: 0 1px;
 }
 
 /* Stats (Streak, Coins) */
@@ -750,7 +881,7 @@
   .df-sidebar-collapse-btn {
     display: none;
   }
-  
+
   .df-sidebar-overlay {
     top: var(--topbar-height);
   }
@@ -776,4 +907,3 @@
     padding: 24px 20px;
   }
 }
-

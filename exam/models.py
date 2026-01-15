@@ -392,6 +392,17 @@ class ListeningConversation(models.Model):
         blank=True,
         help_text="Transcript của đoạn audio (hiển thị sau khi submit)",
     )
+    transcript_vi = models.TextField(
+        blank=True,
+        help_text="Bản dịch tiếng Việt của transcript",
+    )
+    
+    # Structured transcript data (for interactive bilingual display)
+    transcript_data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Bilingual transcript: {"lines": [{"speaker": "M", "text": "...", "text_vi": "..."}]}',
+    )
     
     # Metadata
     data = models.JSONField(
@@ -482,11 +493,26 @@ class ExamQuestion(models.Model):
         default=QuestionType.MCQ,
     )
 
-    # Câu hỏi JP     text = câu hỏi JP, KHÔNG phải passage
+    # Câu hỏi (text = câu hỏi tiếng Anh/JP)
     text = models.TextField(
-        help_text="Câu hỏi JP. Với sắp xếp câu có thể dùng ( ) (＊) để minh hoạ.",
+        help_text="Câu hỏi. Với sắp xếp câu có thể dùng ( ) (＊) để minh hoạ.",
         blank=True,
     )
+    text_vi = models.TextField(
+        blank=True,
+        help_text="Bản dịch tiếng Việt của câu hỏi",
+    )
+    
+    # Audio transcript for Listening Part 1/2 (single questions)
+    audio_transcript = models.TextField(
+        blank=True,
+        help_text="Transcript của audio (cho Part 1/2)",
+    )
+    audio_transcript_vi = models.TextField(
+        blank=True,
+        help_text="Bản dịch tiếng Việt của audio transcript",
+    )
+    
     explanation_vi = models.TextField(blank=True)
     explanation_json = models.JSONField(
         default=dict,
@@ -498,9 +524,16 @@ class ExamQuestion(models.Model):
     )
 
     # Data đặc thù từng type
-    # - MCQ  : {"choices": [{"key": "1","text":"..."}, ...]}
+    # - MCQ  : {"choices": [{"key": "1","text":"...","text_vi":"..."}, ...]}
     # - ORDER: {"tokens":  [{"key": "1","text":"..."}, ...]}
     data = models.JSONField(default=dict, blank=True)
+    
+    # Transcript data for structured bilingual display
+    transcript_data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Bilingual options/transcript: {"options": [{"label":"A","text":"...","text_vi":"..."}]}',
+    )
 
     # Đáp án đúng:
     # - MCQ  : "3"

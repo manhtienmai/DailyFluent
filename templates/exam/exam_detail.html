@@ -3,360 +3,781 @@
 
 {% block title %}{{ template.title }} - DailyFluent{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Exam Detail Page - Theme-aware Modern Design */
+  .df-exam-detail {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Back Link */
+  .df-exam-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+  .df-exam-back:hover {
+    color: var(--action-primary);
+  }
+  .df-exam-back svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Header */
+  .df-exam-detail-header {
+    margin-bottom: 2rem;
+  }
+
+  .df-exam-detail-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .df-exam-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 9999px;
+  }
+
+  .df-exam-badge--level {
+    background: rgba(99, 102, 241, 0.15);
+    color: #6366F1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+
+  .df-exam-badge--category {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .df-exam-detail-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  /* Info Card */
+  .df-exam-info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-exam-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .df-exam-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .df-exam-info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .df-exam-info-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .df-exam-info-icon--time {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+  }
+
+  .df-exam-info-icon--questions {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+  }
+
+  .df-exam-info-icon--users {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+  }
+
+  .df-exam-info-icon--comments {
+    background: rgba(249, 115, 22, 0.15);
+    color: #F97316;
+  }
+
+  .df-exam-info-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .df-exam-info-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  /* Tabs */
+  .df-exam-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--bg-interactive);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-exam-tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .df-exam-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface);
+  }
+
+  .df-exam-tab--active {
+    color: var(--action-primary-text);
+    background: var(--action-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .df-exam-tab--active:hover {
+    background: var(--action-primary-hover);
+  }
+
+  /* Tab Content */
+  .df-exam-tab-content {
+    display: none;
+  }
+
+  .df-exam-tab-content--active {
+    display: block;
+  }
+
+  /* Pro Tip */
+  .df-exam-pro-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-exam-pro-tip-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(59, 130, 246, 0.2);
+    color: #3B82F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .df-exam-pro-tip-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .df-exam-pro-tip-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1E40AF;
+    margin-bottom: 0.25rem;
+  }
+
+  .df-exam-pro-tip-text {
+    font-size: 0.8125rem;
+    color: #1E3A8A;
+    line-height: 1.5;
+  }
+
+  [data-theme="dark"] .df-exam-pro-tip-title,
+  .dark .df-exam-pro-tip-title {
+    color: #93C5FD;
+  }
+
+  [data-theme="dark"] .df-exam-pro-tip-text,
+  .dark .df-exam-pro-tip-text {
+    color: #BFDBFE;
+  }
+
+  /* Form Section */
+  .df-exam-form-section {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-exam-form-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  /* Parts Grid */
+  .df-exam-parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .df-exam-part-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .df-exam-part-item:hover {
+    border-color: var(--action-primary);
+    background: var(--bg-interactive);
+  }
+
+  .df-exam-part-item input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--action-primary);
+    cursor: pointer;
+  }
+
+  .df-exam-part-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .df-exam-part-count {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  /* Select */
+  .df-exam-select {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .df-exam-select:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Submit Button */
+  .df-exam-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--action-primary-text);
+    background: var(--action-primary);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .df-exam-submit-btn:hover {
+    background: var(--action-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .df-exam-submit-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Comments */
+  .df-exam-comment-form {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-exam-comment-textarea {
+    width: 100%;
+    padding: 1rem;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    resize: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  .df-exam-comment-textarea:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    box-shadow: var(--focus-ring);
+  }
+
+  .df-exam-comment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+
+  .df-exam-char-count {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-exam-comment-list {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .df-exam-comment-list-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .df-exam-comment-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .df-exam-comment-item:last-child {
+    border-bottom: none;
+  }
+
+  .df-exam-comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--action-primary), var(--action-accent));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+
+  .df-exam-comment-author {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+  }
+
+  .df-exam-comment-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-exam-comment-content {
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .df-exam-empty-comments {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-tertiary);
+  }
+
+  .df-exam-login-prompt {
+    padding: 1rem 1.5rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .df-exam-login-prompt a {
+    color: var(--action-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .df-exam-login-prompt a:hover {
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .df-exam-detail-title {
+      font-size: 1.375rem;
+    }
+
+    .df-exam-info-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .df-exam-tabs {
+      flex-direction: column;
+    }
+
+    .df-exam-parts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .df-exam-submit-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-wrap gap-2 mb-3">
+<div class="df-exam-detail">
+  <!-- Back Link -->
+  <a href="{% url 'exam:exam_list' %}" class="df-exam-back">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+    Quay lại danh sách đề
+  </a>
+
+  <!-- Header -->
+  <div class="df-exam-detail-header">
+    <div class="df-exam-detail-badges">
+      <span class="df-exam-badge df-exam-badge--level">{{ template.level }}</span>
+      {% if template.category %}
+      <span class="df-exam-badge df-exam-badge--category">{{ template.get_category_display }}</span>
+      {% endif %}
+    </div>
+    <h1 class="df-exam-detail-title">{{ template.title }}</h1>
+  </div>
+
+  <!-- Info Card -->
+  <div class="df-exam-info-card">
+    <div class="df-exam-info-grid">
+      <div class="df-exam-info-item">
+        <div class="df-exam-info-icon df-exam-info-icon--time">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="df-exam-info-value">
             {% if template.level == "TOEIC" %}
-            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#IELTS Academic</span>
-            {% if template.category == "LISTENING" %}
-            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Listening</span>
-            {% elif template.category == "READING" %}
-            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#Reading</span>
-            {% endif %}
+              {% if template.category == "LISTENING" %}40{% elif template.category == "READING" %}60{% else %}{{ template.time_limit_minutes|default:60 }}{% endif %}
             {% else %}
-            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{
-                template.get_level_display }}</span>
-            {% if template.category %}
-            <span class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">#{{
-                template.get_category_display }}</span>
-            {% endif %}
-            {% endif %}
+              {{ template.time_limit_minutes|default:60 }}
+            {% endif %} phút
+          </div>
+          <div class="df-exam-info-label">Thời gian</div>
         </div>
-        <h1 class="text-3xl font-bold text-slate-900">{{ template.title }}</h1>
-    </div>
+      </div>
 
-    <!-- Thông tin đề thi -->
-    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-        <div class="space-y-3">
-            <div class="flex items-center gap-2 text-sm text-slate-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>
-                    Thời gian làm bài:
-                    {% if template.level == "TOEIC" %}
-                    {% if template.category == "LISTENING" %}
-                    40 phút
-                    {% elif template.category == "READING" %}
-                    60 phút
-                    {% elif template.category == "TOEIC_FULL" %}
-                    {{ template.listening_time_limit_minutes|default:45 }} + {{
-                    template.reading_time_limit_minutes|default:75 }} phút
-                    {% else %}
-                    {{ template.time_limit_minutes|default:60 }} phút
-                    {% endif %}
-                    {% else %}
-                    {{ template.time_limit_minutes|default:60 }} phút
-                    {% endif %}
-                </span>
-                <span>|</span>
-                <span>
-                    {% if template.level == "TOEIC" %}
-                    {% if template.category == "LISTENING" %}
-                    4 phần thi
-                    {% elif template.category == "READING" %}
-                    3 phần thi
-                    {% elif template.category == "TOEIC_FULL" %}
-                    7 phần thi
-                    {% else %}
-                    {{ template.total_questions }} câu hỏi
-                    {% endif %}
-                    {% else %}
-                    {{ template.total_questions }} câu hỏi
-                    {% endif %}
-                </span>
-                <span>|</span>
-                <span>{{ template.total_questions }} câu hỏi</span>
-                <span>|</span>
-                <span>{{ comment_count|floatformat:0 }} bình luận</span>
-            </div>
-
-            <div class="flex items-center gap-2 text-sm text-slate-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>{{ attempt_count|floatformat:0 }} người đã luyện tập đề thi này</span>
-            </div>
-
-            {% if template.level == "TOEIC" %}
-            <div class="text-sm text-red-600 font-medium">
-                <strong>Chú ý:</strong> để được quy đổi sang scaled score (ví dụ trên thang điểm 990 cho TOEIC hoặc 9.0
-                cho IELTS), vui lòng chọn chế độ làm FULL TEST.
-            </div>
-            {% endif %}
+      <div class="df-exam-info-item">
+        <div class="df-exam-info-icon df-exam-info-icon--questions">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-    </section>
-
-    <!-- Tabs -->
-    <div class="border-b border-slate-200">
-        <nav class="flex gap-6">
-            <button type="button" id="tab-practice"
-                class="px-4 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 -mb-px">
-                Luyện tập
-            </button>
-            <button type="button" id="tab-full-test"
-                class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
-                Làm full test
-            </button>
-            <button type="button" id="tab-discussion"
-                class="px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent -mb-px hover:text-slate-900">
-                Thảo luận
-            </button>
-        </nav>
-    </div>
-
-    <!-- Tab Content: Practice -->
-    <div id="content-practice" class="tab-content">
-        <!-- Pro Tips -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <div>
-                    <div class="font-semibold text-blue-900 mb-1">Pro tips:</div>
-                    <div class="text-sm text-blue-800">
-                        Hình thức luyện tập từng phần và chọn mức thời gian phù hợp sẽ giúp bạn tập trung vào giải đúng
-                        các câu hỏi thay vì phải chịu áp lực hoàn thành bài thi.
-                    </div>
-                </div>
-            </div>
+        <div>
+          <div class="df-exam-info-value">{{ template.total_questions }}</div>
+          <div class="df-exam-info-label">Câu hỏi</div>
         </div>
+      </div>
 
-        <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="practice-form">
-            {% csrf_token %}
-            <input type="hidden" name="mode" value="practice">
-
-            <!-- Chọn phần thi -->
-            {% if template.level == "TOEIC" and parts_list %}
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-6">
-                <h3 class="text-base font-semibold text-slate-900 mb-3">Chọn phần thi bạn muốn làm</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                    {% for part_info in parts_list %}
-                    <label
-                        class="flex items-center gap-2 p-2 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
-                        <input type="checkbox" name="selected_parts" value="{{ part_info.part }}"
-                            class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 flex-shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-slate-900 truncate">
-                                {{ part_info.part_display }}
-                            </div>
-                            <div class="text-xs text-slate-500">
-                                {{ part_info.question_count }} câu
-                            </div>
-                        </div>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Giới hạn thời gian -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
-                <label for="time-limit" class="block text-sm font-semibold text-slate-900 mb-2">
-                    Giới hạn thời gian (Để trống để làm bài không giới hạn)
-                </label>
-                <select id="time-limit" name="time_limit"
-                    class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">-- Chọn thời gian --</option>
-                    <option value="0">0 phút</option>
-                    <option value="5">5 phút</option>
-                    <option value="10">10 phút</option>
-                    <option value="15">15 phút</option>
-                    <option value="20">20 phút</option>
-                    <option value="25">25 phút</option>
-                    <option value="30">30 phút</option>
-                    <option value="35">35 phút</option>
-                    <option value="40">40 phút</option>
-                    <option value="45">45 phút</option>
-                    <option value="50">50 phút</option>
-                    <option value="55">55 phút</option>
-                    <option value="60">60 phút</option>
-                </select>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="flex justify-start">
-                <button type="submit"
-                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                    LUYỆN TẬP
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Tab Content: Full Test -->
-    <div id="content-full-test" class="tab-content hidden">
-        <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="full-test-form">
-            {% csrf_token %}
-            <input type="hidden" name="mode" value="full_test">
-
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
-                <p class="text-slate-700 mb-4">
-                    Làm toàn bộ đề thi với thời gian và điều kiện như thi thật.
-                </p>
-
-                <!-- Giới hạn thời gian -->
-                <label for="time-limit-full" class="block text-sm font-semibold text-slate-900 mb-2">
-                    Giới hạn thời gian (Để trống để làm bài không giới hạn)
-                </label>
-                <select id="time-limit-full" name="time_limit"
-                    class="w-full max-w-xs px-4 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">-- Chọn thời gian --</option>
-                    <option value="0">0 phút</option>
-                    <option value="5">5 phút</option>
-                    <option value="10">10 phút</option>
-                    <option value="15">15 phút</option>
-                    <option value="20">20 phút</option>
-                    <option value="25">25 phút</option>
-                    <option value="30">30 phút</option>
-                    <option value="35">35 phút</option>
-                    <option value="40">40 phút</option>
-                    <option value="45">45 phút</option>
-                    <option value="50">50 phút</option>
-                    <option value="55">55 phút</option>
-                    <option value="60">60 phút</option>
-                </select>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="flex justify-start">
-                <button type="submit"
-                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                    LÀM FULL TEST
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Tab Content: Discussion -->
-    <div id="content-discussion" class="tab-content hidden">
-        <div class="space-y-6">
-            <!-- Form thêm comment -->
-            {% if user.is_authenticated %}
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-slate-900 mb-4">Thêm bình luận</h3>
-                <form method="post" action="{% url 'exam:exam_detail' template.slug %}" id="comment-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="add_comment">
-                    <textarea name="content" id="comment-content" rows="4" maxlength="2000"
-                        placeholder="Nhập bình luận của bạn (tối đa 2000 ký tự)..."
-                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                        required></textarea>
-                    <div class="flex items-center justify-between mt-3">
-                        <span class="text-xs text-slate-500">
-                            <span id="char-count">0</span> / 2000 ký tự
-                        </span>
-                        <button type="submit"
-                            class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                            Gửi bình luận
-                        </button>
-                    </div>
-                </form>
-            </div>
-            {% else %}
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p class="text-sm text-blue-800">
-                    <a href="{% url 'account_login' %}" class="font-semibold hover:underline">Đăng nhập</a> để tham gia
-                    thảo luận.
-                </p>
-            </div>
-            {% endif %}
-
-            <!-- Danh sách comments -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-slate-900 mb-4">
-                    Bình luận ({{ comment_count }})
-                </h3>
-
-                {% if comments %}
-                <div class="space-y-4">
-                    {% for comment in comments %}
-                    <div class="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <span class="text-blue-600 font-semibold text-sm">
-                                    {{ comment.user.username|first|upper }}
-                                </span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-semibold text-slate-900">{{ comment.user.username }}</span>
-                                    <span class="text-xs text-slate-500">
-                                        {{ comment.created_at|timesince }} trước
-                                    </span>
-                                </div>
-                                <div class="text-slate-700 whitespace-pre-wrap break-words">
-                                    {{ comment.content }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-8 text-slate-500">
-                    <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
-                </div>
-                {% endif %}
-            </div>
+      <div class="df-exam-info-item">
+        <div class="df-exam-info-icon df-exam-info-icon--users">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
         </div>
+        <div>
+          <div class="df-exam-info-value">{{ attempt_count|floatformat:0 }}</div>
+          <div class="df-exam-info-label">Lượt làm</div>
+        </div>
+      </div>
+
+      <div class="df-exam-info-item">
+        <div class="df-exam-info-icon df-exam-info-icon--comments">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </div>
+        <div>
+          <div class="df-exam-info-value">{{ comment_count|floatformat:0 }}</div>
+          <div class="df-exam-info-label">Bình luận</div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="df-exam-tabs">
+    <button type="button" class="df-exam-tab df-exam-tab--active" data-tab="practice">
+      Luyện tập
+    </button>
+    <button type="button" class="df-exam-tab" data-tab="full-test">
+      Full Test
+    </button>
+    <button type="button" class="df-exam-tab" data-tab="discussion">
+      Thảo luận
+    </button>
+  </div>
+
+  <!-- Tab: Practice -->
+  <div class="df-exam-tab-content df-exam-tab-content--active" id="tab-content-practice">
+    <!-- Pro Tip -->
+    <div class="df-exam-pro-tip">
+      <div class="df-exam-pro-tip-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <div>
+        <div class="df-exam-pro-tip-title">Pro tips:</div>
+        <div class="df-exam-pro-tip-text">
+          Luyện tập từng phần với thời gian linh hoạt giúp bạn tập trung vào từng dạng câu hỏi mà không bị áp lực.
+        </div>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="practice-form">
+      {% csrf_token %}
+      <input type="hidden" name="mode" value="practice">
+
+      <!-- Part Selection -->
+      {% if template.level == "TOEIC" and parts_list %}
+      <div class="df-exam-form-section">
+        <h3 class="df-exam-form-title">Chọn phần thi</h3>
+        <div class="df-exam-parts-grid">
+          {% for part_info in parts_list %}
+          <label class="df-exam-part-item">
+            <input type="checkbox" name="selected_parts" value="{{ part_info.part }}">
+            <div>
+              <div class="df-exam-part-name">{{ part_info.part_display }}</div>
+              <div class="df-exam-part-count">{{ part_info.question_count }} câu</div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Time Limit -->
+      <div class="df-exam-form-section">
+        <h3 class="df-exam-form-title">Giới hạn thời gian</h3>
+        <select name="time_limit" class="df-exam-select">
+          <option value="">Không giới hạn</option>
+          <option value="5">5 phút</option>
+          <option value="10">10 phút</option>
+          <option value="15">15 phút</option>
+          <option value="20">20 phút</option>
+          <option value="30">30 phút</option>
+          <option value="45">45 phút</option>
+          <option value="60">60 phút</option>
+        </select>
+      </div>
+
+      <button type="submit" class="df-exam-submit-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Bắt đầu Luyện tập
+      </button>
+    </form>
+  </div>
+
+  <!-- Tab: Full Test -->
+  <div class="df-exam-tab-content" id="tab-content-full-test">
+    <form method="post" action="{% url 'exam:start_exam' template.slug %}" id="full-test-form">
+      {% csrf_token %}
+      <input type="hidden" name="mode" value="full_test">
+
+      <div class="df-exam-form-section">
+        <h3 class="df-exam-form-title">Làm bài như thi thật</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9375rem;">
+          Làm toàn bộ đề thi với đầy đủ câu hỏi và thời gian như thi thực tế.
+        </p>
+
+        <h3 class="df-exam-form-title" style="margin-top: 1.5rem;">Giới hạn thời gian</h3>
+        <select name="time_limit" class="df-exam-select">
+          <option value="">Không giới hạn</option>
+          <option value="30">30 phút</option>
+          <option value="45">45 phút</option>
+          <option value="60">60 phút</option>
+          <option value="90">90 phút</option>
+          <option value="120">120 phút</option>
+        </select>
+      </div>
+
+      <button type="submit" class="df-exam-submit-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Làm Full Test
+      </button>
+    </form>
+  </div>
+
+  <!-- Tab: Discussion -->
+  <div class="df-exam-tab-content" id="tab-content-discussion">
+    {% if user.is_authenticated %}
+    <div class="df-exam-comment-form">
+      <h3 class="df-exam-form-title">Thêm bình luận</h3>
+      <form method="post" action="{% url 'exam:exam_detail' template.slug %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_comment">
+        <textarea name="content" rows="4" maxlength="2000" 
+          placeholder="Chia sẻ suy nghĩ của bạn về đề thi này..."
+          class="df-exam-comment-textarea" required></textarea>
+        <div class="df-exam-comment-footer">
+          <span class="df-exam-char-count">Tối đa 2000 ký tự</span>
+          <button type="submit" class="df-exam-submit-btn" style="padding: 0.625rem 1.5rem; font-size: 0.875rem;">
+            Gửi bình luận
+          </button>
+        </div>
+      </form>
+    </div>
+    {% else %}
+    <div class="df-exam-login-prompt">
+      <a href="{% url 'account_login' %}">Đăng nhập</a> để tham gia thảo luận.
+    </div>
+    {% endif %}
+
+    <div class="df-exam-comment-list">
+      <div class="df-exam-comment-list-header">
+        Bình luận ({{ comment_count }})
+      </div>
+
+      {% if comments %}
+        {% for comment in comments %}
+        <div class="df-exam-comment-item">
+          <div class="df-exam-comment-avatar">
+            {{ comment.user.username|first|upper }}
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div>
+              <span class="df-exam-comment-author">{{ comment.user.username }}</span>
+              <span class="df-exam-comment-time">{{ comment.created_at|timesince }} trước</span>
+            </div>
+            <div class="df-exam-comment-content">{{ comment.content }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="df-exam-empty-comments">
+          Chưa có bình luận nào. Hãy là người đầu tiên!
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <script>
-    (function () {
-        const tabs = {
-            'tab-practice': 'content-practice',
-            'tab-full-test': 'content-full-test',
-            'tab-discussion': 'content-discussion'
-        };
+  (function() {
+    const tabs = document.querySelectorAll('.df-exam-tab');
+    const contents = document.querySelectorAll('.df-exam-tab-content');
 
-        Object.keys(tabs).forEach(tabId => {
-            const tabBtn = document.getElementById(tabId);
-            const contentId = tabs[tabId];
-            const content = document.getElementById(contentId);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetId = 'tab-content-' + tab.dataset.tab;
 
-            if (tabBtn && content) {
-                tabBtn.addEventListener('click', () => {
-                    // Hide all tabs and contents
-                    Object.keys(tabs).forEach(id => {
-                        const btn = document.getElementById(id);
-                        const cnt = document.getElementById(tabs[id]);
-                        if (btn) {
-                            btn.classList.remove('text-blue-600', 'border-blue-600');
-                            btn.classList.add('text-slate-600', 'border-transparent');
-                        }
-                        if (cnt) cnt.classList.add('hidden');
-                    });
+        // Update tabs
+        tabs.forEach(t => t.classList.remove('df-exam-tab--active'));
+        tab.classList.add('df-exam-tab--active');
 
-                    // Show selected tab and content
-                    tabBtn.classList.remove('text-slate-600', 'border-transparent');
-                    tabBtn.classList.add('text-blue-600', 'border-blue-600');
-                    content.classList.remove('hidden');
-                });
-            }
+        // Update contents
+        contents.forEach(c => c.classList.remove('df-exam-tab-content--active'));
+        document.getElementById(targetId)?.classList.add('df-exam-tab-content--active');
+      });
+    });
+
+    // Form validation for practice
+    const practiceForm = document.getElementById('practice-form');
+    if (practiceForm) {
+      const checkboxes = practiceForm.querySelectorAll('input[name="selected_parts"]');
+      if (checkboxes.length > 0) {
+        practiceForm.addEventListener('submit', (e) => {
+          const checked = practiceForm.querySelectorAll('input[name="selected_parts"]:checked');
+          if (checked.length === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một phần thi.');
+          }
         });
-
-        // Form validation
-        const practiceForm = document.getElementById('practice-form');
-        if (practiceForm) {
-            practiceForm.addEventListener('submit', (e) => {
-                const checkboxes = practiceForm.querySelectorAll('input[name="selected_parts"]:checked');
-                if (checkboxes.length === 0) {
-                    e.preventDefault();
-                    alert('Vui lòng chọn ít nhất một phần thi để luyện tập.');
-                    return false;
-                }
-            });
-        }
-    })();
+      }
+    }
+  })();
 </script>
 {% endblock %}
