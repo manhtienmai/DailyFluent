@@ -27,6 +27,11 @@ function normalizeForCompare(s) {
  * - Red with strikethrough: wrong words user typed
  * - Blue: correct word that should have been typed
  */
+/**
+ * Generate masked diff HTML between user input and correct text
+ * - Matches: replace with ******
+ * - Mismatches/Missing: show expected word (highlighted)
+ */
 function diffString(userText, correctText) {
   const normalize = w => w.toLowerCase().replace(/[.,?!;:'"…()[\]{}]/g, '');
   const u = userText.trim().split(/\s+/).filter(w => w);
@@ -38,16 +43,12 @@ function diffString(userText, correctText) {
     const uw = u[i] || '';
     const cw = c[i] || '';
     if (normalize(uw) === normalize(cw)) {
-      // Correct - show in green
-      html += `<span class="diff-correct">${cw}</span> `;
+      // Correct - mask it
+      html += `<span class="diff-masked">******</span> `;
     } else {
-      // Wrong
-      if (uw) {
-        html += `<span class="diff-wrong">${uw}</span> `;
-      }
-      if (cw) {
-        html += `<span class="diff-expected">${cw}</span> `;
-      }
+      // Wrong - show expected word
+      // Optional: show what user typed? For now just show expected as per "chỉ hiển thị từ đấy"
+      html += `<span class="diff-expected">${cw}</span> `;
     }
   }
   return html.trim();
@@ -261,14 +262,30 @@ class DictationMode {
     this.correctCount = 0;
     this.checkInterval = null;
     this.onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
+    
+    // Constructive Feedback Loop state
+    this.attempts = 0;
+    this.MAX_ATTEMPTS = 3;
 
     this.setupEventListeners();
+  }
+
+  stop() {
+    // Stop any audio or timeouts from dictation mode
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
+    this.audio.pause();
+    this.updatePlayButton(false);
+    this.updateVisualizer(false);
   }
 
   setupEventListeners() {
     this.elements.btnPlay.addEventListener('click', () => {
       if (!this.audio.paused) {
         this.audio.pause();
+        this.updatePlayButton(false);
       } else {
         this.playCurrentSegment();
       }
@@ -289,15 +306,27 @@ class DictationMode {
 
     this.elements.btnCheck.addEventListener('click', () => this.checkAnswer());
     this.elements.btnNext.addEventListener('click', () => this.nextSegment());
+    
+    // Reveal button handler
+    if (this.elements.btnReveal) {
+      this.elements.btnReveal.addEventListener('click', () => this.revealAnswer());
+    }
 
     this.elements.userInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        if (!this.isChecked) {
-          this.checkAnswer();
-        } else {
+        // If already correct, go next
+        if (this.isChecked) {
           this.nextSegment();
+        } else {
+          // Otherwise check answer (retry)
+          this.checkAnswer();
         }
+      }
+      // Reset feedback on typing if not correct yet
+      if (!this.isChecked) {
+        // Optional: Hide feedback when user starts correcting?
+        // this.elements.feedback.classList.add('hidden');
       }
     });
   }
@@ -311,11 +340,22 @@ class DictationMode {
     const seg = this.segments[this.currentIndex];
 
     this.isChecked = false;
+    this.attempts = 0; // Reset attempts
+    
     this.elements.userInput.value = '';
     this.elements.userInput.disabled = false;
+    this.elements.userInput.focus();
+    
     this.elements.btnCheck.classList.remove('hidden');
+    this.elements.btnCheck.textContent = 'Kiểm tra';
+    
     this.elements.btnNext.classList.add('hidden');
+    if (this.elements.btnReveal) this.elements.btnReveal.classList.add('hidden');
+    
     this.elements.feedback.classList.add('hidden');
+
+    // Reset Play button state
+    this.updatePlayButton(false);
 
     if (seg.hint) {
       this.elements.hintText.textContent = '💡 ' + seg.hint;
@@ -347,9 +387,13 @@ class DictationMode {
     this.seeker.seekAndPlay(
       targetTime,
       endTime,
-      () => this.updateVisualizer(true),
+      () => {
+        this.updateVisualizer(true);
+        this.updatePlayButton(true);
+      },
       () => {
         this.updateVisualizer(false);
+        this.updatePlayButton(false);
         const autoReplay = (this.settings.get('autoReplay') === 'Yes');
         const gap = parseFloat(this.settings.get('replayGap')) || 1;
         if (autoReplay) {
@@ -358,6 +402,20 @@ class DictationMode {
       },
       false
     );
+  }
+
+  updatePlayButton(playing) {
+    if (playing) {
+      this.elements.btnPlay.innerHTML = `
+        <svg style="width:18px;height:18px;" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+        Tạm dừng
+      `;
+    } else {
+      this.elements.btnPlay.innerHTML = `
+        <svg style="width:18px;height:18px;" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Phát
+      `;
+    }
   }
 
   updateVisualizer(playing) {
@@ -369,17 +427,22 @@ class DictationMode {
   }
 
   checkAnswer() {
-    if (this.isChecked) return;
-    this.isChecked = true;
+    if (this.isChecked) return; // Prevent if already correct
+
+    // Reset play button if audio was playing (optional, mostly it stops by itself)
+    this.updatePlayButton(false);
 
     const seg = this.segments[this.currentIndex];
     const userText = this.elements.userInput.value.trim();
     const isCorrect = normalizeForCompare(userText) === normalizeForCompare(seg.correct_text);
 
-    if (isCorrect) this.correctCount++;
-
     this.elements.feedback.classList.remove('hidden');
+
     if (isCorrect) {
+      // CORRECT CASE
+      this.isChecked = true;
+      this.correctCount++;
+      
       this.elements.feedbackContent.innerHTML = `
         <div class="diff-result diff-result--correct">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -389,20 +452,59 @@ class DictationMode {
         </div>
         <div class="diff-answer">${seg.correct_text}</div>
       `;
+      
+      this.elements.userInput.disabled = true;
+      this.elements.btnCheck.classList.add('hidden');
+      if (this.elements.btnReveal) this.elements.btnReveal.classList.add('hidden');
+      
+      this.elements.btnNext.classList.remove('hidden');
+      this.elements.btnNext.focus();
+      
     } else {
+      // INCORRECT CASE - RETRY LOOP
+      this.attempts++;
+      
       this.elements.feedbackContent.innerHTML = `
         <div class="diff-result diff-result--wrong">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
-          Chưa đúng
+          Chưa đúng, thử lại lần nữa (${this.attempts})
         </div>
         <div class="diff-box">${diffString(userText, seg.correct_text)}</div>
       `;
+      
+      // User can still edit
+      this.elements.userInput.disabled = false;
+      this.elements.userInput.focus();
+      
+      // Show Reveal button if attempts >= 3
+      if (this.attempts >= this.MAX_ATTEMPTS && this.elements.btnReveal) {
+        this.elements.btnReveal.classList.remove('hidden');
+      }
     }
-
+  }
+  
+  revealAnswer() {
+    const seg = this.segments[this.currentIndex];
+    this.isChecked = true; // Mark done but NOT incrementing correct count
+    
+    this.elements.userInput.value = seg.correct_text;
     this.elements.userInput.disabled = true;
+    
+    this.elements.feedbackContent.innerHTML = `
+      <div class="diff-result diff-result--wrong" style="background:#fef3c7;border-color:#f59e0b;color:#d97706;">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Đáp án đúng
+      </div>
+      <div class="diff-answer">${seg.correct_text}</div>
+    `;
+    
+    this.elements.feedback.classList.remove('hidden');
     this.elements.btnCheck.classList.add('hidden');
+    if (this.elements.btnReveal) this.elements.btnReveal.classList.add('hidden');
     this.elements.btnNext.classList.remove('hidden');
     this.elements.btnNext.focus();
   }
@@ -486,8 +588,12 @@ class TranscriptMode {
       }
     });
 
+
     // Update progress bar and highlight on timeupdate
     this.audio.addEventListener('timeupdate', () => {
+      // Only process updates if active in this mode
+      if (document.getElementById('view-transcript').classList.contains('hidden')) return;
+
       const cur = this.audio.currentTime;
       const dur = this.audio.duration;
 
@@ -503,6 +609,7 @@ class TranscriptMode {
         this.highlightItem(idx);
       }
     });
+
 
     // Handle audio pause/play events
     this.audio.addEventListener('pause', () => {
@@ -585,7 +692,24 @@ class TranscriptMode {
   }
 
   pause() {
-    this.audio.pause();
+    this.stop(); // Stop logic is same as pause + state clear
+  }
+
+  stop() {
+    // Stop continuous playback
+    this.continuousPlaying = false;
+    this.isPlaying = false;
+    
+    // Clear any pending segment transition
+    if (this.nextSegmentTimeout) {
+      clearTimeout(this.nextSegmentTimeout);
+      this.nextSegmentTimeout = null;
+    }
+    
+    if (!this.audio.paused) {
+      this.audio.pause();
+    }
+    this.updatePlayButton();
   }
 
   playSegment(idx, continuous = true) {
@@ -597,16 +721,31 @@ class TranscriptMode {
     const GAP_AFTER_SEGMENT_MS = 1000; // 1s pause between segments
 
     this.highlightItem(idx);
+    
+    // Clear any pending segment timeout
+    if (this.nextSegmentTimeout) {
+      clearTimeout(this.nextSegmentTimeout);
+      this.nextSegmentTimeout = null;
+    }
+    
     this.audio.pause();
+    this.continuousPlaying = continuous;
 
     const handleEnd = () => {
-      this.isPlaying = false;
       this.updatePlayButton();
       this.updateListButtons(false);
-      if (continuous) {
+      // Only continue if still in continuous mode and not paused by user
+      if (this.continuousPlaying && this.isPlaying) {
         const next = idx + 1;
         if (next < this.segments.length) {
-          setTimeout(() => this.playSegment(next, true), GAP_AFTER_SEGMENT_MS);
+          this.nextSegmentTimeout = setTimeout(() => {
+            if (this.continuousPlaying) {
+              this.playSegment(next, true);
+            }
+          }, GAP_AFTER_SEGMENT_MS);
+        } else {
+          this.isPlaying = false;
+          this.updatePlayButton();
         }
       }
     };
@@ -772,6 +911,9 @@ class DictationApp {
         this.dictationMode.playCurrentSegment();
       }
     });
+
+    // Expose switchTab globally for HTML onclick handlers
+    window.switchTab = (tabName) => this.switchTab(tabName);
   }
 
   switchTab(tabName) {
@@ -788,7 +930,9 @@ class DictationApp {
 
     document.getElementById('tab-btn-' + tabName).classList.add('active');
 
-    if (!this.audio.paused) this.audio.pause();
+    // Always stop both to ensure clean state
+    this.transcriptMode.stop();
+    this.dictationMode.stop();
 
     if (tabName === 'transcript') {
       this.transcriptMode.autoStartIfNeeded();
@@ -798,7 +942,7 @@ class DictationApp {
 
 // Export for global use
 window.DictationApp = DictationApp;
-window.switchTab = null;
+
 
 
 // Auto-init using data attributes to avoid inline JSON errors
@@ -875,10 +1019,10 @@ document.addEventListener('DOMContentLoaded', () => {
     segments: segments,
     audio: audio,
     dictationElements: {
-      viz: document.getElementById('audio-viz'),
-      btnPlay: document.getElementById('btn-play'),
-      btnReplay: document.getElementById('btn-replay'),
-      speedSelect: document.getElementById('select-speed'),
+      viz: document.getElementById('dictation-viz'),
+      btnPlay: document.getElementById('dict-btn-play'),
+      btnReplay: document.getElementById('dict-btn-replay'),
+      speedSelect: document.getElementById('dict-speed-select'),
       btnCheck: document.getElementById('btn-check'),
       btnNext: document.getElementById('btn-next'),
       userInput: document.getElementById('user-input'),

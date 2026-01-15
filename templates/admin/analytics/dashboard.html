@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block title %}Thống kê truy cập | Admin{% endblock %}
+{% block title %}Thống kê tổng hợp | Admin{% endblock %}
 
 {% block extrahead %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,7 +11,7 @@
   }
   
   .analytics-header {
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
   
   .analytics-header h1 {
@@ -26,11 +26,42 @@
     font-size: 14px;
   }
   
+  /* Section Headers */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    margin-top: 32px;
+  }
+  
+  .section-header:first-child {
+    margin-top: 0;
+  }
+  
+  .section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--df-text, #1a1a1a);
+    margin: 0;
+  }
+  
+  .section-header .badge {
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+  }
+  
+  /* Stats Grid */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 16px;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
   
   .stat-card {
@@ -39,6 +70,12 @@
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
   .stat-card--primary {
@@ -51,6 +88,26 @@
     color: rgba(255,255,255,0.8);
   }
   
+  .stat-card--success {
+    background: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+    border: none;
+    color: #fff;
+  }
+  
+  .stat-card--success .stat-label {
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .stat-card--warning {
+    background: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
+    border: none;
+    color: #fff;
+  }
+  
+  .stat-card--warning .stat-label {
+    color: rgba(255,255,255,0.8);
+  }
+  
   .stat-value {
     font-size: 32px;
     font-weight: 700;
@@ -59,31 +116,53 @@
     color: var(--df-text, #1a1a1a);
   }
   
-  .stat-card--primary .stat-value {
+  .stat-card--primary .stat-value,
+  .stat-card--success .stat-value,
+  .stat-card--warning .stat-value {
     color: #fff;
   }
   
   .stat-label {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--df-muted, #666);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-weight: 600;
   }
   
+  .stat-change {
+    font-size: 11px;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  
+  .stat-change--up {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+  }
+  
+  .stat-change--down {
+    background: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+  }
+  
+  /* Charts */
   .chart-section {
     background: var(--df-panel, #fff);
     border: 1px solid var(--df-border, #e0e0e0);
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   
-  .chart-section h2 {
-    font-size: 18px;
+  .chart-section h3 {
+    font-size: 16px;
     font-weight: 600;
     color: var(--df-text, #1a1a1a);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   
   .two-column {
@@ -98,16 +177,17 @@
     }
   }
   
+  /* Tables */
   .table-section {
     background: var(--df-panel, #fff);
     border: 1px solid var(--df-border, #e0e0e0);
     border-radius: 16px;
-    padding: 24px;
+    padding: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   
-  .table-section h2 {
-    font-size: 18px;
+  .table-section h3 {
+    font-size: 16px;
     font-weight: 600;
     color: var(--df-text, #1a1a1a);
     margin-bottom: 16px;
@@ -116,6 +196,7 @@
   .analytics-table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 14px;
   }
   
   .analytics-table th,
@@ -129,7 +210,7 @@
   .analytics-table th {
     font-weight: 600;
     color: var(--df-muted, #666);
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -143,21 +224,30 @@
   }
   
   .analytics-table .path {
-    max-width: 280px;
+    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family: 'SF Mono', Monaco, Consolas, monospace;
-    font-size: 13px;
-    color: var(--df-text, #1a1a1a);
+    font-size: 12px;
   }
   
   .analytics-table .views {
     font-weight: 700;
     color: #667eea;
-    font-size: 15px;
   }
   
+  .analytics-table .user-email {
+    font-size: 12px;
+    color: var(--df-muted, #666);
+  }
+  
+  .analytics-table .date-cell {
+    font-size: 12px;
+    color: var(--df-muted, #666);
+  }
+  
+  /* Device Stats */
   .device-stats {
     display: flex;
     gap: 12px;
@@ -171,6 +261,11 @@
     text-align: center;
     min-width: 100px;
     border: 1px solid var(--df-border, transparent);
+    transition: transform 0.2s;
+  }
+  
+  .device-stat:hover {
+    transform: scale(1.05);
   }
   
   .device-stat-value {
@@ -182,7 +277,7 @@
   }
   
   .device-stat-label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--df-muted, #666);
     text-transform: uppercase;
     font-weight: 600;
@@ -194,8 +289,29 @@
     padding: 24px;
     font-style: italic;
   }
+  
+  /* User Avatar */
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-  /* Dark mode specific overrides */
+  /* Dark mode */
   @media (prefers-color-scheme: dark) {
     .stat-card {
       background: var(--df-panel);
@@ -206,10 +322,6 @@
       color: var(--df-text);
     }
     
-    .stat-label {
-      color: var(--df-muted);
-    }
-    
     .chart-section,
     .table-section {
       background: var(--df-panel);
@@ -217,8 +329,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     
-    .chart-section h2,
-    .table-section h2 {
+    .chart-section h3,
+    .table-section h3 {
       color: var(--df-text);
     }
     
@@ -228,16 +340,8 @@
       color: var(--df-text);
     }
     
-    .analytics-table th {
-      color: var(--df-muted);
-    }
-    
     .analytics-table tr:hover td {
       background: rgba(102, 126, 234, 0.1);
-    }
-    
-    .analytics-table .path {
-      color: var(--df-text);
     }
     
     .device-stat {
@@ -245,8 +349,8 @@
       border-color: var(--df-border);
     }
     
-    .device-stat-label {
-      color: var(--df-muted);
+    .section-header h2 {
+      color: var(--df-text);
     }
   }
 </style>
@@ -255,13 +359,87 @@
 {% block content %}
 <div class="analytics-dashboard">
   <div class="analytics-header">
-    <h1>📊 Thống kê truy cập</h1>
-    <p>Xem số liệu truy cập website theo thời gian thực</p>
+    <h1>📊 Thống kê tổng hợp</h1>
+    <p>Tổng quan về hoạt động website và người dùng</p>
   </div>
   
-  <!-- Stats Cards -->
+  <!-- User Registration Stats -->
+  <div class="section-header">
+    <h2>👥 Người dùng đăng ký</h2>
+    <span class="badge">Realtime</span>
+  </div>
+  
   <div class="stats-grid">
+    <div class="stat-card stat-card--success">
+      <div class="stat-value">{{ total_users|default:0 }}</div>
+      <div class="stat-label">Tổng người dùng</div>
+    </div>
     <div class="stat-card stat-card--primary">
+      <div class="stat-value">{{ users_today|default:0 }}</div>
+      <div class="stat-label">Đăng ký hôm nay</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ users_yesterday|default:0 }}</div>
+      <div class="stat-label">Hôm qua</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ users_week|default:0 }}</div>
+      <div class="stat-label">7 ngày qua</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ users_month|default:0 }}</div>
+      <div class="stat-label">30 ngày qua</div>
+    </div>
+  </div>
+  
+  <div class="two-column">
+    <!-- User Registration Chart -->
+    <div class="chart-section">
+      <h3>📈 Đăng ký mới (7 ngày)</h3>
+      <canvas id="userChart" height="120"></canvas>
+    </div>
+    
+    <!-- Recent Users -->
+    <div class="table-section">
+      <h3>🆕 Người dùng mới nhất</h3>
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>Người dùng</th>
+            <th>Ngày đăng ký</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in recent_users %}
+          <tr>
+            <td>
+              <div class="user-row">
+                <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
+                <div>
+                  <div>{{ user.username }}</div>
+                  <div class="user-email">{{ user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="date-cell">{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Page View Stats -->
+  <div class="section-header">
+    <h2>👀 Lượt xem trang</h2>
+  </div>
+  
+  <div class="stats-grid">
+    <div class="stat-card stat-card--warning">
       <div class="stat-value">{{ today_views|default:0 }}</div>
       <div class="stat-label">Lượt xem hôm nay</div>
     </div>
@@ -287,16 +465,66 @@
     </div>
   </div>
   
-  <!-- Chart -->
+  <!-- Views Chart -->
   <div class="chart-section">
-    <h2>📈 Lượt xem 7 ngày qua</h2>
+    <h3>📈 Lượt xem (7 ngày)</h3>
     <canvas id="viewsChart" height="80"></canvas>
   </div>
   
-  <!-- Two Column: Top Pages -->
+  {% if total_exams or total_vocab_en or total_feedback %}
+  <!-- Additional Stats -->
+  <div class="section-header">
+    <h2>📚 Thống kê nội dung</h2>
+  </div>
+  
+  <div class="stats-grid">
+    {% if total_exams %}
+    <div class="stat-card">
+      <div class="stat-value">{{ total_exams }}</div>
+      <div class="stat-label">Đề thi</div>
+    </div>
+    {% endif %}
+    {% if total_attempts %}
+    <div class="stat-card">
+      <div class="stat-value">{{ total_attempts }}</div>
+      <div class="stat-label">Lượt làm bài</div>
+    </div>
+    {% endif %}
+    {% if attempts_week %}
+    <div class="stat-card">
+      <div class="stat-value">{{ attempts_week }}</div>
+      <div class="stat-label">Làm bài tuần này</div>
+    </div>
+    {% endif %}
+    {% if total_vocab_en %}
+    <div class="stat-card">
+      <div class="stat-value">{{ total_vocab_en }}</div>
+      <div class="stat-label">Từ vựng EN</div>
+    </div>
+    {% endif %}
+    {% if total_feedback %}
+    <div class="stat-card">
+      <div class="stat-value">{{ total_feedback }}</div>
+      <div class="stat-label">Phản hồi</div>
+    </div>
+    {% endif %}
+    {% if feedback_pending %}
+    <div class="stat-card stat-card--warning">
+      <div class="stat-value">{{ feedback_pending }}</div>
+      <div class="stat-label">Chờ xử lý</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  
+  <!-- Top Pages -->
+  <div class="section-header">
+    <h2>🔥 Trang phổ biến</h2>
+  </div>
+  
   <div class="two-column">
     <div class="table-section">
-      <h2>🔥 Top 10 trang hôm nay</h2>
+      <h3>Hôm nay</h3>
       <table class="analytics-table">
         <thead>
           <tr>
@@ -320,7 +548,7 @@
     </div>
     
     <div class="table-section">
-      <h2>📊 Top 10 trang tuần này</h2>
+      <h3>Tuần này</h3>
       <table class="analytics-table">
         <thead>
           <tr>
@@ -345,9 +573,13 @@
   </div>
   
   <!-- Device & Browser Stats -->
-  <div class="two-column" style="margin-top: 24px;">
+  <div class="section-header">
+    <h2>🌐 Thiết bị & Trình duyệt</h2>
+  </div>
+  
+  <div class="two-column" style="margin-bottom: 24px;">
     <div class="table-section">
-      <h2>🌐 Trình duyệt (7 ngày)</h2>
+      <h3>Trình duyệt (7 ngày)</h3>
       <div class="device-stats">
         {% for stat in browser_stats %}
         <div class="device-stat">
@@ -361,7 +593,7 @@
     </div>
     
     <div class="table-section">
-      <h2>📱 Thiết bị (7 ngày)</h2>
+      <h3>Thiết bị (7 ngày)</h3>
       <div class="device-stats">
         {% for stat in device_stats %}
         <div class="device-stat">
@@ -375,8 +607,8 @@
     </div>
   </div>
   
-  <div class="table-section" style="margin-top: 24px;">
-    <h2>💻 Hệ điều hành (7 ngày)</h2>
+  <div class="table-section">
+    <h3>💻 Hệ điều hành (7 ngày)</h3>
     <div class="device-stats">
       {% for stat in os_stats %}
       <div class="device-stat">
@@ -392,14 +624,48 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const ctx = document.getElementById('viewsChart').getContext('2d');
-  
-  // Check if dark mode
   const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const textColor = isDark ? '#f1f5f9' : '#1a1a1a';
   const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
   
-  new Chart(ctx, {
+  // User Registration Chart
+  const userCtx = document.getElementById('userChart').getContext('2d');
+  new Chart(userCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ user_chart_labels|safe }},
+      datasets: [{
+        label: 'Đăng ký mới',
+        data: {{ user_chart_data|safe }},
+        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+        borderColor: '#10B981',
+        borderWidth: 2,
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0, color: textColor },
+          grid: { color: gridColor }
+        },
+        x: {
+          ticks: { color: textColor },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+  
+  // Page Views Chart
+  const viewsCtx = document.getElementById('viewsChart').getContext('2d');
+  new Chart(viewsCtx, {
     type: 'line',
     data: {
       labels: {{ chart_labels|safe }},
@@ -422,28 +688,17 @@ document.addEventListener('DOMContentLoaded', function() {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {
-        legend: {
-          display: false
-        }
+        legend: { display: false }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            precision: 0,
-            color: textColor
-          },
-          grid: {
-            color: gridColor
-          }
+          ticks: { precision: 0, color: textColor },
+          grid: { color: gridColor }
         },
         x: {
-          ticks: {
-            color: textColor
-          },
-          grid: {
-            color: gridColor
-          }
+          ticks: { color: textColor },
+          grid: { color: gridColor }
         }
       }
     }

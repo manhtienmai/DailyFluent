@@ -901,19 +901,110 @@
   .df-topbar-logo-text {
     display: none;
   }
+  
+  .df-topbar-right {
+    gap: 8px;
+  }
+  
+  .df-topbar-stat {
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+  
+  .df-stat-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .df-topbar-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .df-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 @media (max-width: 640px) {
+  :root {
+    --topbar-height: 56px;
+  }
+  
+  .df-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  
   .df-topbar-countdown {
+    display: none;
+  }
+  
+  .df-topbar-logo-img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .df-topbar-stat {
+    padding: 4px 8px;
+    border-radius: 16px;
+  }
+  
+  .df-stat-value {
+    font-size: 12px;
+  }
+  
+  .df-topbar-user {
+    padding: 2px;
+    margin-right: 0;
+  }
+  
+  .df-topbar-user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .df-topbar-user-info {
     display: none;
   }
 
   .df-content-area {
-    padding: 16px;
-    padding-top: calc(var(--topbar-height) + 16px);
+    padding: 12px;
+    padding-top: calc(var(--topbar-height) + 12px);
   }
 
   .df-user-modal {
-    padding: 24px 20px;
+    padding: 20px 16px;
+    border-radius: 16px;
+    width: 95vw;
+  }
+  
+  .df-user-modal-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .df-user-modal-avatar {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .df-topbar-stat .df-stat-value {
+    display: none;
+  }
+  
+  .df-topbar-stat {
+    padding: 6px;
+    border-radius: 50%;
+  }
+  
+  .df-stat-icon {
+    width: 20px;
+    height: 20px;
   }
 }

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
@@ -9,6 +10,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from datetime import timedelta
 
 from .models import PageView, DailyStats, PopularPage
+
+User = get_user_model()
 
 
 @admin.register(PageView)
@@ -73,13 +76,21 @@ class AnalyticsDashboard:
     @staff_member_required
     def dashboard_view(request):
         today = timezone.localdate()
+        yesterday = today - timedelta(days=1)
         last_7_days = today - timedelta(days=7)
         last_30_days = today - timedelta(days=30)
         
-        # Today's stats
+        # ========================================
+        # Page View Stats
+        # ========================================
         today_views = PageView.objects.filter(timestamp__date=today).count()
         today_visitors = PageView.objects.filter(timestamp__date=today).values('ip_address').distinct().count()
         today_users = PageView.objects.filter(timestamp__date=today, user__isnull=False).values('user').distinct().count()
+        
+        # Total views
+        total_views = PageView.objects.count()
+        total_views_month = PageView.objects.filter(timestamp__date__gte=last_30_days).count()
+        total_views_week = PageView.objects.filter(timestamp__date__gte=last_7_days).count()
         
         # Last 7 days chart data
         last_7_days_data = (
@@ -97,7 +108,37 @@ class AnalyticsDashboard:
             chart_labels.append(item['date'].strftime('%d/%m'))
             chart_data.append(item['views'])
         
-        # Top pages today
+        # ========================================
+        # User Registration Stats
+        # ========================================
+        total_users = User.objects.count()
+        users_today = User.objects.filter(date_joined__date=today).count()
+        users_yesterday = User.objects.filter(date_joined__date=yesterday).count()
+        users_week = User.objects.filter(date_joined__date__gte=last_7_days).count()
+        users_month = User.objects.filter(date_joined__date__gte=last_30_days).count()
+        
+        # User registration chart (last 7 days)
+        user_reg_data = (
+            User.objects
+            .filter(date_joined__date__gte=last_7_days)
+            .annotate(date=TruncDate('date_joined'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+        
+        user_chart_labels = []
+        user_chart_data = []
+        for item in user_reg_data:
+            user_chart_labels.append(item['date'].strftime('%d/%m'))
+            user_chart_data.append(item['count'])
+        
+        # Recent registered users
+        recent_users = User.objects.order_by('-date_joined')[:10]
+        
+        # ========================================
+        # Top Pages
+        # ========================================
         top_pages_today = (
             PageView.objects
             .filter(timestamp__date=today)
@@ -106,7 +147,6 @@ class AnalyticsDashboard:
             .order_by('-views')[:10]
         )
         
-        # Top pages last 7 days
         top_pages_week = (
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
@@ -115,7 +155,9 @@ class AnalyticsDashboard:
             .order_by('-views')[:10]
         )
         
-        # Browser stats
+        # ========================================
+        # Browser / Device / OS Stats
+        # ========================================
         browser_stats = (
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
@@ -124,7 +166,6 @@ class AnalyticsDashboard:
             .order_by('-count')[:5]
         )
         
-        # Device stats
         device_stats = (
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
@@ -133,7 +174,6 @@ class AnalyticsDashboard:
             .order_by('-count')
         )
         
-        # OS stats
         os_stats = (
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
@@ -142,13 +182,39 @@ class AnalyticsDashboard:
             .order_by('-count')[:5]
         )
         
-        # Total stats
-        total_views = PageView.objects.count()
-        total_views_month = PageView.objects.filter(timestamp__date__gte=last_30_days).count()
-        total_views_week = PageView.objects.filter(timestamp__date__gte=last_7_days).count()
+        # ========================================
+        # Additional Stats (from other models)
+        # ========================================
+        additional_stats = {}
+        
+        # Try to get exam stats
+        try:
+            from exam.models import ExamTemplate, ExamAttempt
+            additional_stats['total_exams'] = ExamTemplate.objects.count()
+            additional_stats['total_attempts'] = ExamAttempt.objects.count()
+            additional_stats['attempts_today'] = ExamAttempt.objects.filter(created_at__date=today).count()
+            additional_stats['attempts_week'] = ExamAttempt.objects.filter(created_at__date__gte=last_7_days).count()
+        except:
+            pass
+        
+        # Try to get vocab stats
+        try:
+            from vocab.models import VocabWord, EnVocabulary
+            additional_stats['total_vocab_en'] = EnVocabulary.objects.count()
+        except:
+            pass
+        
+        # Try to get feedback stats
+        try:
+            from feedback.models import Feedback
+            additional_stats['total_feedback'] = Feedback.objects.count()
+            additional_stats['feedback_pending'] = Feedback.objects.filter(status='pending').count()
+        except:
+            pass
         
         context = {
-            'title': 'Thống kê truy cập',
+            'title': 'Thống kê tổng hợp',
+            # Page view stats
             'today_views': today_views,
             'today_visitors': today_visitors,
             'today_users': today_users,
@@ -157,11 +223,24 @@ class AnalyticsDashboard:
             'total_views_week': total_views_week,
             'chart_labels': chart_labels,
             'chart_data': chart_data,
+            # User stats
+            'total_users': total_users,
+            'users_today': users_today,
+            'users_yesterday': users_yesterday,
+            'users_week': users_week,
+            'users_month': users_month,
+            'user_chart_labels': user_chart_labels,
+            'user_chart_data': user_chart_data,
+            'recent_users': recent_users,
+            # Page stats
             'top_pages_today': top_pages_today,
             'top_pages_week': top_pages_week,
+            # Tech stats
             'browser_stats': browser_stats,
             'device_stats': device_stats,
             'os_stats': os_stats,
+            # Additional
+            **additional_stats,
         }
         
         return render(request, 'admin/analytics/dashboard.html', context)

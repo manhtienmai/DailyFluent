@@ -291,6 +291,264 @@
     margin-top: 0.5rem;
   }
 
+  /* ========================================
+     TOEIC Visual Score Display (Reference Design)
+     ======================================== */
+  .df-toeic-score-display {
+    background: #fef8f0;
+    border: 1px solid #f59e0b;
+    border-radius: var(--df-radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .df-toeic-score-display {
+      background: #1c1917;
+      border-color: #d97706;
+    }
+  }
+
+  .df-toeic-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .df-toeic-columns {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .df-toeic-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .df-toeic-section-header {
+    display: inline-block;
+    background: #f59e0b;
+    color: #1c1917;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: fit-content;
+    margin: 0 auto 0.5rem;
+    text-align: center;
+  }
+
+  /* Part Row */
+  .df-toeic-part-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+  }
+
+  .df-toeic-part-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .df-toeic-part-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+  }
+
+  .df-toeic-part-bar {
+    flex: 1;
+    height: 20px;
+    background: linear-gradient(to right, #1c1917 0%, #52525b 100%);
+    border-radius: 2px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .df-toeic-part-fill {
+    height: 100%;
+    background: linear-gradient(to right, #f59e0b, #fbbf24);
+    border-radius: 2px 0 0 2px;
+    position: relative;
+  }
+
+  .df-toeic-part-score-bubble {
+    position: absolute;
+    top: -12px;
+    right: -2px;
+    transform: translateX(50%);
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border: 2px solid #1c1917;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1c1917;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .df-toeic-part-total {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .df-toeic-part-score-bubble {
+      background: #fef3c7;
+    }
+  }
+
+  /* Section Score Card */
+  .df-toeic-section-score-card {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: var(--df-radius-md);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .df-toeic-section-score-card {
+      background: #1f2937;
+      border-color: #374151;
+    }
+  }
+
+  .df-toeic-section-score-header {
+    display: inline-block;
+    background: #f59e0b;
+    color: #1c1917;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.375rem 1rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .df-toeic-section-score-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+
+  .df-toeic-section-score-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border: 2px solid #1c1917;
+    border-radius: 50%;
+    line-height: 56px;
+    background: #fff;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .df-toeic-section-score-value {
+      background: #fef3c7;
+      color: #1c1917;
+    }
+  }
+
+  .df-toeic-section-score-slider {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .df-toeic-section-slider-min,
+  .df-toeic-section-slider-max {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    min-width: 28px;
+  }
+
+  .df-toeic-section-slider-track {
+    flex: 1;
+    height: 16px;
+    background: linear-gradient(to right, #1c1917 0%, #52525b 100%);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .df-toeic-section-slider-fill {
+    height: 100%;
+    background: linear-gradient(to right, #f59e0b, #fbbf24);
+    border-radius: 2px 0 0 2px;
+  }
+
+  /* Total Score */
+  .df-toeic-total-score {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f59e0b;
+  }
+
+  .df-toeic-total-header {
+    display: inline-block;
+    background: #f59e0b;
+    color: #1c1917;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    padding: 0.625rem 1.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .df-toeic-total-value {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 140px;
+    border: 3px solid #1c1917;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .df-toeic-total-value {
+      background: #fef3c7;
+      color: #1c1917;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .df-toeic-total-value {
+      font-size: 3rem;
+      width: 110px;
+      height: 110px;
+    }
+  }
+
   /* Analysis Section */
   .df-result-analysis {
     background: var(--bg-surface);
@@ -1050,20 +1308,144 @@
     </div>
   </div>
 
-  <!-- TOEIC Section Scores -->
+  <!-- TOEIC Visual Score Display -->
   {% if template_obj.level == "TOEIC" and toeic_stats %}
-  <div class="df-result-section-scores">
-    <div class="df-result-section-card">
-      <div class="df-result-section-title">Listening</div>
-      <div class="df-result-section-score">{{ toeic_stats.listening.score }}/495</div>
-      <div class="df-result-section-detail">Trả lời đúng: {{ toeic_stats.listening.correct }}/{{
-        toeic_stats.listening.total }}</div>
+  <div class="df-toeic-score-display">
+    <div class="df-toeic-columns">
+      <!-- LISTENING Column -->
+      <div class="df-toeic-column">
+        <div class="df-toeic-section-header">LISTENING</div>
+        
+        <!-- Part 1 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 1</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-l1-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-l1-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-l1-total">6</span>
+          </div>
+        </div>
+        
+        <!-- Part 2 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 2</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-l2-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-l2-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-l2-total">25</span>
+          </div>
+        </div>
+        
+        <!-- Part 3 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 3</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-l3-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-l3-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-l3-total">39</span>
+          </div>
+        </div>
+        
+        <!-- Part 4 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 4</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-l4-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-l4-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-l4-total">30</span>
+          </div>
+        </div>
+        
+        <!-- Listening Section Score -->
+        <div class="df-toeic-section-score-card">
+          <div class="df-toeic-section-score-header">LISTENING</div>
+          <div class="df-toeic-section-score-label">Your score</div>
+          <div class="df-toeic-section-score-value" id="listening-score">{{ toeic_stats.listening.score }}</div>
+          <div class="df-toeic-section-score-slider">
+            <span class="df-toeic-section-slider-min">5</span>
+            <div class="df-toeic-section-slider-track">
+              <div class="df-toeic-section-slider-fill" id="listening-slider-fill" style="width: 0%;"></div>
+            </div>
+            <span class="df-toeic-section-slider-max">495</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- READING Column -->
+      <div class="df-toeic-column">
+        <div class="df-toeic-section-header">READING</div>
+        
+        <!-- Part 5 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 5</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-r5-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-r5-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-r5-total">30</span>
+          </div>
+        </div>
+        
+        <!-- Part 6 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 6</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-r6-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-r6-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-r6-total">16</span>
+          </div>
+        </div>
+        
+        <!-- Part 7 -->
+        <div class="df-toeic-part-row">
+          <span class="df-toeic-part-label">Part 7</span>
+          <div class="df-toeic-part-bar-container">
+            <div class="df-toeic-part-bar">
+              <div class="df-toeic-part-fill" id="part-r7-fill" style="width: 0%;">
+                <span class="df-toeic-part-score-bubble" id="part-r7-score">0</span>
+              </div>
+            </div>
+            <span class="df-toeic-part-total" id="part-r7-total">54</span>
+          </div>
+        </div>
+        
+        <!-- Reading Section Score -->
+        <div class="df-toeic-section-score-card" style="margin-top: auto;">
+          <div class="df-toeic-section-score-header">READING</div>
+          <div class="df-toeic-section-score-label">Your score</div>
+          <div class="df-toeic-section-score-value" id="reading-score">{{ toeic_stats.reading.score }}</div>
+          <div class="df-toeic-section-score-slider">
+            <span class="df-toeic-section-slider-min">5</span>
+            <div class="df-toeic-section-slider-track">
+              <div class="df-toeic-section-slider-fill" id="reading-slider-fill" style="width: 0%;"></div>
+            </div>
+            <span class="df-toeic-section-slider-max">495</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="df-result-section-card">
-      <div class="df-result-section-title">Reading</div>
-      <div class="df-result-section-score">{{ toeic_stats.reading.score }}/495</div>
-      <div class="df-result-section-detail">Trả lời đúng: {{ toeic_stats.reading.correct }}/{{ toeic_stats.reading.total
-        }}</div>
+    
+    <!-- Total Score -->
+    <div class="df-toeic-total-score">
+      <div class="df-toeic-total-header">TOTAL SCORE</div>
+      <div class="df-toeic-total-value" id="total-score">{{ toeic_stats.total_score }}</div>
     </div>
   </div>
   {% endif %}
@@ -1650,6 +2032,84 @@
   // Initial render
   renderAnalysisTable();
   renderQuestionList();
+
+  // ============================================
+  // TOEIC Visual Score Animation
+  // ============================================
+  function animateToeicScores() {
+    // Part scores from analysisData
+    const partDefaults = {
+      'L1': { total: 6, correct: 0 },
+      'L2': { total: 25, correct: 0 },
+      'L3': { total: 39, correct: 0 },
+      'L4': { total: 30, correct: 0 },
+      'R5': { total: 30, correct: 0 },
+      'R6': { total: 16, correct: 0 },
+      'R7': { total: 54, correct: 0 }
+    };
+
+    // Update part defaults with actual data
+    Object.keys(analysisData).forEach(partKey => {
+      if (partDefaults[partKey]) {
+        const part = analysisData[partKey];
+        partDefaults[partKey].correct = part.correct || 0;
+        partDefaults[partKey].total = part.total || partDefaults[partKey].total;
+      }
+    });
+
+    // Animate each part bar
+    const partMapping = {
+      'L1': 'l1', 'L2': 'l2', 'L3': 'l3', 'L4': 'l4',
+      'R5': 'r5', 'R6': 'r6', 'R7': 'r7'
+    };
+
+    Object.keys(partMapping).forEach(partKey => {
+      const id = partMapping[partKey];
+      const data = partDefaults[partKey];
+      const pct = data.total > 0 ? (data.correct / data.total) * 100 : 0;
+
+      const fillEl = document.getElementById(`part-${id}-fill`);
+      const scoreEl = document.getElementById(`part-${id}-score`);
+      const totalEl = document.getElementById(`part-${id}-total`);
+
+      if (fillEl) {
+        setTimeout(() => {
+          fillEl.style.transition = 'width 0.8s ease-out';
+          fillEl.style.width = `${pct}%`;
+        }, 100);
+      }
+      if (scoreEl) scoreEl.textContent = data.correct;
+      if (totalEl) totalEl.textContent = data.total;
+    });
+
+    // Section scores
+    const listeningScore = parseInt(document.getElementById('listening-score')?.textContent) || 5;
+    const readingScore = parseInt(document.getElementById('reading-score')?.textContent) || 5;
+
+    const listenFill = document.getElementById('listening-slider-fill');
+    const readFill = document.getElementById('reading-slider-fill');
+
+    if (listenFill) {
+      const pct = ((listeningScore - 5) / 490) * 100;
+      setTimeout(() => {
+        listenFill.style.transition = 'width 0.8s ease-out';
+        listenFill.style.width = `${pct}%`;
+      }, 300);
+    }
+
+    if (readFill) {
+      const pct = ((readingScore - 5) / 490) * 100;
+      setTimeout(() => {
+        readFill.style.transition = 'width 0.8s ease-out';
+        readFill.style.width = `${pct}%`;
+      }, 300);
+    }
+  }
+
+  // Run animation on load
+  if (document.querySelector('.df-toeic-score-display')) {
+    setTimeout(animateToeicScores, 200);
+  }
 
   // Redo wrong questions button handler
   document.getElementById('btn-redo-wrong')?.addEventListener('click', function () {

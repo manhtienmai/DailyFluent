@@ -804,3 +804,174 @@ ins {
     width: 100%;
   }
 }
+
+/* ===== EXPLICIT BUTTON VISIBILITY FIXES ===== */
+/* Ensure buttons are always visible with proper contrast */
+
+.dictation-btn--primary {
+  background: #14b8a6 !important;
+  color: #ffffff !important;
+}
+
+.dictation-btn--primary:hover {
+  background: #0d9488 !important;
+}
+
+.dictation-btn--secondary {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.dictation-btn--secondary:hover {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.dictation-btn--success {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.dictation-speed-select {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Tab buttons - ensure visibility */
+.tab-btn {
+  color: #64748b;
+  background: transparent;
+}
+
+.tab-btn.active {
+  color: #ffffff !important;
+  background: #14b8a6 !important;
+}
+
+/* Navigation buttons on dark background */
+.transcript-nav-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.transcript-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  .dictation-btn--secondary {
+    background: #334155 !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+  }
+  
+  .dictation-btn--secondary:hover {
+    background: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+  
+  .dictation-speed-select {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+  }
+  
+  .tab-btn {
+    color: #94a3b8;
+  }
+  
+  .tab-btn:hover {
+    color: #e2e8f0;
+    background: #334155;
+  }
+  
+  .tab-btn.active {
+    color: #ffffff !important;
+    background: #14b8a6 !important;
+  }
+  
+  .dictation-textarea {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+  }
+  
+  .dictation-textarea::placeholder {
+    color: #64748b !important;
+  }
+  
+  .dictation-textarea:focus {
+    border-color: #14b8a6 !important;
+  }
+  
+  .dict-setting-input {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+  }
+  
+  /* Progress text visibility */
+  #progress-text {
+    color: #94a3b8 !important;
+  }
+  
+  /* Hint text */
+  .dictation-hint {
+    background: #334155;
+    color: #cbd5e1;
+  }
+  
+  /* Summary screen */
+  .summary-title {
+    color: #f1f5f9;
+  }
+  
+  .summary-desc {
+    color: #94a3b8;
+  }
+}
+
+/* Ensure dark theme class also works */
+.dark .dictation-btn--secondary,
+[data-theme="dark"] .dictation-btn--secondary {
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
+.dark .dictation-btn--secondary:hover,
+[data-theme="dark"] .dictation-btn--secondary:hover {
+  background: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .dictation-speed-select,
+[data-theme="dark"] .dictation-speed-select {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
+.dark .tab-btn,
+[data-theme="dark"] .tab-btn {
+  color: #94a3b8;
+}
+
+.dark .tab-btn.active,
+[data-theme="dark"] .tab-btn.active {
+  color: #ffffff !important;
+  background: #14b8a6 !important;
+}
+
+.dark .dictation-textarea,
+[data-theme="dark"] .dictation-textarea {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
