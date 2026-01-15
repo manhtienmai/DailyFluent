@@ -718,7 +718,6 @@ def import_toeic_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]
             "errors": [error_msg]
         }
 
-
 # Alias để backward compatibility (deprecated)
 def import_reading_json(template: ExamTemplate, json_data: Dict) -> Dict[str, any]:
     """Alias for import_toeic_json (deprecated - use import_toeic_json instead)."""
@@ -729,7 +728,7 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
     """
     Import TOEIC Listening questions với bilingual transcripts từ JSON.
     
-    Format JSON: List các objects với type="single" hoặc type="group"
+    Supports both single questions (Part 1/2) and group questions (Part 3/4).
     """
     errors = []
     created_questions = 0
@@ -756,13 +755,13 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
                         errors.append("Question thiếu question_number")
                         continue
                     
-                    # Determine TOEIC part
+                    # Determine TOEIC part (1-6 = Part 1, 7-31 = Part 2)
                     if q_num <= 6:
                         toeic_part = TOEICPart.LISTENING_1
                     else:
                         toeic_part = TOEICPart.LISTENING_2
                     
-                    # Prepare options data với translations
+                    # Prepare options data with translations
                     options = item.get("options", [])
                     options_data = [
                         {
@@ -795,7 +794,7 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
                             audio_transcript=item.get("audio_transcript", ""),
                             audio_transcript_vi=item.get("audio_transcript_vi", ""),
                             transcript_data={"options": options_data},
-                            correct_answer="1",
+                            correct_answer="1",  # Default, should be updated separately
                         )
                         created_questions += 1
                 
@@ -807,13 +806,13 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
                         errors.append(f"Group {group_range} không có câu hỏi")
                         continue
                     
-                    # Parse range
+                    # Parse range to get first question number
                     try:
                         first_q = int(group_range.split("-")[0])
                     except (ValueError, IndexError):
                         first_q = questions[0].get("question_number", 0)
                     
-                    # Determine TOEIC part
+                    # Determine TOEIC part (32-70 = Part 3, 71-100 = Part 4)
                     if first_q <= 70:
                         toeic_part = TOEICPart.LISTENING_3
                     else:
@@ -887,17 +886,21 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
                                 correct_answer="1",
                             )
                             created_questions += 1
+                
+                else:
+                    errors.append(f"Unknown type: {item_type}")
             
             except Exception as e:
-                errors.append(f"Error processing item: {str(e)}")
-                logger.error(f"Error processing item: {str(e)}")
+                error_msg = f"Error processing item: {str(e)}"
+                errors.append(error_msg)
+                logger.error(error_msg)
         
         message = f"Imported {created_questions} câu mới, cập nhật {updated_questions} câu"
         if created_conversations > 0:
             message += f", tạo {created_conversations} conversations"
         
         return {
-            "success": len(errors) == 0,
+            "success": len(errors) == 0 or (created_questions + updated_questions) > 0,
             "message": message,
             "created_questions": created_questions,
             "updated_questions": updated_questions,
@@ -906,13 +909,14 @@ def import_bilingual_listening_json(template: ExamTemplate, json_data: list) -> 
         }
     
     except Exception as e:
-        logger.error(f"Error importing bilingual JSON: {str(e)}", exc_info=True)
+        error_msg = f"Error importing bilingual JSON: {str(e)}"
+        logger.error(error_msg, exc_info=True)
         return {
             "success": False,
-            "message": f"Error importing bilingual JSON: {str(e)}",
+            "message": error_msg,
             "created_questions": 0,
             "updated_questions": 0,
-            "errors": [str(e)]
+            "errors": [error_msg]
         }
 
 

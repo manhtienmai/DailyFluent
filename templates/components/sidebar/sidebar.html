@@ -6,7 +6,7 @@ Sidebar Navigation Component
 <aside class="df-sidebar" id="df-sidebar">
   {# Navigation Items #}
   <nav class="df-sidebar-nav">
-    <a href="{% url 'home' %}"
+    <a href="{% url 'home' %}" data-title="Trang chủ"
       class="df-sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -17,7 +17,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Trang chủ</span>
     </a>
 
-    <a href="{% url 'vocab:english_list' %}" class="df-sidebar-item {% if 'vocab' in request.path and 'games' not in request.path %}active{% endif %}">
+    <a href="{% url 'vocab:english_list' %}" data-title="Bộ từ vựng" class="df-sidebar-item {% if 'vocab' in request.path and 'games' not in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-vocab">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" />
@@ -29,7 +29,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Bộ từ vựng</span>
     </a>
 
-    <a href="{% url 'vocab:games' %}" class="df-sidebar-item {% if 'games' in request.path %}active{% endif %}">
+    <a href="{% url 'vocab:games' %}" data-title="Trò chơi từ vựng" class="df-sidebar-item {% if 'games' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-games">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="6" width="20" height="12" rx="2" />
@@ -40,7 +40,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Trò chơi từ vựng</span>
     </a>
 
-    <a href="{% url 'exam:exam_list' %}"
+    <a href="{% url 'exam:exam_list' %}" data-title="Đề thi"
       class="df-sidebar-item {% if 'exam' in request.path and 'dictation' not in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-exam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -51,7 +51,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Đề thi</span>
     </a>
 
-    <a href="{% url 'core:dictation_list' %}"
+    <a href="{% url 'core:dictation_list' %}" data-title="Nghe chép chính tả"
       class="df-sidebar-item {% if 'dictation' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-dictation">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,7 +64,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Nghe chép chính tả</span>
     </a>
 
-    <a href="{% url 'core:course_list' %}" class="df-sidebar-item {% if 'course' in request.path %}active{% endif %}">
+    <a href="{% url 'core:course_list' %}" data-title="Khóa học" class="df-sidebar-item {% if 'course' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-course">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
@@ -74,7 +74,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Khóa học</span>
     </a>
 
-    <a href="#" class="df-sidebar-item">
+    <a href="#" data-title="Cửa hàng" class="df-sidebar-item">
       <span class="df-sidebar-icon df-icon-store">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="9" cy="21" r="1" />
@@ -85,7 +85,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Cửa hàng</span>
     </a>
 
-    <a href="{% url 'streak:overview' %}" class="df-sidebar-item {% if 'streak' in request.path %}active{% endif %}">
+    <a href="{% url 'streak:overview' %}" data-title="Xếp hạng" class="df-sidebar-item {% if 'streak' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-streak">
         <svg viewBox="0 0 24 24" fill="currentColor">
           <path
@@ -95,7 +95,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Xếp hạng</span>
     </a>
 
-    <a href="{% url 'feedback:list' %}"
+    <a href="{% url 'feedback:list' %}" data-title="Góc Cải Tiến"
       class="df-sidebar-item df-sidebar-item-feedback {% if 'feedback' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-sidebar-icon-feedback">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,7 +106,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Góc Cải Tiến</span>
     </a>
 
-    <a href="#" class="df-sidebar-item">
+    <a href="#" data-title="Lộ trình học" class="df-sidebar-item">
       <span class="df-sidebar-icon df-icon-roadmap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="20" x2="12" y2="10" />
@@ -125,39 +125,49 @@ Sidebar Navigation Component
       <polyline points="18 17 13 12 18 7" />
     </svg>
   </button>
-
-  {# User Profile Section #}
-  <div class="df-sidebar-user" id="df-sidebar-user-btn">
-    <div class="df-sidebar-user-avatar">
-      {% if user.is_authenticated %}
-      {% if user.socialaccount_set.all.0.get_avatar_url %}
-      <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="Avatar">
-      {% else %}
-      <span class="df-sidebar-user-initials">{{ user.username|slice:":2"|upper }}</span>
-      {% endif %}
-      {% else %}
-      <span class="df-sidebar-user-initials">?</span>
-      {% endif %}
-    </div>
-    <div class="df-sidebar-user-info">
-      <span class="df-sidebar-user-name">
-        {% if user.is_authenticated %}
-        {{ user.first_name|default:user.username }}
-        {% else %}
-        Khách
-        {% endif %}
-      </span>
-      <span class="df-sidebar-user-hint">Nhấn để xem hồ sơ</span>
-    </div>
-    <span class="df-sidebar-user-more">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="1" />
-        <circle cx="12" cy="5" r="1" />
-        <circle cx="12" cy="19" r="1" />
-      </svg>
-    </span>
-  </div>
 </aside>
 
 {# Mobile Overlay #}
 <div class="df-sidebar-overlay" id="df-sidebar-overlay"></div>
+
+{# Tooltip Script #}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create tooltip element if it doesn't exist
+    let tooltip = document.getElementById('df-sidebar-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.id = 'df-sidebar-tooltip';
+      tooltip.className = 'df-sidebar-tooltip';
+      document.body.appendChild(tooltip);
+    }
+
+    const sidebarBody = document.querySelector('.df-sidebar-body');
+    const items = document.querySelectorAll('.df-sidebar-item');
+
+    items.forEach(item => {
+      item.addEventListener('mouseenter', function() {
+        // Only show if sidebar is collapsed
+        if (sidebarBody && sidebarBody.classList.contains('sidebar-collapsed')) {
+          const title = this.getAttribute('data-title');
+          if (title) {
+            tooltip.textContent = title;
+            tooltip.classList.add('active');
+            
+            // Position tooltip
+            const rect = this.getBoundingClientRect();
+            const top = rect.top + (rect.height - tooltip.offsetHeight) / 2;
+            const left = rect.right + 10; // 10px offset
+            
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+          }
+        }
+      });
+
+      item.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('active');
+      });
+    });
+  });
+</script>

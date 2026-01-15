@@ -1,116 +1,254 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
 {% load i18n %}
+{% load socialaccount %}
 
 {% block title %}Đăng ký tài khoản | DailyFluent{% endblock %}
 
+{% block extra_css %}
+<style>
+  .df-auth-container {
+    max-width: 440px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  .df-auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .df-auth-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .df-auth-error {
+    padding: 0.875rem 1rem;
+    background: var(--status-error-subtle);
+    border: 1px solid var(--status-error-border);
+    border-radius: 0.75rem;
+    color: var(--status-error-text);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .df-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .df-auth-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .df-auth-field input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--border-default);
+    border-radius: 0.75rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  
+  .df-auth-field input:focus {
+    border-color: var(--action-primary);
+    box-shadow: 0 0 0 3px var(--action-primary-subtle);
+  }
+  
+  .df-auth-field input::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  .df-auth-field-error {
+    font-size: 0.8125rem;
+    color: var(--status-error-text);
+    margin-top: 0.375rem;
+  }
+  
+  .df-auth-btn {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--action-primary);
+    color: var(--action-primary-text);
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+  }
+  
+  .df-auth-btn:hover {
+    background: var(--action-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .df-auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    gap: 1rem;
+  }
+  
+  .df-auth-divider::before,
+  .df-auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-default);
+  }
+  
+  .df-auth-divider span {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+  }
+  
+  .df-auth-social-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .df-auth-social-btn:hover {
+    background: var(--bg-interactive);
+    border-color: var(--border-interactive);
+  }
+  
+  .df-auth-social-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .df-auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+  
+  .df-auth-footer a {
+    color: var(--action-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .df-auth-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-[80vh] flex items-center justify-center">
-  <div class="w-full max-w-md">
-    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 px-8 py-10">
-      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 text-center mb-6">
-        Bắt đầu thôi!
-      </h1>
+<div class="df-auth-container">
+  <div class="df-auth-card">
+    <h1 class="df-auth-title">🚀 Bắt đầu thôi!</h1>
 
-      <form method="post" class="space-y-5" action="{% url 'account_signup' %}">
-        {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="df-auth-error">
+        {{ form.non_field_errors.0 }}
+      </div>
+    {% endif %}
 
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value="{{ form.email.value|default_if_none:'' }}"
-            class="w-full px-4 py-2.5 text-sm sm:text-base text-slate-900
-                   bg-slate-50 border border-slate-200 rounded-lg
-                   focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300
-                   placeholder:text-slate-400"
-            placeholder="you@example.com"
-            required
-          >
-          {% if form.email.errors %}
-            <p class="mt-1.5 text-xs sm:text-sm text-red-600">
-              {{ form.email.errors.0 }}
-            </p>
-          {% endif %}
-        </div>
+    <form method="post" class="df-auth-form" action="{% url 'account_signup' %}">
+      {% csrf_token %}
 
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">
-            Mật khẩu
-          </label>
-          <input
-            type="password"
-            name="password1"
-            class="w-full px-4 py-2.5 text-sm sm:text-base text-slate-900
-                   bg-slate-50 border border-slate-200 rounded-lg
-                   focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300
-                   placeholder:text-slate-400"
-            placeholder="••••••••"
-            required
-          >
-          {% if form.password1.errors %}
-            <p class="mt-1.5 text-xs sm:text-sm text-red-600">
-              {{ form.password1.errors.0 }}
-            </p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">
-            Xác nhận mật khẩu
-          </label>
-          <input
-            type="password"
-            name="password2"
-            class="w-full px-4 py-2.5 text-sm sm:text-base text-slate-900
-                   bg-slate-50 border border-slate-200 rounded-lg
-                   focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300
-                   placeholder:text-slate-400"
-            placeholder="••••••••"
-            required
-          >
-          {% if form.password2.errors %}
-            <p class="mt-1.5 text-xs sm:text-sm text-red-600">
-              {{ form.password2.errors.0 }}
-            </p>
-          {% endif %}
-        </div>
-
-        {% if form.non_field_errors %}
-          <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm text-red-700">
-            {{ form.non_field_errors.0 }}
-          </div>
+      <div class="df-auth-field">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value="{{ form.email.value|default_if_none:'' }}"
+          placeholder="you@example.com"
+          required
+        >
+        {% if form.email.errors %}
+          <p class="df-auth-field-error">{{ form.email.errors.0 }}</p>
         {% endif %}
+      </div>
 
-        {% if redirect_field_value %}
-          <input type="hidden"
-                 name="{{ redirect_field_name }}"
-                 value="{{ redirect_field_value }}">
+      <div class="df-auth-field">
+        <label>Mật khẩu</label>
+        <input
+          type="password"
+          name="password1"
+          placeholder="Tối thiểu 8 ký tự"
+          required
+        >
+        {% if form.password1.errors %}
+          <p class="df-auth-field-error">{{ form.password1.errors.0 }}</p>
         {% endif %}
+      </div>
 
-        <div class="pt-2">
-          <button
-            type="submit"
-            class="w-full px-4 py-2.5 text-sm sm:text-base font-semibold
-                   text-white bg-blue-600 rounded-lg
-                   hover:bg-blue-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-300
-                   transition"
-          >
-            Đăng ký ngay
-          </button>
-        </div>
-      </form>
+      <div class="df-auth-field">
+        <label>Xác nhận mật khẩu</label>
+        <input
+          type="password"
+          name="password2"
+          placeholder="Nhập lại mật khẩu"
+          required
+        >
+        {% if form.password2.errors %}
+          <p class="df-auth-field-error">{{ form.password2.errors.0 }}</p>
+        {% endif %}
+      </div>
 
-      <p class="mt-6 text-center text-sm text-slate-600">
-        Đã có tài khoản?
-        <a href="{% url 'account_login' %}" class="font-semibold text-blue-600 hover:underline">
-          Đăng nhập
-        </a>
-      </p>
+      {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+      {% endif %}
+
+      <button type="submit" class="df-auth-btn">
+        Đăng ký ngay
+      </button>
+    </form>
+
+    <div class="df-auth-divider">
+      <span>hoặc</span>
     </div>
+
+    <form method="post" action="{% provider_login_url 'google' process='login' %}">
+      {% csrf_token %}
+      <button type="submit" class="df-auth-social-btn">
+        <svg viewBox="0 0 533.5 544.3">
+          <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h147c-6.3 34-25.1 62.9-53.7 82.2v68h86.7c50.7-46.7 81.5-115.4 81.5-195.2z"/>
+          <path fill="#34a853" d="M272 544.3c72.6 0 133.6-24 178.2-65.1l-86.7-68c-24.1 16.2-55 25.8-91.5 25.8-70.4 0-130.1-47.5-151.5-111.7H30.8v70.2c44.3 87.8 135.6 148.8 241.2 148.8z"/>
+          <path fill="#fbbc04" d="M120.5 325.3c-10.2-30.4-10.2-63.3 0-93.7V161.5H30.8c-30.5 60.7-30.5 133.6 0 194.3z"/>
+          <path fill="#ea4335" d="M272 107.7c39.4-.6 77.2 14 106 40.9l79.1-79.1C405.6 24 344.6 0 272 0 166.4 0 75.1 61 30.8 148.8l89.7 70.2C141.9 155.2 201.6 107.7 272 107.7z"/>
+        </svg>
+        Đăng ký với Google
+      </button>
+    </form>
+
+    <p class="df-auth-footer">
+      Đã có tài khoản? 
+      <a href="{% url 'account_login' %}">Đăng nhập</a>
+    </p>
   </div>
 </div>
 {% endblock %}

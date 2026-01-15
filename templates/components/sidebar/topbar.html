@@ -60,6 +60,30 @@ Top Bar Component with logo, streak, coins, countdown timer
       <span class="df-stat-value" id="df-coins-value">{{ user_coins|default:0 }}</span>
     </div>
 
+    {# User Profile - Moved from Sidebar #}
+    <div class="df-topbar-user" id="df-sidebar-user-btn" title="Hồ sơ cá nhân">
+      <div class="df-topbar-user-avatar">
+        {% if user.is_authenticated %}
+          {% if user.socialaccount_set.all.0.get_avatar_url %}
+            <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="Avatar">
+          {% else %}
+            <span class="df-topbar-user-initials">{{ user.username|slice:":2"|upper }}</span>
+          {% endif %}
+        {% else %}
+          <span class="df-topbar-user-initials">?</span>
+        {% endif %}
+      </div>
+      <div class="df-topbar-user-info">
+        <span class="df-topbar-user-name">
+          {% if user.is_authenticated %}
+            {{ user.first_name|default:user.username }}
+          {% else %}
+            Khách
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
     {# Theme Toggle #}
     <button class="df-topbar-btn df-theme-toggle" id="df-theme-toggle" title="Đổi giao diện">
       <svg class="df-theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

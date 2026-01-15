@@ -480,7 +480,7 @@ def home(request):
         
         todo_items = todos_query.order_by("completed", "-created_at")[:20]
     
-    # Lấy 10 đề thi mới nhất với số lượng người đã làm (cho cả logged in và not logged in)
+    # Lấy 8 đề thi mới nhất theo tên (cho cả logged in và not logged in)
     latest_exams = list(
         ExamTemplate.objects
         .filter(is_active=True)
@@ -488,7 +488,7 @@ def home(request):
             attempt_count=Count('attempts', filter=Q(attempts__status='submitted'), distinct=True),
             distinct_parts=Count('questions__toeic_part', distinct=True)
         )
-        .order_by('-created_at', '-id')[:10]
+        .order_by('title')[:8]
     )
     
     # Tính comment count (fake: 10% của attempt_count, min 100)

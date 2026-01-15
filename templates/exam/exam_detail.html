@@ -54,15 +54,15 @@
   }
 
   .df-exam-badge--level {
-    background: rgba(99, 102, 241, 0.15);
-    color: #6366F1;
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    background: var(--action-primary-subtle);
+    color: var(--action-primary);
+    border: 1px solid var(--action-primary-subtle-hover);
   }
 
   .df-exam-badge--category {
-    background: rgba(16, 185, 129, 0.15);
-    color: #059669;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: var(--status-success-subtle);
+    color: var(--status-success-text);
+    border: 1px solid var(--status-success-border);
   }
 
   .df-exam-detail-title {
@@ -74,11 +74,12 @@
 
   /* Info Card */
   .df-exam-info-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--df-radius-lg);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
 
   .df-exam-info-grid {
@@ -109,23 +110,23 @@
   }
 
   .df-exam-info-icon--time {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3B82F6;
+    background: var(--action-primary-subtle);
+    color: var(--action-primary);
   }
 
   .df-exam-info-icon--questions {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10B981;
+    background: var(--status-success-subtle);
+    color: var(--status-success-text);
   }
 
   .df-exam-info-icon--users {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8B5CF6;
+    background: var(--action-accent-subtle);
+    color: var(--action-accent);
   }
 
   .df-exam-info-icon--comments {
-    background: rgba(249, 115, 22, 0.15);
-    color: #F97316;
+    background: var(--status-warning-subtle);
+    color: var(--status-warning-text);
   }
 
   .df-exam-info-value {
@@ -139,52 +140,59 @@
     color: var(--text-tertiary);
   }
 
-  /* Tabs */
+  /* Tabs - Revised Compact */
   .df-exam-tabs {
-    display: flex;
+    display: inline-flex;
     gap: 0.25rem;
     padding: 0.25rem;
-    background: var(--bg-interactive);
-    border-radius: 12px;
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
     margin-bottom: 1.5rem;
+    width: auto;
   }
 
   .df-exam-tab {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-secondary);
     background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
+    white-space: nowrap;
   }
 
   .df-exam-tab:hover {
     color: var(--text-primary);
-    background: var(--bg-surface);
+    background: var(--bg-interactive-hover);
   }
 
   .df-exam-tab--active {
-    color: var(--action-primary-text);
-    background: var(--action-primary);
+    color: var(--text-primary);
+    background: var(--bg-surface);
     box-shadow: var(--shadow-sm);
   }
 
   .df-exam-tab--active:hover {
-    background: var(--action-primary-hover);
+    background: var(--bg-surface);
   }
 
   /* Tab Content */
   .df-exam-tab-content {
     display: none;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
   .df-exam-tab-content--active {
     display: block;
+    opacity: 1;
+    transform: translateY(0);
   }
 
   /* Pro Tip */
@@ -193,8 +201,8 @@
     align-items: flex-start;
     gap: 1rem;
     padding: 1rem 1.25rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: var(--action-primary-subtle);
+    border: 1px solid var(--action-primary-subtle-hover);
     border-radius: 12px;
     margin-bottom: 1.5rem;
   }
@@ -203,8 +211,8 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: rgba(59, 130, 246, 0.2);
-    color: #3B82F6;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--action-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -218,34 +226,26 @@
 
   .df-exam-pro-tip-title {
     font-size: 0.875rem;
-    font-weight: 600;
-    color: #1E40AF;
+    font-weight: 700;
+    color: var(--action-primary);
     margin-bottom: 0.25rem;
   }
 
   .df-exam-pro-tip-text {
     font-size: 0.8125rem;
-    color: #1E3A8A;
+    color: var(--action-primary);
     line-height: 1.5;
-  }
-
-  [data-theme="dark"] .df-exam-pro-tip-title,
-  .dark .df-exam-pro-tip-title {
-    color: #93C5FD;
-  }
-
-  [data-theme="dark"] .df-exam-pro-tip-text,
-  .dark .df-exam-pro-tip-text {
-    color: #BFDBFE;
+    opacity: 0.9;
   }
 
   /* Form Section */
   .df-exam-form-section {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--df-radius-lg);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
 
   .df-exam-form-title {
@@ -255,39 +255,39 @@
     margin-bottom: 1rem;
   }
 
-  /* Parts Grid */
+  /* Parts Grid - Compact */
   .df-exam-parts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.5rem;
   }
 
   .df-exam-part-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem;
-    background: var(--bg-surface);
+    gap: 0.625rem;
+    padding: 0.625rem;
+    background: var(--bg-surface-raised);
     border: 1px solid var(--border-default);
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .df-exam-part-item:hover {
     border-color: var(--action-primary);
-    background: var(--bg-interactive);
+    background: var(--bg-interactive-hover);
   }
 
   .df-exam-part-item input[type="checkbox"] {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 1rem;
+    height: 1rem;
     accent-color: var(--action-primary);
     cursor: pointer;
   }
 
   .df-exam-part-name {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
   }
@@ -301,20 +301,20 @@
   .df-exam-select {
     width: 100%;
     max-width: 280px;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 1rem;
     font-size: 0.875rem;
     color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 10px;
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
     cursor: pointer;
     transition: border-color 0.2s;
   }
 
   .df-exam-select:focus {
     outline: none;
-    border-color: var(--input-border-focus);
-    box-shadow: var(--focus-ring);
+    border-color: var(--action-primary);
+    box-shadow: 0 0 0 2px var(--action-primary-subtle);
   }
 
   /* Submit Button */
@@ -322,23 +322,21 @@
     display: inline-flex;
     align-items: center;
     gap: 0.625rem;
-    padding: 0.875rem 2rem;
+    padding: 0.75rem 1.5rem;
     font-size: 0.9375rem;
     font-weight: 700;
-    color: var(--action-primary-text);
-    background: var(--action-primary);
+    color: var(--btn-primary-text);
+    background: var(--btn-primary-bg);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
   }
 
   .df-exam-submit-btn:hover {
-    background: var(--action-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-primary);
+    background: var(--btn-primary-bg-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
   }
 
   .df-exam-submit-btn svg {
@@ -348,9 +346,9 @@
 
   /* Comments */
   .df-exam-comment-form {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--df-radius-lg);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
   }
@@ -360,9 +358,9 @@
     padding: 1rem;
     font-size: 0.9375rem;
     color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 12px;
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
     resize: none;
     transition: border-color 0.2s;
     line-height: 1.6;
@@ -370,8 +368,8 @@
 
   .df-exam-comment-textarea:focus {
     outline: none;
-    border-color: var(--input-border-focus);
-    box-shadow: var(--focus-ring);
+    border-color: var(--action-primary);
+    box-shadow: 0 0 0 2px var(--action-primary-subtle);
   }
 
   .df-exam-comment-footer {
@@ -387,15 +385,15 @@
   }
 
   .df-exam-comment-list {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--df-radius-lg);
     overflow: hidden;
   }
 
   .df-exam-comment-list-header {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-default);
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
@@ -453,8 +451,8 @@
 
   .df-exam-login-prompt {
     padding: 1rem 1.5rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: var(--action-primary-subtle);
+    border: 1px solid var(--action-primary-subtle-hover);
     border-radius: 12px;
     margin-bottom: 1.5rem;
     font-size: 0.875rem;
@@ -480,9 +478,10 @@
     .df-exam-info-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .df-exam-tabs {
       flex-direction: column;
+      width: 100%;
     }
 
     .df-exam-parts-grid {
@@ -507,79 +506,7 @@
     Quay lại danh sách đề
   </a>
 
-  <!-- Header -->
-  <div class="df-exam-detail-header">
-    <div class="df-exam-detail-badges">
-      <span class="df-exam-badge df-exam-badge--level">{{ template.level }}</span>
-      {% if template.category %}
-      <span class="df-exam-badge df-exam-badge--category">{{ template.get_category_display }}</span>
-      {% endif %}
-    </div>
-    <h1 class="df-exam-detail-title">{{ template.title }}</h1>
-  </div>
-
-  <!-- Info Card -->
-  <div class="df-exam-info-card">
-    <div class="df-exam-info-grid">
-      <div class="df-exam-info-item">
-        <div class="df-exam-info-icon df-exam-info-icon--time">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div>
-          <div class="df-exam-info-value">
-            {% if template.level == "TOEIC" %}
-              {% if template.category == "LISTENING" %}40{% elif template.category == "READING" %}60{% else %}{{ template.time_limit_minutes|default:60 }}{% endif %}
-            {% else %}
-              {{ template.time_limit_minutes|default:60 }}
-            {% endif %} phút
-          </div>
-          <div class="df-exam-info-label">Thời gian</div>
-        </div>
-      </div>
-
-      <div class="df-exam-info-item">
-        <div class="df-exam-info-icon df-exam-info-icon--questions">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div>
-          <div class="df-exam-info-value">{{ template.total_questions }}</div>
-          <div class="df-exam-info-label">Câu hỏi</div>
-        </div>
-      </div>
-
-      <div class="df-exam-info-item">
-        <div class="df-exam-info-icon df-exam-info-icon--users">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        </div>
-        <div>
-          <div class="df-exam-info-value">{{ attempt_count|floatformat:0 }}</div>
-          <div class="df-exam-info-label">Lượt làm</div>
-        </div>
-      </div>
-
-      <div class="df-exam-info-item">
-        <div class="df-exam-info-icon df-exam-info-icon--comments">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </div>
-        <div>
-          <div class="df-exam-info-value">{{ comment_count|floatformat:0 }}</div>
-          <div class="df-exam-info-label">Bình luận</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div> {{ template.title }}</div>
 
   <!-- Tabs -->
   <div class="df-exam-tabs">

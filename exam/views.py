@@ -83,7 +83,6 @@ def build_mondai_groups(questions):
     return groups
 
 
-@login_required
 def exam_list(request):
     from django.db.models import Count, Q
     
@@ -91,7 +90,8 @@ def exam_list(request):
 
     templates = ExamTemplate.objects.filter(is_active=True).annotate(
         attempt_count=Count('attempts', filter=Q(attempts__status=ExamAttempt.Status.SUBMITTED))
-    )
+    ).order_by('title')
+    
     if selected_level:
         templates = templates.filter(level=selected_level)
 
@@ -538,11 +538,15 @@ def exam_result_question_detail(request, session_id, question_id):
             "order": q.order,
             "toeic_part": q.toeic_part or "",
             "text": q.text or "",
+            "text_vi": q.text_vi if hasattr(q, 'text_vi') else "",
             "question_type": q.question_type,
             "correct_answer": q.correct_answer or "",
             "explanation_vi": q.explanation_vi or "",
             "image": q.image.url if q.image else None,
             "audio": q.audio.url if q.audio else None,
+            "audio_transcript": q.audio_transcript if hasattr(q, 'audio_transcript') else "",
+            "audio_transcript_vi": q.audio_transcript_vi if hasattr(q, 'audio_transcript_vi') else "",
+            "transcript_data": q.transcript_data if hasattr(q, 'transcript_data') else {},
             "mcq_choices": q.mcq_choices if q.question_type == QuestionType.MCQ else [],
             "sub_type": sub_type,
         },
@@ -568,6 +572,8 @@ def exam_result_question_detail(request, session_id, question_id):
             "audio": q.listening_conversation.audio.url if q.listening_conversation.audio else None,
             "image": q.listening_conversation.image.url if q.listening_conversation.image else None,
             "transcript": q.listening_conversation.transcript or "",
+            "transcript_vi": q.listening_conversation.transcript_vi if hasattr(q.listening_conversation, 'transcript_vi') else "",
+            "transcript_data": q.listening_conversation.transcript_data if hasattr(q.listening_conversation, 'transcript_data') else {},
         }
     
     return JsonResponse(data)

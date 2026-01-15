@@ -554,22 +554,186 @@
 
   {% else %}
   <!-- Non-authenticated user landing -->
-  <div style="text-align: center; padding: 4rem 1rem;">
-    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
-      Chào mừng đến với DailyFluent! 👋
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+      📚 Kho đề thi TOEIC & JLPT
     </h1>
-    <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 2rem;">
-      Nền tảng học từ vựng với phương pháp SRS khoa học
+    <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+      Luyện thi miễn phí với hàng ngàn câu hỏi thực tế
     </p>
-    <div style="display: flex; justify-content: center; gap: 1rem;">
-      <a href="{% url 'account_login' %}" style="padding: 0.75rem 1.5rem; background: var(--action-primary); color: #fff; border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+      <a href="{% url 'account_login' %}" style="padding: 0.75rem 1.5rem; background: var(--action-primary); color: var(--action-primary-text); border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
         Đăng nhập
       </a>
-      <a href="{% url 'account_signup' %}" style="padding: 0.75rem 1.5rem; background: var(--bg-interactive); color: var(--text-primary); border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
+      <a href="{% url 'account_signup' %}" style="padding: 0.75rem 1.5rem; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
         Đăng ký
       </a>
     </div>
   </div>
+
+  <!-- Exam Grid (same UI as exam_list.html) -->
+  {% if latest_exams %}
+  <style>
+    .df-guest-exam-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .df-guest-exam-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .df-guest-exam-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--action-primary) 0%, var(--action-accent) 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .df-guest-exam-card:hover {
+      border-color: var(--card-hover-border);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .df-guest-exam-card:hover::before { opacity: 1; }
+    .df-guest-exam-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+    .df-guest-exam-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .df-guest-exam-card-level {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 0.375rem;
+    }
+    .df-guest-exam-card-level--toeic {
+      background: rgba(245, 158, 11, 0.15);
+      color: #D97706;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .df-guest-exam-card-level--n5 { background: rgba(59, 130, 246, 0.15); color: #2563EB; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .df-guest-exam-card-level--n4 { background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .df-guest-exam-card-level--n3 { background: rgba(249, 115, 22, 0.15); color: #EA580C; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .df-guest-exam-card-level--n2 { background: rgba(236, 72, 153, 0.15); color: #DB2777; border: 1px solid rgba(236, 72, 153, 0.3); }
+    .df-guest-exam-card-level--n1 { background: rgba(139, 92, 246, 0.15); color: #7C3AED; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .df-guest-exam-card-users {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+    .df-guest-exam-card-users svg { width: 14px; height: 14px; }
+    .df-guest-exam-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+    .df-guest-exam-card-meta-item { display: flex; align-items: center; gap: 0.375rem; }
+    .df-guest-exam-card-meta-item svg { width: 14px; height: 14px; opacity: 0.7; }
+    .df-guest-exam-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .df-guest-exam-card-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--action-primary-text);
+      background: var(--action-primary);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .df-guest-exam-card-btn:hover {
+      background: var(--action-primary-hover);
+      transform: translateX(2px);
+      box-shadow: var(--shadow-primary);
+    }
+    .df-guest-exam-card-btn svg { width: 16px; height: 16px; transition: transform 0.2s; }
+    .df-guest-exam-card-btn:hover svg { transform: translateX(2px); }
+    @media (max-width: 640px) {
+      .df-guest-exam-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <div class="df-guest-exam-grid">
+    {% for exam in latest_exams %}
+    <div class="df-guest-exam-card">
+      <h2 class="df-guest-exam-card-title">{{ exam.title }}</h2>
+      <div class="df-guest-exam-card-header">
+        <span class="df-guest-exam-card-level df-guest-exam-card-level--{{ exam.level|lower }}">
+          {{ exam.level }}
+        </span>
+        <span class="df-guest-exam-card-users">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          {{ exam.attempt_count|default:0 }} lượt làm
+        </span>
+      </div>
+      <div class="df-guest-exam-card-meta">
+        <span class="df-guest-exam-card-meta-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ exam.questions.count }} câu
+        </span>
+        <span class="df-guest-exam-card-meta-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ exam.duration_minutes }} phút
+        </span>
+      </div>
+      <div class="df-guest-exam-card-footer">
+        <a href="{% url 'exam:exam_detail' exam.slug %}" class="df-guest-exam-card-btn">
+          Chi tiết
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div style="text-align: center; margin-top: 1.5rem;">
+    <a href="{% url 'exam:exam_list' %}" style="color: var(--action-primary); font-weight: 600; text-decoration: none;">
+      Xem tất cả đề thi →
+    </a>
+  </div>
+  {% endif %}
   {% endif %}
 </div>
 
