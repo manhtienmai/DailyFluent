@@ -15,6 +15,53 @@ def get_today_for_user(user=None):
     return timezone.localdate()
 
 
+def register_login_streak(user):
+    """
+    Gọi hàm này khi user truy cập trang (đã login).
+    Chỉ cần đăng nhập mỗi ngày là tính streak, không cần làm gì cả.
+    """
+    if not user or not user.is_authenticated:
+        return None
+    
+    today = get_today_for_user(user)
+    
+    # Tạo hoặc lấy DailyActivity (để tracking)
+    activity, _ = DailyActivity.objects.get_or_create(
+        user=user,
+        date=today,
+        defaults={
+            'lessons_completed': 0,
+            'minutes_studied': 0,
+            'seconds_studied': 0,
+            'points_earned': 0,
+        }
+    )
+    
+    # Cập nhật streak dựa trên việc đăng nhập
+    streak, created = StreakStat.objects.get_or_create(user=user)
+    
+    # Nếu hôm nay đã được ghi nhận rồi thì không làm gì
+    if streak.last_active_date == today:
+        return streak
+    
+    yesterday = today - timedelta(days=1)
+    
+    if streak.last_active_date == yesterday:
+        # Tiếp tục streak
+        streak.current_streak += 1
+    else:
+        # Bắt đầu streak mới (hoặc bị đứt)
+        streak.current_streak = 1
+    
+    streak.last_active_date = today
+    
+    if streak.current_streak > streak.longest_streak:
+        streak.longest_streak = streak.current_streak
+    
+    streak.save()
+    return streak
+
+
 def register_study_activity(user, lessons=0, minutes=0, points=0):
     """
     Gọi hàm này mỗi khi user hoàn thành 1 bài học / hoạt động học.

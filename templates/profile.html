@@ -98,14 +98,7 @@
     height: 14px;
   }
 
-  /* Stats Grid */
-  .df-profile-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
+  /* Responsive */
   @media (max-width: 640px) {
     .df-profile-stats {
       grid-template-columns: repeat(2, 1fr);
@@ -118,12 +111,13 @@
     border-radius: 0.875rem;
     padding: 1rem;
     text-align: center;
+    box-shadow: var(--shadow-sm);
   }
 
   .df-profile-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--action-primary);
+    color: var(--text-primary); /* Changed from Action Primary for better neutrality, or keep custom */
     line-height: 1;
     margin-bottom: 0.25rem;
   }
@@ -133,6 +127,7 @@
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    font-weight: 600;
   }
 
   /* Tabs */
@@ -160,17 +155,28 @@
 
   .df-profile-tab:hover {
     color: var(--text-primary);
+    background: rgba(0,0,0,0.05);
+  }
+  
+  [data-theme="dark"] .df-profile-tab:hover {
+    background: rgba(255,255,255,0.05); /* Dark mode hover */
   }
 
   .df-profile-tab--active {
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   /* Tab Content */
   .df-profile-panel {
     display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .df-profile-panel--active {
@@ -184,6 +190,7 @@
     border-radius: 1rem;
     padding: 1.25rem;
     margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
   }
 
   .df-profile-section-title {
@@ -207,10 +214,13 @@
     margin-bottom: 0.5rem;
     text-decoration: none;
     transition: all 0.15s;
+    border: 1px solid transparent;
   }
 
   .df-profile-course:hover {
     background: var(--bg-interactive);
+    border-color: var(--card-border);
+    transform: translateY(-1px);
   }
 
   .df-profile-course-icon {
@@ -225,6 +235,7 @@
     font-size: 1rem;
     font-weight: 700;
     flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
   }
 
   .df-profile-course-info {
@@ -261,10 +272,13 @@
     margin-bottom: 0.5rem;
     text-decoration: none;
     transition: all 0.15s;
+    border: 1px solid transparent;
   }
 
   .df-profile-result:hover {
     background: var(--bg-interactive);
+    border-color: var(--card-border);
+    transform: translateY(-1px);
   }
 
   .df-profile-result-score {
@@ -283,15 +297,27 @@
     background: rgba(16, 185, 129, 0.15);
     color: #059669;
   }
+  [data-theme="dark"] .df-profile-result-score--high {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399; /* Lighter green for dark mode */
+  }
 
   .df-profile-result-score--mid {
     background: rgba(245, 158, 11, 0.15);
     color: #D97706;
   }
+  [data-theme="dark"] .df-profile-result-score--mid {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24; /* Lighter amber for dark mode */
+  }
 
   .df-profile-result-score--low {
     background: rgba(239, 68, 68, 0.15);
     color: #DC2626;
+  }
+  [data-theme="dark"] .df-profile-result-score--low {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171; /* Lighter red for dark mode */
   }
 
   .df-profile-result-info {
@@ -383,7 +409,14 @@
         {% endif %}
       </div>
       <div class="df-profile-info">
-        <h1 class="df-profile-name">{{ profile_user.username }}</h1>
+        <h1 class="df-profile-name">
+          {% if profile_user.get_full_name %}
+            {{ profile_user.get_full_name }}
+            <span style="font-size: 0.875rem; color: var(--text-secondary); font-weight: normal; margin-left: 0.5rem;">@{{ profile_user.username }}</span>
+          {% else %}
+            {{ profile_user.username }}
+          {% endif %}
+        </h1>
         <div class="df-profile-meta">
           <span class="df-profile-meta-item">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

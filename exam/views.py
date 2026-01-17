@@ -85,6 +85,7 @@ def build_mondai_groups(questions):
 
 def exam_list(request):
     from django.db.models import Count, Q
+    from django.core.paginator import Paginator
     
     selected_level = request.GET.get("level") or ""
 
@@ -97,11 +98,18 @@ def exam_list(request):
 
     levels = ["TOEIC", "N5", "N4", "N3", "N2", "N1"]
 
+    # Pagination - 12 items per page
+    paginator = Paginator(templates, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     return render(
         request,
         "exam/exam_list.html",
         {
-            "templates": templates,
+            "templates": page_obj,
+            "page_obj": page_obj,
+            "total_exams": paginator.count,
             "selected_level": selected_level,
             "levels": levels,
         },

@@ -1039,18 +1039,16 @@ def profile(request, username=None):
     
     is_own_profile = request.user.is_authenticated and request.user.id == profile_user.id
     
-    # Lấy các khóa học đã đăng ký (tạm thời: tất cả khóa học active)
+    # Lấy các khóa học đã đăng ký
+    from core.models import Enrollment
     enrolled_courses = []
     if is_own_profile:
-        # TODO: Implement actual enrollment tracking
-        # For now, show all courses with 0% progress
-        courses = Course.objects.filter(is_active=True)[:5]
-        for course in courses:
-            enrolled_courses.append({
-                'title': course.title,
-                'progress': 0,
-                'next_lesson': None,
-            })
+        enrolled_courses = (
+            Enrollment.objects
+            .filter(user=profile_user)
+            .select_related('course')
+            .order_by('-last_accessed', '-enrolled_at')[:10]
+        )
     
     # Lấy kết quả thi
     exam_results_grouped = defaultdict(list)
@@ -1112,6 +1110,21 @@ def settings(request):
     """
     Trang cài đặt tài khoản.
     """
+    from django.contrib import messages
+    
+    if request.method == "POST":
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        
+        # Validations
+        if not first_name:
+            messages.error(request, "Vui lòng nhập Tên.")
+        else:
+            request.user.first_name = first_name
+            request.user.last_name = last_name
+            request.user.save()
+            messages.success(request, "Đã cập nhật thông tin thành công!")
+            
     return render(request, "settings.html", {
         "user": request.user,
     })

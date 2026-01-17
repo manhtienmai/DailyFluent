@@ -119,6 +119,9 @@ MIDDLEWARE = [
     
     # Analytics tracking
     'analytics.middleware.AnalyticsMiddleware',
+    
+    # Streak tracking - tự động tính streak khi user login
+    'streak.middleware.StreakMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

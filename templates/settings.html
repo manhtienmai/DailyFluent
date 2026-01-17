@@ -325,8 +325,39 @@
             </div>
 
             <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #e2e8f0;">
+            
+            <!-- Message Alerts -->
+            {% if messages %}
+            <div style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                <div class="df-alert {% if message.tags %}df-alert--{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-            <div class="df-settings-field">
+            <form method="POST" action="{% url 'core:settings' %}">
+                {% csrf_token %}
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div class="df-settings-field">
+                        <label class="df-settings-label">Họ (Last Name)</label>
+                        <input type="text" name="last_name" class="df-settings-input" value="{{ user.last_name }}" placeholder="Nhập họ">
+                    </div>
+                    <div class="df-settings-field">
+                        <label class="df-settings-label">Tên (First Name)</label>
+                        <input type="text" name="first_name" class="df-settings-input" value="{{ user.first_name }}" placeholder="Nhập tên">
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end;">
+                     <button type="submit" class="df-settings-btn df-settings-btn--primary">
+                        Lưu thông tin
+                    </button>
+                </div>
+            </form>
+
+            <div class="df-settings-field" style="margin-top: 1.5rem;">
                 <label class="df-settings-label">Tên đăng nhập</label>
                 <input type="text" class="df-settings-input" value="{{ user.username }}" disabled>
                 <p class="df-settings-help">Tên đăng nhập không thể thay đổi</p>

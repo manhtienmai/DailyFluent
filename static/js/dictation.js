@@ -43,12 +43,11 @@ function diffString(userText, correctText) {
     const uw = u[i] || '';
     const cw = c[i] || '';
     if (normalize(uw) === normalize(cw)) {
-      // Correct - mask it
-      html += `<span class="diff-masked">******</span> `;
+      // Correct - Show it normally
+      html += `<span class="diff-correct text-green-600 dark:text-green-400 font-medium">${cw}</span> `;
     } else {
-      // Wrong - show expected word
-      // Optional: show what user typed? For now just show expected as per "chỉ hiển thị từ đấy"
-      html += `<span class="diff-expected">${cw}</span> `;
+      // Wrong - Mask it with stars
+      html += `<span class="diff-masked-error text-red-500 font-mono">******</span> `;
     }
   }
   return html.trim();

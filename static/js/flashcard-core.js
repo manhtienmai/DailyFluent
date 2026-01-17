@@ -91,7 +91,8 @@ class FlashcardApp {
       meaning: $('fc-meaning'),
       sinoBlock: $('fc-sino-block'),
       sinoVi: $('fc-sino-vi'),
-      definition: $('fc-definition'),
+      definitionBlock: $('fc-definition'),
+      definitionText: document.querySelector('#fc-definition .df-fc-definition'),
       exampleBox: $('fc-example'),
       exampleText: $('fc-example-text'),
       exampleTrans: $('fc-example-trans'),
@@ -335,8 +336,8 @@ class FlashcardApp {
     }
     
     // Hide English definition
-    if (this.elements.definition) {
-      this.elements.definition.classList.add('hidden');
+    if (this.elements.definitionBlock) {
+      this.elements.definitionBlock.classList.add('hidden');
     }
     
     // Example
@@ -387,12 +388,12 @@ class FlashcardApp {
     }
     
     // English definition
-    if (this.elements.definition) {
-      if (card.en_definition) {
-        this.elements.definition.textContent = card.en_definition;
-        this.elements.definition.classList.remove('hidden');
+    if (this.elements.definitionBlock) {
+      if (card.en_definition && this.elements.definitionText) {
+        this.elements.definitionText.textContent = card.en_definition;
+        this.elements.definitionBlock.classList.remove('hidden');
       } else {
-        this.elements.definition.classList.add('hidden');
+        this.elements.definitionBlock.classList.add('hidden');
       }
     }
     
