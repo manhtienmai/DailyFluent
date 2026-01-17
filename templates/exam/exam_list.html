@@ -3,23 +3,11 @@
 
 {% block extra_css %}
 <style>
-  /* Exam List Page - Compact Card Design */
+  /* Exam List Page - Fixed 4 Column Grid */
   .df-exam-container {
     width: 100%;
-    margin: 0;
-  }
-
-  /* Header */
-  .df-exam-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .df-exam-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   /* Stats Summary */
@@ -28,10 +16,10 @@
     justify-content: center;
     gap: 2rem;
     margin-bottom: 1.5rem;
-    padding: 0.5rem;
+    padding: 0.75rem 1.5rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
-    border-radius: 1rem;
+    border-radius: 0.75rem;
   }
 
   .df-exam-stat {
@@ -49,24 +37,23 @@
     color: var(--text-secondary);
   }
 
-  /* Exam Grid - Compact Cards */
+  /* Exam Grid - Fixed 4 columns max */
   .df-exam-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
-    justify-content: center;
   }
 
-  /* Exam Card - Compact Style */
+  /* Exam Card */
   .df-exam-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 0.875rem;
+    border-radius: 0.75rem;
     padding: 1rem;
-    min-height: 200px;
+    min-height: 180px;
     display: flex;
     flex-direction: column;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
   }
@@ -80,12 +67,12 @@
     height: 3px;
     background: linear-gradient(90deg, var(--action-primary) 0%, var(--action-accent) 100%);
     opacity: 0;
-    transition: opacity 0.25s;
+    transition: opacity 0.2s;
   }
 
   .df-exam-card:hover {
     border-color: var(--card-hover-border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
   }
 
@@ -97,7 +84,7 @@
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.5rem;
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -110,35 +97,34 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
 
   .df-exam-card-level {
     display: inline-flex;
     align-items: center;
-    padding: 0.1875rem 0.5rem;
+    padding: 0.125rem 0.375rem;
     font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     border-radius: 0.25rem;
   }
 
   .df-exam-card-users {
     display: inline-flex;
     align-items: center;
-    gap: 0.1875rem;
+    gap: 0.125rem;
     font-size: 0.625rem;
     color: var(--text-tertiary);
   }
 
   .df-exam-card-users svg {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
   }
 
-  /* Level badges with consistent styling */
+  /* Level badges */
   .df-exam-card-level--toeic {
     background: rgba(245, 158, 11, 0.15);
     color: #D97706;
@@ -179,7 +165,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     font-size: 0.6875rem;
     color: var(--text-secondary);
   }
@@ -191,8 +177,8 @@
   }
 
   .df-exam-card-meta-item svg {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     opacity: 0.7;
   }
 
@@ -200,7 +186,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 0.75rem;
+    padding-top: 0.5rem;
     margin-top: auto;
     border-top: 1px solid var(--border-subtle);
   }
@@ -209,8 +195,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
-    padding: 0.5rem 1rem;
+    gap: 0.25rem;
+    padding: 0.4rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--action-primary-text);
@@ -223,121 +209,134 @@
 
   .df-exam-card-btn:hover {
     background: var(--action-primary-hover);
-    box-shadow: var(--shadow-primary);
   }
 
   .df-exam-card-btn svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s;
+    width: 12px;
+    height: 12px;
   }
 
-  .df-exam-card-btn:hover svg {
-    transform: translateX(2px);
-  }
-
-  /* Pagination */
-  .df-exam-pagination {
+  /* Pagination - Simple & Clean */
+  .df-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 1.5rem;
   }
 
-  .df-exam-pagination-btn {
+  .df-pagination-item {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 0.75rem;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--text-secondary);
-    background: var(--bg-surface);
+    background: var(--card-bg);
     border: 1px solid var(--border-default);
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: all 0.15s ease;
   }
 
-  .df-exam-pagination-btn:hover {
-    color: var(--action-primary);
+  .df-pagination-item:hover {
+    color: var(--text-primary);
     border-color: var(--action-primary);
     background: var(--bg-hover);
   }
 
-  .df-exam-pagination-btn.active {
-    color: var(--action-primary-text);
+  .df-pagination-item.active {
+    color: #fff;
     background: var(--action-primary);
     border-color: var(--action-primary);
   }
 
-  .df-exam-pagination-btn.disabled {
-    opacity: 0.5;
+  .df-pagination-item.disabled {
+    opacity: 0.4;
     pointer-events: none;
   }
 
-  .df-exam-pagination-info {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin: 0 0.5rem;
+  .df-pagination-item svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .df-pagination-ellipsis {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    padding: 0 0.25rem;
   }
 
   /* Empty State */
   .df-exam-empty {
     text-align: center;
-    padding: 4rem 1rem;
+    padding: 3rem 1rem;
     background: var(--bg-surface);
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     border: 2px dashed var(--border-default);
   }
 
   .df-exam-empty-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 1rem;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.75rem;
     color: var(--text-tertiary);
   }
 
   .df-exam-empty-text {
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: var(--text-secondary);
   }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .df-exam-container {
-      padding: 1rem;
+  /* Responsive Breakpoints */
+  @media (max-width: 1024px) {
+    .df-exam-grid {
+      grid-template-columns: repeat(3, 1fr);
     }
+  }
 
-    .df-exam-title {
-      font-size: 1.5rem;
-    }
-
-    .df-exam-stats {
-      gap: 1rem;
-    }
-
+  @media (max-width: 768px) {
     .df-exam-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
     }
 
+    .df-exam-stats {
+      padding: 0.5rem 1rem;
+      gap: 1.5rem;
+    }
+
     .df-exam-card {
-      min-height: 180px;
+      min-height: 160px;
       padding: 0.875rem;
     }
+  }
 
-    .df-exam-pagination {
-      gap: 0.375rem;
+  @media (max-width: 480px) {
+    .df-exam-container {
+      padding: 0 0.5rem;
     }
 
-    .df-exam-pagination-btn {
-      min-width: 32px;
-      height: 32px;
+    .df-exam-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .df-exam-card {
+      min-height: 150px;
+      padding: 0.75rem;
+    }
+
+    .df-exam-card-title {
+      font-size: 0.75rem;
+    }
+
+    .df-pagination-item {
+      min-width: 28px;
+      height: 28px;
       font-size: 0.75rem;
     }
   }
@@ -407,36 +406,35 @@
 
   <!-- Pagination -->
   {% if page_obj.has_other_pages %}
-  <nav class="df-exam-pagination">
-    {% if page_obj.has_previous %}
-    <a href="?page=1{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-exam-pagination-btn" title="Trang đầu">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-      </svg>
-    </a>
-    <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-exam-pagination-btn" title="Trang trước">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <nav class="df-pagination">
+    <!-- Prev -->
+    <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
+       class="df-pagination-item{% if not page_obj.has_previous %} disabled{% endif %}" 
+       title="Trang trước">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
     </a>
-    {% endif %}
 
-    <span class="df-exam-pagination-info">
-      Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-    </span>
+    <!-- Page Numbers -->
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="df-pagination-item active">{{ num }}</span>
+      {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+        <a href="?page={{ num }}{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-pagination-item">{{ num }}</a>
+      {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+        <span class="df-pagination-ellipsis">...</span>
+      {% endif %}
+    {% endfor %}
 
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-exam-pagination-btn" title="Trang sau">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Next -->
+    <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
+       class="df-pagination-item{% if not page_obj.has_next %} disabled{% endif %}" 
+       title="Trang sau">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
     </a>
-    <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-exam-pagination-btn" title="Trang cuối">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-      </svg>
-    </a>
-    {% endif %}
   </nav>
   {% endif %}
 
