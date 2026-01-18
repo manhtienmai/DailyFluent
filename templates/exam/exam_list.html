@@ -408,13 +408,20 @@
   {% if page_obj.has_other_pages %}
   <nav class="df-pagination">
     <!-- Prev -->
+    {% if page_obj.has_previous %}
     <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
-       class="df-pagination-item{% if not page_obj.has_previous %} disabled{% endif %}" 
-       title="Trang trước">
+       class="df-pagination-item" title="Trang trước">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
     </a>
+    {% else %}
+    <span class="df-pagination-item disabled">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </span>
+    {% endif %}
 
     <!-- Page Numbers -->
     {% for num in page_obj.paginator.page_range %}
@@ -428,13 +435,20 @@
     {% endfor %}
 
     <!-- Next -->
+    {% if page_obj.has_next %}
     <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
-       class="df-pagination-item{% if not page_obj.has_next %} disabled{% endif %}" 
-       title="Trang sau">
+       class="df-pagination-item" title="Trang sau">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
     </a>
+    {% else %}
+    <span class="df-pagination-item disabled">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </span>
+    {% endif %}
   </nav>
   {% endif %}
 
