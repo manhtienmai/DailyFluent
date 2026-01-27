@@ -1,184 +1,224 @@
 /* =========================
    TOEIC Exam Take Page Styles
+   Modern, Clean & User-Friendly Design
    ========================= */
 
 :root {
   /* Primary colors */
-  --toeic-primary: #3b82f6;
-  --toeic-primary-hover: #2563eb;
-  --toeic-primary-light: #dbeafe;
-  --toeic-primary-soft: #eff6ff;
+  --toeic-primary: #4f46e5;
+  --toeic-primary-hover: #4338ca;
+  --toeic-primary-light: #e0e7ff;
+  --toeic-primary-soft: #eef2ff;
 
   /* Success colors */
   --toeic-success: #10b981;
   --toeic-success-hover: #059669;
+  --toeic-success-light: #d1fae5;
 
   /* Warning colors */
   --toeic-warning: #f59e0b;
+  --toeic-warning-light: #fef3c7;
 
   /* Neutral colors */
-  --toeic-border: #e2e8f0;
-  --toeic-border-hover: #94a3b8;
-  --toeic-bg-subtle: #f8fafc;
-  --toeic-bg-hover: #f1f5f9;
-  --toeic-text: #1e293b;
-  --toeic-text-muted: #64748b;
+  --toeic-border: #e5e7eb;
+  --toeic-border-hover: #9ca3af;
+  --toeic-bg: #f9fafb;
+  --toeic-bg-subtle: #f3f4f6;
+  --toeic-bg-hover: #f3f4f6;
+  --toeic-text: #111827;
+  --toeic-text-secondary: #374151;
+  --toeic-text-muted: #6b7280;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
 }
 
+/* ===== Container ===== */
 .df-toeic-exam-container {
   min-height: 100vh;
-  background: var(--toeic-bg-subtle);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
+/* ===== Header ===== */
 .df-toeic-header {
   background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 1.5rem;
-  position: static; /* không giữ cố định khi scroll */
+  border-bottom: 1px solid var(--toeic-border);
+  padding: 0.875rem 1.5rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .df-toeic-header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.df-toeic-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-
-.df-toeic-exit-btn {
-  padding: 0.5rem 1rem;
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.5rem;
-  color: #475569;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.df-toeic-exit-btn:hover {
-  background: #f1f5f9;
-}
-
-.df-toeic-main-layout {
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: 1.5rem;
-  padding: 0.75rem;
   max-width: 1600px;
   margin: 0 auto;
 }
 
-.df-toeic-content {
-  background: #fff;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+.df-toeic-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--toeic-text);
+  margin: 0;
+  letter-spacing: -0.025em;
 }
 
-.df-toeic-part-nav {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.df-toeic-part-btn {
+.df-toeic-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   padding: 0.5rem 1rem;
   background: #fff;
   border: 1px solid var(--toeic-border);
-  border-radius: 9999px;
+  border-radius: var(--radius-md);
   color: var(--toeic-text-muted);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.2s ease;
-  min-width: 60px;
+  transition: all 0.15s ease;
+}
+
+.df-toeic-exit-btn:hover {
+  background: var(--toeic-bg-hover);
+  border-color: var(--toeic-border-hover);
+  color: var(--toeic-text-secondary);
+}
+
+/* ===== Main Layout ===== */
+.df-toeic-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ===== Content Area ===== */
+.df-toeic-content {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  border: 1px solid var(--toeic-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== Part Navigation Tabs ===== */
+.df-toeic-part-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.25rem;
+  background: var(--toeic-bg-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.df-toeic-part-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--toeic-text-muted);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  min-width: 70px;
   text-align: center;
   white-space: nowrap;
 }
 
 .df-toeic-part-btn:hover {
-  background: var(--toeic-bg-hover);
-  border-color: var(--toeic-border-hover);
-  color: var(--toeic-text);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--toeic-text-secondary);
 }
 
 .df-toeic-part-btn--active {
-  /* Force readable active state even if global button reset overrides colors */
-  background: var(--toeic-primary) !important;
-  border-color: var(--toeic-primary) !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  background: #fff !important;
+  color: var(--toeic-primary) !important;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
-.df-toeic-part-btn--active:hover {
-  background: var(--toeic-primary-hover);
-  border-color: var(--toeic-primary-hover);
-  transform: translateY(-1px);
-}
-
+/* ===== Controls ===== */
 .df-toeic-controls {
   margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--toeic-border);
 }
 
 .df-toeic-highlight-toggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
   cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  background: var(--toeic-bg-subtle);
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+
+.df-toeic-highlight-toggle:hover {
+  background: var(--toeic-bg-hover);
+}
+
+.df-toeic-highlight-toggle input[type="checkbox"] {
+  display: none;
 }
 
 .df-toeic-switch {
   position: relative;
-  width: 44px;
-  height: 24px;
-  background: #cbd5e1;
-  border-radius: 12px;
-  transition: background 0.2s;
+  width: 36px;
+  height: 20px;
+  background: #d1d5db;
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease;
 }
 
 .df-toeic-switch::after {
   content: '';
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   background: #fff;
   border-radius: 50%;
-  top: 3px;
-  left: 3px;
-  transition: left 0.2s;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.df-toeic-highlight-toggle input:checked+.df-toeic-switch {
-  background: #3b82f6;
+.df-toeic-highlight-toggle input:checked + .df-toeic-switch {
+  background: var(--toeic-primary);
 }
 
-.df-toeic-highlight-toggle input:checked+.df-toeic-switch::after {
-  left: 23px;
+.df-toeic-highlight-toggle input:checked + .df-toeic-switch::after {
+  transform: translateX(16px);
 }
 
 .df-toeic-highlight-label {
-  font-size: 0.875rem;
-  color: #475569;
+  font-size: 0.8125rem;
+  color: var(--toeic-text-secondary);
+  font-weight: 500;
 }
 
-.df-toeic-info-icon {
-  font-size: 0.875rem;
-  color: #94a3b8;
-}
-
+/* ===== Audio Player ===== */
 .df-toeic-audio-player {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, var(--toeic-primary-soft) 0%, #fff 100%);
+  border: 1px solid var(--toeic-primary-light);
+  border-radius: var(--radius-lg);
 }
 
 .df-toeic-audio-controls {
@@ -188,83 +228,135 @@
 }
 
 .df-toeic-audio-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: var(--toeic-primary);
   color: #fff;
   border: none;
   cursor: pointer;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+
+.df-toeic-audio-btn:hover {
+  background: var(--toeic-primary-hover);
+  transform: scale(1.05);
 }
 
 .df-toeic-audio-progress {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .df-toeic-audio-progress-bar {
   flex: 1;
-  height: 4px;
-  background: #e2e8f0;
-  border-radius: 2px;
+  height: 6px;
+  background: rgba(79, 70, 229, 0.15);
+  border-radius: var(--radius-full);
   overflow: hidden;
+  cursor: pointer;
 }
 
 .df-toeic-audio-progress-fill {
   height: 100%;
-  background: #3b82f6;
+  background: var(--toeic-primary);
   width: 0%;
   transition: width 0.1s;
+  border-radius: var(--radius-full);
 }
 
 .df-toeic-audio-time {
   font-size: 0.75rem;
-  color: #64748b;
+  font-weight: 600;
+  color: var(--toeic-text-secondary);
   min-width: 45px;
+  font-variant-numeric: tabular-nums;
 }
 
 .df-toeic-audio-volume {
   width: 80px;
+  accent-color: var(--toeic-primary);
 }
 
+.df-toeic-audio-speaker,
+.df-toeic-audio-settings {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.df-toeic-audio-speaker:hover,
+.df-toeic-audio-settings:hover {
+  opacity: 1;
+}
+
+/* ===== Part Sections ===== */
 .df-toeic-part-section {
   display: none;
 }
 
 .df-toeic-part-section--active {
   display: block;
+  animation: fadeIn 0.2s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Question Block ===== */
 .df-toeic-question-block {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
 
+.df-toeic-question-block:hover {
+  border-color: var(--toeic-border);
+  background: var(--toeic-bg);
+}
+
+/* ===== Part 1 Image ===== */
 .df-toeic-part1-image {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .df-toeic-part1-image img {
   width: 100%;
-  max-width: 600px;
+  max-width: 550px;
   height: auto;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--toeic-border);
+  box-shadow: var(--shadow-md);
 }
 
+/* ===== Conversation Grid (L3/L4) ===== */
 .df-toeic-conv-image {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .df-toeic-conv-image img {
   width: 100%;
   height: auto;
-  border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--toeic-border);
 }
 
-/* Listening conversation: 2-column when image present */
 .df-toeic-conv-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -279,131 +371,169 @@
 .df-toeic-conv-questions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-@media (max-width: 768px) {
-  .df-toeic-conv-grid--has-image {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* ===== Question Header ===== */
 .df-toeic-question-header {
   display: flex;
   align-items: flex-start;
-  gap: 0.375rem;
-  margin-bottom: 0.25rem;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
 }
 
 .df-toeic-question-number {
-  font-size: 0.9375rem;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #fff;
+  background: var(--toeic-primary);
+  border: none;
+  flex-shrink: 0;
+  user-select: none;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
 }
 
-/* Review toggle moved to clicking question number (no ★ button) */
+.df-toeic-question-number--reviewable {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
 
+.df-toeic-question-number--reviewable:hover {
+  background: var(--toeic-primary-hover);
+  transform: scale(1.08);
+}
+
+.df-toeic-question-number--review {
+  background: var(--toeic-warning);
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
+}
+
+.df-toeic-question-number--review::after {
+  content: "★";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--toeic-warning);
+  background: #fff;
+  border: 1px solid var(--toeic-border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== Question Text ===== */
 .df-toeic-question-text {
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--toeic-text);
+  line-height: 1.5;
   margin-bottom: 0.5rem;
-  line-height: 1.4;
 }
 
 .df-toeic-question-text--inline {
   flex: 1 1 auto;
   margin-bottom: 0;
+  padding-top: 0.25rem;
 }
 
+/* ===== Answer Options ===== */
 .df-toeic-question-options {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.375rem;
+  margin-left: 0.25rem;
 }
 
 .df-toeic-option {
   display: flex;
   align-items: flex-start;
-  gap: 0.35rem;
-  padding: 0.2rem 0.2rem;
-  border: none; /* bỏ dạng button khối */
-  border-radius: 0;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: none;
+  transition: all 0.15s ease;
   background: transparent;
-  color: #0f172a;
+  color: var(--toeic-text);
 }
 
 .df-toeic-option:hover:not(.df-toeic-option--selected) {
-  background: transparent;
-  border-color: transparent;
+  background: var(--toeic-bg-subtle);
+  border-color: var(--toeic-border);
 }
 
 .df-toeic-option input[type="radio"] {
   display: inline-block;
   width: 16px;
   height: 16px;
-  accent-color: #2563eb;
-  margin-top: 2px; /* căn theo dòng đầu */
+  accent-color: var(--toeic-primary);
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .df-toeic-option-label {
-  font-size: 0.85rem;
-  color: #0f172a;
-  line-height: 1.4;
-  min-width: 18px;
+  font-size: 0.875rem;
+  color: var(--toeic-text);
+  line-height: 1.5;
 }
 
 .df-toeic-option--selected {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
+  background: var(--toeic-primary-soft);
+  border-color: var(--toeic-primary-light);
 }
 
 .df-toeic-option--selected .df-toeic-option-label {
-  color: #1e40af;
+  color: var(--toeic-primary-hover);
   font-weight: 600;
 }
 
-/* Passage title placed inside the passage content box */
-.df-toeic-passage-content .df-toeic-passage-inline-title {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: #0f172a;
-  text-align: center;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
+/* ===== Passage Divider ===== */
 .df-toeic-passage-divider {
   border: 0;
-  border-top: 2px solid #e2e8f0;
-  /* margin: 4px 0; */
+  border-top: 1px solid var(--toeic-border);
+  margin: 1.5rem 0;
 }
 
+/* ===== Part Navigation Buttons ===== */
 .df-toeic-part-navigation {
-  padding-top: 1.5rem;
-  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--toeic-border);
 }
 
 .df-toeic-nav-part-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
   padding: 0.625rem 1.25rem;
   border: 1px solid var(--toeic-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   background: #fff;
-  color: var(--toeic-text-muted);
+  color: var(--toeic-text-secondary) !important;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  min-width: 110px;
 }
 
 .df-toeic-nav-part-btn:hover:not(:disabled) {
   background: var(--toeic-bg-hover);
   border-color: var(--toeic-border-hover);
-  color: var(--toeic-text);
-  transform: translateY(-1px);
 }
 
 .df-toeic-nav-part-btn:disabled {
@@ -411,250 +541,265 @@
   cursor: not-allowed;
 }
 
-.df-toeic-nav-part-btn--prev {
-  min-width: 100px;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
 .df-toeic-nav-part-btn--next {
-  background: var(--toeic-primary);
-  color: #fff;
-  border-color: var(--toeic-primary);
-  min-width: 100px;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  background: var(--toeic-primary) !important;
+  color: #fff !important;
+  border-color: var(--toeic-primary) !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
 }
 
 .df-toeic-nav-part-btn--next:hover:not(:disabled) {
-  background: var(--toeic-primary-hover);
-  border-color: var(--toeic-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+  background: var(--toeic-primary-hover) !important;
+  border-color: var(--toeic-primary-hover) !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+}
+
+/* ===== Passage Block (R6/R7) ===== */
+.df-toeic-passage-block {
+  position: relative;
+  margin-top: 0.75rem;
+  background: var(--toeic-bg);
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
 }
 
 .df-toeic-passage-header {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--toeic-text);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--toeic-border);
+}
+
+.df-toeic-passage-inline-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--toeic-text);
+  text-align: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--toeic-border);
 }
 
 .df-toeic-passage-split {
   display: grid;
-  /* Use minmax to avoid overflow of the questions column */
-  grid-template-columns: minmax(0, 65%) minmax(0, 35%);
-  gap: 1.5rem;
-  margin-bottom: 0.2rem;
+  grid-template-columns: minmax(0, 60%) minmax(0, 40%);
+  gap: 1.25rem;
   align-items: start;
 }
 
+.df-toeic-passage-content {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--toeic-text);
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-md);
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.df-toeic-passage-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.df-toeic-passage-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: var(--radius-full);
+}
+
+.df-toeic-passage-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .df-toeic-passage-image {
-  position: static;
-  height: fit-content;
-  align-self: start;
-  background: #f3f4f6;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
+  background: #fff;
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
 }
 
 .df-toeic-passage-image img {
   width: 100%;
   height: auto;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 .df-toeic-passage-placeholder {
-  padding: 3rem;
-  background: #f1f5f9;
-  border-radius: 0.5rem;
+  padding: 2.5rem;
+  background: var(--toeic-bg-subtle);
+  border-radius: var(--radius-md);
   text-align: center;
-  color: #94a3b8;
+  color: var(--toeic-text-muted);
 }
 
 .df-toeic-passage-questions {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-height: 100vh;
+  gap: 0.5rem;
+  max-height: 85vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: #d1d5db transparent;
+  padding-right: 0.25rem;
 }
 
 .df-toeic-passage-questions::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .df-toeic-passage-questions::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #d1d5db;
+  border-radius: var(--radius-full);
 }
 
-.df-toeic-passage-questions::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.df-toeic-passage-block {
-  position: relative;
-  /* margin-bottom: 1.0rem;  */
-  margin-top: 1.0rem;
-  background: #f3f4f6; /* nền xám phủ toàn bộ khu passage */
-  border: 1px solid #e2e8f0;
-  border-top-right-radius: 8px;
-  border-top-left-radius: 8px;
-  padding: 10px;
-}
-
+/* ===== Sidebar ===== */
 .df-toeic-sidebar {
   background: #fff;
-  border-radius: 0.5rem;
-  padding: 1rem; /* giảm padding */
-  position: relative;
-  top: 0;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  border: 1px solid var(--toeic-border);
+  box-shadow: var(--shadow-sm);
   height: fit-content;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
+/* ===== Timer ===== */
 .df-toeic-timer {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   text-align: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fff 100%);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-lg);
 }
 
 .df-toeic-timer-label {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--toeic-text-muted);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .df-toeic-timer-value {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--toeic-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
 }
 
+/* ===== Submit Button ===== */
 .df-toeic-submit-btn {
   width: 100%;
-  padding: 0.6rem; /* nhỏ hơn */
-  background: #3b82f6;
-  color: #fff;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--toeic-primary) 0%, var(--toeic-primary-hover) 100%);
+  color: #fff !important;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.9rem; /* nhỏ hơn */
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 1rem; /* ít khoảng cách hơn */
-  transition: background 0.2s;
+  margin-bottom: 1.25rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .df-toeic-submit-btn:hover {
-  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
+.df-toeic-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== Instructions ===== */
 .df-toeic-instructions {
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-  color: #64748b;
+  margin-bottom: 1.25rem;
 }
 
-.df-toeic-instruction-note {
-  margin-top: 0.5rem;
+.df-toeic-instruction-item {
   font-size: 0.8125rem;
-  color: #94a3b8;
+  color: var(--toeic-primary);
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  background: var(--toeic-primary-soft);
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+  text-align: center;
 }
 
+.df-toeic-instruction-item:hover {
+  background: var(--toeic-primary-light);
+}
+
+/* ===== Question Navigation Grid ===== */
 .df-toeic-question-nav {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-/* =========================
-   Single-scroll mode (desktop)
-   - Let the PAGE be the only scroll container
-   - Sidebar + question overview do not scroll independently
-   ========================= */
-@media (min-width: 1025px) {
-  .df-toeic-sidebar {
-    /* Don't constrain height; allow the page to scroll naturally */
-    max-height: none;
-    overflow: visible;
-  }
+.df-toeic-nav-part {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--toeic-border);
+}
 
-  .df-toeic-question-nav {
-    overflow: visible;
-  }
+.df-toeic-nav-part:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .df-toeic-nav-part-title {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 0.75rem;
+  color: var(--toeic-text-muted);
+  margin-bottom: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .df-toeic-nav-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(28px, 1fr)); /* max 5 per row (desktop) */
-  gap: 0.35rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.375rem;
 }
 
 .df-toeic-nav-qbtn {
-  width: 30px;
-  height: 30px;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 36px;
   border: 1px solid var(--toeic-border);
   background: #fff;
-  border-radius: 0.35rem;
-  color: var(--toeic-text-muted);
-  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+  color: var(--toeic-text-secondary);
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
-}
-
-/* Responsive: fewer columns on small screens */
-@media (max-width: 480px) {
-  .df-toeic-nav-grid {
-    grid-template-columns: repeat(4, minmax(26px, 1fr));
-    gap: 0.3rem;
-  }
-  .df-toeic-nav-qbtn {
-    width: 28px;
-    height: 28px;
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .df-toeic-nav-grid {
-    grid-template-columns: repeat(3, minmax(26px, 1fr));
-  }
+  position: relative;
 }
 
 .df-toeic-nav-qbtn:hover {
   background: var(--toeic-bg-hover);
   border-color: var(--toeic-border-hover);
-  color: var(--toeic-text);
   transform: scale(1.05);
 }
 
 .df-toeic-nav-qbtn--active {
-  background: #e8f2ff;
-  border-color: #2563eb;
-  color: #0f172a !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
-  transform: scale(1.05);
+  background: var(--toeic-primary-soft);
+  border-color: var(--toeic-primary);
+  color: var(--toeic-primary) !important;
+  font-weight: 600;
 }
 
 .df-toeic-nav-qbtn--answered {
@@ -666,7 +811,6 @@
 .df-toeic-nav-qbtn--answered:hover {
   background: var(--toeic-success-hover) !important;
   border-color: var(--toeic-success-hover) !important;
-  transform: scale(1.05);
 }
 
 .df-toeic-nav-qbtn--review {
@@ -676,53 +820,32 @@
 .df-toeic-nav-qbtn--review::after {
   content: "★";
   position: absolute;
-  top: -6px;
-  right: -6px;
-  font-size: 10px;
-  color: #f59e0b;
+  top: -5px;
+  right: -5px;
+  font-size: 8px;
+  color: var(--toeic-warning);
   background: #fff;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  font-weight: bold;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--toeic-border);
 }
 
 .df-toeic-nav-qbtn--active.df-toeic-nav-qbtn--answered {
-  background: #10b981 !important;
-  border-color: #10b981 !important;
+  background: var(--toeic-success) !important;
+  border-color: var(--toeic-success) !important;
   color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
-@media (max-width: 1024px) {
-  .df-toeic-main-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .df-toeic-sidebar {
-    position: relative;
-    top: 0;
-    max-height: none;
-  }
-
-  .df-toeic-passage-split {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================
-   Schema 2.1: Blank Markers
-   ========================= */
-
-/* Blank marker in question stem (Part 5) */
+/* ===== Schema 2.1: Blank Markers ===== */
 .df-toeic-blank-marker {
   display: inline-block;
-  min-width: 80px;
+  min-width: 70px;
   padding: 0.125rem 0.5rem;
   border-bottom: 2px solid var(--toeic-primary);
   color: var(--toeic-primary);
@@ -731,144 +854,107 @@
   margin: 0 0.125rem;
 }
 
-/* Blank marker in passage content (Part 6) */
 .df-toeic-passage-blank {
   display: inline-block;
   padding: 0.125rem 0.375rem;
   background: var(--toeic-primary-light);
   border: 1px solid var(--toeic-primary);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm);
   color: var(--toeic-primary);
-  font-weight: 400;
-  font-size: 0.65rem;
+  font-weight: 500;
+  font-size: 0.6875rem;
   margin: 0 0.125rem;
 }
 
-/* Stem text container with segments */
 .df-toeic-stem-segments {
-  font-size: 0.85rem;
-  line-height: 1.4;
-  color: #0f172a;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--toeic-text);
   flex: 1 1 auto;
 }
 
-/* Passage content with segments */
-.df-toeic-passage-content {
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: var(--toeic-text);
-  background: #f3f4f6; /* nền xám cho phần passage */
-  /* padding: 8px; */
-  padding-right: 4px;
-  border: none;
-  border-radius: 8px;
-  /* Allow scrolling to avoid overflowing viewport */
-  max-height: 100vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.df-toeic-passage-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.df-toeic-passage-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.df-toeic-passage-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* ===== Rich document (invoice/email) styling ===== */
+/* ===== Rich Document Styling ===== */
 .df-docs-block {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .df-doc-label {
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .df-doc-keyvalue {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 8px 0;
+  gap: 4px;
+  margin: 6px 0;
 }
 
 .df-doc-kv-row {
   display: flex;
   gap: 6px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .df-doc-kv-key {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .df-doc-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  margin-bottom: 4px;
-  font-size: 0.875rem;
+  margin: 8px 0;
+  font-size: 0.8125rem;
 }
 
 .df-doc-table th,
 .df-doc-table td {
-  padding: 4px 8px;
-  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
+  border: 1px solid var(--toeic-border);
   vertical-align: top;
 }
 
 .df-doc-table thead th {
-  background: #f8fafc;
-  font-weight: 700;
+  background: var(--toeic-bg-subtle);
+  font-weight: 600;
 }
 
-/* Chat document */
+/* Chat Document */
 .df-doc-chat {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.85rem;
+  gap: 6px;
+  font-size: 0.8125rem;
 }
 
 .df-chat-msg {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .df-chat-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.78rem;
-  color: #475569;
+  font-size: 0.75rem;
+  color: var(--toeic-text-muted);
 }
 
 .df-chat-from {
-  font-weight: 700;
-}
-
-.df-chat-time {
-  color: #64748b;
+  font-weight: 600;
 }
 
 .df-chat-bubble {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 7px 9px;
-  line-height: 1.45;
+  background: var(--toeic-bg);
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  line-height: 1.5;
 }
 
-/* Chat color variants per speaker */
+/* Chat color variants */
 .df-chat-color-0 .df-chat-bubble { background: #eff6ff; border-color: #bfdbfe; }
 .df-chat-color-1 .df-chat-bubble { background: #ecfeff; border-color: #bae6fd; }
 .df-chat-color-2 .df-chat-bubble { background: #f0fdf4; border-color: #bbf7d0; }
@@ -876,69 +962,63 @@
 .df-chat-color-4 .df-chat-bubble { background: #fff7ed; border-color: #fed7aa; }
 .df-chat-color-5 .df-chat-bubble { background: #fdf2f8; border-color: #fbcfe8; }
 
-/* Email header */
+/* Email Header */
 .df-email-header {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  background: var(--toeic-bg);
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-md);
   padding: 8px 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .df-email-header-row {
   display: flex;
   gap: 6px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .df-email-header-key {
-  font-weight: 700;
-  min-width: 70px;
+  font-weight: 600;
+  min-width: 60px;
 }
 
 .df-doc-article,
 .df-doc-advertisement {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--toeic-bg);
+  border: 1px solid var(--toeic-border);
   padding: 10px;
+  border-radius: var(--radius-md);
 }
 
 .df-doc-article p,
-.df-doc-article h1,
-.df-doc-article h2,
-.df-doc-article h3,
-.df-doc-advertisement p,
-.df-doc-advertisement h1,
-.df-doc-advertisement h2,
-.df-doc-advertisement h3 {
+.df-doc-advertisement p {
   margin: 6px 0;
 }
 
 .df-doc-article a,
 .df-doc-advertisement a {
-  color: #2563eb;
+  color: var(--toeic-primary);
   word-break: break-all;
 }
 
 .df-webbar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  background: #e2e8f0;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  background: var(--toeic-bg-subtle);
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-md);
   padding: 6px 8px;
-  margin-bottom: 8px;
-  gap: 8px;
+  margin-bottom: 6px;
+  gap: 6px;
 }
 
 .df-webbar-link {
   background: #fff;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: #0f172a;
-  font-size: 0.85rem;
+  border: 1px solid var(--toeic-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  color: var(--toeic-text);
+  font-size: 0.8125rem;
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -946,26 +1026,184 @@
 }
 
 .df-doc-list {
-  margin: 6px 0 6px 1.25rem;
-  padding-left: 1.25rem;
+  margin: 6px 0 6px 1rem;
+  padding-left: 1rem;
   list-style: disc;
 }
 
 .df-doc-list li {
   margin-bottom: 4px;
-  color: #0f172a;
+  color: var(--toeic-text);
 }
 
 .df-doc-blank {
   display: inline-block;
   padding: 1px 4px;
-  border-bottom: 2px solid #2563eb;
-  color: #2563eb;
+  border-bottom: 2px solid var(--toeic-primary);
+  color: var(--toeic-primary);
   font-weight: 600;
   margin: 0 1px;
 }
 
-.df-toeic-passage-content .df-toeic-passage-blank {
-  font-size: 0.8125rem;
+/* ===== Responsive: Tablet ===== */
+@media (max-width: 1024px) {
+  .df-toeic-main-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .df-toeic-sidebar {
+    order: -1;
+  }
+
+  .df-toeic-passage-split {
+    grid-template-columns: 1fr;
+  }
+
+  .df-toeic-conv-grid--has-image {
+    grid-template-columns: 1fr;
+  }
 }
 
+/* ===== Responsive: Mobile ===== */
+@media (max-width: 768px) {
+  .df-toeic-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .df-toeic-header-top {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .df-toeic-title {
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .df-toeic-exit-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .df-toeic-main-layout {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .df-toeic-content {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .df-toeic-sidebar {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .df-toeic-part-nav {
+    gap: 0.25rem;
+    padding: 0.25rem;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .df-toeic-part-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .df-toeic-timer {
+    padding: 0.75rem;
+  }
+
+  .df-toeic-timer-value {
+    font-size: 1.5rem;
+  }
+
+  .df-toeic-submit-btn {
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  .df-toeic-nav-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .df-toeic-part-navigation {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .df-toeic-nav-part-btn {
+    width: 100%;
+  }
+}
+
+/* ===== Responsive: Small Mobile ===== */
+@media (max-width: 480px) {
+  .df-toeic-header {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .df-toeic-title {
+    font-size: 0.9375rem;
+  }
+
+  .df-toeic-main-layout {
+    padding: 0.5rem;
+  }
+
+  .df-toeic-content {
+    padding: 0.75rem;
+  }
+
+  .df-toeic-sidebar {
+    padding: 0.75rem;
+  }
+
+  .df-toeic-nav-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.25rem;
+  }
+
+  .df-toeic-nav-qbtn {
+    font-size: 0.6875rem;
+  }
+
+  .df-toeic-question-options {
+    margin-left: 0;
+  }
+
+  .df-toeic-option {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .df-toeic-option-label {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ===== Desktop: Single scroll ===== */
+@media (min-width: 1025px) {
+  .df-toeic-sidebar {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .df-toeic-sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .df-toeic-sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: var(--radius-full);
+  }
+}
