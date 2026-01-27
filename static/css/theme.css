@@ -99,14 +99,166 @@ article h3 {
 }
 
 /* Restore form element backgrounds */
-input:not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]),
+input:not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]):not(.df-otp-input),
 select:not([class*="bg-"]),
 textarea:not([class*="bg-"]) {
   background-color: #fff;
 }
 
+/* Auth form inputs use design system variables */
+.df-auth-field input {
+  background-color: var(--input-bg) !important;
+}
+
+/* Dictation inputs use design system variables */
+.df-dictation-textarea,
+.df-dictation-speed,
+.df-dictation-setting-input {
+  background-color: var(--input-bg) !important;
+}
+
+/* =========================
+   Dictation Settings Panel - Modern Design
+   ========================= */
+.df-dictation-settings-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 100;
+  min-width: 280px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: var(--df-radius-xl);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: settingsPanelSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes settingsPanelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.df-dictation-settings-header {
+  background: linear-gradient(135deg, var(--df-primary) 0%, #3b82f6 100%);
+  color: #fff;
+  padding: 0.875rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+}
+
+.df-dictation-settings-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.df-dictation-settings-header::after {
+  content: '⚙️';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.df-dictation-settings-body {
+  padding: 0.75rem 0;
+}
+
+.df-dictation-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.df-dictation-setting-row:hover {
+  background: rgba(0, 113, 249, 0.04);
+}
+
+.df-dictation-setting-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgb(51 65 85);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.df-dictation-setting-input {
+  padding: 0.4rem 0.75rem;
+  padding-right: 2rem;
+  border: 1.5px solid rgb(226 232 240);
+  border-radius: var(--df-radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgb(30 41 59);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  min-width: 100px;
+  text-align: left;
+}
+
+.df-dictation-setting-input:hover {
+  border-color: rgb(148 163 184);
+  background-color: rgb(248 250 252);
+}
+
+.df-dictation-setting-input:focus {
+  outline: none;
+  border-color: var(--df-primary);
+  box-shadow: 0 0 0 3px rgba(0, 113, 249, 0.1);
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 480px) {
+  .df-dictation-settings-panel {
+    min-width: 260px;
+    right: -1rem;
+  }
+
+  .df-dictation-setting-row {
+    padding: 0.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .df-dictation-setting-label {
+    font-size: 0.75rem;
+  }
+
+  .df-dictation-setting-input {
+    min-width: 90px;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+    padding-right: 1.75rem;
+  }
+}
+
 /* Ensure buttons have visible backgrounds when needed */
-button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn) {
+button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.df-auth-btn):not(.df-auth-social-btn):not(.df-dictation-btn):not(.df-dictation-tab):not(.df-dictation-settings-btn):not(.df-transcript-nav-btn):not(.df-transcript-play-btn):not(.df-transcript-item-play):not(.df-toeic-question-number):not(.df-toeic-nav-qbtn):not(.df-toeic-part-btn):not(.df-toeic-nav-part-btn):not(.df-toeic-submit-btn):not(.df-toeic-audio-btn) {
   background-color: #fff;
 }
 
