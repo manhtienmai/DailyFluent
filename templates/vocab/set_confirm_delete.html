@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .df-delete-page {
+    padding: 2rem 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .df-delete-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .df-delete-icon {
+    width: 48px;
+    height: 48px;
+    background: #fef2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .df-delete-icon svg {
+    width: 24px;
+    height: 24px;
+    color: #ef4444;
+  }
+
+  .df-delete-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #ef4444;
+    margin: 0 0 1rem;
+  }
+
+  .df-delete-message {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+  }
+
+  .df-delete-message strong {
+    color: var(--text-primary);
+  }
+
+  .df-delete-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .df-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 44px;
+  }
+
+  .df-btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+
+  .df-btn-danger:hover {
+    background: #dc2626;
+  }
+
+  .df-btn-secondary {
+    background: var(--bg-interactive);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+  }
+
+  .df-btn-secondary:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .df-delete-page {
+      padding: 1rem;
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    .df-delete-card {
+      padding: 1.25rem;
+    }
+
+    .df-delete-icon {
+      width: 44px;
+      height: 44px;
+    }
+
+    .df-delete-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .df-delete-title {
+      font-size: 1.25rem;
+    }
+
+    .df-delete-message {
+      font-size: 0.875rem;
+    }
+
+    .df-delete-actions {
+      flex-direction: column;
+    }
+
+    .df-btn {
+      width: 100%;
+      padding: 0.875rem;
+      min-height: 48px;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 375px) {
+    .df-delete-page {
+      padding: 0.75rem;
+    }
+
+    .df-delete-card {
+      padding: 1rem;
+    }
+
+    .df-delete-title {
+      font-size: 1.125rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-delete-page">
+  <div class="df-delete-card">
+    <div class="df-delete-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18"/>
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+        <line x1="10" y1="11" x2="10" y2="17"/>
+        <line x1="14" y1="11" x2="14" y2="17"/>
+      </svg>
+    </div>
+
+    <h1 class="df-delete-title">Delete Vocabulary Set</h1>
+
+    <p class="df-delete-message">
+      Are you sure you want to delete <strong>"{{ object.title }}"</strong>?
+      This action cannot be undone and will remove all items in the set.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="df-delete-actions">
+        <button type="submit" class="df-btn df-btn-danger">
+          Yes, Delete
+        </button>
+        <a href="{% url 'vocab:set_detail' object.pk %}" class="df-btn df-btn-secondary">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

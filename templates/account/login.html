@@ -6,36 +6,68 @@
 
 {% block extra_css %}
 <style>
-  .df-auth-container {
-    max-width: 440px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+  .df-auth-page {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: var(--bg-app);
   }
-  
+
+  .df-auth-container {
+    width: 100%;
+    max-width: 420px;
+  }
+
   .df-auth-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 1.5rem;
-    padding: 2.5rem;
+    border-radius: 1.25rem;
+    padding: 2rem;
     box-shadow: var(--shadow-lg);
   }
-  
+
+  .df-auth-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  .df-auth-logo {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--action-primary), var(--action-primary-hover));
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-primary);
+  }
+
+  .df-auth-logo svg {
+    width: 28px;
+    height: 28px;
+    color: var(--action-primary-text);
+  }
+
   .df-auth-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    text-align: center;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem;
   }
-  
+
   .df-auth-subtitle {
     font-size: 0.9375rem;
     color: var(--text-secondary);
-    text-align: center;
-    margin-bottom: 2rem;
+    margin: 0;
   }
-  
+
   .df-auth-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
     padding: 0.875rem 1rem;
     background: var(--status-error-subtle);
     border: 1px solid var(--status-error-border);
@@ -44,48 +76,122 @@
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
   }
-  
+
+  .df-auth-error svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+  }
+
   .df-auth-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
   }
-  
+
+  .df-auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .df-auth-field label {
-    display: block;
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
   }
-  
+
+  .df-auth-input-wrapper {
+    position: relative;
+  }
+
+  .df-auth-input-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: var(--text-tertiary);
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
   .df-auth-field input {
     width: 100%;
-    padding: 0.875rem 1rem;
-    font-size: 1rem;
+    padding: 0.75rem 0.875rem 0.75rem 2.75rem;
+    font-size: 0.9375rem;
     color: var(--text-primary);
     background: var(--input-bg);
-    border: 1px solid var(--border-default);
-    border-radius: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 0.625rem;
     outline: none;
     transition: all 0.2s ease;
   }
-  
+
+  .df-auth-field input:hover {
+    border-color: var(--input-border-hover);
+  }
+
   .df-auth-field input:focus {
-    border-color: var(--action-primary);
+    border-color: var(--input-border-focus);
     box-shadow: 0 0 0 3px var(--action-primary-subtle);
   }
-  
+
+  .df-auth-field input:focus + .df-auth-input-icon,
+  .df-auth-field input:focus ~ .df-auth-input-icon {
+    color: var(--action-primary);
+  }
+
   .df-auth-field input::placeholder {
     color: var(--text-tertiary);
   }
-  
+
   .df-auth-field-error {
     font-size: 0.8125rem;
     color: var(--status-error-text);
-    margin-top: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
-  
+
+  .df-auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -0.25rem;
+  }
+
+  .df-auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .df-auth-remember input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--action-primary);
+    cursor: pointer;
+  }
+
+  .df-auth-forgot {
+    font-size: 0.8125rem;
+    color: var(--text-link);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+
+  .df-auth-forgot:hover {
+    color: var(--text-link-hover);
+    text-decoration: underline;
+  }
+
   .df-auth-btn {
     width: 100%;
     padding: 0.875rem;
@@ -94,40 +200,30 @@
     background: var(--action-primary);
     color: var(--action-primary-text);
     border: none;
-    border-radius: 0.75rem;
+    border-radius: 0.625rem;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 0.5rem;
+    box-shadow: var(--shadow-sm);
   }
-  
+
   .df-auth-btn:hover {
     background: var(--action-primary-hover);
-    transform: translateY(-2px);
     box-shadow: var(--shadow-primary);
+    transform: translateY(-1px);
   }
-  
-  .df-auth-forgot {
-    text-align: right;
-    margin-top: -0.5rem;
+
+  .df-auth-btn:active {
+    transform: translateY(0);
   }
-  
-  .df-auth-forgot a {
-    font-size: 0.8125rem;
-    color: var(--text-link);
-    text-decoration: none;
-  }
-  
-  .df-auth-forgot a:hover {
-    text-decoration: underline;
-  }
-  
+
   .df-auth-divider {
     display: flex;
     align-items: center;
     margin: 1.5rem 0;
     gap: 1rem;
   }
-  
+
   .df-auth-divider::before,
   .df-auth-divider::after {
     content: '';
@@ -135,135 +231,347 @@
     height: 1px;
     background: var(--border-default);
   }
-  
+
   .df-auth-divider span {
     font-size: 0.8125rem;
     color: var(--text-tertiary);
+    font-weight: 500;
   }
-  
+
   .df-auth-social-btn {
     width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    padding: 0.875rem;
+    padding: 0.75rem;
     font-size: 0.9375rem;
     font-weight: 600;
     background: var(--bg-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-default);
-    border-radius: 0.75rem;
+    border-radius: 0.625rem;
     cursor: pointer;
     transition: all 0.2s ease;
   }
-  
+
   .df-auth-social-btn:hover {
     background: var(--bg-interactive);
     border-color: var(--border-interactive);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
-  
+
+  .df-auth-social-btn:active {
+    transform: translateY(0);
+  }
+
   .df-auth-social-btn svg {
     width: 20px;
     height: 20px;
+    flex-shrink: 0;
   }
-  
+
   .df-auth-footer {
     text-align: center;
     margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-default);
     font-size: 0.9375rem;
     color: var(--text-secondary);
   }
-  
+
   .df-auth-footer a {
     color: var(--action-primary);
     font-weight: 600;
     text-decoration: none;
+    transition: color 0.15s ease;
   }
-  
+
   .df-auth-footer a:hover {
+    color: var(--action-primary-hover);
     text-decoration: underline;
+  }
+
+  /* Tablet */
+  @media (max-width: 768px) {
+    .df-auth-page {
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .df-auth-page {
+      padding: 1rem;
+      padding-top: 1.5rem;
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+      align-items: flex-start;
+      min-height: calc(100vh - 60px);
+    }
+
+    .df-auth-container {
+      max-width: 100%;
+    }
+
+    .df-auth-card {
+      padding: 1.25rem;
+      border-radius: 1rem;
+      border-left: none;
+      border-right: none;
+      border-radius: 0.75rem;
+    }
+
+    .df-auth-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .df-auth-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+    }
+
+    .df-auth-logo svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .df-auth-title {
+      font-size: 1.25rem;
+    }
+
+    .df-auth-subtitle {
+      font-size: 0.875rem;
+    }
+
+    .df-auth-form {
+      gap: 1rem;
+    }
+
+    .df-auth-field label {
+      font-size: 0.8125rem;
+    }
+
+    .df-auth-field input {
+      padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+      font-size: 1rem; /* Prevents zoom on iOS */
+      min-height: 48px; /* Touch-friendly */
+    }
+
+    .df-auth-options {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .df-auth-remember {
+      font-size: 0.875rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .df-auth-remember input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+
+    .df-auth-forgot {
+      font-size: 0.875rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .df-auth-btn {
+      padding: 1rem;
+      font-size: 1rem;
+      min-height: 48px;
+    }
+
+    .df-auth-divider {
+      margin: 1.25rem 0;
+    }
+
+    .df-auth-social-btn {
+      padding: 0.875rem;
+      font-size: 1rem;
+      min-height: 48px;
+    }
+
+    .df-auth-footer {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 375px) {
+    .df-auth-page {
+      padding: 0.75rem;
+      padding-top: 1rem;
+    }
+
+    .df-auth-card {
+      padding: 1rem;
+    }
+
+    .df-auth-title {
+      font-size: 1.125rem;
+    }
+
+    .df-auth-subtitle {
+      font-size: 0.8125rem;
+    }
+
+    .df-auth-field input {
+      padding-left: 2.5rem;
+    }
+
+    .df-auth-input-icon {
+      left: 0.75rem;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* Extra small phones */
+  @media (max-width: 320px) {
+    .df-auth-card {
+      padding: 0.875rem;
+    }
+
+    .df-auth-logo {
+      width: 44px;
+      height: 44px;
+    }
+
+    .df-auth-logo svg {
+      width: 22px;
+      height: 22px;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-auth-container">
-  <div class="df-auth-card">
-    <h1 class="df-auth-title">👋 Đăng nhập để tiếp tục học tập!</h1>
-
-    {% if form.non_field_errors %}
-      <div class="df-auth-error">
-        {% for err in form.non_field_errors %}
-          {{ err }}<br>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    <form method="post" class="df-auth-form" action="{% url 'account_login' %}">
-      {% csrf_token %}
-
-      <div class="df-auth-field">
-        <label>Email</label>
-        <input
-          type="email"
-          name="login"
-          value="{{ form.login.value|default_if_none:'' }}"
-          placeholder="you@example.com"
-          required
-        >
-        {% if form.login.errors %}
-          <p class="df-auth-field-error">{{ form.login.errors.0 }}</p>
-        {% endif %}
+<div class="df-auth-page">
+  <div class="df-auth-container">
+    <div class="df-auth-card">
+      <div class="df-auth-header">
+        <div class="df-auth-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <h1 class="df-auth-title">Chào mừng trở lại</h1>
+        <p class="df-auth-subtitle">Đăng nhập để tiếp tục học tập</p>
       </div>
 
-      <div class="df-auth-field">
-        <label>Mật khẩu</label>
-        <input
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          required
-        >
-        {% if form.password.errors %}
-          <p class="df-auth-field-error">{{ form.password.errors.0 }}</p>
-        {% endif %}
-      </div>
-
-      <div class="df-auth-forgot">
-        <a href="{% url 'account_reset_password' %}">Quên mật khẩu?</a>
-      </div>
-
-      {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+      {% if form.non_field_errors %}
+        <div class="df-auth-error">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div>
+            {% for err in form.non_field_errors %}
+              {{ err }}{% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+          </div>
+        </div>
       {% endif %}
 
-      <button type="submit" class="df-auth-btn">
-        Đăng nhập
-      </button>
-    </form>
+      <form method="post" class="df-auth-form" action="{% url 'account_login' %}">
+        {% csrf_token %}
 
-    <div class="df-auth-divider">
-      <span>hoặc</span>
+        <div class="df-auth-field">
+          <label for="id_login">Email</label>
+          <div class="df-auth-input-wrapper">
+            <input
+              type="email"
+              id="id_login"
+              name="login"
+              value="{{ form.login.value|default_if_none:'' }}"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            >
+            <svg class="df-auth-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
+          {% if form.login.errors %}
+            <p class="df-auth-field-error">{{ form.login.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="df-auth-field">
+          <label for="id_password">Mật khẩu</label>
+          <div class="df-auth-input-wrapper">
+            <input
+              type="password"
+              id="id_password"
+              name="password"
+              placeholder="Nhập mật khẩu của bạn"
+              autocomplete="current-password"
+              required
+            >
+            <svg class="df-auth-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          {% if form.password.errors %}
+            <p class="df-auth-field-error">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="df-auth-options">
+          <label class="df-auth-remember">
+            <input type="checkbox" name="remember" {% if form.remember.value %}checked{% endif %}>
+            <span>Ghi nhớ đăng nhập</span>
+          </label>
+          <a href="{% url 'account_reset_password' %}" class="df-auth-forgot">Quên mật khẩu?</a>
+        </div>
+
+        {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+        {% endif %}
+
+        <button type="submit" class="df-auth-btn">
+          Đăng nhập
+        </button>
+      </form>
+
+      <div class="df-auth-divider">
+        <span>hoặc</span>
+      </div>
+
+      <form method="post" action="{% provider_login_url 'google' process='login' %}">
+        {% csrf_token %}
+        <button type="submit" class="df-auth-social-btn">
+          <svg viewBox="0 0 533.5 544.3">
+            <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h147c-6.3 34-25.1 62.9-53.7 82.2v68h86.7c50.7-46.7 81.5-115.4 81.5-195.2z"/>
+            <path fill="#34a853" d="M272 544.3c72.6 0 133.6-24 178.2-65.1l-86.7-68c-24.1 16.2-55 25.8-91.5 25.8-70.4 0-130.1-47.5-151.5-111.7H30.8v70.2c44.3 87.8 135.6 148.8 241.2 148.8z"/>
+            <path fill="#fbbc04" d="M120.5 325.3c-10.2-30.4-10.2-63.3 0-93.7V161.5H30.8c-30.5 60.7-30.5 133.6 0 194.3z"/>
+            <path fill="#ea4335" d="M272 107.7c39.4-.6 77.2 14 106 40.9l79.1-79.1C405.6 24 344.6 0 272 0 166.4 0 75.1 61 30.8 148.8l89.7 70.2C141.9 155.2 201.6 107.7 272 107.7z"/>
+          </svg>
+          Tiếp tục với Google
+        </button>
+      </form>
+
+      <p class="df-auth-footer">
+        Chưa có tài khoản?
+        <a href="{% url 'account_signup' %}">Đăng ký ngay</a>
+      </p>
     </div>
-
-    <form method="post" action="{% provider_login_url 'google' process='login' %}">
-      {% csrf_token %}
-      <button type="submit" class="df-auth-social-btn">
-        <svg viewBox="0 0 533.5 544.3">
-          <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h147c-6.3 34-25.1 62.9-53.7 82.2v68h86.7c50.7-46.7 81.5-115.4 81.5-195.2z"/>
-          <path fill="#34a853" d="M272 544.3c72.6 0 133.6-24 178.2-65.1l-86.7-68c-24.1 16.2-55 25.8-91.5 25.8-70.4 0-130.1-47.5-151.5-111.7H30.8v70.2c44.3 87.8 135.6 148.8 241.2 148.8z"/>
-          <path fill="#fbbc04" d="M120.5 325.3c-10.2-30.4-10.2-63.3 0-93.7V161.5H30.8c-30.5 60.7-30.5 133.6 0 194.3z"/>
-          <path fill="#ea4335" d="M272 107.7c39.4-.6 77.2 14 106 40.9l79.1-79.1C405.6 24 344.6 0 272 0 166.4 0 75.1 61 30.8 148.8l89.7 70.2C141.9 155.2 201.6 107.7 272 107.7z"/>
-        </svg>
-        Tiếp tục với Google
-      </button>
-    </form>
-
-    <p class="df-auth-footer">
-      Chưa có tài khoản? 
-      <a href="{% url 'account_signup' %}">Đăng ký ngay</a>
-    </p>
   </div>
 </div>
 {% endblock %}

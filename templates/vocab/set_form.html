@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .df-form-page {
+    padding: 2rem 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .df-form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .df-form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem;
+  }
+
+  .df-form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .df-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .df-form-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .df-form-input:hover {
+    border-color: var(--input-border-hover);
+  }
+
+  .df-form-input:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 3px var(--action-primary-subtle);
+  }
+
+  .df-form-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .df-form-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--action-primary);
+    cursor: pointer;
+  }
+
+  .df-form-checkbox-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .df-form-hint {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 0.375rem;
+  }
+
+  .df-form-error {
+    font-size: 0.75rem;
+    color: var(--status-error-text);
+    font-style: italic;
+    margin-top: 0.375rem;
+  }
+
+  .df-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-default);
+  }
+
+  .df-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 44px;
+  }
+
+  .df-btn-primary {
+    background: var(--action-primary);
+    color: white;
+  }
+
+  .df-btn-primary:hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-btn-link {
+    background: transparent;
+    color: var(--action-primary);
+    padding: 0.75rem 1rem;
+  }
+
+  .df-btn-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .df-form-page {
+      padding: 1rem;
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    .df-form-card {
+      padding: 1.25rem;
+      border-radius: 0.5rem;
+    }
+
+    .df-form-title {
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .df-form-input {
+      padding: 0.875rem;
+      font-size: 1rem; /* Prevent iOS zoom */
+      min-height: 48px;
+    }
+
+    .df-form-checkbox-group {
+      min-height: 44px;
+    }
+
+    .df-form-checkbox {
+      width: 22px;
+      height: 22px;
+    }
+
+    .df-form-actions {
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+    }
+
+    .df-btn {
+      width: 100%;
+      padding: 0.875rem;
+      min-height: 48px;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 375px) {
+    .df-form-page {
+      padding: 0.75rem;
+    }
+
+    .df-form-card {
+      padding: 1rem;
+    }
+
+    .df-form-title {
+      font-size: 1.125rem;
+    }
+
+    .df-form-label {
+      font-size: 0.8125rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-form-page">
+  <div class="df-form-card">
+    <h1 class="df-form-title">
+      {% if form.instance.pk %}Edit Vocabulary Set{% else %}Create Vocabulary Set{% endif %}
+    </h1>
+
+    <form method="post">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="df-form-group">
+        {% if field.name == 'is_public' %}
+          <div class="df-form-checkbox-group">
+            <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                   class="df-form-checkbox"
+                   {% if field.value %}checked{% endif %}>
+            <label for="{{ field.id_for_label }}" class="df-form-checkbox-label">
+              {{ field.label }} - {{ field.help_text }}
+            </label>
+          </div>
+        {% else %}
+          <label for="{{ field.id_for_label }}" class="df-form-label">
+            {{ field.label }}
+          </label>
+          <input type="{{ field.widget_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                 class="df-form-input"
+                 value="{{ field.value|default:'' }}"
+                 {% if field.field.required %}required{% endif %}>
+          {% if field.help_text %}
+          <p class="df-form-hint">{{ field.help_text }}</p>
+          {% endif %}
+        {% endif %}
+
+        {% if field.errors %}
+        <p class="df-form-error">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="df-form-actions">
+        <a href="{% url 'vocab:set_list' %}" class="df-btn df-btn-link">
+          Cancel
+        </a>
+        <button type="submit" class="df-btn df-btn-primary">
+          Save Set
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

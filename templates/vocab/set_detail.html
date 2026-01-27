@@ -1,0 +1,712 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .df-detail-page {
+    padding: 2rem 1rem;
+  }
+
+  .df-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--action-primary);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+
+  .df-back-link:hover {
+    text-decoration: underline;
+  }
+
+  .df-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .df-detail-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .df-detail-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+    word-break: break-word;
+  }
+
+  .df-detail-desc {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.75rem;
+  }
+
+  .df-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-meta-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .df-badge-public {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .df-badge-private {
+    background: var(--bg-interactive);
+    color: var(--text-secondary);
+  }
+
+  .df-badge-status {
+    background: #dbeafe;
+    color: #1e40af;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .df-detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .df-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .df-btn-primary {
+    background: var(--action-primary);
+    color: white;
+  }
+
+  .df-btn-primary:hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-btn-warning {
+    background: #eab308;
+    color: white;
+  }
+
+  .df-btn-warning:hover {
+    background: #ca8a04;
+  }
+
+  .df-btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+
+  .df-btn-danger:hover {
+    background: #dc2626;
+  }
+
+  .df-add-section {
+    background: var(--bg-interactive);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-default);
+    margin-bottom: 1.5rem;
+  }
+
+  .df-add-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .df-search-wrapper {
+    position: relative;
+  }
+
+  .df-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .df-search-input:focus {
+    border-color: var(--action-primary);
+    box-shadow: 0 0 0 3px var(--action-primary-subtle);
+  }
+
+  .df-search-results {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    max-height: 15rem;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .df-search-results.hidden {
+    display: none;
+  }
+
+  .df-search-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-primary);
+  }
+
+  .df-search-item:last-child {
+    border-bottom: none;
+  }
+
+  .df-search-item:hover {
+    background: var(--bg-interactive);
+  }
+
+  .df-items-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  /* Desktop Table */
+  .df-items-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .df-items-table thead {
+    background: var(--bg-interactive);
+  }
+
+  .df-items-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .df-items-table td {
+    padding: 1rem;
+    vertical-align: top;
+    border-top: 1px solid var(--border-default);
+  }
+
+  .df-word-cell {
+    white-space: nowrap;
+  }
+
+  .df-word-main {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .df-word-ipa {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin-top: 0.25rem;
+  }
+
+  .df-word-audio {
+    height: 24px;
+    width: 100px;
+    margin-top: 0.5rem;
+  }
+
+  .df-meaning-main {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+  }
+
+  .df-meaning-pos {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .df-example-main {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+  }
+
+  .df-example-trans {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .df-remove-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .df-remove-btn:hover {
+    color: #dc2626;
+    text-decoration: underline;
+  }
+
+  .df-empty-row td {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-tertiary);
+  }
+
+  /* Mobile Cards View */
+  .df-items-mobile {
+    display: none;
+  }
+
+  .df-item-card {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .df-item-card:last-child {
+    border-bottom: none;
+  }
+
+  .df-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+
+  .df-item-word {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .df-item-ipa {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin-top: 0.125rem;
+  }
+
+  .df-item-meaning {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .df-item-pos {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+
+  .df-item-example {
+    background: var(--bg-interactive);
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .df-item-example-text {
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+  }
+
+  .df-item-example-trans {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .df-item-audio {
+    margin-top: 0.5rem;
+  }
+
+  .df-item-audio audio {
+    height: 28px;
+    width: 100%;
+    max-width: 150px;
+  }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    .df-items-table th:nth-child(3),
+    .df-items-table td:nth-child(3) {
+      display: none;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .df-detail-page {
+      padding: 1rem;
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    .df-detail-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .df-detail-title {
+      font-size: 1.5rem;
+    }
+
+    .df-detail-desc {
+      font-size: 0.875rem;
+    }
+
+    .df-detail-meta {
+      font-size: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .df-detail-actions {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .df-btn {
+      flex: 1;
+      min-width: calc(50% - 0.25rem);
+      padding: 0.75rem;
+      min-height: 44px;
+      font-size: 0.8125rem;
+    }
+
+    .df-btn-primary {
+      order: -1;
+      min-width: 100%;
+    }
+
+    .df-add-section {
+      padding: 1rem;
+    }
+
+    .df-add-title {
+      font-size: 0.9375rem;
+    }
+
+    .df-search-input {
+      font-size: 1rem; /* Prevent iOS zoom */
+      padding: 0.875rem 1rem;
+      min-height: 48px;
+    }
+
+    /* Hide table, show mobile cards */
+    .df-items-table {
+      display: none;
+    }
+
+    .df-items-mobile {
+      display: block;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 480px) {
+    .df-detail-page {
+      padding: 0.75rem;
+    }
+
+    .df-detail-title {
+      font-size: 1.25rem;
+    }
+
+    .df-btn {
+      font-size: 0.75rem;
+      padding: 0.625rem 0.75rem;
+    }
+
+    .df-item-card {
+      padding: 0.875rem;
+    }
+  }
+
+  /* Extra small phones */
+  @media (max-width: 375px) {
+    .df-detail-actions {
+      flex-direction: column;
+    }
+
+    .df-btn {
+      min-width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-detail-page container mx-auto">
+  <!-- Back Link -->
+  <a href="{% url 'vocab:set_list' %}" class="df-back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    Back to Sets
+  </a>
+
+  <!-- Header -->
+  <div class="df-detail-header">
+    <div class="df-detail-info">
+      <h1 class="df-detail-title">{{ vocab_set.title }}</h1>
+      <p class="df-detail-desc">{{ vocab_set.description|default:"No description" }}</p>
+      <div class="df-detail-meta">
+        <span>By: {{ vocab_set.owner.username|default:"System" }}</span>
+        <span>{{ vocab_set.items.count }} words</span>
+        <span class="df-meta-badge {% if vocab_set.is_public %}df-badge-public{% else %}df-badge-private{% endif %}">
+          {{ vocab_set.is_public|yesno:"Public,Private" }}
+        </span>
+        <span class="df-meta-badge df-badge-status">
+          {{ vocab_set.get_status_display }}
+        </span>
+      </div>
+    </div>
+    <div class="df-detail-actions">
+      <a href="{% url 'vocab:set_study' vocab_set.pk %}" class="df-btn df-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Study Now
+      </a>
+      {% if request.user == vocab_set.owner %}
+      <a href="{% url 'vocab:set_update' vocab_set.pk %}" class="df-btn df-btn-warning">
+        Edit
+      </a>
+      <a href="{% url 'vocab:set_delete' vocab_set.pk %}" class="df-btn df-btn-danger">
+        Delete
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Add Item Section (Owner Only) -->
+  {% if request.user == vocab_set.owner %}
+  <div class="df-add-section">
+    <h3 class="df-add-title">Add Words to Set</h3>
+    <div class="df-search-wrapper">
+      <input type="text" id="word-search" placeholder="Search for words to add..."
+             class="df-search-input">
+      <div id="search-results" class="df-search-results hidden">
+        <!-- Results populated by JS -->
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Items List -->
+  <div class="df-items-card">
+    <!-- Desktop Table View -->
+    <table class="df-items-table">
+      <thead>
+        <tr>
+          <th>Word</th>
+          <th>Meaning</th>
+          <th>Example</th>
+          {% if request.user == vocab_set.owner %}
+          <th><span class="sr-only">Actions</span></th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody id="set-items-body">
+        {% for item in items %}
+        <tr id="item-row-{{ item.id }}">
+          <td class="df-word-cell">
+            <div class="df-word-main">{{ item.definition.vocab.word }}</div>
+            <div class="df-word-ipa">{{ item.definition.vocab.ipa }}</div>
+            {% if item.definition.vocab.audio_url %}
+            <audio controls src="{{ item.definition.vocab.audio_url }}" class="df-word-audio"></audio>
+            {% endif %}
+          </td>
+          <td>
+            <div class="df-meaning-main">{{ item.definition.meaning }}</div>
+            <div class="df-meaning-pos">{{ item.definition.part_of_speech }}</div>
+          </td>
+          <td>
+            <div class="df-example-main">{{ item.definition.example_sentence }}</div>
+            <div class="df-example-trans">{{ item.definition.example_trans }}</div>
+          </td>
+          {% if request.user == vocab_set.owner %}
+          <td>
+            <button onclick="removeItem({{ item.id }})" class="df-remove-btn">Remove</button>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="df-empty-row">
+            No words in this set yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Mobile Cards View -->
+    <div class="df-items-mobile" id="set-items-mobile">
+      {% for item in items %}
+      <div class="df-item-card" id="item-card-{{ item.id }}">
+        <div class="df-item-header">
+          <div>
+            <div class="df-item-word">{{ item.definition.vocab.word }}</div>
+            <div class="df-item-ipa">{{ item.definition.vocab.ipa }}</div>
+          </div>
+          {% if request.user == vocab_set.owner %}
+          <button onclick="removeItem({{ item.id }})" class="df-remove-btn">Remove</button>
+          {% endif %}
+        </div>
+        <div class="df-item-meaning">{{ item.definition.meaning }}</div>
+        <div class="df-item-pos">{{ item.definition.part_of_speech }}</div>
+        {% if item.definition.example_sentence %}
+        <div class="df-item-example">
+          <div class="df-item-example-text">{{ item.definition.example_sentence }}</div>
+          <div class="df-item-example-trans">{{ item.definition.example_trans }}</div>
+        </div>
+        {% endif %}
+        {% if item.definition.vocab.audio_url %}
+        <div class="df-item-audio">
+          <audio controls src="{{ item.definition.vocab.audio_url }}"></audio>
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="df-item-card" style="text-align: center; color: var(--text-tertiary); padding: 2rem;">
+        No words in this set yet.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if request.user == vocab_set.owner %}
+<script>
+  const searchInput = document.getElementById('word-search');
+  const resultsDiv = document.getElementById('search-results');
+  const setId = {{ vocab_set.id }};
+  let debounceTimer;
+
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    const query = e.target.value;
+    if (query.length < 2) {
+      resultsDiv.classList.add('hidden');
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      fetch(`{% url 'vocab:api_search' %}?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          resultsDiv.innerHTML = '';
+          if (data.length > 0) {
+            data.forEach(item => {
+              const div = document.createElement('div');
+              div.className = 'df-search-item';
+              div.textContent = item.text;
+              div.onclick = () => addItem(item.id);
+              resultsDiv.appendChild(div);
+            });
+            resultsDiv.classList.remove('hidden');
+          } else {
+            resultsDiv.innerHTML = '<div class="df-search-item" style="color: var(--text-tertiary); cursor: default;">No results found</div>';
+            resultsDiv.classList.remove('hidden');
+          }
+        });
+    }, 300);
+  });
+
+  // Close search on outside click
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+      resultsDiv.classList.add('hidden');
+    }
+  });
+
+  function addItem(definitionId) {
+    fetch(`{% url 'vocab:api_add_item' vocab_set.id %}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: `definition_id=${definitionId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.error);
+      }
+    });
+  }
+
+  function removeItem(itemId) {
+    if (!confirm('Are you sure?')) return;
+
+    fetch(`{% url 'vocab:api_remove_item' vocab_set.id %}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: `item_id=${itemId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Remove from both table and mobile view
+        const tableRow = document.getElementById(`item-row-${itemId}`);
+        const mobileCard = document.getElementById(`item-card-${itemId}`);
+        if (tableRow) tableRow.remove();
+        if (mobileCard) mobileCard.remove();
+      } else {
+        alert(data.error);
+      }
+    });
+  }
+</script>
+{% endif %}
+{% endblock %}

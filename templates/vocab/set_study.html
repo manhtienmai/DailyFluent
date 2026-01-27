@@ -1,0 +1,541 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .df-study-page {
+    padding: 2rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .df-study-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .df-back-link:hover {
+    color: var(--text-primary);
+  }
+
+  .df-progress-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  /* Flashcard Container */
+  .df-flashcard-container {
+    perspective: 1000px;
+    height: 400px;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 2rem;
+  }
+
+  .df-flashcard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.5s ease;
+    transform-style: preserve-3d;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .df-flashcard.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .df-flashcard-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+
+  .df-flashcard-back {
+    transform: rotateY(180deg);
+  }
+
+  .df-card-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    margin-bottom: 1rem;
+  }
+
+  .df-card-word {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    word-break: break-word;
+  }
+
+  .df-card-ipa {
+    font-size: 1.125rem;
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  .df-card-audio-btn {
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--action-primary);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.15s ease;
+  }
+
+  .df-card-audio-btn:hover {
+    background: var(--action-primary-subtle);
+  }
+
+  .df-card-audio-btn svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .df-card-meaning {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .df-card-pos {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+
+  .df-card-example {
+    background: var(--bg-interactive);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .df-card-example-text {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.375rem;
+  }
+
+  .df-card-example-trans {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-card-extra {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+
+  /* Controls */
+  .df-study-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .df-control-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 48px;
+  }
+
+  .df-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .df-btn-prev {
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+  }
+
+  .df-btn-prev:not(:disabled):hover {
+    background: var(--bg-interactive);
+  }
+
+  .df-btn-next {
+    background: var(--action-primary);
+    color: white;
+  }
+
+  .df-btn-next:not(:disabled):hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-btn-shuffle {
+    padding: 0.75rem;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .df-btn-shuffle:hover {
+    background: var(--bg-interactive);
+  }
+
+  .df-btn-shuffle.active {
+    background: var(--action-primary-subtle);
+    color: var(--action-primary);
+  }
+
+  .df-btn-shuffle svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .df-study-page {
+      padding: 1rem;
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    .df-study-header {
+      margin-bottom: 1rem;
+    }
+
+    .df-back-link {
+      font-size: 0.875rem;
+    }
+
+    .df-flashcard-container {
+      height: 350px;
+      margin-bottom: 1.5rem;
+    }
+
+    .df-flashcard-face {
+      padding: 1.5rem;
+    }
+
+    .df-card-word {
+      font-size: 2rem;
+    }
+
+    .df-card-ipa {
+      font-size: 1rem;
+    }
+
+    .df-card-meaning {
+      font-size: 1.25rem;
+    }
+
+    .df-card-example {
+      padding: 0.75rem;
+    }
+
+    .df-card-example-text {
+      font-size: 0.9375rem;
+    }
+
+    .df-card-example-trans {
+      font-size: 0.8125rem;
+    }
+
+    .df-study-controls {
+      gap: 0.75rem;
+    }
+
+    .df-control-btn {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 480px) {
+    .df-study-page {
+      padding: 0.75rem;
+    }
+
+    .df-flashcard-container {
+      height: 300px;
+      margin-bottom: 1.25rem;
+    }
+
+    .df-flashcard-face {
+      padding: 1rem;
+    }
+
+    .df-card-label {
+      font-size: 0.6875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .df-card-word {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .df-card-ipa {
+      font-size: 0.875rem;
+    }
+
+    .df-card-audio-btn {
+      margin-top: 1rem;
+      padding: 0.5rem;
+    }
+
+    .df-card-audio-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .df-card-meaning {
+      font-size: 1.125rem;
+    }
+
+    .df-card-pos {
+      font-size: 0.8125rem;
+      margin-bottom: 1rem;
+    }
+
+    .df-card-example {
+      padding: 0.625rem;
+    }
+
+    .df-card-example-text {
+      font-size: 0.875rem;
+    }
+
+    .df-card-example-trans {
+      font-size: 0.75rem;
+    }
+
+    .df-study-controls {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .df-control-btn {
+      padding: 0.625rem 1rem;
+      font-size: 0.8125rem;
+      min-height: 44px;
+    }
+
+    .df-btn-shuffle {
+      order: -1;
+      width: 100%;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .df-btn-shuffle::after {
+      content: 'Shuffle';
+      font-size: 0.8125rem;
+    }
+  }
+
+  /* Extra small phones */
+  @media (max-width: 375px) {
+    .df-flashcard-container {
+      height: 280px;
+    }
+
+    .df-card-word {
+      font-size: 1.375rem;
+    }
+
+    .df-card-meaning {
+      font-size: 1rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-study-page" x-data="flashcardStudy()">
+  <!-- Header -->
+  <div class="df-study-header">
+    <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      Back to Set
+    </a>
+    <div class="df-progress-text">
+      <span x-text="currentIndex + 1"></span> / <span x-text="items.length"></span>
+    </div>
+  </div>
+
+  <!-- Flashcard Area -->
+  <div class="df-flashcard-container" @click="flipCard()" @keydown.space.window.prevent="flipCard()">
+    <div class="df-flashcard" :class="{ 'flipped': isFlipped }">
+      <!-- Front -->
+      <div class="df-flashcard-face">
+        <span class="df-card-label">Term</span>
+        <h2 class="df-card-word" x-text="currentItem.word"></h2>
+        <p class="df-card-ipa" x-show="currentItem.ipa" x-text="currentItem.ipa"></p>
+        <button @click.stop="playAudio()" class="df-card-audio-btn" x-show="currentItem.audio_url">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Back -->
+      <div class="df-flashcard-face df-flashcard-back">
+        <span class="df-card-label">Definition</span>
+        <h3 class="df-card-meaning" x-text="currentItem.meaning"></h3>
+        <p class="df-card-pos" x-text="currentItem.part_of_speech"></p>
+        <div class="df-card-example" x-show="currentItem.example">
+          <p class="df-card-example-text" x-text="currentItem.example"></p>
+          <p class="df-card-example-trans" x-text="currentItem.example_trans"></p>
+        </div>
+        <div class="df-card-extra" x-show="currentItem.extra_data && Object.keys(currentItem.extra_data).length > 0">
+          <template x-for="(value, key) in currentItem.extra_data">
+            <div x-text="key + ': ' + value"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="df-study-controls">
+    <button @click="prevCard()" class="df-control-btn df-btn-prev" :disabled="currentIndex === 0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      Prev
+    </button>
+
+    <button @click="toggleShuffle()" class="df-btn-shuffle" :class="{ 'active': isShuffled }" title="Shuffle">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    </button>
+
+    <button @click="nextCard()" class="df-control-btn df-btn-next" :disabled="currentIndex === items.length - 1">
+      Next
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Alpine.js for interactivity -->
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('flashcardStudy', () => ({
+      items: {{ items_json|safe }},
+      currentIndex: 0,
+      isFlipped: false,
+      isShuffled: false,
+      originalItems: [],
+
+      init() {
+        if (this.items.length === 0) {
+          alert("No words in this set to study!");
+        }
+        this.originalItems = [...this.items];
+      },
+
+      get currentItem() {
+        return this.items[this.currentIndex] || {};
+      },
+
+      flipCard() {
+        this.isFlipped = !this.isFlipped;
+      },
+
+      nextCard() {
+        if (this.currentIndex < this.items.length - 1) {
+          this.isFlipped = false;
+          setTimeout(() => {
+            this.currentIndex++;
+            this.playAudio();
+          }, 150);
+        }
+      },
+
+      prevCard() {
+        if (this.currentIndex > 0) {
+          this.isFlipped = false;
+          setTimeout(() => {
+            this.currentIndex--;
+            this.playAudio();
+          }, 150);
+        }
+      },
+
+      playAudio() {
+        if (this.currentItem.audio_url) {
+          new Audio(this.currentItem.audio_url).play();
+        }
+      },
+
+      toggleShuffle() {
+        this.isShuffled = !this.isShuffled;
+        this.isFlipped = false;
+        this.currentIndex = 0;
+
+        if (this.isShuffled) {
+          // Fisher-Yates shuffle
+          for (let i = this.items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
+          }
+        } else {
+          this.items = [...this.originalItems];
+        }
+      }
+    }));
+  });
+</script>
+{% endblock %}
