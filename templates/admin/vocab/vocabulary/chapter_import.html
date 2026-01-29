@@ -1,0 +1,409 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --border-color: #475569;
+            --accent-color: #3b82f6;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+        }
+        
+        body {
+            background-color: var(--bg-body) !important;
+            color: var(--text-main) !important;
+        }
+        
+        #content-main { background: transparent; }
+        h1, h2, h3 { color: var(--text-main) !important; }
+        
+        .import-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .import-container { grid-template-columns: 1fr; }
+        }
+        
+        .panel {
+            background: var(--bg-panel);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+        
+        textarea, select, input {
+            width: 100%;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        textarea { height: 400px; resize: vertical; }
+        select { height: 44px; }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover { background: #2563eb; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-main);
+        }
+        
+        .log-box {
+            background: #020617;
+            color: #4ade80;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .log-error { color: var(--error-color); }
+        .log-warn { color: #f59e0b; }
+        .log-success { color: var(--success-color); }
+        
+        .progress-container {
+            background: var(--bg-input);
+            height: 24px;
+            margin: 15px 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-box {
+            background: var(--bg-input);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .preview-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--bg-input);
+            border-radius: 6px;
+            padding: 10px;
+        }
+        
+        .preview-item {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .preview-item:last-child { border-bottom: none; }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+&rsaquo; Chapter Import
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>📚 Import TOEIC Chapters</h1>
+    
+    <div class="import-container">
+        <!-- Left: Input Panel -->
+        <div class="panel">
+            <h3 class="panel-title">1. Cấu hình Import</h3>
+            
+            <div class="form-row">
+                <label>TOEIC Level</label>
+                <select id="toeic-level">
+                    <option value="600">TOEIC 600</option>
+                    <option value="730">TOEIC 730</option>
+                    <option value="860">TOEIC 860</option>
+                    <option value="990">TOEIC 990</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <label>JSON Data (Paste here)</label>
+                <textarea id="json-input" placeholder='[{"set_number": 1, "chapter": 1, ...}]'></textarea>
+            </div>
+            
+            <div class="form-row">
+                <label>Delay giữa mỗi word (ms)</label>
+                <input type="number" id="delay-ms" value="1500" min="500" max="5000">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-preview" class="btn btn-secondary">👁 Preview</button>
+                <button id="btn-start" class="btn btn-primary">🚀 Bắt đầu Import</button>
+                <button id="btn-stop" class="btn btn-secondary" disabled>⏹ Dừng</button>
+            </div>
+        </div>
+        
+        <!-- Right: Preview & Progress -->
+        <div class="panel">
+            <h3 class="panel-title">2. Kết quả</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-sets">0</div>
+                    <div class="stat-label">Sets</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-words">0</div>
+                    <div class="stat-label">Words</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-success">0</div>
+                    <div class="stat-label">Success</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar" style="width: 0%;">0%</div>
+            </div>
+            
+            <h4 style="color: var(--text-muted); margin: 15px 0 10px;">Process Log</h4>
+            <div id="log-box" class="log-box"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnPreview = document.getElementById('btn-preview');
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+    const jsonInput = document.getElementById('json-input');
+    const levelSelect = document.getElementById('toeic-level');
+    const delayInput = document.getElementById('delay-ms');
+    const logBox = document.getElementById('log-box');
+    const progressBar = document.getElementById('progress-bar');
+    const statSets = document.getElementById('stat-sets');
+    const statWords = document.getElementById('stat-words');
+    const statSuccess = document.getElementById('stat-success');
+    
+    let isRunning = false;
+    let shouldStop = false;
+    let parsedData = null;
+
+    function log(msg, type='info') {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        if (type === 'error') div.className = 'log-error';
+        if (type === 'warn') div.className = 'log-warn';
+        if (type === 'success') div.className = 'log-success';
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function updateProgress(current, total) {
+        const pct = Math.round((current / total) * 100);
+        progressBar.style.width = pct + '%';
+        progressBar.textContent = pct + '%';
+    }
+
+    btnPreview.addEventListener('click', () => {
+        try {
+            parsedData = JSON.parse(jsonInput.value);
+            if (!Array.isArray(parsedData)) throw new Error('JSON phải là mảng');
+            
+            let totalWords = 0;
+            parsedData.forEach(set => {
+                totalWords += (set.words || []).length;
+            });
+            
+            statSets.textContent = parsedData.length;
+            statWords.textContent = totalWords;
+            log(`Preview: ${parsedData.length} sets, ${totalWords} words`, 'success');
+        } catch (e) {
+            log(`JSON Error: ${e.message}`, 'error');
+            parsedData = null;
+        }
+    });
+
+    btnStart.addEventListener('click', async () => {
+        if (!parsedData || parsedData.length === 0) {
+            log('Vui lòng Preview trước!', 'error');
+            return;
+        }
+        
+        isRunning = true;
+        shouldStop = false;
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+        btnPreview.disabled = true;
+        
+        const level = levelSelect.value;
+        const delay = parseInt(delayInput.value) || 1500;
+        let successCount = 0;
+        let totalProcessed = 0;
+        
+        // Calculate total words for progress
+        let totalWords = 0;
+        parsedData.forEach(set => totalWords += (set.words || []).length);
+        
+        log(`Bắt đầu import ${parsedData.length} sets...`, 'warn');
+        
+        for (const setData of parsedData) {
+            if (shouldStop) break;
+            
+            log(`📁 Set ${setData.set_number}: ${setData.chapter_name} (${setData.milestone})`);
+            
+            // Create Set first
+            try {
+                const setRes = await fetch('{% url "admin:vocab_vocabulary_chapter_import_create_set" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        toeic_level: parseInt(level),
+                        set_number: setData.set_number,
+                        chapter: setData.chapter,
+                        chapter_name: setData.chapter_name,
+                        milestone: setData.milestone,
+                        priority_range: setData.priority_range
+                    })
+                });
+                const setResult = await setRes.json();
+                
+                if (setResult.status !== 'success') {
+                    log(`  ❌ Failed to create set: ${setResult.message}`, 'error');
+                    continue;
+                }
+                
+                const setId = setResult.set_id;
+                log(`  ✓ Created set ID: ${setId}`, 'success');
+                
+                // Process words
+                for (const word of (setData.words || [])) {
+                    if (shouldStop) break;
+                    
+                    try {
+                        const wordRes = await fetch(`{% url "admin:vocab_vocabulary_bulk_process" %}?word=${encodeURIComponent(word)}&limit=1&set_id=${setId}`);
+                        const wordResult = await wordRes.json();
+                        
+                        if (wordResult.status === 'success') {
+                            log(`    ✓ ${word}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`    ✗ ${word}: ${wordResult.message}`, 'error');
+                        }
+                    } catch (e) {
+                        log(`    ✗ ${word}: Network error`, 'error');
+                    }
+                    
+                    totalProcessed++;
+                    updateProgress(totalProcessed, totalWords);
+                    statSuccess.textContent = successCount;
+                    
+                    await sleep(delay);
+                }
+                
+            } catch (e) {
+                log(`  ❌ Error: ${e.message}`, 'error');
+            }
+        }
+        
+        isRunning = false;
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+        btnPreview.disabled = false;
+        
+        log(`🎉 Hoàn tất! ${successCount}/${totalWords} words imported.`, 'success');
+    });
+
+    btnStop.addEventListener('click', () => {
+        if (isRunning) {
+            shouldStop = true;
+            btnStop.textContent = 'Đang dừng...';
+            log('Đang dừng...', 'warn');
+        }
+    });
+});
+</script>
+{% endblock %}

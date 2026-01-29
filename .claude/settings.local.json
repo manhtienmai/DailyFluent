@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: update UI exam detail screen - modern and clean design\n\n- New indigo color scheme with cohesive palette\n- Modern part navigation tabs with pill design\n- Improved timer with warm gradient background\n- Sticky sidebar on desktop for easy navigation\n- Better question blocks with hover effects\n- Clean answer options styling\n- Smooth transitions and animations\n- Removed ~900 lines redundant inline styles\n- Better responsive design\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: question number button showing white background\n\n- Add TOEIC exam buttons to theme.css button reset exclusion list\n- Add !important to ensure background/color not overridden\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:dailyfluent.org)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: redesign exam detail page with premium modern UI\n\n- Add glassmorphism hero section with animated floating effect\n- Redesign mode selection cards with checkmark indicators\n- Improve part selection chips with SVG icons\n- Add pill-style time selection buttons\n- Enhance start button with shine animation\n- Improve discussion section with cleaner layout\n- Add smooth cubic-bezier transitions throughout\n- Improve responsive design for mobile devices\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: compact exam detail UI for better above-fold visibility\n\n- Change hero to horizontal inline layout\n- Simplify stats to small inline badges\n- Make mode cards horizontal with inline elements\n- Reduce all padding and margins throughout\n- Shorten time labels \\(10p instead of 10 phút\\)\n- Ensure start button visible without scrolling\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: add mobile responsive UI for account and vocab set templates\n\n- Account templates \\(login, signup, password reset flows\\): Added breakpoints\n  for 768px, 480px, 375px, 320px with touch-friendly targets \\(48px min\\),\n  safe-area-inset-bottom for notched phones, iOS zoom prevention\n- Vocab set templates \\(list, detail, form, study, delete\\): Grid responsive\n  layouts, table-to-card conversion on mobile, flashcard scaling\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\static\"\" 2>/dev/null || echo \"static directory check \")",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(python manage.py check:*)"
+    ]
+  }
+}

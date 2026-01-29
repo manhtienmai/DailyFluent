@@ -1,1070 +1,939 @@
-import json
-from datetime import datetime, timedelta
-
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
-from django.template.loader import render_to_string
-from django.db.models import Q
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy, reverse
+from django.db.models import Q, Case, When, Value, IntegerField
+from django.contrib import messages
+from django.http import JsonResponse, Http404
 from django.utils import timezone
-from django.utils.timezone import make_aware, is_naive
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+import json
+import random
+from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress
+from .toeic_config import TOEIC_LEVELS, TOEIC_LEVEL_ORDER
+from . import toeic_utils
+from .fsrs_bridge import create_new_card_state, review_card, preview_intervals
 
-from .models import Vocabulary, FixedPhrase, FsrsCardState, UserStudySettings, EnglishVocabulary
-from .fsrs_bridge import (
-    create_new_card_state, 
-    review_card,
-    is_learning_card,
-    should_requeue_in_session,
-    get_card_state,
-    preview_intervals,
-    get_interval_display,
-    CARD_STATE_LEARNING,
-    CARD_STATE_RELEARNING,
-    CARD_STATE_REVIEW,
-    LEARNING_THRESHOLD_MINUTES,
-)
-
-
-def get_or_create_study_settings(user):
-    """Get or create study settings for user."""
-    settings, _ = UserStudySettings.objects.get_or_create(user=user)
-    settings.reset_daily_counts_if_needed()
-    return settings
-
-
-def _build_vocab_queue(user):
+class SetListView(ListView):
     """
-    Build Anki-like queue (learning -> review -> new) for a user.
-    Shared between flashcard mode and typing mode to keep 1 SRS state per card.
+    List public sets and user's private sets.
     """
-    now = timezone.now()
-    study_settings = get_or_create_study_settings(user)
+    model = VocabularySet
+    template_name = 'vocab/set_list.html'
+    context_object_name = 'sets'
+    paginate_by = 12
 
-    learning_threshold = now + timedelta(minutes=LEARNING_THRESHOLD_MINUTES)
-
-    # === Fetch all user states ===
-    all_user_states = FsrsCardState.objects.filter(
-        user=user,
-        vocab__is_active=True,
-    ).select_related("vocab")
-
-    # === 1. LEARNING / RELEARNING (highest priority) ===
-    learning_states = []
-    for state in all_user_states.filter(due__lte=learning_threshold):
-        if is_learning_card(state.card_json):
-            learning_states.append(state)
-    learning_states.sort(key=lambda s: s.due)
-
-    # === 2. REVIEW (graduated & due) ===
-    review_states = []
-    remaining_reviews = study_settings.remaining_reviews()
-    if remaining_reviews > 0:
-        for state in all_user_states.filter(due__lte=now).order_by("due"):
-            if state in learning_states:
-                continue
-            if not is_learning_card(state.card_json):
-                review_states.append(state)
-                if len(review_states) >= remaining_reviews:
-                    break
-
-    # === 3. NEW (no FsrsCardState yet) ===
-    new_states = []
-    remaining_new = study_settings.remaining_new()
-    if remaining_new > 0:
-        existing_vocab_ids = FsrsCardState.objects.filter(
-            user=user
-        ).values_list("vocab_id", flat=True)
-
-        new_vocab_qs = (
-            Vocabulary.objects
-            .filter(is_active=True)
-            .exclude(id__in=existing_vocab_ids)
-            .order_by("created_at")[:remaining_new]
-        )
-
-        for vocab in new_vocab_qs:
-            card = create_new_card_state()
-            state = FsrsCardState.objects.create(
-                user=user,
-                vocab=vocab,
-                card_json=card.to_dict(),
-                due=card.due,
-            )
-            new_states.append(state)
-
-    states = learning_states + review_states + new_states
-
-    stats = {
-        "learning_count": len(learning_states),
-        "review_count": len(review_states),
-        "new_count": len(new_states),
-        "total": len(states),
-        "daily_new_limit": study_settings.new_cards_per_day,
-        "daily_new_done": study_settings.new_cards_today,
-        "daily_review_limit": study_settings.reviews_per_day,
-        "daily_review_done": study_settings.reviews_today,
-    }
-
-    return states, stats
-
-
-def _pagination_items(paginator, current_page: int, window: int = 2):
-    """
-    Build a compact page list with ellipses (None) for UI.
-    Example: [1, None, 4, 5, 6, None, 20]
-    """
-    total = paginator.num_pages
-    if total <= 9:
-        return list(range(1, total + 1))
-
-    items = [1]
-    start = max(2, current_page - window)
-    end = min(total - 1, current_page + window)
-
-    if start > 2:
-        items.append(None)
-
-    for n in range(start, end + 1):
-        items.append(n)
-
-    if end < total - 1:
-        items.append(None)
-
-    items.append(total)
-    return items
-
-
-@login_required
-def vocab_list(request):
-    """
-    Trang danh sách từ vựng (dùng để xem và chuyển sang flashcard).
-    """
-    # Sort by insertion/created order (newest -> oldest)
-    qs = Vocabulary.objects.filter(is_active=True)
-
-    q = (request.GET.get("q") or "").strip()
-    if q:
-        qs = qs.filter(Q(jp_kana__icontains=q) | Q(jp_kanji__icontains=q))
-
-    qs = qs.order_by("-created_at", "-id")
-    total_count = qs.count()
-
-    page_number = request.GET.get("page", 1)
-    paginator = Paginator(qs, 50)
-    page_obj = paginator.get_page(page_number)
-    page_items = _pagination_items(paginator, page_obj.number)
-    qs_params = request.GET.copy()
-    qs_params.pop("page", None)
-    base_qs = qs_params.urlencode()
-
-    # AJAX pagination: return HTML fragments for table + pagination
-    if request.GET.get("partial") == "1":
-        rows_html = render_to_string("vocab/partials/vocab_list_rows.html", {"words": page_obj})
-        range_text = f"Hiển thị {page_obj.start_index()}-{page_obj.end_index()} / {total_count}"
-        pagination_html = render_to_string("vocab/partials/vocab_list_pagination.html", {
-            "page_obj": page_obj,
-            "page_items": page_items,
-            "base_qs": base_qs,
-            "range_text": range_text,
-        })
-        return JsonResponse({
-            "rows_html": rows_html,
-            "pagination_html": pagination_html,
-            "range_text": range_text,
-        })
-
-    return render(request, "vocab/list.html", {
-        "words": page_obj,  # keep template loop unchanged; Page is iterable
-        "page_obj": page_obj,
-        "paginator": paginator,
-        "total_count": total_count,
-        "page_items": page_items,
-        "q": q,
-        "base_qs": base_qs,
-    })
-
-
-@login_required
-def phrase_list(request):
-    """
-    Trang danh sách cụm từ cố định.
-    """
-    qs = FixedPhrase.objects.filter(is_active=True)
-    q = (request.GET.get("q") or "").strip()
-    if q:
-        qs = qs.filter(Q(jp_text__icontains=q) | Q(jp_kana__icontains=q))
-
-    qs = qs.order_by("-created_at", "-id")
-    total_count = qs.count()
-
-    page_number = request.GET.get("page", 1)
-    paginator = Paginator(qs, 50)
-    page_obj = paginator.get_page(page_number)
-    page_items = _pagination_items(paginator, page_obj.number)
-    qs_params = request.GET.copy()
-    qs_params.pop("page", None)
-    base_qs = qs_params.urlencode()
-
-    return render(request, "vocab/phrase_list.html", {
-        "phrases": page_obj,
-        "page_obj": page_obj,
-        "page_items": page_items,
-        "total_count": total_count,
-        "q": q,
-        "base_qs": base_qs,
-    })
-
-
-@login_required
-def english_list(request):
-    """
-    Danh sách từ vựng tiếng Anh (basic list + search + pagination).
-    """
-    qs = EnglishVocabulary.objects.filter(is_active=True)
-
-    q = (request.GET.get("q") or "").strip()
-    if q:
-        qs = qs.filter(
-            Q(en_word__icontains=q)
-            | Q(phonetic__icontains=q)
-            | Q(vi_meaning__icontains=q)
-            | Q(en_definition__icontains=q)
-        )
-
-    qs = qs.order_by("en_word", "id")
-    total_count = qs.count()
-
-    page_number = request.GET.get("page", 1)
-    paginator = Paginator(qs, 50)
-    page_obj = paginator.get_page(page_number)
-    page_items = _pagination_items(paginator, page_obj.number)
-    qs_params = request.GET.copy()
-    qs_params.pop("page", None)
-    base_qs = qs_params.urlencode()
-
-    return render(request, "vocab/english_list.html", {
-        "words": page_obj,
-        "page_obj": page_obj,
-        "paginator": paginator,
-        "total_count": total_count,
-        "page_items": page_items,
-        "q": q,
-        "base_qs": base_qs,
-    })
-
-
-@login_required
-def flashcard_session(request):
-    """
-    Tạo một session flashcard cho user - Anki-style:
-    
-    Queue order (giống Anki):
-    1. Learning cards (đang học, interval ngắn < 20 phút)
-    2. Review cards (đến hạn ôn tập)
-    3. New cards (từ mới chưa học)
-    
-    Daily limits:
-    - new_cards_per_day: giới hạn từ mới
-    - reviews_per_day: giới hạn ôn tập
-    """
-    states, stats = _build_vocab_queue(request.user)
-
-    # Giới hạn mỗi lần học flashcard tối đa 20 thẻ để phiên ngắn gọn
-    states = states[:20]
-
-    # Build card data with intervals preview
-    cards_data = []
-    for state in states:
-        intervals = preview_intervals(state.card_json)
-        card_state = get_card_state(state.card_json)
+    def get_queryset(self):
+        queryset = VocabularySet.objects.filter(is_public=True)
+        if self.request.user.is_authenticated:
+            # Show my private sets + public sets
+            queryset = VocabularySet.objects.filter(
+                Q(is_public=True) | Q(owner=self.request.user)
+            ).distinct()
         
-        cards_data.append({
-            "state_id": state.id,
-            "vocab_id": state.vocab.id,
-            "jp_kana": state.vocab.jp_kana,
-            "jp_kanji": state.vocab.jp_kanji or "",
-            "sino_vi": state.vocab.sino_vi or "",
-            "vi_meaning": state.vocab.vi_meaning,
-            "example_jp": state.vocab.example_jp or "",
-            "example_vi": state.vocab.example_vi or "",
-            "card_state": card_state,  # 0=new, 1=learning, 2=review, 3=relearning
-            "intervals": intervals,  # {"again": "1m", "good": "10m", ...}
+        # Filter by tab (my_sets vs public)
+        tab = self.request.GET.get('tab')
+        if tab == 'my' and self.request.user.is_authenticated:
+             queryset = VocabularySet.objects.filter(owner=self.request.user)
+        
+        # Filter by language
+        lang = self.request.GET.get('lang')
+        if lang in ['en', 'jp']:
+            queryset = queryset.filter(language=lang)
+        
+        return queryset.annotate(
+            is_toeic=Case(
+                When(toeic_level__isnull=False, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        ).order_by('-is_toeic', 'toeic_level', 'set_number', '-updated_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tab'] = self.request.GET.get('tab', 'all')
+        context['current_lang'] = self.request.GET.get('lang', 'all')
+        return context
+
+class SetDetailView(DetailView):
+    model = VocabularySet
+    template_name = 'vocab/set_detail.html'
+    context_object_name = 'vocab_set'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get items for this set
+        items = self.object.items.select_related('definition__entry__vocab').order_by('display_order', 'created_at')
+        context['items'] = items
+        return context
+
+class SetCreateView(LoginRequiredMixin, CreateView):
+    model = VocabularySet
+    template_name = 'vocab/set_form.html'
+    fields = ['title', 'description', 'is_public', 'status']
+    success_url = reverse_lazy('vocab:set_list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        messages.success(self.request, "Vocabulary set created successfully.")
+        return super().form_valid(form)
+
+class SetStudyView(DetailView):
+    model = VocabularySet
+    template_name = 'vocab/set_study.html'
+    context_object_name = 'vocab_set'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get items for this set
+        items = self.object.items.select_related('definition__entry__vocab').order_by('display_order', 'created_at')
+        
+        items_data = []
+        for item in items:
+            d = item.definition
+            e = d.entry  # WordEntry (has ipa, audio)
+            v = e.vocab  # Vocabulary (has word)
+            items_data.append({
+                'id': item.id,
+                'word': v.word,
+                'ipa': e.ipa,
+                'audio_url': e.get_audio_url('us'),  # Default to US
+                'audio_us': e.audio_us,
+                'audio_uk': e.audio_uk,
+                'meaning': d.meaning,
+                'part_of_speech': e.part_of_speech,
+                'example': d.example_sentence,
+                'example_trans': d.example_trans,
+                'extra_data': {**v.extra_data, **d.extra_data}
+            })
+            
+        context['items_json'] = json.dumps(items_data)
+        return context
+
+class SetUpdateView(LoginRequiredMixin, UpdateView):
+    model = VocabularySet
+    template_name = 'vocab/set_form.html'
+    fields = ['title', 'description', 'is_public', 'status']
+
+    def get_queryset(self):
+        # Only allow editing own sets
+        return VocabularySet.objects.filter(owner=self.request.user)
+    
+    def get_success_url(self):
+        return reverse_lazy('vocab:set_detail', kwargs={'pk': self.object.pk})
+
+class SetDeleteView(LoginRequiredMixin, DeleteView):
+    model = VocabularySet
+    template_name = 'vocab/set_confirm_delete.html'
+    success_url = reverse_lazy('vocab:set_list')
+
+    def get_queryset(self):
+        return VocabularySet.objects.filter(owner=self.request.user)
+
+
+def search_words_api(request):
+    """
+    API to search words and definitions to add to a set.
+    """
+    query = request.GET.get('q', '')
+    if len(query) < 2:
+        return JsonResponse([], safe=False)
+    
+    # Search in Vocabulary (word) and WordDefinition (meaning)
+    definitions = WordDefinition.objects.filter(
+        Q(entry__vocab__word__icontains=query) | Q(meaning__icontains=query)
+    ).select_related('entry__vocab')[:20]
+    
+    results = []
+    for d in definitions:
+        results.append({
+            'id': d.id,
+            'word': d.entry.vocab.word,
+            'meaning': d.meaning,
+            'pos': d.entry.part_of_speech,
+            'text': f"{d.entry.vocab.word} ({d.entry.part_of_speech}) - {d.meaning}"
         })
     
-    return render(request, "vocab/flashcards.html", {
-        "states": states,
-        # Must be valid JSON for JSON.parse() in the template (double quotes, etc.)
-        "cards_data_json": json.dumps(cards_data),
-        "stats": stats,
-    })
+    return JsonResponse(results, safe=False)
 
 
-@login_required
-def typing_review(request):
+def add_item_api(request, set_id):
     """
-    Mode gõ Hiragana: sử dụng chung SRS state (FSRS) với flashcard.
+    Add a definition to a set (AJAX).
     """
-    states, stats = _build_vocab_queue(request.user)
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    if not request.user.is_authenticated:
+         return JsonResponse({"error": "Unauthorized"}, status=401)
 
-    cards_data = []
-    for state in states:
-        cards_data.append({
-            "state_id": state.id,
-            "vocab_id": state.vocab.id,
-            "kanji": state.vocab.jp_kanji or "",
-            "hiragana": state.vocab.jp_kana,
-            "sino_vi": state.vocab.sino_vi or "",
-            "meaning": state.vocab.vi_meaning,
-            "total_reviews": state.total_reviews,
-            "card_state": get_card_state(state.card_json),
+    vocab_set = get_object_or_404(VocabularySet, id=set_id, owner=request.user)
+    definition_id = request.POST.get('definition_id')
+    
+    if not definition_id:
+        return JsonResponse({"error": "Missing definition_id"}, status=400)
+
+    try:
+        definition = WordDefinition.objects.get(id=definition_id)
+        # Check if already exists
+        if SetItem.objects.filter(vocabulary_set=vocab_set, definition=definition).exists():
+             return JsonResponse({"error": "Item already in set"}, status=400)
+        
+        SetItem.objects.create(vocabulary_set=vocab_set, definition=definition)
+        return JsonResponse({"success": True})
+    except WordDefinition.DoesNotExist:
+        return JsonResponse({"error": "Definition not found"}, status=404)
+
+def remove_item_api(request, set_id):
+    """
+    Remove ability from set.
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    vocab_set = get_object_or_404(VocabularySet, id=set_id, owner=request.user)
+    item_id = request.POST.get('item_id')
+
+    try:
+        item = SetItem.objects.get(id=item_id, vocabulary_set=vocab_set)
+        item.delete()
+        return JsonResponse({"success": True})
+    except SetItem.DoesNotExist:
+        return JsonResponse({"error": "Item not found"}, status=404)
+
+class EnglishListView(LoginRequiredMixin, ListView):
+    model = WordDefinition
+    template_name = 'vocab/english_list.html'
+    context_object_name = 'words'
+    paginate_by = 50
+
+    def get_queryset(self):
+        # Base queryset: words with English vocabulary
+        queryset = WordDefinition.objects.filter(entry__vocab__language=Vocabulary.Language.ENGLISH).select_related('entry__vocab')
+        
+        # Search
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(entry__vocab__word__icontains=query) | 
+                Q(entry__ipa__icontains=query) | 
+                Q(meaning__icontains=query)
+            )
+            
+        return queryset.order_by('entry__vocab__word')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_count'] = self.get_queryset().count()
+        q = self.request.GET.get('q', '')
+        context['q'] = q
+        context['base_qs'] = f'q={q}' if q else ''
+
+        # Build page_items for pagination component
+        page_obj = context.get('page_obj')
+        if page_obj:
+            num_pages = page_obj.paginator.num_pages
+            current = page_obj.number
+            page_items = []
+            for p in range(1, num_pages + 1):
+                if p == 1 or p == num_pages or abs(p - current) <= 2:
+                    page_items.append(p)
+                elif page_items and page_items[-1] is not None:
+                    page_items.append(None)
+            context['page_items'] = page_items
+
+        return context
+
+class GamesView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Calculate ready count (example logic: words with due reviews)
+        # For now, just return total count or 0 if not implemented
+        context['ready_count'] = WordDefinition.objects.filter(entry__vocab__language=Vocabulary.Language.ENGLISH).count() 
+        return context
+
+class FlashcardsEnglishView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/english_flashcards.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Use FsrsService for proper FSRS integration
+        from vocab.services import FsrsService
+        
+        cards, stats = FsrsService.get_flashcard_session(
+            user=user,
+            new_limit=20,
+            review_limit=100,
+            language='english'
+        )
+        
+        context['cards_data_json'] = json.dumps(cards)
+        context['states'] = cards  # For template check (if empty, show empty state)
+        context['stats'] = stats
+        return context
+
+class VocabularyDetailView(LoginRequiredMixin, DetailView):
+    model = Vocabulary
+    template_name = 'vocab/vocabulary_detail.html'
+    context_object_name = 'vocab'
+    
+    def get_object(self, queryset=None):
+        word = self.kwargs.get('word')
+        # Case-insensitive lookup
+        return get_object_or_404(Vocabulary, word__iexact=word)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Prefetch entries and definitions
+        context['entries'] = self.object.entries.prefetch_related('definitions').order_by('part_of_speech')
+        return context
+
+
+class ProgressView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/progress.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add basic FSRS stats if needed, or leave for template to load via API
+        return context
+
+class StudyStatusView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/study_status.html'
+
+class TypingView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/type_review.html'
+
+class PhraseListView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/phrase_list.html'
+
+
+
+# ======================================
+# TOEIC Views
+# ======================================
+
+class ToeicHomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        levels_data = []
+        for level in TOEIC_LEVEL_ORDER:
+            config = TOEIC_LEVELS[level]
+            unlocked = toeic_utils.is_level_unlocked(user, level)
+            completion = toeic_utils.get_level_completion_percent(user, level) if unlocked else 0
+            words_learned = toeic_utils.get_level_words_learned_count(user, level) if unlocked else 0
+            total_sets = VocabularySet.objects.filter(toeic_level=level, status='published').count()
+            completed_sets = UserSetProgress.objects.filter(
+                user=user, vocabulary_set__toeic_level=level,
+                status=UserSetProgress.ProgressStatus.COMPLETED,
+            ).count() if unlocked else 0
+            levels_data.append({
+                'level': level,
+                'config': config,
+                'unlocked': unlocked,
+                'completion': completion,
+                'words_learned': words_learned,
+                'total_sets': total_sets,
+                'completed_sets': completed_sets,
+            })
+        context['levels'] = levels_data
+        context['review_count'] = toeic_utils.get_review_count(user)
+        # Streak
+        try:
+            from streak.models import StreakStat
+            streak = StreakStat.objects.filter(user=user).first()
+            context['streak'] = streak.current_streak if streak else 0
+        except Exception:
+            context['streak'] = 0
+        return context
+
+
+class ToeicLevelDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/level_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        level = self.kwargs['level']
+        user = self.request.user
+        if level not in TOEIC_LEVELS:
+            raise Http404("Invalid TOEIC level")
+
+        config = TOEIC_LEVELS[level]
+        sets = VocabularySet.objects.filter(
+            toeic_level=level, status='published'
+        ).order_by('chapter', 'set_number')
+
+        # Group by chapter -> milestone -> sets
+        chapters = {}
+        for s in sets:
+            chapter_num = s.chapter or 1
+            chapter_name = s.chapter_name or f"Chapter {chapter_num}"
+            milestone = s.milestone or "A"
+            
+            if chapter_num not in chapters:
+                chapters[chapter_num] = {
+                    'number': chapter_num,
+                    'name': chapter_name,
+                    'milestones': {},
+                    'words_total': 0,
+                    'words_learned': 0,
+                }
+            
+            if milestone not in chapters[chapter_num]['milestones']:
+                chapters[chapter_num]['milestones'][milestone] = {
+                    'code': milestone,
+                    'sets': [],
+                    'words_total': 0,
+                    'words_learned': 0,
+                }
+            
+            state = toeic_utils.get_set_state(user, level, s.set_number)
+            progress = UserSetProgress.objects.filter(user=user, vocabulary_set=s).first()
+            words_total = s.items.count()
+            words_learned = progress.words_learned if progress else 0
+            
+            set_data = {
+                'set': s,
+                'state': state,  # 'completed', 'in_progress', 'available', 'locked'
+                'words_learned': words_learned,
+                'words_total': words_total,
+                'quiz_score': progress.quiz_best_score if progress else 0,
+            }
+            
+            chapters[chapter_num]['milestones'][milestone]['sets'].append(set_data)
+            chapters[chapter_num]['milestones'][milestone]['words_total'] += words_total
+            chapters[chapter_num]['milestones'][milestone]['words_learned'] += words_learned
+            chapters[chapter_num]['words_total'] += words_total
+            chapters[chapter_num]['words_learned'] += words_learned
+
+        # Convert to sorted list
+        chapters_list = sorted(chapters.values(), key=lambda x: x['number'])
+        for ch in chapters_list:
+            ch['milestones'] = sorted(ch['milestones'].values(), key=lambda x: x['code'])
+            ch['completion'] = round((ch['words_learned'] / ch['words_total'] * 100) if ch['words_total'] > 0 else 0)
+
+        total_words = sum(ch['words_total'] for ch in chapters_list)
+        learned_words = toeic_utils.get_level_words_learned_count(user, level)
+        completion = toeic_utils.get_level_completion_percent(user, level)
+
+        context.update({
+            'level': level,
+            'config': config,
+            'chapters': chapters_list,
+            'total_words': total_words,
+            'learned_words': learned_words,
+            'completion': completion,
+            'review_count': toeic_utils.get_level_review_count(user, level),
         })
-
-    return render(request, "vocab/type_review.html", {
-        "cards_data_json": json.dumps(cards_data),
-        "stats": stats,
-        "total_count": len(cards_data),
-    })
+        return context
 
 
-@login_required
-def vocab_detail(request, vocab_id: int):
-    """
-    Read-only word detail page.
-    Open this in a new tab from flashcard/typing so the SRS flow is not interrupted.
-    """
-    qs = Vocabulary.objects.all()
-    if not request.user.is_staff:
-        qs = qs.filter(is_active=True)
 
-    vocab = get_object_or_404(qs, id=vocab_id)
+class ToeicSetDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/set_detail.html'
 
-    examples = list(vocab.examples.all().order_by("order", "id").values("jp", "vi"))
-    if not examples and (vocab.example_jp or vocab.example_vi):
-        # Backwards-compatible: split legacy example fields into a list
-        jp_lines = [s.strip() for s in (vocab.example_jp or "").splitlines() if s.strip()]
-        vi_lines = [s.strip() for s in (vocab.example_vi or "").splitlines() if s.strip()]
-        n = max(len(jp_lines), len(vi_lines), 1)
-        for i in range(n):
-            examples.append({
-                "jp": jp_lines[i] if i < len(jp_lines) else "",
-                "vi": vi_lines[i] if i < len(vi_lines) else "",
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        level = self.kwargs['level']
+        set_number = self.kwargs['set_number']
+        user = self.request.user
+
+        vocab_set = get_object_or_404(
+            VocabularySet, toeic_level=level, set_number=set_number, status='published'
+        )
+        
+        # Get items
+        items = vocab_set.items.select_related(
+            'definition__entry__vocab'
+        ).order_by('display_order', 'created_at')
+
+        # Get user progress for each item
+        # Optimized: fetch all FsrsCardStateEn for vocab items in this set
+        from .models import FsrsCardStateEn
+        
+        vocab_status_map = {}
+        if user.is_authenticated:
+            # We need to map Vocabulary IDs to their FSRS state
+            # items -> definition -> entry -> vocab
+            vocab_ids = [item.definition.entry.vocab_id for item in items]
+            
+            states = FsrsCardStateEn.objects.filter(
+                user=user, 
+                vocab_id__in=vocab_ids
+            ).values('vocab_id', 'state')
+            
+            for s in states:
+                # Map state to 'known' if state > 0 (meaning it's being learned/reviewed)
+                # You might want more granular logic, e.g., state >= 1
+                status = 'known' if s['state'] > 0 else 'new'
+                vocab_status_map[s['vocab_id']] = status
+
+        items_data = []
+        voice_pref = 'us' # Default
+        
+        for item in items:
+            d = item.definition
+            e = d.entry
+            v = e.vocab
+            # Status is based on the Vocabulary ID
+            status = vocab_status_map.get(v.id, 'new')
+            
+            items_data.append({
+                'word': v.word,
+                'ipa': e.ipa,
+                'meaning': d.meaning,
+                'audio_url': e.get_audio_url(voice_pref),
+                'status': status,
+                'part_of_speech': e.part_of_speech,
             })
 
-    return render(request, "vocab/detail.html", {
-        "vocab": vocab,
-        "examples": examples,
-    })
-
-@login_required
-def vocab_progress(request):
-    """
-    Trang xem tiến độ học từ vựng của user.
-    Sử dụng FSRS state để phân loại card chính xác hơn.
-    """
-    user = request.user
-    states = (
-        FsrsCardState.objects
-        .filter(user=user, vocab__is_active=True)
-        .select_related("vocab")
-        .order_by("due")
-    )
-
-    total_cards = states.count()
-    
-    # Phân loại theo FSRS state thay vì đếm reviews
-    new_cards = 0
-    learning_cards = 0
-    review_cards = 0
-    
-    for s in states:
-        card_state = get_card_state(s.card_json)
-        if s.total_reviews == 0:
-            new_cards += 1
-        elif card_state in (CARD_STATE_LEARNING, CARD_STATE_RELEARNING):
-            learning_cards += 1
-        else:
-            review_cards += 1
-    
-    # Mature = đã review nhiều lần và có stability cao
-    mature_cards = states.filter(total_reviews__gte=5, successful_reviews__gte=3).count()
-
-    avg_progress = 0
-    if total_cards > 0:
-        avg_progress = int(sum(s.progress_percent for s in states) / total_cards)
-
-    # Memory quality: how many reviewed cards are above a recall threshold (70%)
-    reviewed_states = [s for s in states if s.total_reviews > 0]
-    memory_percent = 0
-    avg_retention = 0
-    if reviewed_states:
-        remembered = sum(1 for s in reviewed_states if s.progress_percent >= 70)
-        memory_percent = int(remembered * 100 / len(reviewed_states))
-        avg_retention = int(sum(s.progress_percent for s in reviewed_states) / len(reviewed_states))
-
-    today = timezone.localdate()
-    cards_info = []
-    for s in states:
-        d = s.due.date()
-        delta_days = (d - today).days
-        if delta_days < 0:
-            due_label = f"Quá hạn {-delta_days} ngày"
-            due_status = "overdue"
-        elif delta_days == 0:
-            due_label = "Hôm nay"
-            due_status = "today"
-        else:
-            due_label = f"Còn {delta_days} ngày"
-            due_status = "future"
-
-        cards_info.append({
-            "state": s,
-            "vocab": s.vocab,
-            "progress": s.progress_percent,
-            "due_label": due_label,
-            "due_status": due_status,
-            "card_state": get_card_state(s.card_json),
+        context.update({
+            'level': level,
+            'set_number': set_number,
+            'config': TOEIC_LEVELS.get(level, {}),
+            'vocab_set': vocab_set,
+            'items': items_data,
         })
+        return context
 
-    # Get study settings
-    study_settings = get_or_create_study_settings(user)
+class ToeicLearnView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/learn.html'
 
-    context = {
-        "cards_info": cards_info,
-        "summary": {
-            "total": total_cards,
-            "new": new_cards,
-            "learning": learning_cards,
-            "review": review_cards,
-            "mature": mature_cards,
-            "avg_progress": avg_progress,
-            "memory_percent": memory_percent,
-            "avg_retention": avg_retention,
-        },
-        "study_settings": study_settings,
-    }
-    return render(request, "vocab/progress.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        level = self.kwargs['level']
+        set_number = self.kwargs['set_number']
+        user = self.request.user
 
+        if not toeic_utils.is_set_accessible(user, level, set_number):
+            raise Http404("Set is locked")
 
-@login_required
-def study_status(request):
-    """
-    Trang liệt kê các từ: chưa học, đang học, đang ôn, đã thuộc (mature).
-    """
-    user = request.user
-
-    states = (
-        FsrsCardState.objects
-        .filter(user=user, vocab__is_active=True)
-        .select_related("vocab")
-    )
-
-    learning_states = []
-    review_states = []
-    mature_states = []
-
-    for s in states:
-        card_state = get_card_state(s.card_json)
-        if s.total_reviews == 0:
-            # sẽ gom vào "chưa học" thông qua vocab thiếu state
-            continue
-        elif card_state in (CARD_STATE_LEARNING, CARD_STATE_RELEARNING):
-            learning_states.append(s)
-        else:
-            # review hoặc graduated
-            if s.total_reviews >= 5 and s.successful_reviews >= 3:
-                mature_states.append(s)
-            else:
-                review_states.append(s)
-
-    # Vocab chưa có FsrsCardState => chưa học
-    existing_vocab_ids = states.values_list("vocab_id", flat=True)
-    not_started = Vocabulary.objects.filter(
-        is_active=True
-    ).exclude(id__in=existing_vocab_ids).order_by("-created_at")[:200]
-
-    context = {
-        "learning_states": learning_states,
-        "review_states": review_states,
-        "mature_states": mature_states,
-        "not_started": not_started,
-    }
-    return render(request, "vocab/study_status.html", context)
-
-
-@login_required
-@require_POST
-def flashcard_grade(request):
-    """
-    API chấm điểm 1 card - Anki-style với re-queue support.
-    
-    Returns JSON:
-    - status: "ok"
-    - requeue: true/false - card có cần show lại trong session không
-    - requeue_delay_ms: milliseconds đợi trước khi show lại
-    - new_intervals: preview intervals cho lần tiếp
-    - card_state: trạng thái mới của card (0-3)
-    """
-    state_id = request.POST.get("state_id")
-    rating_key = request.POST.get("rating")
-    is_new_card = request.POST.get("is_new") == "true"
-
-    if not state_id or rating_key not in ("again", "hard", "good", "easy"):
-        return HttpResponseBadRequest("Invalid data")
-
-    try:
-        state = FsrsCardState.objects.select_related("vocab").get(
-            id=state_id,
-            user=request.user,
+        vocab_set = get_object_or_404(
+            VocabularySet, toeic_level=level, set_number=set_number, status='published'
         )
-    except FsrsCardState.DoesNotExist:
-        return HttpResponseBadRequest("State not found")
+        items = vocab_set.items.select_related(
+            'definition__entry__vocab'
+        ).order_by('display_order', 'created_at')
 
-    # Gọi FSRS để review
-    new_card_json, _review_log_json, due_dt = review_card(
-        state.card_json,
-        rating_key,
-    )
+        # Get user's voice preference
+        voice_pref = 'us'
+        try:
+            from .models import UserStudySettings
+            settings_obj = UserStudySettings.objects.filter(user=user).first()
+            if settings_obj:
+                voice_pref = settings_obj.english_voice_preference
+        except Exception:
+            pass
 
-    # Cập nhật state
-    state.card_json = new_card_json
-    state.due = due_dt
-    state.last_reviewed = timezone.now()
+        items_data = []
+        for item in items:
+            d = item.definition
+            e = d.entry
+            v = e.vocab
+            items_data.append({
+                'id': v.id,
+                'definition_id': d.id,
+                'word': v.word,
+                'ipa': e.ipa,
+                'audio_url': e.get_audio_url(voice_pref),
+                'meaning': d.meaning,
+                'part_of_speech': e.part_of_speech,
+                'example': d.example_sentence,
+                'example_trans': d.example_trans,
+            })
 
-    # Cập nhật thống kê
-    state.total_reviews += 1
-    if rating_key in ("good", "easy"):
-        state.successful_reviews += 1
-    state.last_rating = rating_key
+        context.update({
+            'level': level,
+            'set_number': set_number,
+            'config': TOEIC_LEVELS.get(level, {}),
+            'vocab_set': vocab_set,
+            'items_json': json.dumps(items_data),
+            'items_count': len(items_data),
+        })
+        return context
 
-    state.save()
-    
-    # Update daily counters
-    study_settings = get_or_create_study_settings(request.user)
-    if is_new_card and state.total_reviews == 1:
-        # First review of a new card
-        study_settings.new_cards_today += 1
-        study_settings.save(update_fields=['new_cards_today'])
-    else:
-        study_settings.reviews_today += 1
-        study_settings.save(update_fields=['reviews_today'])
-    
-    # === ANKI-LIKE RE-QUEUE LOGIC ===
-    # Check if card should be shown again in this session
-    should_requeue = should_requeue_in_session(new_card_json, due_dt)
-    
-    # Calculate delay before showing again (in milliseconds)
-    requeue_delay_ms = 0
-    if should_requeue:
+
+class ToeicQuizView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/quiz.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        level = self.kwargs['level']
+        set_number = self.kwargs['set_number']
+        user = self.request.user
+
+        if not toeic_utils.is_set_accessible(user, level, set_number):
+            raise Http404("Set is locked")
+
+        vocab_set = get_object_or_404(
+            VocabularySet, toeic_level=level, set_number=set_number, status='published'
+        )
+        items = vocab_set.items.select_related(
+            'definition__entry__vocab'
+        ).order_by('display_order', 'created_at')
+
+        # Get all meanings from same level for distractors
+        level_definitions = list(
+            WordDefinition.objects.filter(
+                included_in_sets__vocabulary_set__toeic_level=level,
+                included_in_sets__vocabulary_set__status='published',
+            ).exclude(
+                id__in=[item.definition_id for item in items]
+            ).values_list('meaning', flat=True).distinct()
+        )
+
+        questions = []
+        for item in items:
+            d = item.definition
+            e = d.entry
+            v = e.vocab
+
+            # Build 3 distractors
+            distractors = random.sample(level_definitions, min(3, len(level_definitions)))
+            choices = [d.meaning] + distractors
+            random.shuffle(choices)
+
+            questions.append({
+                'vocab_id': v.id,
+                'word': v.word,
+                'ipa': e.ipa,
+                'audio_url': e.get_audio_url('us'),
+                'correct': d.meaning,
+                'choices': choices,
+            })
+
+        context.update({
+            'level': level,
+            'set_number': set_number,
+            'config': TOEIC_LEVELS.get(level, {}),
+            'vocab_set': vocab_set,
+            'questions_json': json.dumps(questions),
+            'total_questions': len(questions),
+        })
+        return context
+
+
+class ToeicReviewView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/toeic/review.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
         now = timezone.now()
-        delay_seconds = max(0, (due_dt - now).total_seconds())
-        requeue_delay_ms = int(delay_seconds * 1000)
-        # Minimum 1 second delay để tránh show quá nhanh
-        requeue_delay_ms = max(1000, requeue_delay_ms)
-    
-    # Preview new intervals for next review
-    new_intervals = preview_intervals(new_card_json)
-    card_state = get_card_state(new_card_json)
 
-    return JsonResponse({
-        "status": "ok",
-        "requeue": should_requeue,
-        "requeue_delay_ms": requeue_delay_ms,
-        "new_intervals": new_intervals,
-        "card_state": card_state,
-        "due_display": get_interval_display(new_card_json, due_dt),
-    })
+        # Get all TOEIC vocab IDs
+        toeic_vocab_ids = SetItem.objects.filter(
+            vocabulary_set__toeic_level__isnull=False,
+            vocabulary_set__status='published',
+        ).values_list(
+            'definition__entry__vocab_id', flat=True
+        ).distinct()
 
+        # Get due FSRS cards
+        due_cards = FsrsCardStateEn.objects.filter(
+            user=user,
+            vocab_id__in=toeic_vocab_ids,
+            due__lte=now,
+        ).select_related('vocab')[:50]
 
-@login_required
-def vocab_games(request):
-    """
-    Trang trung tâm trò chơi từ vựng - hiển thị các game học từ vựng.
-    """
-    user = request.user
-    
-    # Lấy thống kê SRS
-    study_settings = get_or_create_study_settings(user)
-    states, stats = _build_vocab_queue(user)
-    
-    # Đếm từ sẵn sàng để học
-    ready_count = stats.get('total', 0)
-    
-    # Danh sách các game
-    games = [
-        {
-            "id": "flashcard",
-            "name": "Flashcard",
-            "description": "Lật thẻ học từ vựng",
-            "icon": "cards",
-            "color": "#6366F1",  # Indigo
-            "url": "vocab:flashcards",
-            "coins": 5,
-        },
-        {
-            "id": "quiz",
-            "name": "Trắc nghiệm",
-            "description": "Chọn đáp án đúng",
-            "icon": "quiz",
-            "color": "#F97316",  # Orange
-            "url": "vocab:flashcards",  # Link to flashcards for now
-            "coins": 10,
-        },
-        {
-            "id": "match",
-            "name": "Nối từ với nghĩa",
-            "description": "Ghép đôi từ vựng và nghĩa",
-            "icon": "match",
-            "color": "#10B981",  # Green
-            "url": "vocab:flashcards",
-            "coins": 10,
-        },
-        {
-            "id": "typing",
-            "name": "Gõ từ vựng",
-            "description": "Nhìn nghĩa và gõ từ tiếng...",
-            "icon": "typing",
-            "color": "#EC4899",  # Pink
-            "url": "vocab:typing",
-            "coins": 10,
-        },
-        {
-            "id": "listen",
-            "name": "Nghe viết",
-            "description": "Nghe phát âm và viết từ",
-            "icon": "headphones",
-            "color": "#14B8A6",  # Teal
-            "url": "vocab:flashcards",
-            "coins": 15,
-        },
-        {
-            "id": "mixed",
-            "name": "Tổng hợp",
-            "description": "Random trắc nghiệm...",
-            "icon": "shuffle",
-            "color": "#F43F5E",  # Rose
-            "url": "vocab:flashcards",
-            "coins": 20,
-            "hot": True,
-        },
-    ]
-    
-    context = {
-        "games": games,
-        "ready_count": ready_count,
-        "stats": stats,
-        "study_settings": study_settings,
-    }
-    return render(request, "vocab/games.html", context)
-
-
-def _build_english_vocab_queue(user):
-    """
-    Build Anki-like queue for English vocabulary.
-    Similar to _build_vocab_queue but uses EnglishVocabulary and FsrsCardStateEn.
-    """
-    from .models import EnglishVocabulary, FsrsCardStateEn
-    
-    now = timezone.now()
-    study_settings = get_or_create_study_settings(user)
-    learning_threshold = now + timedelta(minutes=LEARNING_THRESHOLD_MINUTES)
-
-    # Fetch all user states for English
-    all_user_states = FsrsCardStateEn.objects.filter(
-        user=user,
-        vocab__is_active=True,
-    ).select_related("vocab")
-
-    # 1. LEARNING / RELEARNING (highest priority)
-    learning_states = []
-    for state in all_user_states.filter(due__lte=learning_threshold):
-        if is_learning_card(state.card_json):
-            learning_states.append(state)
-    learning_states.sort(key=lambda s: s.due)
-
-    # 2. REVIEW (graduated & due)
-    review_states = []
-    remaining_reviews = study_settings.remaining_reviews()
-    if remaining_reviews > 0:
-        for state in all_user_states.filter(due__lte=now).order_by("due"):
-            if state in learning_states:
+        cards_data = []
+        for card_state in due_cards:
+            vocab = card_state.vocab
+            # Get first entry + definition for display
+            entry = vocab.entries.first()
+            if not entry:
                 continue
-            if not is_learning_card(state.card_json):
-                review_states.append(state)
-                if len(review_states) >= remaining_reviews:
-                    break
+            definition = entry.definitions.first()
+            if not definition:
+                continue
 
-    # 3. NEW (no FsrsCardStateEn yet)
-    new_states = []
-    remaining_new = study_settings.remaining_new()
-    if remaining_new > 0:
-        existing_vocab_ids = FsrsCardStateEn.objects.filter(
-            user=user
-        ).values_list("vocab_id", flat=True)
+            intervals = preview_intervals(card_state.card_data)
+            cards_data.append({
+                'vocab_id': vocab.id,
+                'word': vocab.word,
+                'ipa': entry.ipa,
+                'audio_url': entry.get_audio_url('us'),
+                'meaning': definition.meaning,
+                'part_of_speech': entry.part_of_speech,
+                'example': definition.example_sentence,
+                'example_trans': definition.example_trans,
+                'intervals': intervals,
+            })
 
-        new_vocab_qs = (
-            EnglishVocabulary.objects
-            .filter(is_active=True)
-            .exclude(id__in=existing_vocab_ids)
-            .order_by("import_order", "id")[:remaining_new]
-        )
-
-        for vocab in new_vocab_qs:
-            card = create_new_card_state()
-            state = FsrsCardStateEn.objects.create(
-                user=user,
-                vocab=vocab,
-                card_json=card.to_dict(),
-                due=card.due,
-            )
-            new_states.append(state)
-
-    states = learning_states + review_states + new_states
-
-    stats = {
-        "learning_count": len(learning_states),
-        "review_count": len(review_states),
-        "new_count": len(new_states),
-        "total": len(states),
-        "daily_new_limit": study_settings.new_cards_per_day,
-        "daily_new_done": study_settings.new_cards_today,
-        "daily_review_limit": study_settings.reviews_per_day,
-        "daily_review_done": study_settings.reviews_today,
-    }
-
-    return states, stats
-
-
-@login_required
-def english_flashcard_session(request):
-    """
-    Flashcard session for English vocabulary - Anki-style with FSRS.
-    """
-    states, stats = _build_english_vocab_queue(request.user)
-
-    # Limit to 20 cards per session
-    states = states[:20]
-
-    # Build card data with intervals preview
-    cards_data = []
-    for state in states:
-        intervals = preview_intervals(state.card_json)
-        card_state = get_card_state(state.card_json)
-        
-        # Get first example if available
-        example = state.vocab.examples.first()
-        
-        cards_data.append({
-            "state_id": state.id,
-            "vocab_id": state.vocab.id,
-            "en_word": state.vocab.en_word,
-            "phonetic": state.vocab.phonetic or "",
-            "vi_meaning": state.vocab.vi_meaning,
-            "en_definition": state.vocab.en_definition or "",
-            "example_en": example.en if example else (state.vocab.example_en or ""),
-            "example_vi": example.vi if example else (state.vocab.example_vi or ""),
-            "card_state": card_state,
-            "intervals": intervals,
+        context.update({
+            'cards_json': json.dumps(cards_data),
+            'cards_count': len(cards_data),
         })
-    
-    return render(request, "vocab/english_flashcards.html", {
-        "states": states,
-        "cards_data_json": json.dumps(cards_data),
-        "stats": stats,
-    })
+        return context
 
 
-@login_required
+# ======================================
+# TOEIC API Views
+# ======================================
+
 @require_POST
-def english_flashcard_grade(request):
-    """
-    API grading for English flashcard - same logic as Japanese.
-    """
-    from .models import FsrsCardStateEn
-    
-    state_id = request.POST.get("state_id")
-    rating_key = request.POST.get("rating")
-    is_new_card = request.POST.get("is_new") == "true"
-
-    if not state_id or rating_key not in ("again", "hard", "good", "easy"):
-        return HttpResponseBadRequest("Invalid data")
-
+@login_required
+def api_toeic_learn_result(request):
+    """POST: receives set_id, known_ids[], unknown_ids[]. Creates/updates FSRS cards and progress."""
     try:
-        state = FsrsCardStateEn.objects.select_related("vocab").get(
-            id=state_id,
-            user=request.user,
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    set_id = data.get('set_id')
+    known_ids = data.get('known_ids', [])
+    unknown_ids = data.get('unknown_ids', [])
+    user = request.user
+
+    vocab_set = get_object_or_404(VocabularySet, id=set_id)
+
+    # Create/update FSRS cards for each word
+    all_ids = known_ids + unknown_ids
+    for vocab_id in all_ids:
+        card_state, created = FsrsCardStateEn.objects.get_or_create(
+            user=user, vocab_id=vocab_id,
+            defaults={'card_data': create_new_card_state().to_json()}
         )
-    except FsrsCardStateEn.DoesNotExist:
-        return HttpResponseBadRequest("State not found")
+        if created or card_state.state == 0:  # New card
+            rating = 'easy' if vocab_id in known_ids else 'again'
+            new_card_json, _, due_dt = review_card(card_state.card_data, rating)
+            if isinstance(new_card_json, str):
+                import json as _json
+                new_card_json = _json.loads(new_card_json)
+            card_state.card_data = new_card_json
+            card_state.due = due_dt
+            card_state.state = new_card_json.get('state', 0)
+            card_state.last_review = timezone.now()
+            card_state.total_reviews += 1
+            if vocab_id in known_ids:
+                card_state.successful_reviews += 1
+            card_state.save()
 
-    # Review with FSRS
-    new_card_json, _review_log_json, due_dt = review_card(
-        state.card_json,
-        rating_key,
+    # Update UserSetProgress
+    total_items = vocab_set.items.count()
+    progress, _ = UserSetProgress.objects.get_or_create(
+        user=user, vocabulary_set=vocab_set,
+        defaults={'words_total': total_items}
     )
+    progress.words_learned = len(known_ids)
+    progress.words_total = total_items
 
-    # Update state
-    state.card_json = new_card_json
-    state.due = due_dt
-    state.last_reviewed = timezone.now()
+    if not progress.started_at:
+        progress.started_at = timezone.now()
 
-    # Update stats
-    state.total_reviews += 1
-    if rating_key in ("good", "easy"):
-        state.successful_reviews += 1
-    state.last_rating = rating_key
-    state.save()
-    
-    # Update daily counters
-    study_settings = get_or_create_study_settings(request.user)
-    if is_new_card and state.total_reviews == 1:
-        study_settings.new_cards_today += 1
-        study_settings.save(update_fields=['new_cards_today'])
+    if len(known_ids) == total_items:
+        progress.status = UserSetProgress.ProgressStatus.COMPLETED
+        progress.completed_at = timezone.now()
     else:
-        study_settings.reviews_today += 1
-        study_settings.save(update_fields=['reviews_today'])
-    
-    # Requeue logic
-    should_requeue = should_requeue_in_session(new_card_json, due_dt)
-    
-    requeue_delay_ms = 0
-    if should_requeue:
-        now = timezone.now()
-        delay_seconds = max(0, (due_dt - now).total_seconds())
-        requeue_delay_ms = int(delay_seconds * 1000)
-        requeue_delay_ms = max(1000, requeue_delay_ms)
-    
-    new_intervals = preview_intervals(new_card_json)
-    card_state = get_card_state(new_card_json)
+        progress.status = UserSetProgress.ProgressStatus.IN_PROGRESS
+
+    progress.save()
+
+    # Determine redirect
+    level = vocab_set.toeic_level
+    set_number = vocab_set.set_number
+    if progress.status == UserSetProgress.ProgressStatus.COMPLETED:
+        next_url = reverse('vocab:toeic_level', args=[level])
+    else:
+        next_url = reverse('vocab:toeic_quiz', args=[level, set_number])
 
     return JsonResponse({
-        "status": "ok",
-        "requeue": should_requeue,
-        "requeue_delay_ms": requeue_delay_ms,
-        "new_intervals": new_intervals,
-        "card_state": card_state,
-        "due_display": get_interval_display(new_card_json, due_dt),
+        'success': True,
+        'status': progress.status,
+        'words_learned': progress.words_learned,
+        'words_total': progress.words_total,
+        'next_url': next_url,
+        'quiz_url': reverse('vocab:toeic_quiz', args=[level, set_number]),
+        'level_url': reverse('vocab:toeic_level', args=[level]),
     })
 
 
-# ========================================
-# Standalone Vocabulary Games
-# ========================================
-
-def _get_game_vocabulary(user, count=20):
-    """
-    Get vocabulary for games - using English vocabulary from user's SRS queue.
-    Returns list of EnglishVocabulary objects.
-    """
-    from .models import EnglishVocabulary, FsrsCardStateEn
-    
-    # First try to get from user's SRS queue (words they're learning)
-    user_vocab_ids = FsrsCardStateEn.objects.filter(
-        user=user,
-        vocab__is_active=True,
-    ).values_list("vocab_id", flat=True)[:count * 2]  # Get extra for variety
-    
-    vocab_list = list(EnglishVocabulary.objects.filter(
-        id__in=user_vocab_ids,
-        is_active=True,
-    ).order_by("?")[:count])  # Random order
-    
-    # If not enough, supplement with random active vocabulary
-    if len(vocab_list) < count:
-        existing_ids = [v.id for v in vocab_list]
-        additional = EnglishVocabulary.objects.filter(
-            is_active=True,
-        ).exclude(id__in=existing_ids).order_by("?")[:count - len(vocab_list)]
-        vocab_list.extend(additional)
-    
-    return vocab_list
-
-
-def _generate_mcq_wrong_options(correct_word, all_vocab, count=3):
-    """Generate wrong options for MCQ from vocabulary pool."""
-    import random
-    wrong = [v for v in all_vocab if v.en_word.lower() != correct_word.lower()]
-    random.shuffle(wrong)
-    return wrong[:count]
-
-
+@require_POST
 @login_required
-def game_mcq(request):
-    """
-    Multiple Choice Quiz - Show meaning, choose correct word.
-    """
-    import random
-    
-    vocab_list = _get_game_vocabulary(request.user, count=15)
-    
-    if not vocab_list:
-        return render(request, "vocab/games/mcq.html", {"questions": []})
-    
-    # Generate MCQ questions
-    questions = []
-    for vocab in vocab_list:
-        # Get wrong options from pool
-        wrong_options = _generate_mcq_wrong_options(vocab.en_word, vocab_list, count=3)
-        
-        options = [vocab.en_word] + [w.en_word for w in wrong_options]
-        random.shuffle(options)
-        
-        questions.append({
-            "id": vocab.id,
-            "question": vocab.vi_meaning,
-            "hint": vocab.en_definition or "",
-            "answer": vocab.en_word,
-            "options": options,
-            "phonetic": vocab.phonetic or "",
-        })
-    
-    return render(request, "vocab/games/mcq.html", {
-        "questions": questions,
-        "questions_json": json.dumps(questions),
-        "total_count": len(questions),
+def api_toeic_quiz_result(request):
+    """POST: receives set_id, score, total, wrong_word_ids[]."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    set_id = data.get('set_id')
+    score = data.get('score', 0)
+    total = data.get('total', 0)
+    user = request.user
+
+    vocab_set = get_object_or_404(VocabularySet, id=set_id)
+
+    progress, _ = UserSetProgress.objects.get_or_create(
+        user=user, vocabulary_set=vocab_set,
+        defaults={'words_total': vocab_set.items.count()}
+    )
+
+    # Update best score (as percentage)
+    score_pct = round(score / total * 100) if total > 0 else 0
+    if score_pct > progress.quiz_best_score:
+        progress.quiz_best_score = score_pct
+
+    # If scored >= 80% and was in_progress, mark completed
+    if score >= 8 and total >= 10 and progress.status == UserSetProgress.ProgressStatus.IN_PROGRESS:
+        progress.status = UserSetProgress.ProgressStatus.COMPLETED
+        progress.completed_at = timezone.now()
+        progress.words_learned = progress.words_total
+
+    progress.save()
+
+    level = vocab_set.toeic_level
+    set_number = vocab_set.set_number
+
+    return JsonResponse({
+        'success': True,
+        'status': progress.status,
+        'score': score,
+        'total': total,
+        'score_pct': score_pct,
+        'best_score': progress.quiz_best_score,
+        'next_url': reverse('vocab:toeic_level', args=[level]),
+        'retry_url': reverse('vocab:toeic_quiz', args=[level, set_number]),
+        'learn_url': reverse('vocab:toeic_learn', args=[level, set_number]),
     })
 
 
+@require_POST
 @login_required
-def game_matching(request):
-    """
-    Matching Game - Match words with meanings.
-    """
-    import random
+def api_toeic_review_grade(request):
+    """POST: receives vocab_id, rating (again/hard/good/easy). Calls FSRS review via FsrsService."""
+    from vocab.services import FsrsService
     
-    vocab_list = _get_game_vocabulary(request.user, count=8)  # 8 pairs = 16 tiles
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    vocab_id = data.get('vocab_id')
+    rating = data.get('rating', 'good')
     
-    if not vocab_list:
-        return render(request, "vocab/games/matching.html", {"pairs": []})
+    if not vocab_id:
+        return JsonResponse({'error': 'vocab_id required'}, status=400)
+
+    result = FsrsService.grade_card(
+        user=request.user,
+        vocab_id=vocab_id,
+        rating=rating,
+        create_if_missing=True
+    )
     
-    # Generate matching pairs
-    pairs = []
-    for i, vocab in enumerate(vocab_list):
-        pairs.append({
-            "id": vocab.id,
-            "word": vocab.en_word,
-            "meaning": vocab.vi_meaning,
-            "pair_id": i,
-        })
-    
-    # Create tiles
-    tiles = []
-    for pair in pairs:
-        tiles.append({"text": pair["word"], "pair_id": pair["pair_id"], "type": "word"})
-        tiles.append({"text": pair["meaning"], "pair_id": pair["pair_id"], "type": "meaning"})
-    
-    random.shuffle(tiles)
-    
-    return render(request, "vocab/games/matching.html", {
-        "pairs": pairs,
-        "tiles": tiles,
-        "tiles_json": json.dumps(tiles),
-        "total_pairs": len(pairs),
-    })
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Unknown error')}, status=400)
+
+    return JsonResponse(result)
 
 
+@require_POST
 @login_required
-def game_listening(request):
+def api_flashcard_grade_english(request):
     """
-    Listening Game - Listen to pronunciation and choose correct word.
+    POST: Grade an English flashcard.
+    
+    Accepts form data or JSON:
+    - state_id: ID of FsrsCardStateEn (optional, for existing cards)
+    - vocab_id: ID of Vocabulary (alternative to state_id)
+    - rating: 'again', 'hard', 'good', 'easy'
+    - is_new: 'true'/'false' (optional hint)
+    
+    Returns JSON with success, intervals, requeue, requeue_delay_ms
     """
-    import random
-    from .models import EnglishVocabulary
+    from vocab.services import FsrsService
     
-    # Get vocabulary with audio
-    vocab_with_audio = EnglishVocabulary.objects.filter(
-        is_active=True,
-    ).exclude(audio_pack_uuid="").exclude(audio_pack_uuid__isnull=True).order_by("?")[:15]
+    # Parse request data (support both form and JSON)
+    if request.content_type == 'application/json':
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        vocab_id = data.get('vocab_id')
+        state_id = data.get('state_id')
+        rating = data.get('rating', 'good')
+    else:
+        vocab_id = request.POST.get('vocab_id')
+        state_id = request.POST.get('state_id')
+        rating = request.POST.get('rating', 'good')
     
-    vocab_list = list(vocab_with_audio)
+    # Get vocab_id from state_id if not provided
+    if not vocab_id and state_id:
+        try:
+            card_state = FsrsCardStateEn.objects.get(id=state_id, user=request.user)
+            vocab_id = card_state.vocab_id
+        except FsrsCardStateEn.DoesNotExist:
+            return JsonResponse({'error': 'Card state not found'}, status=404)
     
-    if not vocab_list:
-        return render(request, "vocab/games/listening.html", {"questions": []})
+    if not vocab_id:
+        return JsonResponse({'error': 'vocab_id or state_id required'}, status=400)
     
-    # Generate listening questions
-    questions = []
-    for vocab in vocab_list:
-        # Get wrong options
-        wrong_options = _generate_mcq_wrong_options(vocab.en_word, vocab_list, count=3)
-        
-        options = [vocab.en_word] + [w.en_word for w in wrong_options]
-        random.shuffle(options)
-        
-        questions.append({
-            "id": vocab.id,
-            "answer": vocab.en_word,
-            "options": options,
-            "phonetic": vocab.phonetic or "",
-            "meaning": vocab.vi_meaning,
-            "audio_pack_uuid": vocab.audio_pack_uuid,
-        })
+    result = FsrsService.grade_card(
+        user=request.user,
+        vocab_id=int(vocab_id),
+        rating=rating,
+        create_if_missing=True
+    )
     
-    return render(request, "vocab/games/listening.html", {
-        "questions": questions,
-        "questions_json": json.dumps(questions),
-        "total_count": len(questions),
-    })
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Unknown error')}, status=400)
+
+    return JsonResponse(result)
 
 
-@login_required
-def game_fill(request):
-    """
-    Fill Game - See meaning (or definition), type the word.
-    """
-    vocab_list = _get_game_vocabulary(request.user, count=15)
-    
-    if not vocab_list:
-        return render(request, "vocab/games/fill.html", {"questions": []})
-    
-    questions = []
-    for vocab in vocab_list:
-        questions.append({
-            "id": vocab.id,
-            "meaning": vocab.vi_meaning,
-            "definition": vocab.en_definition or "",
-            "answer": vocab.en_word.lower().strip(),
-            "display_answer": vocab.en_word,
-            "phonetic": vocab.phonetic or "",
-        })
-    
-    return render(request, "vocab/games/fill.html", {
-        "questions": questions,
-        "questions_json": json.dumps(questions),
-        "total_count": len(questions),
-    })
+# ==========================
+# GAME VIEWS (Placeholders)
+# ==========================
 
+class GameMCQView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games/placeholder.html'
 
-@login_required
-def game_dictation(request):
-    """
-    Dictation Game - Listen to audio and type the word.
-    """
-    from .models import EnglishVocabulary
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game_title'] = "Trắc nghiệm"
+        context['message'] = "Tính năng này đang được phát triển!"
+        return context
+
+class GameMatchingView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games/placeholder.html'
     
-    # Get vocabulary with audio
-    vocab_with_audio = EnglishVocabulary.objects.filter(
-        is_active=True,
-    ).exclude(audio_pack_uuid="").exclude(audio_pack_uuid__isnull=True).order_by("?")[:15]
-    
-    vocab_list = list(vocab_with_audio)
-    
-    if not vocab_list:
-        return render(request, "vocab/games/dictation.html", {"questions": []})
-    
-    questions = []
-    for vocab in vocab_list:
-        questions.append({
-            "id": vocab.id,
-            "answer": vocab.en_word.lower().strip(),
-            "display_answer": vocab.en_word,
-            "phonetic": vocab.phonetic or "",
-            "meaning": vocab.vi_meaning,
-            "audio_pack_uuid": vocab.audio_pack_uuid,
-        })
-    
-    return render(request, "vocab/games/dictation.html", {
-        "questions": questions,
-        "questions_json": json.dumps(questions),
-        "total_count": len(questions),
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game_title'] = "Nối từ"
+        context['message'] = "Tính năng này đang được phát triển!"
+        return context
+
+class GameListeningView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games/placeholder.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game_title'] = "Nghe từ"
+        context['message'] = "Tính năng này đang được phát triển!"
+        return context
+
+class GameFillView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games/placeholder.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game_title'] = "Điền từ"
+        context['message'] = "Tính năng này đang được phát triển!"
+        return context
+
+class GameDictationView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/games/placeholder.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['game_title'] = "Nghe chép chính tả"
+        context['message'] = "Tính năng này đang được phát triển!"
+        return context

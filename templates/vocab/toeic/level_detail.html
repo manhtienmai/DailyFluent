@@ -1,0 +1,348 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}{{ config.label }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+<style>
+  /* Base Variables Override for this page */
+  :root {
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --card-radius: 16px;
+  }
+
+  /* Chapter Accordion */
+  .df-chapter-accordion {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .df-chapter {
+    background: var(--bg-surface, #ffffff);
+    border: 1px solid var(--border-default, #e2e8f0);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+  
+  .df-chapter:not(.open):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+    border-color: var(--border-strong, #cbd5e1);
+  }
+  
+  .df-chapter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    background: transparent;
+  }
+  
+  .df-chapter-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .df-chapter-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  /* Gradient Icons based on Chapter Number */
+  .df-chapter-icon--1 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .df-chapter-icon--2 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .df-chapter-icon--3 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .df-chapter-icon--4 { background: linear-gradient(135deg, #10b981, #059669); }
+  
+  .df-chapter-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary, #1e293b);
+  }
+  
+  .df-chapter-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2px;
+  }
+  
+  .df-chapter-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .df-chapter-chevron {
+    width: 24px;
+    height: 24px;
+    color: var(--text-tertiary, #94a3b8);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .df-chapter.open .df-chapter-chevron {
+    transform: rotate(180deg);
+  }
+  
+  .df-chapter-content {
+    display: none;
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--border-default, #e2e8f0);
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .df-chapter.open .df-chapter-content {
+    display: block;
+  }
+  
+  /* Milestone */
+  .df-milestone {
+    margin-top: 1rem;
+  }
+  
+  .df-milestone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .df-milestone-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary, #1e293b);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .df-milestone-title::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: var(--action-primary, #0D9488);
+    border-radius: 2px;
+  }
+  
+  /* Sets Grid */
+  .df-milestone-sets {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .df-set-tile {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1.5px solid transparent;
+  }
+  
+  .df-set-tile:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 2;
+  }
+  
+  /* Status Colors (Light/Dark Mode Compatible) */
+  
+  /* Completed */
+  .df-set-tile--completed {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  }
+  
+  /* In Progress */
+  .df-set-tile--in_progress {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  }
+  
+  /* Available (Default) */
+  .df-set-tile--available {
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-primary, #334155);
+    border-color: var(--border-default, #e2e8f0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  
+  .df-set-tile--available:hover {
+    border-color: var(--action-primary, #0D9488);
+    color: var(--action-primary, #0D9488);
+  }
+  
+  /* Icons for status */
+  .df-set-tile-icon {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 3;
+  }
+  
+  .df-set-tile--completed .df-set-tile-icon svg {
+    color: #10b981;
+    width: 12px;
+    height: 12px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container">
+  <!-- Back + Header -->
+  <div class="df-toeic-level-header">
+    <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Back
+    </a>
+    <div class="df-toeic-level-header-info">
+      <span class="df-toeic-level-badge" style="background: {{ config.gradient }};">
+        {{ config.icon }} {{ config.label }}
+      </span>
+      <p class="df-toeic-level-header-desc">{{ config.description }}</p>
+    </div>
+  </div>
+
+  <!-- Review Banner -->
+  {% if review_count > 0 %}
+  <a href="{% url 'vocab:toeic_review' %}" class="df-toeic-review-banner df-toeic-review-banner--compact">
+    <div class="df-toeic-review-banner-content">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;">
+        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      <span>🔄 {{ review_count }} cards due for review</span>
+    </div>
+    <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 5l7 7-7 7"/>
+    </svg>
+  </a>
+  {% endif %}
+
+  <!-- Overall Progress -->
+  <div class="df-toeic-overview-card">
+    <div class="df-toeic-overview-stats">
+      <div class="df-toeic-overview-stat">
+        <span class="df-toeic-overview-stat-value">{{ learned_words }}</span>
+        <span class="df-toeic-overview-stat-label">Từ đã học</span>
+      </div>
+      <div class="df-toeic-overview-stat">
+        <span class="df-toeic-overview-stat-value">{{ total_words }}</span>
+        <span class="df-toeic-overview-stat-label">Tổng số từ</span>
+      </div>
+      <div class="df-toeic-overview-stat">
+        <span class="df-toeic-overview-stat-value">{{ completion }}%</span>
+        <span class="df-toeic-overview-stat-label">Hoàn thành</span>
+      </div>
+    </div>
+    <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
+      <div class="df-toeic-progress-fill" style="width: {{ completion }}%; background: {{ config.color }};"></div>
+    </div>
+  </div>
+
+  <!-- Chapters Accordion -->
+  <div class="df-chapter-accordion">
+    {% for chapter in chapters %}
+    <div class="df-chapter {% if forloop.first %}open{% endif %}" data-chapter="{{ chapter.number }}">
+      <div class="df-chapter-header" onclick="toggleChapter(this)">
+        <div class="df-chapter-header-left">
+          <div class="df-chapter-icon df-chapter-icon--{{ chapter.number }}">
+            {% if chapter.number == 1 %}🏆{% elif chapter.number == 2 %}📈{% elif chapter.number == 3 %}🚀{% else %}👑{% endif %}
+          </div>
+          <div>
+            <div class="df-chapter-title">Chapter {{ chapter.number }}: {{ chapter.name }}</div>
+            <div class="df-chapter-subtitle">{{ chapter.words_learned }}/{{ chapter.words_total }} từ</div>
+          </div>
+        </div>
+        <div class="df-chapter-header-right">
+          <span class="df-chapter-progress-text">{{ chapter.completion }}%</span>
+          <svg class="df-chapter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="df-chapter-content">
+        {% for milestone in chapter.milestones %}
+        <div class="df-milestone">
+          <div class="df-milestone-header">
+            <span class="df-milestone-title">Milestone {{ milestone.code }}</span>
+            <span class="df-milestone-progress">{{ milestone.words_learned }}/{{ milestone.words_total }} từ</span>
+          </div>
+          
+          <div class="df-milestone-sets">
+            {% for sd in milestone.sets %}
+            {% with set=sd.set state=sd.state %}
+            <div class="df-set-tile df-set-tile--{{ state }}"
+                   onclick="window.location.href='{% url 'vocab:toeic_set_detail' level set.set_number %}'"
+                 title="Set {{ set.set_number }}{% if set.priority_range %} ({{ set.priority_range }}){% endif %}">
+              {{ set.set_number }}
+              {% if state == 'completed' %}
+              <div class="df-set-tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              {% endif %}
+            </div>
+            {% endwith %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% empty %}
+    <div style="text-align:center; padding: 2rem; color: var(--text-muted);">
+      Chưa có set nào được import cho level này.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function toggleChapter(header) {
+  const chapter = header.parentElement;
+  chapter.classList.toggle('open');
+}
+</script>
+{% endblock %}

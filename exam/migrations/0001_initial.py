@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('vocab', '0004_vocabulary_kanji_chars'),
+        ('vocab', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -66,7 +66,6 @@ class Migration(migrations.Migration):
                 ('order_in_mondai', models.PositiveIntegerField(default=1)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('vocab_items', models.ManyToManyField(blank=True, related_name='exam_questions', to='vocab.vocabulary')),
                 ('template', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='exam.examtemplate')),
             ],
             options={

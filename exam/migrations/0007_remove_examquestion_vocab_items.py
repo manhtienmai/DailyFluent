@@ -10,8 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='examquestion',
-            name='vocab_items',
-        ),
+        # Removed: vocab_items field was already excluded from initial migration
     ]

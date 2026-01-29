@@ -21,7 +21,7 @@ from streak.models import StreakStat, DailyActivity
 from vocab.models import UserStudySettings
 
 from django.core.paginator import Paginator
-from vocab.models import EnglishVocabulary
+# from vocab.models import EnglishVocabulary
 from .models import Course, Lesson, Section, DictationExercise, DictationSegment
 
 
@@ -60,7 +60,8 @@ def _mask_word_in_sentence(word: str, sentence: str) -> tuple[str, bool]:
     return sentence[: m.start()] + "____" + sentence[m.end() :], True
 
 
-def _build_mcq_questions(words: list[EnglishVocabulary], *, options_count: int = 4) -> list[dict]:
+def _build_mcq_questions(words: list, *, options_count: int = 4) -> list[dict]:
+# def _build_mcq_questions(words: list[EnglishVocabulary], *, options_count: int = 4) -> list[dict]:
     """
     Build MCQ questions for EN vocab with 2 types (1 question per word):
     1. choose_vi: English word + English definition, choose Vietnamese meaning
@@ -195,7 +196,8 @@ def _build_mcq_questions(words: list[EnglishVocabulary], *, options_count: int =
     return questions
 
 
-def _build_matching_boards(words: list[EnglishVocabulary], *, pairs_per_board: int = 8) -> list[dict]:
+def _build_matching_boards(words: list, *, pairs_per_board: int = 8) -> list[dict]:
+# def _build_matching_boards(words: list[EnglishVocabulary], *, pairs_per_board: int = 8) -> list[dict]:
     """
     Build 4x4 matching boards for EN vocab.
     - Each board: up to 8 pairs (word + vi meaning) -> 16 tiles.
@@ -235,7 +237,8 @@ def _build_matching_boards(words: list[EnglishVocabulary], *, pairs_per_board: i
     return boards
 
 
-def _build_fill_questions(words: list[EnglishVocabulary]) -> list[dict]:
+def _build_fill_questions(words: list) -> list[dict]:
+# def _build_fill_questions(words: list[EnglishVocabulary]) -> list[dict]:
     """
     Build fill-in questions (typing):
     - Show Vietnamese meaning + English definition as hints
@@ -280,7 +283,8 @@ def _build_listening_audio_path(audio_pack_uuid, audio_type):
     return f"dailyfluent/{uuid_str}/{filename}"
 
 
-def _build_listening_questions(words: list[EnglishVocabulary], *, options_count: int = 4) -> list[dict]:
+def _build_listening_questions(words: list, *, options_count: int = 4) -> list[dict]:
+# def _build_listening_questions(words: list[EnglishVocabulary], *, options_count: int = 4) -> list[dict]:
     """
     Build listening comprehension questions with 3 types:
     1. choose_meaning: Listen to audio, choose Vietnamese meaning (most common)
@@ -583,7 +587,7 @@ def course_list(request):
 
 
 def course_detail(request, course_slug: str):
-    from vocab.models import EnglishVocabulary
+    # from vocab.models import EnglishVocabulary
     from core.models import Enrollment
     from django.utils import timezone
     
@@ -627,12 +631,13 @@ def course_detail(request, course_slug: str):
             pass
     
     # Check which sections have vocabulary (for showing vocab modes)
-    section_ids_with_vocab = set(
-        EnglishVocabulary.objects.filter(
-            section_ref__in=sections,
-            is_active=True
-        ).values_list('section_ref_id', flat=True).distinct()
-    )
+    section_ids_with_vocab = set()
+    # section_ids_with_vocab = set(
+    #     EnglishVocabulary.objects.filter(
+    #         section_ref__in=sections,
+    #         is_active=True
+    #     ).values_list('section_ref_id', flat=True).distinct()
+    # )
 
     return render(request, "courses/course_detail.html", {
         "course": course,
@@ -653,9 +658,10 @@ def _get_default_mode_for_lesson(lesson):
         str: Mode mặc định ('vocab' nếu có từ vựng, 'grammar' nếu không có từ vựng)
     """
     # Kiểm tra từ vựng
-    vocab_count = EnglishVocabulary.objects.filter(
-        is_active=True, lesson_ref=lesson
-    ).count()
+    vocab_count = 0
+    # vocab_count = EnglishVocabulary.objects.filter(
+    #     is_active=True, lesson_ref=lesson
+    # ).count()
     if vocab_count > 0:
         return "vocab"
     
@@ -675,9 +681,10 @@ def _lesson_has_content(lesson, mode):
         bool: True nếu có nội dung, False nếu không
     """
     if mode == "vocab":
-        return EnglishVocabulary.objects.filter(
-            is_active=True, lesson_ref=lesson
-        ).exists()
+        return False
+        # return EnglishVocabulary.objects.filter(
+        #     is_active=True, lesson_ref=lesson
+        # ).exists()
     elif mode == "grammar":
         # Có content hoặc có grammar points
         has_content = lesson.content and lesson.content.strip()
@@ -688,14 +695,16 @@ def _lesson_has_content(lesson, mode):
         return has_content or has_grammar_points
     # Các mode khác đều phụ thuộc vào vocab
     elif mode in ("mcq", "matching", "fill", "listening"):
-        return EnglishVocabulary.objects.filter(
-            is_active=True, lesson_ref=lesson
-        ).exists()
+        return False
+        # return EnglishVocabulary.objects.filter(
+        #     is_active=True, lesson_ref=lesson
+        # ).exists()
     return False
 
 
 
-def _build_dictation_questions(words: list[EnglishVocabulary]) -> list[dict]:
+def _build_dictation_questions(words: list) -> list[dict]:
+# def _build_dictation_questions(words: list[EnglishVocabulary]) -> list[dict]:
     """
     Build dictation questions:
     - Listen to audio -> Type the word
@@ -778,12 +787,13 @@ def lesson_detail(request, course_slug: str, lesson_slug: str):
         mode = _get_default_mode_for_lesson(lesson)
 
     # English vocab for this lesson
-    en_qs = (
-        EnglishVocabulary.objects.filter(is_active=True, lesson_ref=lesson)
-        .select_related("course_ref", "section_ref", "lesson_ref")
-        .prefetch_related("examples")
-        .order_by("en_word", "id")
-    )
+    en_qs = []
+    # en_qs = (
+    #     EnglishVocabulary.objects.filter(is_active=True, lesson_ref=lesson)
+    #     .select_related("course_ref", "section_ref", "lesson_ref")
+    #     .prefetch_related("examples")
+    #     .order_by("en_word", "id")
+    # )
     total_count = en_qs.count()
 
     page_obj = None
@@ -1027,6 +1037,9 @@ def profile(request, username=None):
     from django.contrib.auth.models import User
     from exam.models import ExamAttempt
     from collections import defaultdict
+    from streak.models import StreakStat
+    from vocab.models import FsrsCardStateEn
+    from core.badge_service import check_and_award_badges, get_user_badges_with_status
     
     # Xác định user cần hiển thị
     if username:
@@ -1039,9 +1052,27 @@ def profile(request, username=None):
     
     is_own_profile = request.user.is_authenticated and request.user.id == profile_user.id
     
+    # Check and award badges if viewing own profile
+    if is_own_profile:
+        check_and_award_badges(profile_user)
+    
+    # Get badges with earned status
+    badges_with_status = get_user_badges_with_status(profile_user)
+    
+    # Get streak info
+    streak = None
+    try:
+        streak = StreakStat.objects.get(user=profile_user)
+    except StreakStat.DoesNotExist:
+        pass
+    
+    # Get vocab stats
+    total_vocab = FsrsCardStateEn.objects.filter(user=profile_user, state__gte=2).count()
+    
     # Lấy các khóa học đã đăng ký
     from core.models import Enrollment
     enrolled_courses = []
+    total_courses = 0
     if is_own_profile:
         enrolled_courses = (
             Enrollment.objects
@@ -1049,9 +1080,11 @@ def profile(request, username=None):
             .select_related('course')
             .order_by('-last_accessed', '-enrolled_at')[:10]
         )
+        total_courses = Enrollment.objects.filter(user=profile_user).count()
     
     # Lấy kết quả thi
     exam_results_grouped = defaultdict(list)
+    recent_exam_results = []
     
     attempts = (
         ExamAttempt.objects
@@ -1059,6 +1092,11 @@ def profile(request, username=None):
         .select_related('template')
         .order_by('-submitted_at')[:50]
     )
+    
+    total_exams = ExamAttempt.objects.filter(
+        user=profile_user, 
+        status=ExamAttempt.Status.SUBMITTED
+    ).count()
     
     for attempt in attempts:
         # Tính thời gian làm bài
@@ -1084,8 +1122,9 @@ def profile(request, username=None):
                 ratio = attempt.correct_count / attempt.total_questions
                 score = round(10 + ratio * 980)
         
-        exam_results_grouped[attempt.template.title].append({
+        result_data = {
             'id': attempt.id,
+            'template': attempt.template,
             'submitted_at': attempt.submitted_at,
             'correct_count': attempt.correct_count,
             'total_questions': attempt.total_questions,
@@ -1093,14 +1132,27 @@ def profile(request, username=None):
             'is_full_test': is_full_test,
             'selected_parts': [p.replace('L', '').replace('R', '') for p in selected_parts],
             'score': score,
-        })
+        }
+        
+        exam_results_grouped[attempt.template.title].append(result_data)
+        
+        # Build recent results for display (first 10)
+        if len(recent_exam_results) < 10:
+            recent_exam_results.append(result_data)
     
     return render(request, "profile.html", {
         "profile_user": profile_user,
         "is_own_profile": is_own_profile,
         "enrolled_courses": enrolled_courses,
         "exam_results_grouped": dict(exam_results_grouped),
+        "recent_exam_results": recent_exam_results,
+        "badges_with_status": badges_with_status,
+        "streak": streak,
+        "total_vocab": total_vocab,
+        "total_exams": total_exams,
+        "total_courses": total_courses,
     })
+
 
 
 from django.contrib.auth.decorators import login_required

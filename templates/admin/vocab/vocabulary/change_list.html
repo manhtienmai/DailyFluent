@@ -3,8 +3,18 @@
 {% block object-tools-items %}
   {{ block.super }}
   <li>
+    <a class="addlink" href="{% url 'admin:vocab_vocabulary_manual_add' %}">
+      Quick Add Vocabulary
+    </a>
+  </li>
+  <li>
     <a class="addlink" href="{% url 'admin:vocab_vocabulary_import_json' %}">
       Import JSON (paste)
+    </a>
+  </li>
+  <li>
+    <a class="addlink" href="{% url 'admin:vocab_vocabulary_bulk_add' %}">
+      Bulk Add (Auto Scrape)
     </a>
   </li>
 {% endblock %}

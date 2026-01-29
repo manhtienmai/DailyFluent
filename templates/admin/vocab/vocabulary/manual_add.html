@@ -1,0 +1,234 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .form-row {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-row label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        .form-row input[type="text"], .form-row select {
+            width: 400px;
+            padding: 5px;
+        }
+        .section-header {
+            background: #f8f8f8;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        .fetch-btn {
+            background: #447e9b;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .fetch-btn:hover { background: #335e75; }
+        
+        #fetch-results {
+            margin: 10px 0;
+            padding: 10px;
+            background: #eef;
+            border: 1px solid #ccd;
+            display: none;
+        }
+        .result-item {
+            padding: 8px;
+            border-bottom: 1px solid #fff;
+            cursor: pointer;
+        }
+        .result-item:hover { background: #dde; }
+        .result-item:last-child { border-bottom: none; }
+        .result-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #666;
+            color: #fff;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+&rsaquo; Quick Add
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Quick Add Vocabulary</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="section-header">Core Vocabulary</div>
+            
+            <div class="form-row">
+                <label for="word" class="required">Word:</label>
+                <input type="text" name="word" id="word" required>
+                <button type="button" id="btn-fetch" class="fetch-btn">Fetch Info (Cambridge)</button>
+            </div>
+            
+            <div id="fetch-results"></div>
+            
+            <div class="form-row">
+                <label for="ipa">IPA:</label>
+                <input type="text" name="ipa" id="ipa">
+            </div>
+            
+            <div class="form-row">
+                <label for="audio_url">Audio URL:</label>
+                <input type="text" name="audio_url" id="audio_url">
+            </div>
+            
+             <div class="form-row">
+                <label for="language">Language:</label>
+                <select name="language" id="language">
+                    <option value="en" selected>English</option>
+                    <option value="jp">Japanese</option>
+                </select>
+            </div>
+
+            <div class="section-header">Primary Definition</div>
+
+            <div class="form-row">
+                <label for="meaning" class="required">Meaning (VI):</label>
+                <input type="text" name="meaning" id="meaning" required>
+            </div>
+            
+            <div class="form-row">
+                <label for="pos">Part of Speech:</label>
+                <input type="text" name="pos" id="pos" placeholder="n, v, adj...">
+            </div>
+            
+            <div class="form-row">
+                <label for="example">Example (EN):</label>
+                <input type="text" name="example" id="example">
+            </div>
+            
+            <div class="form-row">
+                <label for="example_trans">Example (VI):</label>
+                <input type="text" name="example_trans" id="example_trans">
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="Save" class="default" />
+                 <input type="submit" name="save_add_another" value="Save and Add Another" />
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnFetch = document.getElementById('btn-fetch');
+    const inputWord = document.getElementById('word');
+    const resultBox = document.getElementById('fetch-results');
+    
+    // Fields to populate
+    const fIpa = document.getElementById('ipa');
+    const fAudioUs = document.getElementById('audio_url'); // using US as default
+    const fAudioUk = document.getElementById('audio_uk'); // if you add hidden field for UK later
+    const fMeaning = document.getElementById('meaning');
+    const fPos = document.getElementById('pos');
+    const fExample = document.getElementById('example');
+
+    btnFetch.addEventListener('click', function() {
+        const word = inputWord.value.trim();
+        if (!word) {
+            alert('Please enter a word first.');
+            return;
+        }
+        
+        btnFetch.textContent = 'Fetching...';
+        btnFetch.disabled = true;
+        resultBox.innerHTML = 'Loading...';
+        resultBox.style.display = 'block';
+        
+        fetch(`{% url 'admin:vocab_vocabulary_scrape' %}?word=${encodeURIComponent(word)}`)
+            .then(res => res.json())
+            .then(data => {
+                btnFetch.textContent = 'Fetch Info (Cambridge)';
+                btnFetch.disabled = false;
+                
+                if (data.error) {
+                    resultBox.innerHTML = `<div style="color:red">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const results = data.results || [];
+                if (results.length === 0) {
+                    resultBox.innerHTML = '<div style="color:orange">No results found.</div>';
+                    return;
+                }
+                
+                let html = '<strong>Select a definition to fill:</strong>';
+                results.forEach((item, idx) => {
+                    const safeDef = item.definition.replace(/"/g, '&quot;');
+                    const safeEx = item.example.replace(/"/g, '&quot;');
+                    
+                    html += `
+                    <div class="result-item" onclick="selectResult(${idx})">
+                        <span class="result-badge">${item.type || '?'}</span>
+                        <strong>${item.definition}</strong>
+                        <br>
+                        <small style="color:#666">${item.ipa} | ${item.example}</small>
+                    </div>
+                    `;
+                });
+                resultBox.innerHTML = html;
+                
+                // Expose results to global scope for click handler
+                window.searchedResults = results;
+            })
+            .catch(err => {
+                btnFetch.textContent = 'Fetch Info';
+                btnFetch.disabled = false;
+                resultBox.innerHTML = `<div style="color:red">Network Error: ${err}</div>`;
+            });
+    });
+});
+
+function selectResult(index) {
+    const item = window.searchedResults[index];
+    if (!item) return;
+    
+    if(confirm(`Fill form with: [${item.type}] ${item.definition}?`)) {
+        document.getElementById('ipa').value = item.ipa || '';
+        
+        // Prioritize US audio, fallback to UK, or empty
+        const audio = item.audio_us || item.audio_uk || '';
+        document.getElementById('audio_url').value = audio;
+        
+        // If you had a separate field for UK, you could fill it too.
+        // document.getElementById('audio_uk').value = item.audio_uk || '';
+        
+        document.getElementById('pos').value = item.type || '';
+        document.getElementById('example').value = item.example || '';
+        
+        // Fill Meaning with the definition (which is now Vietnamese or English fallback)
+        document.getElementById('meaning').value = item.definition || '';
+    }
+}
+</script>
+{% endblock %}

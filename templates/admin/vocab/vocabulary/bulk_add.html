@@ -1,0 +1,265 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        :root {
+            --bg-body: #0f172a;       /* Slate 900 */
+            --bg-panel: #1e293b;      /* Slate 800 */
+            --bg-input: #334155;      /* Slate 700 */
+            --text-main: #f8fafc;     /* Slate 50 */
+            --text-muted: #cbd5e1;    /* Slate 300 */
+            --border-color: #475569;  /* Slate 600 */
+            --accent-color: #3b82f6;  /* Blue 500 */
+        }
+        
+        body {
+            background-color: var(--bg-body) !important;
+            color: var(--text-main) !important;
+        }
+        
+        #content-main {
+            background: transparent;
+        }
+
+        h1, h2, h3 { color: var(--text-main) !important; }
+        
+        .form-row { padding: 10px; border-bottom: 1px solid var(--border-color); }
+        
+        .control-panel { 
+            background: var(--bg-panel); 
+            padding: 20px; 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 20px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        textarea, input[type="text"], input[type="number"] { 
+            width: 100%; 
+            background: var(--bg-input); 
+            color: var(--text-main); 
+            border: 1px solid var(--border-color); 
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        
+        textarea:focus, input:focus {
+            outline: 2px solid var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        label { color: var(--text-muted); }
+        .help { color: #94a3b8; font-size: 0.9em; }
+
+        .log-box { 
+            background: #020617; /* Slate 950 */
+            color: #4ade80;      /* Green 400 */
+            padding: 15px; 
+            font-family: 'Consolas', monospace; 
+            height: 400px; 
+            overflow-y: auto; 
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .log-error { color: #ef4444; } /* Red 500 */
+        .log-warn { color: #f59e0b; }  /* Amber 500 */
+        
+        .progress-container { 
+            background: var(--bg-input); 
+            height: 24px; 
+            margin-top: 15px; 
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+            font-weight: bold;
+            line-height: 24px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .button.default {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .button.default:hover {
+            background: #2563eb;
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--bg-input);
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+&rsaquo; Bulk Import
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Bulk Add Vocabulary (Auto Scrape)</h1>
+    
+    <div class="control-panel">
+        <label><strong>List of Words (one per line):</strong></label><br>
+        <textarea id="word-list" placeholder="apple&#10;banana&#10;orange"></textarea>
+        
+        <br><br>
+        <label><strong>Delay between words (ms):</strong></label>
+        <input type="number" id="delay-ms" value="2000" style="width: 80px;">
+        <span class="help">Avoid Cambridge rate limit (recommended > 2000ms)</span>
+        
+        <br><br>
+        <label><strong>Max Definitions:</strong></label>
+        <input type="number" id="limit-defs" value="1" min="0" style="width: 60px;">
+        <span class="help">(0 = All, 1 = First only)</span>
+
+        <br><br>
+        <button type="button" id="btn-start" class="button default">Start Processing</button>
+        <button type="button" id="btn-stop" class="button" disabled>Stop</button>
+        
+        <div id="status-text" style="margin-top: 10px; font-weight: bold;">Ready</div>
+        
+        <div class="progress-container">
+            <div id="progress" class="progress-bar">0%</div>
+        </div>
+    </div>
+    
+    <h3>Process Log</h3>
+    <div id="log-box" class="log-box"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+    const txtWords = document.getElementById('word-list');
+    const inpDelay = document.getElementById('delay-ms');
+    const inpLimit = document.getElementById('limit-defs');
+    const logBox = document.getElementById('log-box');
+    const progressBar = document.getElementById('progress');
+    const statusText = document.getElementById('status-text');
+    
+    let isRunning = false;
+    let shouldStop = false;
+
+    function log(msg, type='info') {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        if (type === 'error') div.className = 'log-error';
+        if (type === 'warn') div.className = 'log-warn';
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function processQueue(words) {
+        const total = words.length;
+        let success = 0;
+        let fail = 0;
+        const delay = parseInt(inpDelay.value) || 2000;
+        const limit = parseInt(inpLimit.value) || 0;
+
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+        txtWords.disabled = true;
+        isRunning = true;
+        shouldStop = false;
+
+        log(`Starting process for ${total} words...`, 'warn');
+
+        for (let i = 0; i < total; i++) {
+            if (shouldStop) {
+                log('Process stopped by user.', 'warn');
+                break;
+            }
+
+            const word = words[i].trim();
+            if (!word) continue;
+
+            statusText.textContent = `Processing ${i+1}/${total}: ${word}...`;
+            
+            try {
+                const response = await fetch(`{% url 'admin:vocab_vocabulary_bulk_process' %}?word=${encodeURIComponent(word)}&limit=${limit}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    log(`[OK] ${word}: Added ${data.definitions} definitions.`);
+                    success++;
+                } else {
+                    log(`[FAIL] ${word}: ${data.message}`, 'error');
+                    fail++;
+                }
+            } catch (err) {
+                log(`[ERR] ${word}: Network error`, 'error');
+                fail++;
+            }
+
+            // Update Progress
+            const pct = Math.round(((i + 1) / total) * 100);
+            progressBar.style.width = pct + '%';
+            progressBar.textContent = pct + '%';
+
+            // Wait
+            if (i < total - 1) {
+                await sleep(delay);
+            }
+        }
+
+        isRunning = false;
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+        txtWords.disabled = false;
+        statusText.textContent = `Done. Success: ${success}, Fail: ${fail}`;
+        log(`Finished. Success: ${success}, Fail: ${fail}`, 'warn');
+    }
+
+    btnStart.addEventListener('click', () => {
+        const text = txtWords.value;
+        if (!text.trim()) {
+            alert('Please enter some words.');
+            return;
+        }
+        // Split by newline or tab
+        const words = text.split(/[\n\t]+/).map(w => w.trim()).filter(w => w);
+        if (words.length === 0) return;
+        
+        processQueue(words);
+    });
+
+    btnStop.addEventListener('click', () => {
+        if (isRunning) {
+            shouldStop = true;
+            btnStop.textContent = 'Stopping...';
+        }
+    });
+});
+</script>
+{% endblock %}

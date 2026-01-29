@@ -1,0 +1,20 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}{{ game_title }} | DailyFluent{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 4rem auto; text-align: center;">
+  <div style="font-size: 4rem; margin-bottom: 1rem;">🚧</div>
+  <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+    {{ game_title }}
+  </h1>
+  <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+    {{ message|default:"Tính năng này đang được phát triển. Vui lòng quay lại sau!" }}
+  </p>
+  <a href="{% url 'vocab:games' %}" 
+     style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--action-primary, #0D9488); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500;">
+    Quay lại
+  </a>
+</div>
+{% endblock %}

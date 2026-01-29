@@ -554,15 +554,17 @@
         {% for item in items %}
         <tr id="item-row-{{ item.id }}">
           <td class="df-word-cell">
-            <div class="df-word-main">{{ item.definition.vocab.word }}</div>
-            <div class="df-word-ipa">{{ item.definition.vocab.ipa }}</div>
-            {% if item.definition.vocab.audio_url %}
-            <audio controls src="{{ item.definition.vocab.audio_url }}" class="df-word-audio"></audio>
+            <div class="df-word-main">{{ item.definition.entry.vocab.word }}</div>
+            <div class="df-word-ipa">{{ item.definition.entry.ipa }}</div>
+            {% if item.definition.entry.audio_us %}
+            <audio controls src="{{ item.definition.entry.audio_us }}" class="df-word-audio"></audio>
+            {% elif item.definition.entry.audio_uk %}
+            <audio controls src="{{ item.definition.entry.audio_uk }}" class="df-word-audio"></audio>
             {% endif %}
           </td>
           <td>
             <div class="df-meaning-main">{{ item.definition.meaning }}</div>
-            <div class="df-meaning-pos">{{ item.definition.part_of_speech }}</div>
+            <div class="df-meaning-pos">{{ item.definition.entry.part_of_speech }}</div>
           </td>
           <td>
             <div class="df-example-main">{{ item.definition.example_sentence }}</div>
@@ -590,24 +592,28 @@
       <div class="df-item-card" id="item-card-{{ item.id }}">
         <div class="df-item-header">
           <div>
-            <div class="df-item-word">{{ item.definition.vocab.word }}</div>
-            <div class="df-item-ipa">{{ item.definition.vocab.ipa }}</div>
+            <div class="df-item-word">{{ item.definition.entry.vocab.word }}</div>
+            <div class="df-item-ipa">{{ item.definition.entry.ipa }}</div>
           </div>
           {% if request.user == vocab_set.owner %}
           <button onclick="removeItem({{ item.id }})" class="df-remove-btn">Remove</button>
           {% endif %}
         </div>
         <div class="df-item-meaning">{{ item.definition.meaning }}</div>
-        <div class="df-item-pos">{{ item.definition.part_of_speech }}</div>
+        <div class="df-item-pos">{{ item.definition.entry.part_of_speech }}</div>
         {% if item.definition.example_sentence %}
         <div class="df-item-example">
           <div class="df-item-example-text">{{ item.definition.example_sentence }}</div>
           <div class="df-item-example-trans">{{ item.definition.example_trans }}</div>
         </div>
         {% endif %}
-        {% if item.definition.vocab.audio_url %}
+        {% if item.definition.entry.audio_us %}
         <div class="df-item-audio">
-          <audio controls src="{{ item.definition.vocab.audio_url }}"></audio>
+          <audio controls src="{{ item.definition.entry.audio_us }}"></audio>
+        </div>
+        {% elif item.definition.entry.audio_uk %}
+        <div class="df-item-audio">
+          <audio controls src="{{ item.definition.entry.audio_uk }}"></audio>
         </div>
         {% endif %}
       </div>

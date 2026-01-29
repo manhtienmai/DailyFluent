@@ -34,7 +34,7 @@ AZURE_ACCOUNT_KEY = os.getenv("AZURE_ACCOUNT_KEY", "")
 AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "media")
 AZURE_AUDIO_CONTAINER = os.getenv("AZURE_AUDIO_CONTAINER", "audio")
 # Tăng timeout cho Azure Storage (django-storages)
-AZURE_CONNECTION_TIMEOUT = 6000  # giây
+AZURE_CONNECTION_TIMEOUT = 600  # giây
 AZURE_READ_TIMEOUT = 6000        # giây
 # Giảm kích thước block và tăng song song để giảm timeout khi upload file lớn
 # (sử dụng các option mà django-storages chuyển vào BlobServiceClient)
@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'nested_admin',
 
     'storages',
 

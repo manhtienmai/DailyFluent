@@ -1,0 +1,225 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+<style>
+  /* Page specific styles */
+  .df-set-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .df-set-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .df-set-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .df-set-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .df-start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--action-primary, #0D9488);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+  }
+  
+  .df-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.3);
+  }
+  
+  /* Word List */
+  .df-word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .df-word-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background: var(--bg-surface, white);
+    border: 1px solid var(--border-default, #e2e8f0);
+    border-radius: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .df-word-item:hover {
+    border-color: var(--action-primary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .df-word-audio-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-interactive, #f1f5f9);
+    color: var(--action-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  
+  .df-word-audio-btn:hover {
+    background: var(--action-primary);
+    color: white;
+  }
+  
+  .df-word-content {
+    flex: 1;
+  }
+  
+  .df-word-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .df-word-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .df-word-ipa {
+    font-family: inherit;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  
+  .df-word-pos {
+    font-size: 0.8rem;
+    color: var(--action-primary);
+    background: rgba(13, 148, 136, 0.1);
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  
+  .df-word-meaning {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+  }
+  
+  .df-word-status {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10B981;
+  }
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container">
+  
+  <!-- Back Button -->
+  <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+    Back to Level
+  </a>
+
+  <!-- Header -->
+  <div class="df-set-header">
+    <div class="df-set-title-group">
+      <div class="df-set-title">
+        <span class="df-set-badge" style="background: {{ config.gradient }}">
+          {{ config.label }}
+        </span>
+        Set {{ set_number }}
+      </div>
+      <div style="color: var(--text-secondary);">
+        {{ items|length }} từ vựng • {{ vocab_set.get_estimated_time }} phút học
+      </div>
+    </div>
+    
+    <a href="{% url 'vocab:toeic_learn' level set_number %}" class="df-start-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+      Học ngay
+    </a>
+  </div>
+
+  <!-- Word List -->
+  <div class="df-word-list" x-data="{ currentAudio: null }">
+    {% for item in items %}
+    <div class="df-word-item">
+      <!-- Audio Button -->
+      <div class="df-word-audio-btn" 
+           @click="
+             if(currentAudio) currentAudio.pause();
+             currentAudio = new Audio('{{ item.audio_url }}');
+             currentAudio.play();
+           ">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+          <path d="M15.54 8.46a5 5 0 010 7.07"/>
+        </svg>
+      </div>
+
+      <!-- Content -->
+      <div class="df-word-content">
+        <div class="df-word-header">
+          <span class="df-word-text">{{ item.word }}</span>
+          <span class="df-word-ipa">{{ item.ipa }}</span>
+          <span class="df-word-pos">{{ item.part_of_speech }}</span>
+        </div>
+        <div class="df-word-meaning">{{ item.meaning }}</div>
+      </div>
+
+      <!-- Status (if known) -->
+      {% if item.status == 'known' %}
+      <div class="df-word-status" title="Đã thuộc">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

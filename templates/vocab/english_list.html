@@ -36,27 +36,23 @@
         <th class="px-4 py-3 text-left">Từ</th>
         <th class="px-4 py-3 text-left">Phiên âm</th>
         <th class="px-4 py-3 text-left">Nghĩa (VI)</th>
-        <th class="px-4 py-3 text-left">Course / Section / Lesson</th>
       </tr>
     </thead>
     <tbody>
       {% for w in words %}
         <tr class="border-t border-slate-100 hover:bg-slate-50">
           <td class="px-4 py-3 text-sm text-slate-500">{{ page_obj.start_index|add:forloop.counter0 }}</td>
-          <td class="px-4 py-3 font-semibold text-slate-900">{{ w.en_word }}</td>
-          <td class="px-4 py-3 text-slate-600">{{ w.phonetic|default:"-" }}</td>
-          <td class="px-4 py-3 text-slate-800">{{ w.vi_meaning }}</td>
-          <td class="px-4 py-3 text-slate-600">
-            {% if w.course_ref %}{{ w.course_ref.title }}{% elif w.course %}{{ w.course }}{% else %}-{% endif %}
-            /
-            {% if w.section_ref %}{{ w.section_ref.title }}{% elif w.section %}{{ w.section }}{% else %}-{% endif %}
-            /
-            {% if w.lesson_ref %}{{ w.lesson_ref.title }}{% elif w.lesson %}{{ w.lesson }}{% else %}-{% endif %}
+          <td class="px-4 py-3 font-semibold text-slate-900">
+            <a href="{% url 'vocab:vocabulary_detail' w.entry.vocab.word %}" class="text-blue-600 hover:text-blue-800 hover:underline">
+              {{ w.entry.vocab.word }}
+            </a>
           </td>
+          <td class="px-4 py-3 text-slate-600">{{ w.entry.ipa|default:"-" }}</td>
+          <td class="px-4 py-3 text-slate-800">{{ w.meaning }}</td>
         </tr>
       {% empty %}
         <tr>
-          <td colspan="5" class="px-4 py-10 text-center text-slate-500">
+          <td colspan="4" class="px-4 py-10 text-center text-slate-500">
             Chưa có từ vựng tiếng Anh nào.
           </td>
         </tr>
@@ -65,7 +61,9 @@
   </table>
 </div>
 
-{% include "components/pagination.html" with page_obj=page_obj page_items=page_items base_qs=base_qs range_text="Hiển thị "|add:page_obj.start_index|add:"-"|add:page_obj.end_index|add:" / "|add:total_count %}
+{% if page_obj.paginator.num_pages > 1 %}
+  {% include "components/pagination.html" with page_obj=page_obj page_items=page_items base_qs=base_qs %}
+{% endif %}
 {% endblock %}
 
 

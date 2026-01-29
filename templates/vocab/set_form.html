@@ -56,6 +56,40 @@
     box-shadow: 0 0 0 3px var(--action-primary-subtle);
   }
 
+  .df-form-group input[type="text"],
+  .df-form-group input[type="url"],
+  .df-form-group input[type="number"],
+  .df-form-group textarea,
+  .df-form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .df-form-group input:hover,
+  .df-form-group textarea:hover,
+  .df-form-group select:hover {
+    border-color: var(--input-border-hover);
+  }
+
+  .df-form-group input:focus,
+  .df-form-group textarea:focus,
+  .df-form-group select:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 3px var(--action-primary-subtle);
+  }
+
+  .df-form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
   .df-form-checkbox-group {
     display: flex;
     align-items: center;
@@ -223,10 +257,7 @@
           <label for="{{ field.id_for_label }}" class="df-form-label">
             {{ field.label }}
           </label>
-          <input type="{{ field.widget_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                 class="df-form-input"
-                 value="{{ field.value|default:'' }}"
-                 {% if field.field.required %}required{% endif %}>
+          {{ field }}
           {% if field.help_text %}
           <p class="df-form-hint">{{ field.help_text }}</p>
           {% endif %}

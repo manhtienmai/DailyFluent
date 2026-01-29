@@ -376,6 +376,71 @@
     background: var(--action-primary-hover);
   }
 
+  /* Badges Grid */
+  .df-badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .df-badge-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .df-badge-card--earned {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .df-badge-card--earned:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  }
+
+  .df-badge-card--locked {
+    opacity: 0.5;
+    filter: grayscale(0.8);
+  }
+
+  .df-badge-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .df-badge-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .df-badge-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+
+  .df-badge-earned-date {
+    font-size: 0.6875rem;
+    color: var(--text-tertiary);
+    margin-top: 0.5rem;
+  }
+
+  .df-badge-lock-icon {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.5;
+  }
+
   /* Responsive */
   @media (max-width: 640px) {
     .df-profile-content {
@@ -390,6 +455,10 @@
 
     .df-profile-meta {
       justify-content: center;
+    }
+
+    .df-badges-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
@@ -454,7 +523,10 @@
 
   <!-- Tabs -->
   <div class="df-profile-tabs">
-    <button type="button" class="df-profile-tab df-profile-tab--active" data-tab="courses">
+    <button type="button" class="df-profile-tab df-profile-tab--active" data-tab="badges">
+      🏆 Thành tựu
+    </button>
+    <button type="button" class="df-profile-tab" data-tab="courses">
       📚 Khóa học
     </button>
     <button type="button" class="df-profile-tab" data-tab="results">
@@ -462,8 +534,36 @@
     </button>
   </div>
 
+  <!-- Panel: Badges -->
+  <div id="panel-badges" class="df-profile-panel df-profile-panel--active">
+    <div class="df-profile-section">
+      <div class="df-profile-section-title">🏆 Huy hiệu thành tựu</div>
+      
+      <div class="df-badges-grid">
+        {% for item in badges_with_status %}
+        <div class="df-badge-card {% if item.earned %}df-badge-card--earned{% else %}df-badge-card--locked{% endif %}">
+          {% if not item.earned %}
+          <span class="df-badge-lock-icon">🔒</span>
+          {% endif %}
+          <span class="df-badge-icon">{{ item.badge.icon }}</span>
+          <div class="df-badge-name">{{ item.badge.name }}</div>
+          <div class="df-badge-desc">{{ item.badge.description }}</div>
+          {% if item.earned and item.earned_at %}
+          <div class="df-badge-earned-date">Đạt được {{ item.earned_at|date:"d/m/Y" }}</div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="df-profile-empty" style="grid-column: 1 / -1;">
+          <div class="df-profile-empty-icon">🏆</div>
+          <p class="df-profile-empty-text">Chưa có huy hiệu nào. Hãy tiếp tục học tập!</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
   <!-- Panel: Courses -->
-  <div id="panel-courses" class="df-profile-panel df-profile-panel--active">
+  <div id="panel-courses" class="df-profile-panel">
     <div class="df-profile-section">
       <div class="df-profile-section-title">Khóa học đã đăng ký</div>
       

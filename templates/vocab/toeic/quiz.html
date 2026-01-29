@@ -1,0 +1,224 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Quiz Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container" x-data="toeicQuiz()" x-init="init()">
+  <!-- Header -->
+  <div class="df-toeic-learn-header">
+    <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    <div class="df-toeic-learn-header-info">
+      <span class="df-toeic-level-badge df-toeic-level-badge--sm" style="background: {{ config.gradient }};">
+        {{ config.label }}
+      </span>
+      <span class="df-toeic-learn-set-label">Quiz - Set {{ set_number }}</span>
+    </div>
+    <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + questions.length"></div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
+    <div class="df-toeic-progress-fill df-toeic-progress-fill--quiz"
+         :style="'width:' + ((currentIndex) / questions.length * 100) + '%'"></div>
+  </div>
+
+  <!-- Question Area -->
+  <div class="df-toeic-quiz-area" x-show="!showResult">
+    <div class="df-toeic-quiz-word">
+      <span x-text="currentQ?.word"></span>
+      <button type="button" class="df-toeic-learn-audio-btn df-toeic-learn-audio-btn--sm"
+              @click="playAudio()" x-show="currentQ?.audio_url">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 010 7.07"/>
+        </svg>
+      </button>
+    </div>
+    <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
+
+    <div class="df-toeic-quiz-prompt">Choose the correct meaning:</div>
+
+    <div class="df-toeic-quiz-choices">
+      <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
+        <button type="button"
+                class="df-toeic-quiz-choice"
+                :class="{
+                  'df-toeic-quiz-choice--correct': answered && choice === currentQ.correct,
+                  'df-toeic-quiz-choice--wrong': answered && selectedIndex === ci && choice !== currentQ.correct,
+                  'df-toeic-quiz-choice--disabled': answered,
+                }"
+                :disabled="answered"
+                @click="answer(ci)">
+          <span class="df-toeic-quiz-choice-letter" x-text="['A','B','C','D'][ci]"></span>
+          <span x-text="choice"></span>
+        </button>
+      </template>
+    </div>
+
+    <!-- Feedback -->
+    <div class="df-toeic-quiz-feedback" x-show="answered" x-transition>
+      <template x-if="isCorrect">
+        <div class="df-toeic-quiz-feedback--correct">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Correct!
+        </div>
+      </template>
+      <template x-if="!isCorrect && answered">
+        <div class="df-toeic-quiz-feedback--wrong">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          <span>Correct answer: <strong x-text="currentQ?.correct"></strong></span>
+        </div>
+      </template>
+      <button type="button" class="df-toeic-btn df-toeic-btn--primary df-toeic-btn--sm"
+              @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Next' : 'See Results'">
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div class="df-toeic-quiz-result" x-show="showResult" x-transition>
+    <div class="df-toeic-quiz-result-icon" x-text="score >= 8 ? '🎉' : '💪'"></div>
+    <h2 class="df-toeic-quiz-result-title" x-text="score >= 8 ? 'Excellent!' : 'Keep Practicing!'"></h2>
+
+    <div class="df-toeic-quiz-result-score">
+      <span class="df-toeic-quiz-result-score-big" x-text="score"></span>
+      <span class="df-toeic-quiz-result-score-total">/ <span x-text="questions.length"></span></span>
+    </div>
+
+    <div class="df-toeic-quiz-result-pct"
+         :class="{'df-toeic-quiz-result-pct--pass': score >= 8}">
+      <span x-text="Math.round(score / questions.length * 100) + '%'"></span>
+    </div>
+
+    <template x-if="score >= 8">
+      <p class="df-toeic-quiz-result-msg">Set completed! The next set is now unlocked.</p>
+    </template>
+    <template x-if="score < 8">
+      <p class="df-toeic-quiz-result-msg">Score 80% or higher to complete this set.</p>
+    </template>
+
+    <div class="df-toeic-learn-summary-actions">
+      <template x-if="score < 8">
+        <a href="{% url 'vocab:toeic_learn' level set_number %}" class="df-toeic-btn df-toeic-btn--secondary">
+          Review Words
+        </a>
+      </template>
+      <button type="button" @click="retry()" class="df-toeic-btn df-toeic-btn--primary" x-show="score < 8">
+        Retry Quiz
+      </button>
+      <a :href="levelUrl" class="df-toeic-btn df-toeic-btn--primary" x-show="score >= 8">
+        Continue
+      </a>
+      <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-btn df-toeic-btn--secondary" x-show="score >= 8">
+        Back to Level
+      </a>
+    </div>
+  </div>
+
+  <!-- Hidden data -->
+  <script id="toeic-quiz-data" type="application/json">{{ questions_json|safe }}</script>
+  <form id="csrf-form" class="hidden">{% csrf_token %}</form>
+</div>
+
+<script>
+function toeicQuiz() {
+  return {
+    questions: [],
+    currentIndex: 0,
+    answered: false,
+    selectedIndex: null,
+    isCorrect: false,
+    score: 0,
+    wrongIds: [],
+    showResult: false,
+    levelUrl: "{% url 'vocab:toeic_level' level %}",
+    audioEl: null,
+
+    get currentQ() {
+      return this.questions[this.currentIndex] || null;
+    },
+
+    init() {
+      const raw = document.getElementById('toeic-quiz-data');
+      this.questions = JSON.parse(raw.textContent);
+      this.audioEl = new Audio();
+    },
+
+    playAudio() {
+      if (this.currentQ && this.currentQ.audio_url) {
+        this.audioEl.src = this.currentQ.audio_url;
+        this.audioEl.play().catch(() => {});
+      }
+    },
+
+    answer(index) {
+      if (this.answered) return;
+      this.answered = true;
+      this.selectedIndex = index;
+      const selected = this.currentQ.choices[index];
+      this.isCorrect = selected === this.currentQ.correct;
+      if (this.isCorrect) {
+        this.score++;
+      } else {
+        this.wrongIds.push(this.currentQ.vocab_id);
+      }
+    },
+
+    nextQuestion() {
+      if (this.currentIndex < this.questions.length - 1) {
+        this.currentIndex++;
+        this.answered = false;
+        this.selectedIndex = null;
+        this.isCorrect = false;
+      } else {
+        this.submitResults();
+      }
+    },
+
+    async submitResults() {
+      const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+      try {
+        const resp = await fetch("{% url 'vocab:api_toeic_quiz_result' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf,
+          },
+          body: JSON.stringify({
+            set_id: {{ vocab_set.id }},
+            score: this.score,
+            total: this.questions.length,
+            wrong_word_ids: this.wrongIds,
+          }),
+        });
+        const data = await resp.json();
+        if (data.next_url) this.levelUrl = data.next_url;
+      } catch (err) {
+        console.error('Failed to submit quiz results', err);
+      }
+      this.showResult = true;
+    },
+
+    retry() {
+      window.location.reload();
+    },
+  };
+}
+</script>
+{% endblock %}

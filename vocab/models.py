@@ -1,41 +1,12 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-import json
-import math
-import uuid
 import os
+import uuid
 
-
-def en_vocab_image_upload_to(_instance, filename: str) -> str:
-    base, ext = os.path.splitext(filename or "")
-    ext = (ext or "").lower()
-    return f"en_vocab/images/{uuid.uuid4().hex}{ext}"
-
-
-def en_vocab_audio_us_upload_to(_instance, filename: str) -> str:
-    base, ext = os.path.splitext(filename or "")
-    ext = (ext or "").lower()
-    return f"en_vocab/audio/us/{uuid.uuid4().hex}{ext}"
-
-
-def en_vocab_audio_uk_upload_to(_instance, filename: str) -> str:
-    base, ext = os.path.splitext(filename or "")
-    ext = (ext or "").lower()
-    return f"en_vocab/audio/uk/{uuid.uuid4().hex}{ext}"
-
-
-def en_example_audio_us_upload_to(_instance, filename: str) -> str:
-    base, ext = os.path.splitext(filename or "")
-    ext = (ext or "").lower()
-    return f"en_vocab/examples/audio/us/{uuid.uuid4().hex}{ext}"
-
-
-def en_example_audio_uk_upload_to(_instance, filename: str) -> str:
-    base, ext = os.path.splitext(filename or "")
-    ext = (ext or "").lower()
-    return f"en_vocab/examples/audio/uk/{uuid.uuid4().hex}{ext}"
-
+# Helper functions for UserStudySettings (if needed for older migrations compatibility or logic)
+# But UserStudySettings logic seems self-contained or simple fields.
 
 class UserStudySettings(models.Model):
     user = models.OneToOneField(
@@ -68,7 +39,7 @@ class UserStudySettings(models.Model):
         max_length=2,
         choices=EnglishVoice.choices,
         default=EnglishVoice.US,
-        help_text="Dùng để chọn audio US/UK (từ vựng + ví dụ). Nếu thiếu giọng ưa thích, hệ thống sẽ fallback sang giọng còn lại.",
+        help_text="Dùng để chọn audio US/UK. Nếu thiếu giọng ưa thích, hệ thống sẽ fallback sang giọng còn lại.",
     )
     
     class Meta:
@@ -94,462 +65,287 @@ class UserStudySettings(models.Model):
     def can_review(self) -> bool:
         self.reset_daily_counts_if_needed()
         return self.reviews_today < self.reviews_per_day
-    
-    def remaining_new(self) -> int:
-        self.reset_daily_counts_if_needed()
-        return max(0, self.new_cards_per_day - self.new_cards_today)
-    
-    def remaining_reviews(self) -> int:
-        self.reset_daily_counts_if_needed()
-        return max(0, self.reviews_per_day - self.reviews_today)
 
 
 class Vocabulary(models.Model):
-    class JLPTLevel(models.TextChoices):
-        N5 = 'N5', 'N5'
-        N4 = 'N4', 'N4'
-        N3 = 'N3', 'N3'
-        N2 = 'N2', 'N2'
-        N1 = 'N1', 'N1'
-        NONE = '', 'Không rõ'
-
-    owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        null=True, blank=True,
-        related_name='vocab_items'
-    )
-
-    jp_kanji = models.CharField("Tiếng Nhật (kanji)", max_length=100, blank=True)
-    jp_kana = models.CharField("Tiếng Nhật (kana)", max_length=100)
-
-    sino_vi = models.CharField(
-        "Hán tự",
-        max_length=100,
-        blank=True,
-        help_text="Ví dụ: Cát hợp, Nhân lực..."
-    )
-
-    vi_meaning = models.CharField("Nghĩa tiếng Việt", max_length=255)
-    en_meaning = models.CharField(
-        "Meaning (English)",
-        max_length=255,
-        blank=True,
-        help_text="Optional English meaning (if available)",
-    )
-
-    jlpt_level = models.CharField(
-        "Cấp JLPT",
-        max_length=4,
-        choices=JLPTLevel.choices,
-        blank=True,
-        help_text="Ví dụ: N5, N4..."
-    )
-
-    topic = models.CharField(
-        "Chủ đề",
-        max_length=100,
-        blank=True,
-        help_text="Ví dụ: Chào hỏi, Gia đình, Mua sắm..."
-    )
-
-    # Gán theo khóa/bài (optional)
-    course = models.ForeignKey(
-        "core.Course",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="jp_vocab_items",
-    )
-    section = models.ForeignKey(
-        "core.Section",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="jp_vocab_items",
-    )
-    lesson = models.ForeignKey(
-        "core.Lesson",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="jp_vocab_items",
-    )
-
-    example_jp = models.TextField("Ví dụ tiếng Nhật", blank=True)
-    example_vi = models.TextField("Nghĩa câu ví dụ", blank=True)
-
-    notes = models.TextField(
-        "Ghi chú / giải thích",
-        blank=True,
-        help_text="Ghi chú thêm (mẹo nhớ, phân biệt nghĩa, ngữ cảnh sử dụng...)",
-    )
-
-    # Liên kết các Hán tự đơn xuất hiện trong từ này, ví dụ 割合 -> {割, 合}
-    kanji_chars = models.ManyToManyField(
-        "kanji.Kanji",
-        related_name="vocabulary_items",
-        blank=True,
-        help_text="Các Hán tự có mặt trong từ vựng này",
-    )
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(
-        "Đã kiểm tra",
-        default=False,
-        help_text="Tick khi bạn đã rà soát & sửa đúng dữ liệu từ này trong admin.",
-    )
-
-    class Meta:
-        verbose_name = "Từ vựng"
-        verbose_name_plural = "Từ vựng"
-        ordering = ['jp_kana']
-
-    def __str__(self):
-        return f"{self.jp_kana} - {self.vi_meaning}"
-
-
-class EnglishVocabulary(models.Model):
     """
-    Từ vựng tiếng Anh (tách riêng khỏi Vocabulary tiếng Nhật).
+    Vocabulary Core - Tầng 1: Mặt chữ (Spelling).
+    Chỉ lưu trữ từ vựng để phục vụ tìm kiếm.
+    IPA và Audio đã chuyển sang WordEntry.
     """
-    en_word = models.CharField("Từ vựng tiếng Anh", max_length=200)
-    phonetic = models.CharField("Phiên âm", max_length=200, blank=True)
-    vi_meaning = models.CharField("Nghĩa tiếng Việt", max_length=255)
-    en_definition = models.TextField("Định nghĩa tiếng Anh", blank=True)
-    example_en = models.TextField("Câu ví dụ tiếng Anh", blank=True)
-    example_vi = models.TextField("Nghĩa câu ví dụ (VI)", blank=True)
-    notes = models.TextField("Ghi chú", blank=True)
+    class Language(models.TextChoices):
+        ENGLISH = 'en', _('English')
+        JAPANESE = 'jp', _('Japanese')
+
+    word = models.CharField(max_length=255, unique=True, db_index=True, help_text="Từ vựng (VD: record)")
     
-    # New fields for enhanced vocabulary data
-    pos = models.CharField(
-        "Part of Speech",
-        max_length=50,
-        blank=True,
-        help_text="Từ loại (noun, verb, adjective, adverb, etc.)",
-    )
-    pos_candidates = models.JSONField(
-        "POS Candidates",
-        default=list,
-        blank=True,
-        help_text="Danh sách các từ loại có thể (JSON array)",
-    )
-    audio_pack_uuid = models.CharField(
-        "Audio Pack UUID",
-        max_length=100,
-        blank=True,
-        help_text="UUID của audio pack để tải về sau",
-    )
-
-    image = models.ImageField(
-        "Ảnh minh hoạ",
-        upload_to=en_vocab_image_upload_to,
-        null=True,
-        blank=True,
-        help_text="Ảnh minh hoạ cho từ vựng (upload lên Azure).",
-    )
-
-    audio_us = models.FileField(
-        "Audio (US)",
-        upload_to=en_vocab_audio_us_upload_to,
-        null=True,
-        blank=True,
-        help_text="File phát âm giọng US (mp3/wav...).",
-    )
-    audio_uk = models.FileField(
-        "Audio (UK)",
-        upload_to=en_vocab_audio_uk_upload_to,
-        null=True,
-        blank=True,
-        help_text="File phát âm giọng UK (mp3/wav...).",
-    )
-
-    # Không bắt buộc, để nhóm theo bài/khóa (text legacy)
-    lesson = models.CharField("Lesson", max_length=100, blank=True)
-    course = models.CharField("Course", max_length=100, blank=True)
-
-    # Gán theo khóa/bài (optional, dropdown trong admin)
-    course_ref = models.ForeignKey(
-        "core.Course",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="en_vocab_items",
-    )
-    section = models.CharField("Section/Part", max_length=100, blank=True)
-    section_ref = models.ForeignKey(
-        "core.Section",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="en_vocab_items",
-    )
-    lesson_ref = models.ForeignKey(
-        "core.Lesson",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="en_vocab_items",
-    )
-
-    import_order = models.PositiveIntegerField(
-        "Import Order",
-        null=True,
-        blank=True,
-        help_text="Thứ tự import từ JSON (để giữ nguyên thứ tự ban đầu)",
+    # Language support
+    language = models.CharField(
+        max_length=10, 
+        choices=Language.choices, 
+        default=Language.ENGLISH, 
         db_index=True,
+        help_text="Ngôn ngữ của từ vựng"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = "Từ vựng tiếng Anh"
-        verbose_name_plural = "Từ vựng tiếng Anh"
-        ordering = ["en_word"]
+    extra_data = models.JSONField(
+        default=dict, 
+        blank=True, 
+        help_text="Dữ liệu bổ sung (VD: Kanji, Romaji cho tiếng Nhật)"
+    )
 
     def __str__(self):
-        return self.en_word
+        return f"[{self.get_language_display()}] {self.word}"
+
+    class Meta:
+        verbose_name = "Vocabulary"
+        verbose_name_plural = "Vocabularies"
 
 
-class EnglishVocabularyExample(models.Model):
+class WordEntry(models.Model):
     """
-    Nhiều câu ví dụ cho từ vựng tiếng Anh (EN + VI).
+    Word Entry - Tầng 2: Lexical Entry.
+    Đại diện cho một "loại từ" của từ đó với IPA và Audio riêng.
+    VD: "record" có 2 entries: noun (/ˈrek.ɚd/) + verb (/rɪˈkɔːrd/).
     """
-    vocab = models.ForeignKey(
-        EnglishVocabulary,
-        on_delete=models.CASCADE,
-        related_name="examples",
-    )
-    order = models.PositiveIntegerField(default=0)
-    en = models.TextField("Câu ví dụ tiếng Anh")
-    vi = models.TextField("Dịch tiếng Việt", blank=True)
+    vocab = models.ForeignKey(Vocabulary, on_delete=models.CASCADE, related_name='entries')
+    part_of_speech = models.CharField(max_length=50, help_text="noun, verb, adj...")
+    ipa = models.CharField(max_length=100, blank=True, help_text="Phiên âm (VD: /ˈrek.ɚd/)")
+    audio_us = models.CharField(max_length=500, blank=True, help_text="Audio URL (US)")
+    audio_uk = models.CharField(max_length=500, blank=True, help_text="Audio URL (UK)")
+
+    class Meta:
+        verbose_name = "Word Entry"
+        verbose_name_plural = "Word Entries"
+        unique_together = ('vocab', 'part_of_speech')
+
+    def __str__(self):
+        return f"{self.vocab.word} ({self.part_of_speech})"
     
-    # New fields for enhanced example data
-    sentence_marked = models.TextField(
-        "Câu ví dụ có đánh dấu",
-        blank=True,
-        help_text="Câu ví dụ với từ vựng được đánh dấu (ví dụ: ⟦word⟧)",
-    )
-    sentence_en = models.TextField(
-        "Câu ví dụ tiếng Anh (plain)",
-        blank=True,
-        help_text="Câu ví dụ tiếng Anh không có đánh dấu",
-    )
-    context = models.CharField(
-        "Context",
-        max_length=200,
-        blank=True,
-        help_text="Ngữ cảnh sử dụng (ví dụ: system update, order processing)",
-    )
-    word_count = models.PositiveIntegerField(
-        "Word Count",
-        null=True,
-        blank=True,
-        help_text="Số từ trong câu ví dụ",
-    )
+    def get_audio_url(self, preference='us'):
+        """Get audio URL based on preference, with fallback."""
+        if preference == 'uk':
+            return self.audio_uk or self.audio_us
+        return self.audio_us or self.audio_uk
 
-    audio_us = models.FileField(
-        "Audio ví dụ (US)",
-        upload_to=en_example_audio_us_upload_to,
-        null=True,
-        blank=True,
-        help_text="Audio cho câu ví dụ giọng US (optional).",
-    )
-    audio_uk = models.FileField(
-        "Audio ví dụ (UK)",
-        upload_to=en_example_audio_uk_upload_to,
-        null=True,
-        blank=True,
-        help_text="Audio cho câu ví dụ giọng UK (optional).",
-    )
 
-    class Meta:
-        ordering = ["order", "id"]
-        verbose_name = "Ví dụ EN"
-        verbose_name_plural = "Ví dụ EN"
+class WordDefinition(models.Model):
+    """
+    Word Definition - Tầng 3: Nghĩa cụ thể.
+    Một entry có thể có nhiều nghĩa.
+    """
+    entry = models.ForeignKey(WordEntry, on_delete=models.CASCADE, related_name='definitions')
+    meaning = models.TextField(help_text="Nghĩa tiếng Việt")
+    example_sentence = models.TextField(blank=True, help_text="Câu ví dụ tiếng Anh")
+    example_trans = models.TextField(blank=True, help_text="Dịch câu ví dụ")
+    image_url = models.CharField(max_length=500, blank=True, null=True, help_text="Ảnh minh họa")
+    extra_data = models.JSONField(
+        default=dict, 
+        blank=True, 
+        help_text="Dữ liệu bổ sung (VD: Furigana cho ví dụ)"
+    )
 
     def __str__(self):
-        return f"EN Example for {self.vocab_id} ({self.order})"
-
-class VocabularyExample(models.Model):
-    """
-    Example sentences for a vocabulary word (JP + VI).
-    Using a separate model makes it easy to add/edit multiple examples in admin.
-    """
-    vocab = models.ForeignKey(
-        Vocabulary,
-        on_delete=models.CASCADE,
-        related_name="examples",
-    )
-    order = models.PositiveIntegerField(default=0)
-    jp = models.TextField("Ví dụ tiếng Nhật")
-    vi = models.TextField("Dịch tiếng Việt", blank=True)
+        return f"{self.entry.vocab.word} ({self.entry.part_of_speech}): {self.meaning}"
 
     class Meta:
-        ordering = ["order", "id"]
-        verbose_name = "Ví dụ"
-        verbose_name_plural = "Ví dụ"
-
-    def __str__(self):
-        return f"Example for {self.vocab_id} ({self.order})"
+        verbose_name = "Word Definition"
+        verbose_name_plural = "Word Definitions"
 
 
-class FixedPhrase(models.Model):
+class Course(models.Model):
     """
-    Cụm từ cố định / idiom / collocation.
-    Tách riêng khỏi Vocabulary để dễ quản lý nội dung dài và nhiều ví dụ.
+    Khóa học (Course) - e.g. TOEIC 600, TOEIC 990.
+    Replaces hardcoded TOEIC_LEVELS config.
     """
-    jp_text = models.CharField("Cụm từ (JP)", max_length=200)
-    jp_kana = models.CharField("Hiragana/Kana", max_length=200, blank=True)
-
-    vi_meaning = models.CharField("Nghĩa tiếng Việt", max_length=255, blank=True)
-    en_meaning = models.CharField("Meaning (English)", max_length=255, blank=True)
-
-    notes = models.TextField("Ghi chú / giải thích", blank=True)
-
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+    description = models.TextField(blank=True)
+    
+    # Link to legacy integer level for compatibility with VocabularySet
+    toeic_level = models.IntegerField(unique=True, null=True, blank=True)
+    
+    # UI config
+    icon = models.TextField(help_text="SVG Icon or Emoji", blank=True)
+    gradient = models.CharField(max_length=255, help_text="CSS Gradient value", default="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)")
+    
     is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(
-        "Đã kiểm tra",
-        default=False,
-        help_text="Tick khi bạn đã rà soát & sửa đúng dữ liệu cụm từ trong admin.",
-    )
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        verbose_name = "Cụm từ cố định"
-        verbose_name_plural = "Cụm từ cố định"
-        ordering = ["-created_at", "-id"]
-
     def __str__(self):
-        return self.jp_text
-
-
-class FixedPhraseExample(models.Model):
-    phrase = models.ForeignKey(
-        FixedPhrase,
-        on_delete=models.CASCADE,
-        related_name="examples",
-    )
-    order = models.PositiveIntegerField(default=0)
-    jp = models.TextField("Ví dụ tiếng Nhật")
-    vi = models.TextField("Dịch tiếng Việt", blank=True)
+        return self.title
 
     class Meta:
-        ordering = ["order", "id"]
-        verbose_name = "Ví dụ cụm từ"
-        verbose_name_plural = "Ví dụ cụm từ"
-
-    def __str__(self):
-        return f"Phrase example {self.phrase_id} ({self.order})"
+        verbose_name = "Course"
+        verbose_name_plural = "Courses"
 
 
-class FsrsCardState(models.Model):
+
+class VocabularySet(models.Model):
     """
-    Trạng thái FSRS cho từng cặp (user, từ vựng).
-    card_json: state nội bộ của FSRS.Card (stability, difficulty, due,...)
+    Bộ từ vựng (Vocabulary Set).
+    Dùng chung cho cả System (owner_id=NULL) và User.
     """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="fsrs_cards",
+    class Status(models.TextChoices):
+        DRAFT = 'draft', _('Draft')
+        PUBLISHED = 'published', _('Published')
+        ARCHIVED = 'archived', _('Archived')
+
+    class ToeicLevel(models.IntegerChoices):
+        LEVEL_600 = 600, _('TOEIC 600')
+        LEVEL_730 = 730, _('TOEIC 730')
+        LEVEL_860 = 860, _('TOEIC 860')
+        LEVEL_990 = 990, _('TOEIC 990')
+
+    title = models.CharField(max_length=255, help_text="Tên bộ (VD: TOEIC 600)")
+    description = models.TextField(blank=True, help_text="Mô tả bộ từ vựng")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='vocabulary_sets', help_text="Null = System, ID = User")
+    is_public = models.BooleanField(default=False, help_text="Công khai hay riêng tư")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+
+    # New field for set language
+    language = models.CharField(
+        max_length=10,
+        choices=Vocabulary.Language.choices,
+        default=Vocabulary.Language.ENGLISH,
+        help_text="Ngôn ngữ của bộ từ vựng"
     )
-    vocab = models.ForeignKey(
-        Vocabulary,
-        on_delete=models.CASCADE,
-        related_name="fsrs_states",
+
+    # TOEIC fields
+    toeic_level = models.IntegerField(
+        choices=ToeicLevel.choices,
+        null=True, blank=True,
+        db_index=True,
+        help_text="TOEIC level (600/730/860/990). Null = not a TOEIC set."
+    )
+    set_number = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Set number within a TOEIC level (1-based)"
+    )
+    
+    # Chapter/Milestone organization
+    chapter = models.PositiveIntegerField(
+        null=True, blank=True,
+        db_index=True,
+        help_text="Chapter number (1-4 for Level 600)"
+    )
+    chapter_name = models.CharField(
+        max_length=100, blank=True,
+        help_text="Chapter name (VD: 'Nền tảng cốt lõi')"
+    )
+    milestone = models.CharField(
+        max_length=10, blank=True,
+        db_index=True,
+        help_text="Milestone code (VD: '1A', '1B', '2A')"
+    )
+    priority_range = models.CharField(
+        max_length=20, blank=True,
+        help_text="Priority range (VD: '1-10', '11-20')"
     )
 
-    card_json = models.JSONField()
-    due = models.DateTimeField(default=timezone.now)
-    last_reviewed = models.DateTimeField(null=True, blank=True)
-
-    # === Thống kê thêm ===
-    total_reviews = models.PositiveIntegerField(default=0)
-    successful_reviews = models.PositiveIntegerField(default=0)
-    last_rating = models.CharField(max_length=10, blank=True)
-
-    class Meta:
-        unique_together = ("user", "vocab")
-        verbose_name = "Trạng thái FSRS"
-        verbose_name_plural = "Trạng thái FSRS"
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user} - {self.vocab} (due: {self.due})"
+        owner_name = self.owner.username if self.owner else "System"
+        return f"{self.title} ({owner_name})"
 
-    @property
-    def progress_percent(self) -> int:
-        """
-        Ước lượng retrievability (khả năng nhớ lại) theo chuẩn FSRS.
-        Giống như Anki hiển thị "Average Retrievability" cho từng card.
-        
-        Công thức: R(t) = e^(-t/S × ln(0.9))
-        - t: thời gian từ lần review gần nhất (days)
-        - S: stability từ FSRS (days)
-        - 0.9: retrievability tại thời điểm due (chuẩn FSRS)
-        """
-        if self.total_reviews == 0:
-            return 0
+    class Meta:
+        verbose_name = "Vocabulary Set"
+        verbose_name_plural = "Vocabulary Sets"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['toeic_level', 'set_number'],
+                name='unique_toeic_level_set_number',
+                condition=models.Q(toeic_level__isnull=False),
+            )
+        ]
 
-        card_data = json.loads(self.card_json) if isinstance(self.card_json, str) else self.card_json
-        
-        # Lấy stability từ FSRS (số ngày để retention = 90%)
-        stability = card_data.get('stability', 0.0)
-        
-        if stability <= 0 or not self.last_reviewed:
-            # Card mới hoặc chưa có dữ liệu đủ
-            return 50
-        
-        # Tính elapsed time (t) từ lần review gần nhất
-        now = timezone.now()
-        elapsed_days = (now - self.last_reviewed).total_seconds() / 86400
-        
-        # FSRS retrievability formula: R(t) = e^(-t/S × ln(0.9))
-        # Đây là công thức chính xác mà Anki/FSRS sử dụng
-        try:
-            retrievability = math.exp((-elapsed_days / stability) * math.log(0.9))
-        except (ValueError, ZeroDivisionError, OverflowError):
-            retrievability = 0.5
-        
-        # Clamp trong khoảng hợp lý (0-100%)
-        retrievability = max(0.0, min(retrievability, 1.0))
-        
-        return int(retrievability * 100)
+
+class SetItem(models.Model):
+    """
+    Bảng trung gian nối WordDefinition vào VocabularySet.
+    """
+    vocabulary_set = models.ForeignKey(VocabularySet, on_delete=models.CASCADE, related_name='items')
+    definition = models.ForeignKey(WordDefinition, on_delete=models.CASCADE, related_name='included_in_sets')
+    display_order = models.IntegerField(default=0, help_text="Thứ tự xuất hiện")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.vocabulary_set.title} - {self.definition.entry.vocab.word}"
+
+    class Meta:
+        verbose_name = "Set Item"
+        verbose_name_plural = "Set Items"
+        ordering = ['display_order', 'created_at']
 
 
 class FsrsCardStateEn(models.Model):
     """
-    Trạng thái FSRS cho từng cặp (user, EnglishVocabulary).
-    Tách riêng để không ảnh hưởng bảng tiếng Nhật hiện có.
+    Lưu trạng thái FSRS cho từ vựng tiếng Anh của user.
     """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='fsrs_states_en')
+    vocab = models.ForeignKey(Vocabulary, on_delete=models.CASCADE, related_name='fsrs_states')
+    
+    # FSRS core data (JSON dump of FSRS Card object)
+    card_data = models.JSONField(default=dict)
+    
+    # Denormalized fields for faster querying
+    state = models.IntegerField(default=0, db_index=True, help_text="0=New, 1=Learning, 2=Review, 3=Relearning")
+    due = models.DateTimeField(null=True, blank=True, db_index=True)
+    last_review = models.DateTimeField(null=True, blank=True)
+    
+    # Stats inferred from review history or FSRS object
+    total_reviews = models.PositiveIntegerField(default=0)
+    successful_reviews = models.PositiveIntegerField(default=0) # Reviews with rate >= Good
+
+    class Meta:
+        unique_together = ('user', 'vocab')
+        verbose_name = "FSRS Card State (EN)"
+        verbose_name_plural = "FSRS Card States (EN)"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.vocab.word} (State: {self.state})"
+
+
+class UserSetProgress(models.Model):
+    """
+    Tracks a user's progress through a VocabularySet (especially TOEIC sets).
+    """
+    class ProgressStatus(models.TextChoices):
+        NOT_STARTED = 'not_started', _('Not Started')
+        IN_PROGRESS = 'in_progress', _('In Progress')
+        COMPLETED = 'completed', _('Completed')
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="fsrs_cards_en",
+        related_name='set_progress',
     )
-    vocab = models.ForeignKey(
-        EnglishVocabulary,
+    vocabulary_set = models.ForeignKey(
+        VocabularySet,
         on_delete=models.CASCADE,
-        related_name="fsrs_states_en",
+        related_name='user_progress',
     )
-
-    card_json = models.JSONField()
-    due = models.DateTimeField(default=timezone.now)
-    last_reviewed = models.DateTimeField(null=True, blank=True)
-
-    total_reviews = models.PositiveIntegerField(default=0)
-    successful_reviews = models.PositiveIntegerField(default=0)
-    last_rating = models.CharField(max_length=10, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=ProgressStatus.choices,
+        default=ProgressStatus.NOT_STARTED,
+    )
+    words_learned = models.PositiveIntegerField(default=0)
+    words_total = models.PositiveIntegerField(default=0)
+    quiz_best_score = models.PositiveIntegerField(
+        default=0,
+        help_text="Best quiz score as percentage (0-100)"
+    )
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ("user", "vocab")
-        verbose_name = "FSRS EN"
-        verbose_name_plural = "FSRS EN"
+        unique_together = ('user', 'vocabulary_set')
+        verbose_name = "User Set Progress"
+        verbose_name_plural = "User Set Progress"
 
     def __str__(self):
-        return f"{self.user} - {self.vocab} (due: {self.due})"
+        return f"{self.user.username} - {self.vocabulary_set.title} ({self.status})"

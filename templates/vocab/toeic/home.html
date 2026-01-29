@@ -1,0 +1,277 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}TOEIC Vocabulary | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+<style>
+  /* Modern TOEIC Level Cards - Light Pastel Design */
+  .df-toeic-levels-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .df-toeic-levels-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .df-toeic-levels-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .df-level-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .df-level-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
+  
+  /* Card Backgrounds */
+  .df-level-card--600 {
+    background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+    border: 1px solid #81c784;
+  }
+  
+  .df-level-card--730 {
+    background: linear-gradient(145deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+    border: 1px solid #64b5f6;
+  }
+  
+  .df-level-card--860 {
+    background: linear-gradient(145deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%);
+    border: 1px solid #ba68c8;
+  }
+  
+  .df-level-card--990 {
+    background: linear-gradient(145deg, #fff8e1 0%, #ffe082 50%, #ffd54f 100%);
+    border: 1px solid #ffca28;
+  }
+  
+  /* Decorative Background Elements */
+  .df-level-card::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    pointer-events: none;
+  }
+  
+  .df-level-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: -20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    pointer-events: none;
+  }
+  
+  /* Icon Container */
+  .df-level-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .df-level-card--600 .df-level-icon {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+  }
+  
+  .df-level-card--730 .df-level-icon {
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+  }
+  
+  .df-level-card--860 .df-level-icon {
+    background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+  }
+  
+  .df-level-card--990 .df-level-icon {
+    background: linear-gradient(135deg, #ff9800, #e65100);
+  }
+  
+  /* Content */
+  .df-level-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+  
+  .df-level-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 0.25rem;
+  }
+  
+  .df-level-desc {
+    font-size: 0.875rem;
+    color: #4a4a6a;
+    margin: 0 0 1rem;
+  }
+  
+  /* Progress Section */
+  .df-level-progress-section {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+  }
+  
+  .df-level-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  .df-level-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  
+  .df-level-card--600 .df-level-progress-fill { background: #2e7d32; }
+  .df-level-card--730 .df-level-progress-fill { background: #1565c0; }
+  .df-level-card--860 .df-level-progress-fill { background: #6a1b9a; }
+  .df-level-card--990 .df-level-progress-fill { background: #e65100; }
+  
+  .df-level-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: #4a4a6a;
+    font-weight: 500;
+  }
+  
+  /* Start Button - Primary Card */
+  .df-level-start-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+  }
+  
+  .df-level-start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  /* Streak Badge */
+  .df-toeic-streak {
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #1a1a2e !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container">
+  <!-- Header -->
+  <div class="df-toeic-header">
+    <div>
+      <h1 class="df-toeic-title">TOEIC Vocabulary</h1>
+      <p class="df-toeic-subtitle">Master TOEIC vocabulary from 600 to 990</p>
+    </div>
+
+  </div>
+
+  <!-- Review CTA Banner -->
+  {% if review_count > 0 %}
+  <a href="{% url 'vocab:toeic_review' %}" class="df-toeic-review-banner">
+    <div class="df-toeic-review-banner-content">
+      <div class="df-toeic-review-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </div>
+      <div>
+        <div class="df-toeic-review-banner-title">{{ review_count }} cards due for review</div>
+        <div class="df-toeic-review-banner-text">Keep your memory fresh with spaced repetition</div>
+      </div>
+    </div>
+    <svg class="df-toeic-review-banner-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 5l7 7-7 7"/>
+    </svg>
+  </a>
+  {% endif %}
+
+  <!-- Level Cards -->
+  <div class="df-toeic-levels-grid">
+    {% for item in levels %}
+    <div class="df-level-card df-level-card--{{ item.level }}"
+         onclick="window.location.href='{% url 'vocab:toeic_level' item.level %}'">
+      
+      <!-- Start Button (shown on first available card) -->
+      {% if forloop.first and item.completion == 0 %}
+      <button class="df-level-start-btn" onclick="event.stopPropagation(); window.location.href='{% url 'vocab:toeic_level' item.level %}'">Start now</button>
+      {% endif %}
+      
+      <!-- Icon -->
+      <div class="df-level-icon">
+        {{ item.config.icon }}
+      </div>
+      
+      <!-- Content -->
+      <div class="df-level-content">
+        <h2 class="df-level-title">{{ item.config.label }}</h2>
+        <p class="df-level-desc">{{ item.config.description }}</p>
+      </div>
+      
+      <!-- Progress -->
+      <div class="df-level-progress-section">
+        <div class="df-level-progress-bar">
+          <div class="df-level-progress-fill" style="width: {{ item.completion }}%;"></div>
+        </div>
+        <div class="df-level-stats">
+          <span>{{ item.completed_sets }}/{{ item.total_sets }} sets</span>
+          <span>{{ item.words_learned }} words</span>
+          <span>{{ item.completion }}%</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

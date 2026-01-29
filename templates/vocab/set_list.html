@@ -191,6 +191,12 @@
     color: #1e40af;
   }
 
+  .df-badge-toeic {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    font-weight: 600;
+  }
+
   .df-empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -395,6 +401,11 @@
   <div class="df-sets-grid">
     {% for set in sets %}
     <div class="df-set-card">
+      {% if set.toeic_level %}
+      <div style="margin-bottom: 0.5rem;">
+        <span class="df-set-badge df-badge-toeic">TOEIC {{ set.toeic_level }} - Set {{ set.set_number }}</span>
+      </div>
+      {% endif %}
       <h2 class="df-set-title">
         <a href="{% url 'vocab:set_detail' set.pk %}">{{ set.title }}</a>
       </h2>

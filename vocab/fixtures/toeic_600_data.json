@@ -1,0 +1,1070 @@
+{
+  "meta": {
+    "level": 600,
+    "level_name": "TOEIC 600",
+    "total_words": 400,
+    "total_chapters": 4,
+    "total_milestones": 8,
+    "total_sets": 40,
+    "words_per_set": 10,
+    "words_per_milestone": 50,
+    "words_per_chapter": 100,
+    "source": "Kin no Phrase (金のフレーズ)",
+    "generated_at": "2025-01-29"
+  },
+  "chapters": [
+    {
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_name_en": "Core Foundation",
+      "chapter_description": "Từ vựng xuất hiện >80% đề thi TOEIC",
+      "chapter_icon": "🏆",
+      "milestones": [
+        "A",
+        "B"
+      ],
+      "set_range": "1-10",
+      "word_count": 100,
+      "priority_range": "1-100"
+    },
+    {
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_name_en": "Vocabulary Expansion",
+      "chapter_description": "Từ vựng xuất hiện 60-80% đề thi TOEIC",
+      "chapter_icon": "📈",
+      "milestones": [
+        "A",
+        "B"
+      ],
+      "set_range": "11-20",
+      "word_count": 100,
+      "priority_range": "101-200"
+    },
+    {
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_name_en": "Advanced Vocabulary",
+      "chapter_description": "Từ vựng xuất hiện 40-60% đề thi TOEIC",
+      "chapter_icon": "🚀",
+      "milestones": [
+        "A",
+        "B"
+      ],
+      "set_range": "21-30",
+      "word_count": 100,
+      "priority_range": "201-300"
+    },
+    {
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_name_en": "Mastery",
+      "chapter_description": "Từ vựng chuyên sâu, xuất hiện <40% đề thi TOEIC",
+      "chapter_icon": "👑",
+      "milestones": [
+        "A",
+        "B"
+      ],
+      "set_range": "31-40",
+      "word_count": 100,
+      "priority_range": "301-400"
+    }
+  ],
+  "milestones": [
+    {
+      "milestone": "1A",
+      "chapter": 1,
+      "set_range": "1-5",
+      "word_count": 50,
+      "priority_range": "1-50",
+      "sets": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "milestone": "1B",
+      "chapter": 1,
+      "set_range": "6-10",
+      "word_count": 50,
+      "priority_range": "51-100",
+      "sets": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "milestone": "2A",
+      "chapter": 2,
+      "set_range": "11-15",
+      "word_count": 50,
+      "priority_range": "101-150",
+      "sets": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "milestone": "2B",
+      "chapter": 2,
+      "set_range": "16-20",
+      "word_count": 50,
+      "priority_range": "151-200",
+      "sets": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "milestone": "3A",
+      "chapter": 3,
+      "set_range": "21-25",
+      "word_count": 50,
+      "priority_range": "201-250",
+      "sets": [
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "milestone": "3B",
+      "chapter": 3,
+      "set_range": "26-30",
+      "word_count": 50,
+      "priority_range": "251-300",
+      "sets": [
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "milestone": "4A",
+      "chapter": 4,
+      "set_range": "31-35",
+      "word_count": 50,
+      "priority_range": "301-350",
+      "sets": [
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    },
+    {
+      "milestone": "4B",
+      "chapter": 4,
+      "set_range": "36-40",
+      "word_count": 50,
+      "priority_range": "351-400",
+      "sets": [
+        36,
+        37,
+        38,
+        39,
+        40
+      ]
+    }
+  ],
+  "sets": [
+    {
+      "set_number": 1,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1A",
+      "priority_start": 1,
+      "priority_end": 10,
+      "words": [
+        "anyway",
+        "following",
+        "refer",
+        "available",
+        "department",
+        "conference",
+        "according to",
+        "likely",
+        "offer",
+        "equipment"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 2,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1A",
+      "priority_start": 11,
+      "priority_end": 20,
+      "words": [
+        "provide",
+        "local",
+        "purchase",
+        "opening",
+        "construction",
+        "tour",
+        "research",
+        "attend",
+        "delivery",
+        "recently"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 3,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1A",
+      "priority_start": 21,
+      "priority_end": 30,
+      "words": [
+        "indicate",
+        "employee",
+        "additional",
+        "survey",
+        "review",
+        "production",
+        "located",
+        "detail",
+        "announce",
+        "repair"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 4,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1A",
+      "priority_start": 31,
+      "priority_end": 40,
+      "words": [
+        "increase",
+        "include",
+        "currently",
+        "advertising",
+        "charge",
+        "expect",
+        "firm",
+        "client",
+        "financial",
+        "annual"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 5,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1A",
+      "priority_start": 41,
+      "priority_end": 50,
+      "words": [
+        "payment",
+        "budget",
+        "application",
+        "contract",
+        "management",
+        "performance",
+        "pleased",
+        "confirm",
+        "award",
+        "clothing"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 6,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1B",
+      "priority_start": 51,
+      "priority_end": 60,
+      "words": [
+        "display",
+        "candidate",
+        "state",
+        "exhibit",
+        "session",
+        "note",
+        "process",
+        "instruction",
+        "membership",
+        "agency"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 7,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1B",
+      "priority_start": 61,
+      "priority_end": 70,
+      "words": [
+        "based",
+        "facility",
+        "advance",
+        "committee",
+        "successful",
+        "excellent",
+        "industry",
+        "fee",
+        "accept",
+        "upcoming"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 8,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1B",
+      "priority_start": 71,
+      "priority_end": 80,
+      "words": [
+        "latest",
+        "submit",
+        "transportation",
+        "résumé",
+        "executive",
+        "introduce",
+        "previous",
+        "proposal",
+        "supply",
+        "enclose"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 9,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1B",
+      "priority_start": 81,
+      "priority_end": 90,
+      "words": [
+        "policy",
+        "register",
+        "arrange",
+        "bill",
+        "hire",
+        "approve",
+        "conduct",
+        "opportunity",
+        "deadline",
+        "corporate"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 10,
+      "chapter": 1,
+      "chapter_name_vi": "Nền tảng cốt lõi",
+      "chapter_icon": "🏆",
+      "milestone": "1B",
+      "priority_start": 91,
+      "priority_end": 100,
+      "words": [
+        "warranty",
+        "necessary",
+        "reserve",
+        "resident",
+        "create",
+        "inform",
+        "allow",
+        "mention",
+        "appreciate",
+        "replacement"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 11,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2A",
+      "priority_start": 101,
+      "priority_end": 110,
+      "words": [
+        "update",
+        "branch",
+        "paid",
+        "unfortunately",
+        "original",
+        "rent",
+        "memo",
+        "luggage",
+        "editor",
+        "exhibition"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 12,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2A",
+      "priority_start": 111,
+      "priority_end": 120,
+      "words": [
+        "leading",
+        "organization",
+        "release",
+        "limited",
+        "procedure",
+        "experienced",
+        "personnel",
+        "author",
+        "benefit",
+        "focus"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 13,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2A",
+      "priority_start": 121,
+      "priority_end": 130,
+      "words": [
+        "participate",
+        "cause",
+        "degree",
+        "directly",
+        "host",
+        "expert",
+        "impress",
+        "mainly",
+        "suggestion",
+        "supplier"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 14,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2A",
+      "priority_start": 131,
+      "priority_end": 140,
+      "words": [
+        "document",
+        "remind",
+        "require",
+        "representative",
+        "packaging",
+        "description",
+        "property",
+        "extension",
+        "inquire",
+        "merchandise"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 15,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2A",
+      "priority_start": 141,
+      "priority_end": 150,
+      "words": [
+        "highly",
+        "result",
+        "assistance",
+        "encourage",
+        "individual",
+        "laboratory",
+        "consider",
+        "headquarters",
+        "ship",
+        "commercial"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 16,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2B",
+      "priority_start": 151,
+      "priority_end": 160,
+      "words": [
+        "device",
+        "intended",
+        "brochure",
+        "mail",
+        "prefer",
+        "response",
+        "region",
+        "donation",
+        "quarter",
+        "agreement"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 17,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2B",
+      "priority_start": 161,
+      "priority_end": 170,
+      "words": [
+        "journal",
+        "distribute",
+        "potential",
+        "reschedule",
+        "renew",
+        "warehouse",
+        "refund",
+        "advise",
+        "immediately",
+        "council"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 18,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2B",
+      "priority_start": 171,
+      "priority_end": 180,
+      "words": [
+        "broadcast",
+        "responsible",
+        "avoid",
+        "effective",
+        "invitation",
+        "reduce",
+        "vehicle",
+        "efficient",
+        "manufacturer",
+        "comfortable"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 19,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2B",
+      "priority_start": 181,
+      "priority_end": 190,
+      "words": [
+        "correct",
+        "downtown",
+        "method",
+        "entire",
+        "range",
+        "setting",
+        "apologize",
+        "frequent",
+        "promotion",
+        "regarding"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 20,
+      "chapter": 2,
+      "chapter_name_vi": "Mở rộng vốn từ",
+      "chapter_icon": "📈",
+      "milestone": "2B",
+      "priority_start": 191,
+      "priority_end": 200,
+      "words": [
+        "temporary",
+        "traditional",
+        "admission",
+        "fit",
+        "reference",
+        "status",
+        "fuel",
+        "nearly",
+        "cafeteria",
+        "determine"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 21,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3A",
+      "priority_start": 201,
+      "priority_end": 210,
+      "words": [
+        "expense",
+        "oversea",
+        "satisfied",
+        "appear",
+        "develop",
+        "improve",
+        "reasonable",
+        "unable",
+        "delay",
+        "legal"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 22,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3A",
+      "priority_start": 211,
+      "priority_end": 220,
+      "words": [
+        "regulation",
+        "expand",
+        "launch",
+        "recommendation",
+        "direct",
+        "profit",
+        "seek",
+        "entry",
+        "claim",
+        "crew"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 23,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3A",
+      "priority_start": 221,
+      "priority_end": 230,
+      "words": [
+        "demand",
+        "figure",
+        "raise",
+        "attach",
+        "attract",
+        "insurance",
+        "departure",
+        "mayor",
+        "balance",
+        "estimate"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 24,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3A",
+      "priority_start": 231,
+      "priority_end": 240,
+      "words": [
+        "district",
+        "former",
+        "modern",
+        "tip",
+        "establish",
+        "option",
+        "retire",
+        "search",
+        "specific",
+        "agricultural"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 25,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3A",
+      "priority_start": 241,
+      "priority_end": 250,
+      "words": [
+        "historical",
+        "helpful",
+        "complaint",
+        "related",
+        "simply",
+        "unique",
+        "concerning",
+        "reputation",
+        "ability",
+        "arrival"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 26,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3B",
+      "priority_start": 251,
+      "priority_end": 260,
+      "words": [
+        "familiar",
+        "ideal",
+        "maintain",
+        "landscaping",
+        "organize",
+        "significant",
+        "occasion",
+        "standard",
+        "background",
+        "guided"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 27,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3B",
+      "priority_start": 261,
+      "priority_end": 270,
+      "words": [
+        "advanced",
+        "alternative",
+        "confident",
+        "decade",
+        "initial",
+        "separate",
+        "celebration",
+        "concern",
+        "environment",
+        "operate"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 28,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3B",
+      "priority_start": 271,
+      "priority_end": 280,
+      "words": [
+        "various",
+        "brief",
+        "full-time",
+        "overall",
+        "achieve",
+        "basis",
+        "complex",
+        "delighted",
+        "obtain",
+        "honor"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 29,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3B",
+      "priority_start": 281,
+      "priority_end": 290,
+      "words": [
+        "properly",
+        "suitable",
+        "electronic",
+        "finalize",
+        "generous",
+        "preparation",
+        "duty",
+        "earn",
+        "willing",
+        "worth"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 30,
+      "chapter": 3,
+      "chapter_name_vi": "Từ vựng nâng cao",
+      "chapter_icon": "🚀",
+      "milestone": "3B",
+      "priority_start": 291,
+      "priority_end": 300,
+      "words": [
+        "fund",
+        "overnight",
+        "particularly",
+        "aspect",
+        "hesitate",
+        "involved",
+        "regularly",
+        "scholarship",
+        "shortly",
+        "automobile"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 31,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4A",
+      "priority_start": 301,
+      "priority_end": 310,
+      "words": [
+        "deposit",
+        "contain",
+        "content",
+        "proof",
+        "affect",
+        "recognize",
+        "represent",
+        "transfer",
+        "anniversary",
+        "automatically"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 32,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4A",
+      "priority_start": 311,
+      "priority_end": 320,
+      "words": [
+        "capacity",
+        "destination",
+        "grant",
+        "publish",
+        "accompany",
+        "economic",
+        "extremely",
+        "institution",
+        "accurate",
+        "compete"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 33,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4A",
+      "priority_start": 321,
+      "priority_end": 330,
+      "words": [
+        "emphasize",
+        "aware",
+        "crowded",
+        "praise",
+        "valuable",
+        "explore",
+        "found",
+        "function",
+        "impact",
+        "amazing"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 34,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4A",
+      "priority_start": 331,
+      "priority_end": 340,
+      "words": [
+        "assure",
+        "cooperation",
+        "popularity",
+        "permit",
+        "solve",
+        "vote",
+        "crop",
+        "neighborhood",
+        "permanent",
+        "regret"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 35,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4A",
+      "priority_start": 341,
+      "priority_end": 350,
+      "words": [
+        "slightly",
+        "complicated",
+        "factor",
+        "favorable",
+        "guarantee",
+        "mechanical",
+        "priority",
+        "relatively",
+        "resource",
+        "shuttle"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 36,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4B",
+      "priority_start": 351,
+      "priority_end": 360,
+      "words": [
+        "divide",
+        "native",
+        "afford",
+        "income",
+        "occur",
+        "saving",
+        "findings",
+        "locate",
+        "postpone",
+        "preserve"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 37,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4B",
+      "priority_start": 361,
+      "priority_end": 370,
+      "words": [
+        "prove",
+        "exact",
+        "gain",
+        "labor",
+        "regard",
+        "closely",
+        "deserve",
+        "identify",
+        "loyal",
+        "promising"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 38,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4B",
+      "priority_start": 371,
+      "priority_end": 380,
+      "words": [
+        "stress",
+        "analyze",
+        "commission",
+        "committed",
+        "comparison",
+        "component",
+        "enable",
+        "enjoyable",
+        "existing",
+        "flyer"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 39,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4B",
+      "priority_start": 381,
+      "priority_end": 390,
+      "words": [
+        "proceed",
+        "prevent",
+        "alike",
+        "appoint",
+        "connection",
+        "eager",
+        "ease",
+        "fairly",
+        "absolutely",
+        "atmosphere"
+      ],
+      "word_count": 10
+    },
+    {
+      "set_number": 40,
+      "chapter": 4,
+      "chapter_name_vi": "Hoàn thiện",
+      "chapter_icon": "👑",
+      "milestone": "4B",
+      "priority_start": 391,
+      "priority_end": 400,
+      "words": [
+        "calculate",
+        "contrast",
+        "monitor",
+        "occasionally",
+        "practical",
+        "serious",
+        "strength",
+        "equally",
+        "import",
+        "informal"
+      ],
+      "word_count": 10
+    }
+  ],
+  "vocabulary": []
+}

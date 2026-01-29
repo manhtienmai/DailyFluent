@@ -343,3 +343,107 @@ class ExamGoal(models.Model):
         today = timezone.localdate()
         delta = self.exam_date - today
         return max(0, delta.days)
+
+
+class Badge(models.Model):
+    """
+    Định nghĩa các loại badge thành tựu.
+    """
+    class BadgeCode(models.TextChoices):
+        # Streak badges
+        FIRST_STEP = 'first_step', 'Bước Đầu Tiên'
+        WEEK_WARRIOR = 'week_warrior', 'Chiến Binh 7 Ngày'
+        STREAK_14 = 'streak_14', 'Kiên Trì'
+        STREAK_30 = 'streak_30', 'Thói Quen Vàng'
+        STREAK_60 = 'streak_60', 'Bất Khuất'
+        STREAK_100 = 'streak_100', 'Bậc Thầy Kỷ Luật'
+        STREAK_365 = 'streak_365', 'Huyền Thoại'
+        
+        # Vocabulary badges
+        CENTURY = 'century', 'Trăm Từ'
+        VOCAB_500 = 'vocab_500', 'Nhà Sưu Tầm'
+        VOCAB_1000 = 'vocab_1000', 'Kho Từ Vựng'
+        VOCAB_2000 = 'vocab_2000', 'Bách Khoa'
+        VOCAB_5000 = 'vocab_5000', 'Từ Điển Sống'
+        LEVEL_MASTER = 'level_master', 'Chinh Phục Level'
+        PERFECT_SET = 'perfect_set', 'Set Hoàn Hảo'
+        SET_10 = 'set_10', 'Học Viên Chăm Chỉ'
+        SET_50 = 'set_50', 'Master Từ Vựng'
+        REVIEW_MASTER = 'review_master', 'Ôn Tập Siêu Đẳng'
+        
+        # Exam badges
+        FIRST_EXAM = 'first_exam', 'Thử Thách Đầu Tiên'
+        EXAM_10 = 'exam_10', 'Luyện Đề Chăm Chỉ'
+        EXAM_50 = 'exam_50', 'Chiến Binh Luyện Đề'
+        EXAM_100 = 'exam_100', 'Cao Thủ Luyện Đề'
+        PERFECT_EXAM = 'perfect_exam', 'Điểm Tuyệt Đối'
+        HIGH_SCORE_80 = 'high_score_80', 'Điểm Cao 80+'
+        HIGH_SCORE_90 = 'high_score_90', 'Điểm Xuất Sắc'
+        SPEED_DEMON = 'speed_demon', 'Tốc Độ Ánh Sáng'
+        FULL_TEST = 'full_test', 'Thi Thật'
+        
+        # Dictation badges
+        FIRST_DICTATION = 'first_dictation', 'Lắng Nghe Đầu Tiên'
+        DICTATION_10 = 'dictation_10', 'Tai Thính'
+        DICTATION_50 = 'dictation_50', 'Bậc Thầy Nghe'
+        PERFECT_DICTATION = 'perfect_dictation', 'Chính Tả Hoàn Hảo'
+        LISTENING_STREAK = 'listening_streak', 'Nghe Mỗi Ngày'
+        
+        # Time-based badges
+        EARLY_BIRD = 'early_bird', 'Chim Sớm'
+        NIGHT_OWL = 'night_owl', 'Cú Đêm'
+        WEEKEND_WARRIOR = 'weekend_warrior', 'Chiến Binh Cuối Tuần'
+        LUNCH_LEARNER = 'lunch_learner', 'Học Giờ Nghỉ'
+        
+        # Special badges
+        ALL_ROUNDER = 'all_rounder', 'Toàn Diện'
+        COMEBACK = 'comeback', 'Quay Lại'
+        PERFECTIONIST = 'perfectionist', 'Hoàn Hảo Chủ Nghĩa'
+        SHARPSHOOTER = 'sharpshooter', 'Bắn Tỉa'
+        SPEED_LEARNER = 'speed_learner', 'Học Nhanh'
+
+    code = models.CharField(
+        max_length=50,
+        choices=BadgeCode.choices,
+        unique=True,
+        help_text="Mã badge (unique identifier)"
+    )
+    name = models.CharField(max_length=100, help_text="Tên hiển thị")
+    description = models.TextField(help_text="Mô tả điều kiện đạt được")
+    icon = models.CharField(max_length=10, help_text="Emoji icon")
+    order = models.PositiveIntegerField(default=0, help_text="Thứ tự hiển thị")
+
+    class Meta:
+        verbose_name = "Badge"
+        verbose_name_plural = "Badges"
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.icon} {self.name}"
+
+
+class UserBadge(models.Model):
+    """
+    Lưu các badge mà user đã đạt được.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='badges'
+    )
+    badge = models.ForeignKey(
+        Badge,
+        on_delete=models.CASCADE,
+        related_name='earned_by'
+    )
+    earned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User Badge"
+        verbose_name_plural = "User Badges"
+        unique_together = ('user', 'badge')
+        ordering = ['-earned_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.badge.name}"
+

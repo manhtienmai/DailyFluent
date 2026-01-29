@@ -1,0 +1,204 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Learn Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container" x-data="toeicLearn()" x-init="init()">
+  <!-- Header -->
+  <div class="df-toeic-learn-header">
+    <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    <div class="df-toeic-learn-header-info">
+      <span class="df-toeic-level-badge df-toeic-level-badge--sm" style="background: {{ config.gradient }};">
+        {{ config.label }}
+      </span>
+      <span class="df-toeic-learn-set-label">Set {{ set_number }}</span>
+    </div>
+    <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + items.length"></div>
+  </div>
+
+  <!-- Progress Dots -->
+  <div class="df-toeic-learn-dots">
+    <template x-for="(item, i) in items" :key="i">
+      <div class="df-toeic-learn-dot"
+           :class="{
+             'df-toeic-learn-dot--current': i === currentIndex && !showSummary,
+             'df-toeic-learn-dot--known': results[i] === 'known',
+             'df-toeic-learn-dot--unknown': results[i] === 'unknown',
+           }"></div>
+    </template>
+  </div>
+
+  <!-- Flashcard -->
+  <div class="df-toeic-learn-card-area" x-show="!showSummary">
+    <div class="df-toeic-learn-card" :class="{'df-toeic-learn-card--flipped': isFlipped}" @click="flip()">
+      <!-- Front -->
+      <div class="df-toeic-learn-card-front">
+        <div class="df-toeic-learn-word" x-text="currentItem?.word"></div>
+        <div class="df-toeic-learn-ipa" x-text="currentItem?.ipa"></div>
+        <button type="button" class="df-toeic-learn-audio-btn"
+                @click.stop="playAudio()" x-show="currentItem?.audio_url">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+          </svg>
+        </button>
+        <div class="df-toeic-learn-flip-hint">Tap to flip</div>
+      </div>
+
+      <!-- Back -->
+      <div class="df-toeic-learn-card-back">
+        <div class="df-toeic-learn-back-word" x-text="currentItem?.word"></div>
+        <div class="df-toeic-learn-back-pos" x-text="currentItem?.part_of_speech"></div>
+        <div class="df-toeic-learn-meaning" x-text="currentItem?.meaning"></div>
+        <template x-if="currentItem?.example">
+          <div class="df-toeic-learn-example">
+            <div class="df-toeic-learn-example-text" x-text="currentItem?.example"></div>
+            <div class="df-toeic-learn-example-trans" x-text="currentItem?.example_trans"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Action Buttons (shown after flip) -->
+    <div class="df-toeic-learn-actions" x-show="isFlipped" x-transition>
+      <button type="button" class="df-toeic-learn-btn df-toeic-learn-btn--unknown"
+              @click="markWord('unknown')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Still Learning
+      </button>
+      <button type="button" class="df-toeic-learn-btn df-toeic-learn-btn--known"
+              @click="markWord('known')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Known
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Screen -->
+  <div class="df-toeic-learn-summary" x-show="showSummary" x-transition>
+    <div class="df-toeic-learn-summary-icon">🎉</div>
+    <h2 class="df-toeic-learn-summary-title">Set Complete!</h2>
+
+    <div class="df-toeic-learn-summary-stats">
+      <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--known">
+        <span class="df-toeic-learn-summary-stat-value" x-text="knownCount"></span>
+        <span class="df-toeic-learn-summary-stat-label">Known</span>
+      </div>
+      <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--unknown">
+        <span class="df-toeic-learn-summary-stat-value" x-text="unknownCount"></span>
+        <span class="df-toeic-learn-summary-stat-label">Still Learning</span>
+      </div>
+    </div>
+
+    <div class="df-toeic-learn-summary-actions">
+      <a :href="quizUrl" class="df-toeic-btn df-toeic-btn--primary">
+        Take Quiz
+      </a>
+      <a :href="levelUrl" class="df-toeic-btn df-toeic-btn--secondary">
+        Back to Level
+      </a>
+    </div>
+  </div>
+
+  <!-- Hidden data -->
+  <script id="toeic-items-data" type="application/json">{{ items_json|safe }}</script>
+  <form id="csrf-form" class="hidden">{% csrf_token %}</form>
+</div>
+
+<script>
+function toeicLearn() {
+  return {
+    items: [],
+    currentIndex: 0,
+    isFlipped: false,
+    results: {},
+    showSummary: false,
+    quizUrl: '',
+    levelUrl: '',
+    audioEl: null,
+
+    get currentItem() {
+      return this.items[this.currentIndex] || null;
+    },
+    get knownCount() {
+      return Object.values(this.results).filter(r => r === 'known').length;
+    },
+    get unknownCount() {
+      return Object.values(this.results).filter(r => r === 'unknown').length;
+    },
+
+    init() {
+      const raw = document.getElementById('toeic-items-data');
+      this.items = JSON.parse(raw.textContent);
+      this.audioEl = new Audio();
+    },
+
+    flip() {
+      this.isFlipped = !this.isFlipped;
+    },
+
+    playAudio() {
+      if (this.currentItem && this.currentItem.audio_url) {
+        this.audioEl.src = this.currentItem.audio_url;
+        this.audioEl.play().catch(() => {});
+      }
+    },
+
+    markWord(result) {
+      this.results[this.currentIndex] = result;
+      if (this.currentIndex < this.items.length - 1) {
+        this.currentIndex++;
+        this.isFlipped = false;
+      } else {
+        this.submitResults();
+      }
+    },
+
+    async submitResults() {
+      const knownIds = [];
+      const unknownIds = [];
+      this.items.forEach((item, i) => {
+        if (this.results[i] === 'known') knownIds.push(item.id);
+        else unknownIds.push(item.id);
+      });
+
+      const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+      try {
+        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf,
+          },
+          body: JSON.stringify({
+            set_id: {{ vocab_set.id }},
+            known_ids: knownIds,
+            unknown_ids: unknownIds,
+          }),
+        });
+        const data = await resp.json();
+        this.quizUrl = data.quiz_url || "{% url 'vocab:toeic_level' level %}";
+        this.levelUrl = data.level_url || "{% url 'vocab:toeic_level' level %}";
+      } catch (err) {
+        this.quizUrl = "{% url 'vocab:toeic_quiz' level set_number %}";
+        this.levelUrl = "{% url 'vocab:toeic_level' level %}";
+      }
+      this.showSummary = true;
+    },
+  };
+}
+</script>
+{% endblock %}

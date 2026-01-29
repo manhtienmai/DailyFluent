@@ -1,0 +1,197 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}TOEIC Review | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+{% endblock %}
+
+{% block content %}
+<div class="df-toeic-container" x-data="toeicReview()" x-init="init()">
+  <!-- Header -->
+  <div class="df-toeic-learn-header">
+    <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    <div class="df-toeic-learn-header-info">
+      <span class="df-toeic-learn-set-label">TOEIC Review</span>
+    </div>
+    <div class="df-toeic-learn-counter">
+      <span x-text="reviewedCount"></span>/<span x-text="totalCards"></span>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
+    <div class="df-toeic-progress-fill"
+         :style="'width:' + (totalCards > 0 ? (reviewedCount / totalCards * 100) : 0) + '%'"
+         style="background: var(--action-primary, #0D9488);"></div>
+  </div>
+
+  {% if cards_count > 0 %}
+  <!-- Card Area -->
+  <div class="df-toeic-learn-card-area" x-show="!showComplete">
+    <div class="df-toeic-learn-card"
+         :class="{'df-toeic-learn-card--flipped': isFlipped}"
+         @click="flip()">
+      <!-- Front -->
+      <div class="df-toeic-learn-card-front">
+        <div class="df-toeic-learn-word" x-text="currentCard?.word"></div>
+        <div class="df-toeic-learn-ipa" x-text="currentCard?.ipa"></div>
+        <button type="button" class="df-toeic-learn-audio-btn"
+                @click.stop="playAudio()" x-show="currentCard?.audio_url">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+          </svg>
+        </button>
+        <div class="df-toeic-learn-flip-hint">Tap to flip</div>
+      </div>
+
+      <!-- Back -->
+      <div class="df-toeic-learn-card-back">
+        <div class="df-toeic-learn-back-word" x-text="currentCard?.word"></div>
+        <div class="df-toeic-learn-back-pos" x-text="currentCard?.part_of_speech"></div>
+        <div class="df-toeic-learn-meaning" x-text="currentCard?.meaning"></div>
+        <template x-if="currentCard?.example">
+          <div class="df-toeic-learn-example">
+            <div class="df-toeic-learn-example-text" x-text="currentCard?.example"></div>
+            <div class="df-toeic-learn-example-trans" x-text="currentCard?.example_trans"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Grade Buttons (shown after flip) -->
+    <div class="df-toeic-review-grades" x-show="isFlipped" x-transition>
+      <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--again"
+              @click="grade('again')" :disabled="grading">
+        <span class="df-toeic-grade-label">Again</span>
+        <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.again || ''"></span>
+      </button>
+      <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--hard"
+              @click="grade('hard')" :disabled="grading">
+        <span class="df-toeic-grade-label">Hard</span>
+        <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.hard || ''"></span>
+      </button>
+      <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--good"
+              @click="grade('good')" :disabled="grading">
+        <span class="df-toeic-grade-label">Good</span>
+        <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.good || ''"></span>
+      </button>
+      <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--easy"
+              @click="grade('easy')" :disabled="grading">
+        <span class="df-toeic-grade-label">Easy</span>
+        <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.easy || ''"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Complete Screen -->
+  <div class="df-toeic-learn-summary" x-show="showComplete" x-transition>
+    <div class="df-toeic-learn-summary-icon">🎉</div>
+    <h2 class="df-toeic-learn-summary-title">Review Complete!</h2>
+    <p class="df-toeic-review-complete-text">
+      You reviewed <strong x-text="reviewedCount"></strong> cards.
+    </p>
+    <div class="df-toeic-learn-summary-actions">
+      <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-btn df-toeic-btn--primary">
+        Back to TOEIC Home
+      </a>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="df-toeic-learn-summary">
+    <div class="df-toeic-learn-summary-icon">✅</div>
+    <h2 class="df-toeic-learn-summary-title">All caught up!</h2>
+    <p class="df-toeic-review-complete-text">No cards are due for review right now. Check back later!</p>
+    <div class="df-toeic-learn-summary-actions">
+      <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-btn df-toeic-btn--primary">
+        Back to TOEIC Home
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Hidden data -->
+  <script id="toeic-review-data" type="application/json">{{ cards_json|safe }}</script>
+  <form id="csrf-form" class="hidden">{% csrf_token %}</form>
+</div>
+
+{% if cards_count > 0 %}
+<script>
+function toeicReview() {
+  return {
+    cards: [],
+    currentIndex: 0,
+    isFlipped: false,
+    grading: false,
+    reviewedCount: 0,
+    showComplete: false,
+    audioEl: null,
+
+    get totalCards() {
+      return this.cards.length;
+    },
+    get currentCard() {
+      return this.cards[this.currentIndex] || null;
+    },
+
+    init() {
+      const raw = document.getElementById('toeic-review-data');
+      this.cards = JSON.parse(raw.textContent);
+      this.audioEl = new Audio();
+    },
+
+    flip() {
+      this.isFlipped = !this.isFlipped;
+    },
+
+    playAudio() {
+      if (this.currentCard && this.currentCard.audio_url) {
+        this.audioEl.src = this.currentCard.audio_url;
+        this.audioEl.play().catch(() => {});
+      }
+    },
+
+    async grade(rating) {
+      if (this.grading) return;
+      this.grading = true;
+
+      const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+      try {
+        await fetch("{% url 'vocab:api_toeic_review_grade' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf,
+          },
+          body: JSON.stringify({
+            vocab_id: this.currentCard.vocab_id,
+            rating: rating,
+          }),
+        });
+      } catch (err) {
+        console.error('Grade failed', err);
+      }
+
+      this.reviewedCount++;
+      this.grading = false;
+
+      if (this.currentIndex < this.cards.length - 1) {
+        this.currentIndex++;
+        this.isFlipped = false;
+      } else {
+        this.showComplete = true;
+      }
+    },
+  };
+}
+</script>
+{% endif %}
+{% endblock %}
