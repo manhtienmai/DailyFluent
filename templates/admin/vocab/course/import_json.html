@@ -1,0 +1,79 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .submit-row {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_course_changelist' %}">Courses</a>
+&rsaquo; Import JSON
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Import Course JSON</h2>
+        <p>Paste your JSON list below. Each object should have <code>title</code>, <code>slug</code>, <code>level</code>, <code>icon</code>, <code>gradient</code>, and <code>description</code>.</p>
+        
+        <form method="post" id="import-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <label for="json_data" class="required">JSON Data:</label>
+                    <button type="button" id="load-sample" class="button" style="padding: 5px 10px; cursor: pointer;">Load Sample Data</button>
+                </div>
+                <textarea name="json_data" id="json_data" required></textarea>
+                <div class="help" style="margin-top: 5px; color: #666;">
+                    Ensure the JSON is a valid list of objects.
+                </div>
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="Import Courses" class="default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('load-sample').addEventListener('click', function() {
+        const sampleData = [
+            {
+                "title": "TOEIC 600 Essential",
+                "slug": "toeic-600-essential",
+                "level": 600,
+                "description": "Từ vựng cơ bản dành cho người mới bắt đầu.",
+                "icon": "🌱",
+                "gradient": "linear-gradient(135deg, #4caf50, #2e7d32)"
+            },
+            {
+                "title": "TOEIC 730 Intermediate",
+                "slug": "toeic-730-intermediate",
+                "level": 730,
+                "description": "Từ vựng trung cấp dành cho môi trường công sở.",
+                "icon": "📘",
+                "gradient": "linear-gradient(135deg, #2196f3, #1565c0)"
+            }
+        ];
+        document.getElementById('json_data').value = JSON.stringify(sampleData, null, 4);
+    });
+</script>
+{% endblock %}

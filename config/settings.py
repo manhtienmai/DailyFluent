@@ -22,6 +22,24 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 DEBUG = env_bool("DEBUG", default=False)
 
+# Security Hardening for Production
+if not DEBUG:
+    # Force HTTPS
+    SECURE_SSL_REDIRECT = True
+    # HSTS settings
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    # Cookie security
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Browser security headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    # Proxy SSL Header (Critical for Nginx/Azure to avoid infinite redirects)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"] if DEBUG else []

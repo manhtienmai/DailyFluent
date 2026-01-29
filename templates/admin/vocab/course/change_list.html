@@ -1,0 +1,16 @@
+
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <a class="addlink" href="{% url 'admin:vocab_course_init_defaults' %}" style="background-color: #0D9488;">
+      Initialize Default TOEIC Courses
+    </a>
+  </li>
+  <li>
+    <a class="addlink" href="{% url 'admin:vocab_course_import_json' %}">
+      Import JSON
+    </a>
+  </li>
+{% endblock %}

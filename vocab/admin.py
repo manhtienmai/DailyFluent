@@ -7,7 +7,7 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
-from .models import Vocabulary, WordEntry, WordDefinition, VocabularySet, SetItem, UserSetProgress
+from .models import Vocabulary, WordEntry, WordDefinition, VocabularySet, SetItem, UserSetProgress, Course
 from .utils_scraper import scrape_cambridge
 import nested_admin
 
@@ -409,10 +409,19 @@ class WordDefinitionAdmin(admin.ModelAdmin):
 
 @admin.register(VocabularySet)
 class VocabularySetAdmin(admin.ModelAdmin):
-    list_display = ('title', 'owner', 'status', 'is_public', 'toeic_level', 'set_number', 'created_at')
+    list_display = ('title', 'get_course', 'owner', 'status', 'is_public', 'toeic_level', 'set_number', 'created_at')
     list_filter = ('status', 'is_public', 'toeic_level', 'created_at')
     search_fields = ('title', 'description')
     inlines = [SetItemInline]
+
+    def get_course(self, obj):
+        if not obj.toeic_level:
+            return "-"
+        # Try to find the Course object matching this level
+        course = Course.objects.filter(toeic_level=obj.toeic_level).first()
+        return course.title if course else f"TOEIC {obj.toeic_level} (No Course)"
+    get_course.short_description = "Course"
+    get_course.admin_order_field = 'toeic_level'
 
 
 @admin.register(SetItem)
@@ -429,3 +438,102 @@ class UserSetProgressAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'vocabulary_set__title')
     raw_id_fields = ('user', 'vocabulary_set')
 
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('title', 'toeic_level', 'slug', 'is_active')
+    list_filter = ('is_active', 'toeic_level')
+    search_fields = ('title', 'description')
+    prepopulated_fields = {'slug': ('title',)}
+    change_list_template = "admin/vocab/course/change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('init-defaults/', self.admin_site.admin_view(self.init_defaults_view), name='vocab_course_init_defaults'),
+            path('import-json/', self.admin_site.admin_view(self.import_json_view), name='vocab_course_import_json'),
+        ]
+        return custom_urls + urls
+
+    def import_json_view(self, request):
+        if request.method == "POST":
+            json_data = request.POST.get("json_data")
+            if not json_data:
+                messages.error(request, "Please enter JSON data.")
+                return redirect("admin:vocab_course_import_json")
+
+            try:
+                data = json.loads(json_data)
+                if not isinstance(data, list):
+                    messages.error(request, "JSON must be a list of objects.")
+                    return redirect("admin:vocab_course_import_json")
+
+                created_count = 0
+                updated_count = 0
+                with transaction.atomic():
+                    for item in data:
+                        slug = item.get("slug")
+                        if not slug: continue
+                        
+                        course, created = Course.objects.update_or_create(
+                            slug=slug,
+                            defaults={
+                                'title': item.get('title', ''),
+                                'toeic_level': item.get('level'),
+                                'description': item.get('description', ''),
+                                'icon': item.get('icon', ''),
+                                'gradient': item.get('gradient', ''),
+                                'is_active': True
+                            }
+                        )
+                        if created: created_count += 1
+                        else: updated_count += 1
+                
+                messages.success(request, f"Successfully imported courses: {created_count} created, {updated_count} updated.")
+                return redirect("admin:vocab_course_changelist")
+
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid JSON format.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        context = dict(
+           self.admin_site.each_context(request),
+           title="Import Course from JSON"
+        )
+        return render(request, "admin/vocab/course/import_json.html", context)
+
+    def init_defaults_view(self, request):
+        """Create the 4 default TOEIC courses."""
+        courses_data = [
+            {'title': 'TOEIC 600 Essential', 'slug': 'toeic-600-essential', 'toeic_level': 600, 'description': 'Từ vựng cơ bản dành cho người mới bắt đầu.', 'icon': '🌱', 'gradient': 'linear-gradient(135deg, #4caf50, #2e7d32)'},
+            {'title': 'TOEIC 730 Intermediate', 'slug': 'toeic-730-intermediate', 'toeic_level': 730, 'description': 'Từ vựng trung cấp dành cho môi trường công sở.', 'icon': '📘', 'gradient': 'linear-gradient(135deg, #2196f3, #1565c0)'},
+            {'title': 'TOEIC 860 Advanced', 'slug': 'toeic-860-advanced', 'toeic_level': 860, 'description': 'Từ vựng nâng cao để đạt điểm xuất sắc.', 'icon': '🔮', 'gradient': 'linear-gradient(135deg, #9c27b0, #6a1b9a)'},
+            {'title': 'TOEIC 990 Master', 'slug': 'toeic-990-master', 'toeic_level': 990, 'description': 'Từ vựng chuyên sâu chinh phục điểm tuyệt đối.', 'icon': '👑', 'gradient': 'linear-gradient(135deg, #ff9800, #e65100)'},
+        ]
+        
+        created_count = 0
+        updated_count = 0
+        
+        try:
+            with transaction.atomic():
+                for data in courses_data:
+                    course, created = Course.objects.update_or_create(
+                        slug=data['slug'],
+                        defaults={
+                            'title': data['title'],
+                            'toeic_level': data['toeic_level'],
+                            'description': data['description'],
+                            'icon': data['icon'],
+                            'gradient': data['gradient'],
+                            'is_active': True
+                        }
+                    )
+                    if created: created_count += 1
+                    else: updated_count += 1
+            
+            messages.success(request, f"Successfully initialized courses: {created_count} created, {updated_count} updated.")
+        except Exception as e:
+            messages.error(request, f"Error initializing courses: {e}")
+            
+        return redirect("admin:vocab_course_changelist")
