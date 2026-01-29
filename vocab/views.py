@@ -317,55 +317,88 @@ class PhraseListView(LoginRequiredMixin, TemplateView):
 # TOEIC Views
 # ======================================
 
-class ToeicHomeView(LoginRequiredMixin, TemplateView):
+class CourseListView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        levels_data = []
-        for level in TOEIC_LEVEL_ORDER:
-            config = TOEIC_LEVELS[level]
-            unlocked = toeic_utils.is_level_unlocked(user, level)
-            completion = toeic_utils.get_level_completion_percent(user, level) if unlocked else 0
-            words_learned = toeic_utils.get_level_words_learned_count(user, level) if unlocked else 0
+        
+        # Get active courses
+        courses = Course.objects.filter(is_active=True).order_by('toeic_level')
+        
+        # Calculate stats for each course
+        courses_data = []
+        for course in courses:
+            level = course.toeic_level
+            if not level: continue
+            
+            completion = toeic_utils.get_level_completion_percent(user, level)
+            learned_count = toeic_utils.get_level_words_learned_count(user, level)
+            
+            # Count sets (published)
             total_sets = VocabularySet.objects.filter(toeic_level=level, status='published').count()
             completed_sets = UserSetProgress.objects.filter(
-                user=user, vocabulary_set__toeic_level=level,
-                status=UserSetProgress.ProgressStatus.COMPLETED,
-            ).count() if unlocked else 0
-            levels_data.append({
-                'level': level,
-                'config': config,
-                'unlocked': unlocked,
+                user=user, 
+                vocabulary_set__toeic_level=level, 
+                status=UserSetProgress.ProgressStatus.COMPLETED
+            ).count()
+
+            courses_data.append({
+                'object': course,
+                'slug': course.slug, 
                 'completion': completion,
-                'words_learned': words_learned,
+                'words_learned': learned_count,
                 'total_sets': total_sets,
                 'completed_sets': completed_sets,
+                # For compatibility with template that expects 'config' dict
+                'config': {
+                    'label': course.title,
+                    'description': course.description,
+                    'icon': course.icon,
+                    'gradient': course.gradient,
+                    'level': level
+                }
             })
-        context['levels'] = levels_data
-        context['review_count'] = toeic_utils.get_review_count(user)
-        # Streak
-        try:
-            from streak.models import StreakStat
-            streak = StreakStat.objects.filter(user=user).first()
-            context['streak'] = streak.current_streak if streak else 0
-        except Exception:
-            context['streak'] = 0
+
+        # Calculate total review count across all levels
+        review_count = 0
+        if user.is_authenticated:
+            # Global FSRS review count
+            from vocab.services import FsrsService
+            review_count = FsrsService.get_due_cards(user).count()
+
+        context.update({
+            'levels': courses_data,
+            'review_count': review_count,
+            'streak': 0,
+        })
         return context
 
 
-class ToeicLevelDetailView(LoginRequiredMixin, TemplateView):
+class CourseDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/level_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        level = self.kwargs['level']
+        slug = self.kwargs['slug']
         user = self.request.user
-        if level not in TOEIC_LEVELS:
-            raise Http404("Invalid TOEIC level")
+        
+        course = get_object_or_404(Course, slug=slug)
+        level = course.toeic_level
+        
+        if not level:
+             raise Http404("Course has no associated TOEIC level")
 
-        config = TOEIC_LEVELS[level]
+        # Config dict for template compatibility
+        config = {
+            'label': course.title,
+            'description': course.description,
+            'icon': course.icon,
+            'gradient': course.gradient,
+            'level': level
+        }
+        
         sets = VocabularySet.objects.filter(
             toeic_level=level, status='published'
         ).order_by('chapter', 'set_number')
@@ -401,7 +434,7 @@ class ToeicLevelDetailView(LoginRequiredMixin, TemplateView):
             
             set_data = {
                 'set': s,
-                'state': state,  # 'completed', 'in_progress', 'available', 'locked'
+                'state': state,
                 'words_learned': words_learned,
                 'words_total': words_total,
                 'quiz_score': progress.quiz_best_score if progress else 0,
@@ -424,6 +457,7 @@ class ToeicLevelDetailView(LoginRequiredMixin, TemplateView):
         completion = toeic_utils.get_level_completion_percent(user, level)
 
         context.update({
+            'course': course,
             'level': level,
             'config': config,
             'chapters': chapters_list,
