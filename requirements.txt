@@ -22,3 +22,4 @@ pykakasi==2.2.1
 django-nested-admin
 beautifulsoup4
 requests
+google-generativeai

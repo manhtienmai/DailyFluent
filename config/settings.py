@@ -306,3 +306,6 @@ LOGGING = {
         },
     },
 }
+
+# Google Gemini API
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')

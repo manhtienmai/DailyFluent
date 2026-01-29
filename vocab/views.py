@@ -338,6 +338,13 @@ class CourseListView(LoginRequiredMixin, TemplateView):
             
             # Count sets (published)
             total_sets = VocabularySet.objects.filter(toeic_level=level, status='published').count()
+            
+            # Count total words (published)
+            total_words = SetItem.objects.filter(
+                vocabulary_set__toeic_level=level, 
+                vocabulary_set__status='published'
+            ).count()
+
             completed_sets = UserSetProgress.objects.filter(
                 user=user, 
                 vocabulary_set__toeic_level=level, 
@@ -350,6 +357,7 @@ class CourseListView(LoginRequiredMixin, TemplateView):
                 'completion': completion,
                 'words_learned': learned_count,
                 'total_sets': total_sets,
+                'total_words': total_words,
                 'completed_sets': completed_sets,
                 # For compatibility with template that expects 'config' dict
                 'config': {
@@ -365,8 +373,11 @@ class CourseListView(LoginRequiredMixin, TemplateView):
         review_count = 0
         if user.is_authenticated:
             # Global FSRS review count
-            from vocab.services import FsrsService
-            review_count = FsrsService.get_due_cards(user).count()
+            try:
+                from vocab.services import FsrsService
+                review_count = FsrsService.get_due_cards(user).count()
+            except ImportError:
+                pass  # Handle case where FsrsService is not ready
 
         context.update({
             'levels': courses_data,
