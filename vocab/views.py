@@ -426,25 +426,16 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             toeic_level=level, status='published'
         ).order_by('chapter', 'set_number')
 
-        # Group by chapter -> milestone -> sets
+        # Group by chapter -> sets (no milestones)
         chapters = {}
         for s in sets:
             chapter_num = s.chapter or 1
             chapter_name = s.chapter_name or f"Chapter {chapter_num}"
-            milestone = s.milestone or "A"
             
             if chapter_num not in chapters:
                 chapters[chapter_num] = {
                     'number': chapter_num,
                     'name': chapter_name,
-                    'milestones': {},
-                    'words_total': 0,
-                    'words_learned': 0,
-                }
-            
-            if milestone not in chapters[chapter_num]['milestones']:
-                chapters[chapter_num]['milestones'][milestone] = {
-                    'code': milestone,
                     'sets': [],
                     'words_total': 0,
                     'words_learned': 0,
@@ -463,16 +454,13 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
                 'quiz_score': progress.quiz_best_score if progress else 0,
             }
             
-            chapters[chapter_num]['milestones'][milestone]['sets'].append(set_data)
-            chapters[chapter_num]['milestones'][milestone]['words_total'] += words_total
-            chapters[chapter_num]['milestones'][milestone]['words_learned'] += words_learned
+            chapters[chapter_num]['sets'].append(set_data)
             chapters[chapter_num]['words_total'] += words_total
             chapters[chapter_num]['words_learned'] += words_learned
 
         # Convert to sorted list
         chapters_list = sorted(chapters.values(), key=lambda x: x['number'])
         for ch in chapters_list:
-            ch['milestones'] = sorted(ch['milestones'].values(), key=lambda x: x['code'])
             ch['completion'] = round((ch['words_learned'] / ch['words_total'] * 100) if ch['words_total'] > 0 else 0)
 
         total_words = sum(ch['words_total'] for ch in chapters_list)
