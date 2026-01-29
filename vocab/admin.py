@@ -431,20 +431,49 @@ class VocabularySetAdmin(admin.ModelAdmin):
 
             try:
                 data = json.loads(json_data)
-                if not isinstance(data, list):
-                    messages.error(request, "JSON must be a list of objects.")
+                
+                # Normalize data to a list of sets
+                items_to_process = []
+                default_level = None
+                
+                if isinstance(data, list):
+                    items_to_process = data
+                elif isinstance(data, dict):
+                    # Handle complex structure: { meta: {...}, sets: [...] }
+                    if 'sets' in data:
+                        items_to_process = data['sets']
+                        # Try to get level from meta
+                        if 'meta' in data and 'level' in data['meta']:
+                            default_level = data['meta']['level']
+                    else:
+                        messages.error(request, "JSON dict must contain 'sets' key.")
+                        return redirect("admin:vocab_vocabularyset_import_json")
+                else:
+                    messages.error(request, "JSON must be a list or a compatible object.")
                     return redirect("admin:vocab_vocabularyset_import_json")
 
                 created_sets = 0
                 created_words = 0
                 
                 with transaction.atomic():
-                    for item in data:
-                        toeic_level = item.get('toeic_level')
+                    for item in items_to_process:
+                        # Determine TOEIC Level
+                        toeic_level = item.get('toeic_level') or default_level
                         set_number = item.get('set_number')
+                        
                         if not toeic_level or not set_number:
                             continue
                         
+                        # Prepare fields
+                        chapter_name = item.get('chapter_name') or item.get('chapter_name_vi') or ''
+                        
+                        # Priority range
+                        p_start = item.get('priority_start')
+                        p_end = item.get('priority_end')
+                        priority_range = item.get('priority_range', '')
+                        if not priority_range and p_start and p_end:
+                            priority_range = f"{p_start}-{p_end}"
+
                         # Create/Update VocabularySet
                         title = f"TOEIC {toeic_level} - Set {set_number}"
                         vocab_set, created = VocabularySet.objects.update_or_create(
@@ -453,9 +482,9 @@ class VocabularySetAdmin(admin.ModelAdmin):
                             defaults={
                                 'title': title,
                                 'chapter': item.get('chapter', 1),
-                                'chapter_name': item.get('chapter_name', ''),
+                                'chapter_name': chapter_name,
                                 'milestone': item.get('milestone', ''),
-                                'priority_range': item.get('priority_range', ''),
+                                'priority_range': priority_range,
                                 'status': 'published',
                             }
                         )
