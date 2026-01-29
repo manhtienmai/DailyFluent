@@ -1,0 +1,246 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Từ vựng của tôi | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<style>
+  .df-my-words-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .df-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .df-stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .df-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .df-stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+  
+  .df-words-table-container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  .df-words-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .df-words-table th,
+  .df-words-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-default);
+  }
+  
+  .df-words-table th {
+    background: var(--bg-highlight);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .df-words-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .df-word-primary {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.125rem;
+  }
+  
+  .df-word-secondary {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  
+  .df-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .df-badge--learning {
+    background: #eff6ff;
+    color: #3b82f6;
+  }
+  
+  .df-badge--review {
+    background: #ecfdf5;
+    color: #10b981;
+  }
+  
+  .df-badge--relearning {
+    background: #fef2f2;
+    color: #ef4444;
+  }
+  
+  /* Pagination */
+  .df-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .df-page-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: white;
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  
+  .df-page-btn:hover {
+    border-color: var(--action-primary);
+    color: var(--action-primary);
+  }
+  
+  .df-page-btn.active {
+    background: var(--action-primary);
+    color: white;
+    border-color: var(--action-primary);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-my-words-container">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Từ vựng của tôi</h1>
+    <p class="text-gray-600">Danh sách các từ bạn đang và đã học.</p>
+  </div>
+  
+  <div class="df-stats-grid">
+    <div class="df-stat-card">
+      <span class="df-stat-value">{{ total_learning }}</span>
+      <span class="df-stat-label">Tổng số từ đang học</span>
+    </div>
+    <div class="df-stat-card">
+      <span class="df-stat-value">{{ mastered_count }}</span>
+      <span class="df-stat-label">Đã thuộc (Mastered)</span>
+    </div>
+  </div>
+  
+  {% if cards %}
+  <div class="df-words-table-container">
+    <table class="df-words-table">
+      <thead>
+        <tr>
+          <th>Từ vựng</th>
+          <th>Nghĩa</th>
+          <th>Trạng thái</th>
+          <th>Ôn tập tiếp theo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for card in cards %}
+        <tr>
+          <td>
+            <div class="df-word-primary">{{ card.vocab.word }}</div>
+            <!-- Need to fetch meaning or IPA? Using simple lookup if possible. -->
+            <!-- Assuming simple display or we can join if needed. For now just word. -->
+          </td>
+          <td class="text-gray-600">
+            <!-- Ideally we show the definition. But FsrsCardStateEn links to Vocab. 
+                 Vocab has many entries. We take the first if available. 
+                 This is a limitation of the current model structure for simple listing. -->
+            Xem chi tiết
+          </td>
+          <td>
+            {% if card.state == 1 %}
+              <span class="df-badge df-badge--learning">Đang học</span>
+            {% elif card.state == 2 %}
+              <span class="df-badge df-badge--review">Ôn tập</span>
+            {% elif card.state == 3 %}
+              <span class="df-badge df-badge--relearning">Học lại</span>
+            {% else %}
+              <span class="df-badge">Mới</span>
+            {% endif %}
+          </td>
+          <td class="text-sm text-gray-500">
+            {{ card.due|naturaltime }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="df-pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="df-page-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    {% endif %}
+    
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <span class="df-page-btn active">{{ i }}</span>
+      {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+        <a href="?page={{ i }}" class="df-page-btn">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="df-page-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+  
+  {% else %}
+  <div class="text-center py-12 text-gray-500 bg-white rounded-xl">
+    <div class="text-4xl mb-4">📚</div>
+    <p>Bạn chưa học từ vựng nào.</p>
+    <a href="{% url 'vocab:list' %}" class="mt-4 inline-block text-teal-600 font-medium hover:underline">
+      Khám phá các bộ từ vựng ngay
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

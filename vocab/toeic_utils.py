@@ -40,13 +40,23 @@ def get_level_words_learned(user, level):
 
 
 def get_level_words_learned_count(user, level):
-    """Return the sum of words learned in a level."""
-    from django.db.models import Sum
-    result = UserSetProgress.objects.filter(
-        user=user,
+    """
+    Return the count of learned words (state > 0) in a level.
+    Uses FsrsCardStateEn as the source of truth instead of UserSetProgress cache.
+    """
+    if not user.is_authenticated:
+        return 0
+        
+    level_vocab_ids = SetItem.objects.filter(
         vocabulary_set__toeic_level=level,
-    ).aggregate(total=Sum('words_learned'))
-    return result['total'] or 0
+        vocabulary_set__status='published'
+    ).values_list('definition__entry__vocab_id', flat=True)
+    
+    return FsrsCardStateEn.objects.filter(
+        user=user,
+        vocab_id__in=level_vocab_ids,
+        state__gt=0
+    ).count()
 
 
 def is_level_unlocked(user, level):

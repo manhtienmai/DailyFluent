@@ -11,7 +11,7 @@
 <div class="df-toeic-container" x-data="toeicLearn()" x-init="init()">
   <!-- Header -->
   <div class="df-toeic-learn-header">
-    <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+    <a href="{% url 'vocab:course_detail' slug=course.slug %}" class="df-toeic-back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
@@ -51,7 +51,7 @@
             <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
           </svg>
         </button>
-        <div class="df-toeic-learn-flip-hint">Tap to flip</div>
+        <div class="df-toeic-learn-flip-hint">Chạm để lật</div>
       </div>
 
       <!-- Back -->
@@ -75,14 +75,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        Still Learning
+        Chưa thuộc
       </button>
       <button type="button" class="df-toeic-learn-btn df-toeic-learn-btn--known"
               @click="markWord('known')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        Known
+        Đã biết
       </button>
     </div>
   </div>
@@ -90,25 +90,25 @@
   <!-- Summary Screen -->
   <div class="df-toeic-learn-summary" x-show="showSummary" x-transition>
     <div class="df-toeic-learn-summary-icon">🎉</div>
-    <h2 class="df-toeic-learn-summary-title">Set Complete!</h2>
+    <h2 class="df-toeic-learn-summary-title">Hoàn thành!</h2>
 
     <div class="df-toeic-learn-summary-stats">
       <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--known">
         <span class="df-toeic-learn-summary-stat-value" x-text="knownCount"></span>
-        <span class="df-toeic-learn-summary-stat-label">Known</span>
+        <span class="df-toeic-learn-summary-stat-label">Đã biết</span>
       </div>
       <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--unknown">
         <span class="df-toeic-learn-summary-stat-value" x-text="unknownCount"></span>
-        <span class="df-toeic-learn-summary-stat-label">Still Learning</span>
+        <span class="df-toeic-learn-summary-stat-label">Cần học lại</span>
       </div>
     </div>
 
     <div class="df-toeic-learn-summary-actions">
       <a :href="quizUrl" class="df-toeic-btn df-toeic-btn--primary">
-        Take Quiz
+        Làm kiểm tra
       </a>
       <a :href="levelUrl" class="df-toeic-btn df-toeic-btn--secondary">
-        Back to Level
+        Quay về Level
       </a>
     </div>
   </div>
@@ -157,44 +157,86 @@ function toeicLearn() {
       }
     },
 
-    markWord(result) {
+    async updateProgress(id, status) {
+       // Send single item update
+       const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+       const knownIds = [];
+       const unknownIds = [];
+       
+       if (status === 'known') knownIds.push(id);
+       else unknownIds.push(id);
+
+       try {
+         await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'X-CSRFToken': csrf,
+           },
+           body: JSON.stringify({
+             set_id: {{ vocab_set.id }},
+             known_ids: knownIds,
+             unknown_ids: unknownIds,
+           }),
+         });
+       } catch (err) {
+         console.error("Progress save failed", err);
+       }
+    },
+
+    async markWord(result) {
       this.results[this.currentIndex] = result;
+      
+      // Incremental save
+      if (this.currentItem) {
+          await this.updateProgress(this.currentItem.id, result);
+      }
+
       if (this.currentIndex < this.items.length - 1) {
         this.currentIndex++;
         this.isFlipped = false;
       } else {
-        this.submitResults();
+        this.showCompletion();
       }
     },
 
-    async submitResults() {
-      const knownIds = [];
-      const unknownIds = [];
-      this.items.forEach((item, i) => {
-        if (this.results[i] === 'known') knownIds.push(item.id);
-        else unknownIds.push(item.id);
-      });
-
+    async showCompletion() {
+      // Just fetch final state/URLs to be sure, or reuse logic
       const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
       try {
-        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrf,
-          },
-          body: JSON.stringify({
-            set_id: {{ vocab_set.id }},
-            known_ids: knownIds,
-            unknown_ids: unknownIds,
-          }),
+        // Send a dummy update or just re-send last batch to get return URLs
+        // Actually, just calling it with empty lists might work if we just want URLs, 
+        // but let's send the full state just in case specific logic relies on it?
+        // No, we designed backend to be robust. 
+        // Let's just use the urls we can construct or fetch them.
+        // Actually, the backend API returns next_url. We need that.
+        
+        // Let's send a full sync for safety
+        const knownIds = [];
+        const unknownIds = [];
+        this.items.forEach((item, i) => {
+             if (this.results[i] === 'known') knownIds.push(item.id);
+             else unknownIds.push(item.id);
         });
+
+        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'X-CSRFToken': csrf,
+           },
+           body: JSON.stringify({
+             set_id: {{ vocab_set.id }},
+             known_ids: knownIds,
+             unknown_ids: unknownIds,
+           }),
+         });
         const data = await resp.json();
-        this.quizUrl = data.quiz_url || "{% url 'vocab:toeic_level' level %}";
-        this.levelUrl = data.level_url || "{% url 'vocab:toeic_level' level %}";
+        this.quizUrl = data.quiz_url || "{% url 'vocab:course_detail' slug=course.slug %}";
+        this.levelUrl = data.level_url || "{% url 'vocab:course_detail' slug=course.slug %}";
       } catch (err) {
-        this.quizUrl = "{% url 'vocab:toeic_quiz' level set_number %}";
-        this.levelUrl = "{% url 'vocab:toeic_level' level %}";
+        this.quizUrl = "{% url 'vocab:course_quiz' slug=course.slug set_number=set_number %}";
+        this.levelUrl = "{% url 'vocab:course_detail' slug=course.slug %}";
       }
       this.showSummary = true;
     },

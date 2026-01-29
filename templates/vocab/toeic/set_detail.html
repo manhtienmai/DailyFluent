@@ -154,7 +154,7 @@
 <div class="df-toeic-container">
   
   <!-- Back Button -->
-  <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+  <a href="{% url 'vocab:course_detail' slug=course.slug %}" class="df-toeic-back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M15 18l-6-6 6-6"/>
     </svg>
@@ -175,7 +175,7 @@
       </div>
     </div>
     
-    <a href="{% url 'vocab:toeic_learn' level set_number %}" class="df-start-btn">
+    <a href="{% url 'vocab:course_learn' slug=course.slug set_number=set_number %}" class="df-start-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="5 3 19 12 5 21 5 3"/>
       </svg>

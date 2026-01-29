@@ -27,13 +27,19 @@ urlpatterns = [
     path('study-status/', views.StudyStatusView.as_view(), name='study_status'),
     path('typing/', views.TypingView.as_view(), name='typing'),
     path('phrases/', views.PhraseListView.as_view(), name='phrases'),
+    path('my-words/', views.MyWordsView.as_view(), name='my_words'),
 
-    # TOEIC pages
-    path('toeic/', views.ToeicHomeView.as_view(), name='toeic_home'),
-    path('toeic/<int:level>/', views.ToeicLevelDetailView.as_view(), name='toeic_level'),
-    path('toeic/<int:level>/<int:set_number>/', views.ToeicSetDetailView.as_view(), name='toeic_set_detail'),
-    path('toeic/<int:level>/<int:set_number>/learn/', views.ToeicLearnView.as_view(), name='toeic_learn'),
-    path('toeic/<int:level>/<int:set_number>/quiz/', views.ToeicQuizView.as_view(), name='toeic_quiz'),
+    # TOEIC/Course pages
+    path('courses/', views.CourseListView.as_view(), name='course_list'), # Alias/New home
+    path('toeic/', views.CourseListView.as_view(), name='toeic_home'), # Legacy redirect/alias
+    
+    path('courses/<slug:slug>/', views.CourseDetailView.as_view(), name='course_detail'),
+    path('courses/<slug:slug>/set/<int:set_number>/', views.CourseSetDetailView.as_view(), name='course_set_detail'),
+    path('courses/<slug:slug>/set/<int:set_number>/learn/', views.CourseLearnView.as_view(), name='course_learn'),
+    
+    # Quiz view
+    path('courses/<slug:slug>/set/<int:set_number>/quiz/', views.CourseQuizView.as_view(), name='course_quiz'), 
+    
     path('toeic/review/', views.ToeicReviewView.as_view(), name='toeic_review'),
 
     # Games (Placeholders)

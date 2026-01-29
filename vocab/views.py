@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 import json
 import random
-from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress
+from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress, Course
 from .toeic_config import TOEIC_LEVELS, TOEIC_LEVEL_ORDER
 from . import toeic_utils
 from .fsrs_bridge import create_new_card_state, review_card, preview_intervals
@@ -376,6 +376,28 @@ class CourseListView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class MyWordsView(LoginRequiredMixin, ListView):
+    template_name = 'vocab/my_words.html'
+    context_object_name = 'cards'
+    paginate_by = 30
+
+    def get_queryset(self):
+        # Filter cards for this user that are not "New"
+        return FsrsCardStateEn.objects.filter(
+            user=self.request.user, 
+            state__gt=0
+        ).select_related('vocab').order_by('due')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add basic count stats
+        qs = self.get_queryset()
+        context['total_learning'] = qs.count()
+        context['mastered_count'] = qs.filter(state__gte=2).count()
+        
+        return context
+
 class CourseDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/level_detail.html'
 
@@ -470,14 +492,17 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
 
 
 
-class ToeicSetDetailView(LoginRequiredMixin, TemplateView):
+class CourseSetDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/set_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        level = self.kwargs['level']
+        slug = self.kwargs['slug']
         set_number = self.kwargs['set_number']
         user = self.request.user
+        
+        course = get_object_or_404(Course, slug=slug)
+        level = course.toeic_level
 
         vocab_set = get_object_or_404(
             VocabularySet, toeic_level=level, set_number=set_number, status='published'
@@ -489,13 +514,10 @@ class ToeicSetDetailView(LoginRequiredMixin, TemplateView):
         ).order_by('display_order', 'created_at')
 
         # Get user progress for each item
-        # Optimized: fetch all FsrsCardStateEn for vocab items in this set
         from .models import FsrsCardStateEn
         
         vocab_status_map = {}
         if user.is_authenticated:
-            # We need to map Vocabulary IDs to their FSRS state
-            # items -> definition -> entry -> vocab
             vocab_ids = [item.definition.entry.vocab_id for item in items]
             
             states = FsrsCardStateEn.objects.filter(
@@ -504,19 +526,16 @@ class ToeicSetDetailView(LoginRequiredMixin, TemplateView):
             ).values('vocab_id', 'state')
             
             for s in states:
-                # Map state to 'known' if state > 0 (meaning it's being learned/reviewed)
-                # You might want more granular logic, e.g., state >= 1
                 status = 'known' if s['state'] > 0 else 'new'
                 vocab_status_map[s['vocab_id']] = status
 
         items_data = []
-        voice_pref = 'us' # Default
+        voice_pref = 'us'
         
         for item in items:
             d = item.definition
             e = d.entry
             v = e.vocab
-            # Status is based on the Vocabulary ID
             status = vocab_status_map.get(v.id, 'new')
             
             items_data.append({
@@ -527,26 +546,39 @@ class ToeicSetDetailView(LoginRequiredMixin, TemplateView):
                 'status': status,
                 'part_of_speech': e.part_of_speech,
             })
+        
+        config = {
+            'label': course.title,
+            'description': course.description,
+            'icon': course.icon,
+            'gradient': course.gradient,
+            'level': level
+        }
 
         context.update({
+            'course': course,
             'level': level,
             'set_number': set_number,
-            'config': TOEIC_LEVELS.get(level, {}),
+            'config': config,
             'vocab_set': vocab_set,
             'items': items_data,
         })
         return context
 
-class ToeicLearnView(LoginRequiredMixin, TemplateView):
+class CourseLearnView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/learn.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        level = self.kwargs['level']
+        slug = self.kwargs['slug']
         set_number = self.kwargs['set_number']
         user = self.request.user
+        
+        course = get_object_or_404(Course, slug=slug)
+        level = course.toeic_level
 
         if not toeic_utils.is_set_accessible(user, level, set_number):
+            # For backward compatibility with utilization
             raise Http404("Set is locked")
 
         vocab_set = get_object_or_404(
@@ -582,11 +614,28 @@ class ToeicLearnView(LoginRequiredMixin, TemplateView):
                 'example': d.example_sentence,
                 'example_trans': d.example_trans,
             })
+            
+        config = {
+            'label': course.title,
+            'description': course.description,
+            'icon': course.icon,
+            'gradient': course.gradient,
+            'level': level
+        }
+
+        config = {
+            'label': course.title,
+            'description': course.description,
+            'icon': course.icon,
+            'gradient': course.gradient,
+            'level': level
+        }
 
         context.update({
+            'course': course,
             'level': level,
             'set_number': set_number,
-            'config': TOEIC_LEVELS.get(level, {}),
+            'config': config,
             'vocab_set': vocab_set,
             'items_json': json.dumps(items_data),
             'items_count': len(items_data),
@@ -594,12 +643,14 @@ class ToeicLearnView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ToeicQuizView(LoginRequiredMixin, TemplateView):
+class CourseQuizView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/toeic/quiz.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        level = self.kwargs['level']
+        slug = self.kwargs['slug']
+        course = get_object_or_404(Course, slug=slug)
+        level = course.toeic_level
         set_number = self.kwargs['set_number']
         user = self.request.user
 
@@ -643,10 +694,19 @@ class ToeicQuizView(LoginRequiredMixin, TemplateView):
                 'choices': choices,
             })
 
+        config = {
+            'label': course.title,
+            'description': course.description,
+            'icon': course.icon,
+            'gradient': course.gradient,
+            'level': level
+        }
+
         context.update({
+            'course': course, # Make sure course is passed
             'level': level,
             'set_number': set_number,
-            'config': TOEIC_LEVELS.get(level, {}),
+            'config': config,
             'vocab_set': vocab_set,
             'questions_json': json.dumps(questions),
             'total_questions': len(questions),
@@ -750,33 +810,70 @@ def api_toeic_learn_result(request):
                 card_state.successful_reviews += 1
             card_state.save()
 
-    # Update UserSetProgress
+    # Update UserSetProgress by counting ACTUAL learned cards in DB
+    # This prevents overwrite issues with partial/incremental updates
+    vocab_ids_in_set = vocab_set.items.values_list('definition__entry__vocab_id', flat=True)
+    learned_count = FsrsCardStateEn.objects.filter(
+        user=user,
+        vocab_id__in=vocab_ids_in_set,
+        state__gt=0  # 0=New, >0 = Learned/Learning
+    ).count()
+
     total_items = vocab_set.items.count()
     progress, _ = UserSetProgress.objects.get_or_create(
         user=user, vocabulary_set=vocab_set,
         defaults={'words_total': total_items}
     )
-    progress.words_learned = len(known_ids)
+    progress.words_learned = learned_count
     progress.words_total = total_items
 
     if not progress.started_at:
         progress.started_at = timezone.now()
 
-    if len(known_ids) == total_items:
+    # Count mastered cards (State >= 2, i.e., graduated from learning steps)
+    mastered_count = FsrsCardStateEn.objects.filter(
+        user=user,
+        vocab_id__in=vocab_ids_in_set,
+        state__gte=2  # 2=Review, 3=Relearning (if graduated before) - wait, Relearning is actually < Review in mastery sense but > Learning? 
+                      # Actually FSRS state 3 is Relearning (lapsed). 
+                      # If Relearning, it means they forgot it. So not "Completed".
+                      # So strictly State == 2 (Review)? Or State >= 2?
+                      # FSRS State: New(0), Learning(1), Review(2), Relearning(3).
+                      # If I forget (Relearning), should the set become un-completed? Yes.
+                      # So condition: state == 2.
+    ).count()
+
+    # NOTE: Relearning (3) implies they forgot. We treat only Review (2) as "Mastered/Completed".
+    # Or should Relearning count? Usually Relearning means "learning again". 
+    # For a stricter "Completed" status, we require Review state.
+    
+    if mastered_count >= total_items and total_items > 0:
         progress.status = UserSetProgress.ProgressStatus.COMPLETED
-        progress.completed_at = timezone.now()
+        if not progress.completed_at:
+            progress.completed_at = timezone.now()
     else:
         progress.status = UserSetProgress.ProgressStatus.IN_PROGRESS
+        progress.completed_at = None
 
     progress.save()
 
     # Determine redirect
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
+    
+    # Lookup proper slug
+    try:
+        course_slug = Course.objects.get(toeic_level=level).slug
+    except Course.DoesNotExist:
+        # Fallback or error, but let's assume it exists as migrated
+        course_slug = f"toeic-{level}" 
+
     if progress.status == UserSetProgress.ProgressStatus.COMPLETED:
-        next_url = reverse('vocab:toeic_level', args=[level])
+        # If completed, maybe go back to detail? Or maybe next set?
+        # For now, back to detail
+        next_url = reverse('vocab:course_detail', kwargs={'slug': course_slug})
     else:
-        next_url = reverse('vocab:toeic_quiz', args=[level, set_number])
+        next_url = reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number})
 
     return JsonResponse({
         'success': True,
@@ -784,8 +881,8 @@ def api_toeic_learn_result(request):
         'words_learned': progress.words_learned,
         'words_total': progress.words_total,
         'next_url': next_url,
-        'quiz_url': reverse('vocab:toeic_quiz', args=[level, set_number]),
-        'level_url': reverse('vocab:toeic_level', args=[level]),
+        'quiz_url': reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number}),
+        'level_url': reverse('vocab:course_detail', kwargs={'slug': course_slug}),
     })
 
 
@@ -825,6 +922,12 @@ def api_toeic_quiz_result(request):
 
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
+    
+    # Lookup proper slug
+    try:
+        course_slug = Course.objects.get(toeic_level=level).slug
+    except Course.DoesNotExist:
+        course_slug = f"toeic-{level}"
 
     return JsonResponse({
         'success': True,
@@ -833,9 +936,9 @@ def api_toeic_quiz_result(request):
         'total': total,
         'score_pct': score_pct,
         'best_score': progress.quiz_best_score,
-        'next_url': reverse('vocab:toeic_level', args=[level]),
-        'retry_url': reverse('vocab:toeic_quiz', args=[level, set_number]),
-        'learn_url': reverse('vocab:toeic_learn', args=[level, set_number]),
+        'next_url': reverse('vocab:course_detail', kwargs={'slug': course_slug}),
+        'retry_url': reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number}),
+        'learn_url': reverse('vocab:course_learn', kwargs={'slug': course_slug, 'set_number': set_number}),
     })
 
 

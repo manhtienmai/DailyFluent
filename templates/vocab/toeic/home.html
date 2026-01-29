@@ -240,12 +240,12 @@
   <!-- Level Cards -->
   <div class="df-toeic-levels-grid">
     {% for item in levels %}
-    <div class="df-level-card df-level-card--{{ item.level }}"
-         onclick="window.location.href='{% url 'vocab:toeic_level' item.level %}'">
+    <div class="df-level-card df-level-card--{{ item.config.level }}"
+         onclick="window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">
       
       <!-- Start Button (shown on first available card) -->
       {% if forloop.first and item.completion == 0 %}
-      <button class="df-level-start-btn" onclick="event.stopPropagation(); window.location.href='{% url 'vocab:toeic_level' item.level %}'">Start now</button>
+      <button class="df-level-start-btn" onclick="event.stopPropagation(); window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">Học ngay</button>
       {% endif %}
       
       <!-- Icon -->

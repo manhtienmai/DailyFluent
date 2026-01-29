@@ -21,8 +21,8 @@ Sidebar Navigation Component
 
 
 
-    <a href="{% url 'vocab:toeic_home' %}" data-title="Bộ từ vựng"
-      class="df-sidebar-item {% if 'toeic' in request.path %}active{% endif %}">
+    <a href="{% url 'vocab:course_list' %}" data-title="Bộ từ vựng"
+      class="df-sidebar-item {% if 'courses' in request.path or 'toeic' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-exam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 14l9-5-9-5-9 5 9 5z"/>
@@ -31,6 +31,17 @@ Sidebar Navigation Component
         </svg>
       </span>
       <span class="df-sidebar-label">Bộ từ vựng</span>
+    </a>
+
+    <a href="{% url 'vocab:my_words' %}" data-title="Từ vựng của tôi"
+      class="df-sidebar-item {% if 'my-words' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon df-icon-book">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Từ vựng của tôi</span>
     </a>
 
     <a href="{% url 'vocab:games' %}" data-title="Trò chơi từ vựng" class="df-sidebar-item {% if 'games' in request.path %}active{% endif %}">
