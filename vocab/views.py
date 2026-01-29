@@ -394,7 +394,8 @@ class MyWordsView(LoginRequiredMixin, ListView):
         # Add basic count stats
         qs = self.get_queryset()
         context['total_learning'] = qs.count()
-        context['mastered_count'] = qs.filter(state__gte=2).count()
+        # Mastered should strictly be Review (2). Relearning (3) is NOT mastered.
+        context['mastered_count'] = qs.filter(state=2).count()
         
         return context
 
@@ -830,17 +831,12 @@ def api_toeic_learn_result(request):
     if not progress.started_at:
         progress.started_at = timezone.now()
 
-    # Count mastered cards (State >= 2, i.e., graduated from learning steps)
+    # Count mastered cards (State = 2, Review). 
+    # State 1 (Learning) and 3 (Relearning) do not count as Mastered for set completion.
     mastered_count = FsrsCardStateEn.objects.filter(
         user=user,
         vocab_id__in=vocab_ids_in_set,
-        state__gte=2  # 2=Review, 3=Relearning (if graduated before) - wait, Relearning is actually < Review in mastery sense but > Learning? 
-                      # Actually FSRS state 3 is Relearning (lapsed). 
-                      # If Relearning, it means they forgot it. So not "Completed".
-                      # So strictly State == 2 (Review)? Or State >= 2?
-                      # FSRS State: New(0), Learning(1), Review(2), Relearning(3).
-                      # If I forget (Relearning), should the set become un-completed? Yes.
-                      # So condition: state == 2.
+        state=2  # Strictly Review
     ).count()
 
     # NOTE: Relearning (3) implies they forgot. We treat only Review (2) as "Mastered/Completed".
