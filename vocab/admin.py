@@ -413,6 +413,117 @@ class VocabularySetAdmin(admin.ModelAdmin):
     list_filter = ('status', 'is_public', 'toeic_level', 'created_at')
     search_fields = ('title', 'description')
     inlines = [SetItemInline]
+    change_list_template = "admin/vocab/vocabularyset/change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-json/', self.admin_site.admin_view(self.import_json_view), name='vocab_vocabularyset_import_json'),
+        ]
+        return custom_urls + urls
+
+    def import_json_view(self, request):
+        if request.method == "POST":
+            json_data = request.POST.get("json_data")
+            if not json_data:
+                messages.error(request, "Please enter JSON data.")
+                return redirect("admin:vocab_vocabularyset_import_json")
+
+            try:
+                data = json.loads(json_data)
+                if not isinstance(data, list):
+                    messages.error(request, "JSON must be a list of objects.")
+                    return redirect("admin:vocab_vocabularyset_import_json")
+
+                created_sets = 0
+                created_words = 0
+                
+                with transaction.atomic():
+                    for item in data:
+                        toeic_level = item.get('toeic_level')
+                        set_number = item.get('set_number')
+                        if not toeic_level or not set_number:
+                            continue
+                        
+                        # Create/Update VocabularySet
+                        title = f"TOEIC {toeic_level} - Set {set_number}"
+                        vocab_set, created = VocabularySet.objects.update_or_create(
+                            toeic_level=toeic_level,
+                            set_number=set_number,
+                            defaults={
+                                'title': title,
+                                'chapter': item.get('chapter', 1),
+                                'chapter_name': item.get('chapter_name', ''),
+                                'milestone': item.get('milestone', ''),
+                                'priority_range': item.get('priority_range', ''),
+                                'status': 'published',
+                            }
+                        )
+                        if created:
+                            created_sets += 1
+                        
+                        # Process words
+                        words = item.get('words', [])
+                        for word_text in words:
+                            word_text = word_text.strip().lower()
+                            if not word_text:
+                                continue
+                            
+                            # Check if word exists with definitions
+                            vocab = Vocabulary.objects.filter(word=word_text).first()
+                            if vocab and WordDefinition.objects.filter(entry__vocab=vocab).exists():
+                                # Reuse existing
+                                pass
+                            else:
+                                # Scrape from Cambridge
+                                scraped_entries = scrape_cambridge(word_text)
+                                if not scraped_entries:
+                                    # Create placeholder
+                                    vocab, _ = Vocabulary.objects.get_or_create(word=word_text)
+                                    entry, _ = WordEntry.objects.get_or_create(vocab=vocab, part_of_speech='unknown')
+                                else:
+                                    vocab, _ = Vocabulary.objects.get_or_create(word=word_text)
+                                    for entry_data in scraped_entries:
+                                        entry, _ = WordEntry.objects.get_or_create(
+                                            vocab=vocab,
+                                            part_of_speech=entry_data.get('type') or 'unknown',
+                                            defaults={
+                                                'ipa': entry_data.get('ipa', ''),
+                                                'audio_us': entry_data.get('audio_us') or '',
+                                                'audio_uk': entry_data.get('audio_uk') or ''
+                                            }
+                                        )
+                                        def_text = entry_data.get('definition', '')
+                                        if def_text and not entry.definitions.filter(meaning=def_text).exists():
+                                            WordDefinition.objects.create(
+                                                entry=entry,
+                                                meaning=def_text,
+                                                example_sentence=entry_data.get('example', '')
+                                            )
+                                created_words += 1
+                            
+                            # Link to Set
+                            if vocab:
+                                first_def = WordDefinition.objects.filter(entry__vocab=vocab).first()
+                                if first_def:
+                                    SetItem.objects.get_or_create(
+                                        vocabulary_set=vocab_set,
+                                        definition=first_def
+                                    )
+                
+                messages.success(request, f"Successfully imported: {created_sets} sets, {created_words} new words scraped.")
+                return redirect("admin:vocab_vocabularyset_changelist")
+
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid JSON format.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        context = dict(
+           self.admin_site.each_context(request),
+           title="Import Vocabulary Set from JSON"
+        )
+        return render(request, "admin/vocab/vocabularyset/import_json.html", context)
 
     def get_course(self, obj):
         if not obj.toeic_level:

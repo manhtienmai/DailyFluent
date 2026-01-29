@@ -1,0 +1,76 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .submit-row {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabularyset_changelist' %}">Vocabulary Sets</a>
+&rsaquo; Import JSON
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Import Vocabulary Set JSON</h2>
+        <p>Paste your JSON list below. Each object should have <code>toeic_level</code>, <code>set_number</code>, <code>chapter</code>, <code>chapter_name</code>, <code>words</code> (list of word strings).</p>
+        
+        <form method="post" id="import-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <label for="json_data" class="required">JSON Data:</label>
+                    <button type="button" id="load-sample" class="button" style="padding: 5px 10px; cursor: pointer;">Load Sample Data</button>
+                </div>
+                <textarea name="json_data" id="json_data" required></textarea>
+                <div class="help" style="margin-top: 5px; color: #666;">
+                    Ensure the JSON is a valid list of objects. Words will be scraped from Cambridge Dictionary.
+                </div>
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="Import Sets" class="default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('load-sample').addEventListener('click', function() {
+        const sampleData = [
+            {
+                "toeic_level": 600,
+                "set_number": 1,
+                "chapter": 1,
+                "chapter_name": "Nền tảng cốt lõi",
+                "words": ["calculate", "contrast", "monitor", "occasionally", "practical"]
+            },
+            {
+                "toeic_level": 600,
+                "set_number": 2,
+                "chapter": 1,
+                "chapter_name": "Nền tảng cốt lõi",
+                "words": ["provide", "purchase", "opening", "construction", "tour"]
+            }
+        ];
+        document.getElementById('json_data').value = JSON.stringify(sampleData, null, 4);
+    });
+</script>
+{% endblock %}
