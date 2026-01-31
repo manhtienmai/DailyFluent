@@ -4,7 +4,95 @@
 {% block title %}Nối từ với nghĩa | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260115">
+<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260130">
+<style>
+  /* Lives/Hearts UI */
+  .df-game-lives {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 9999px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  .df-game-lives-icon {
+    font-size: 1.25rem;
+  }
+  
+  .df-game-lives-count {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  
+  .df-game-lives-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Game Over Screen */
+  .df-game-over {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+  
+  .df-game-over-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .df-game-over-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #EF4444;
+    margin-bottom: 0.5rem;
+  }
+  
+  .df-game-over-text {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .df-game-buy-life-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+  }
+  
+  .df-game-buy-life-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  }
+  
+  .df-game-buy-life-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .df-game-buy-life-info {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+  
+  .df-game-actions-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,6 +104,12 @@
       <p class="df-game-subtitle">Chọn các cặp từ - nghĩa đúng</p>
     </div>
     <div class="df-game-stats">
+      <!-- Lives -->
+      <div class="df-game-lives">
+        <span class="df-game-lives-icon">❤️</span>
+        <span class="df-game-lives-count" id="lives-count">5</span>
+        <span class="df-game-lives-label">mạng</span>
+      </div>
       <div class="df-game-stat">
         <span class="df-game-stat-value" id="matched-count">0</span>
         <span class="df-game-stat-label">Đã ghép</span>
@@ -59,7 +153,25 @@
     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Bạn đã ghép đúng tất cả các cặp từ!</p>
     <div style="display: flex; justify-content: center; gap: 1rem;">
       <button type="button" id="btn-play-again" class="df-game-nav-btn df-game-nav-btn--secondary">Chơi lại</button>
-      <a href="{% url 'vocab:games' %}" class="df-game-complete-btn">Xem các trò khác</a>
+      <a href="{% url 'vocab:my_words' %}" class="df-game-complete-btn">Quay lại</a>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameover-screen" class="df-game-over hidden">
+    <div class="df-game-over-icon">💔</div>
+    <h2 class="df-game-over-title">Hết mạng!</h2>
+    <p class="df-game-over-text">Bạn đã hết lượt chơi. Mua thêm mạng để tiếp tục!</p>
+    
+    <button type="button" id="btn-buy-life" class="df-game-buy-life-btn">
+      <span>💰</span>
+      <span>Mua 1 mạng (10 coin)</span>
+    </button>
+    <div class="df-game-buy-life-info" id="buy-life-info"></div>
+    
+    <div class="df-game-actions-row">
+      <button type="button" id="btn-restart" class="df-game-nav-btn df-game-nav-btn--secondary">Chơi lại từ đầu</button>
+      <a href="{% url 'vocab:my_words' %}" class="df-game-nav-btn df-game-nav-btn--primary">Thoát</a>
     </div>
   </div>
 
@@ -79,18 +191,27 @@
 (function() {
   const tilesData = JSON.parse(document.getElementById('tiles-data').textContent || '[]');
   const totalPairs = {{ total_pairs }};
+  const BUY_LIFE_URL = "{% url 'vocab:api_buy_game_life' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+  
+  const MAX_LIVES = 5;
   
   let tiles = [...tilesData];
   let selected = null;
   let matchedPairs = new Set();
   let locked = false;
+  let lives = MAX_LIVES;
   
   const grid = document.getElementById('match-grid');
   const progressFill = document.getElementById('progress-fill');
   const progressText = document.getElementById('progress-text');
   const matchedEl = document.getElementById('matched-count');
+  const livesEl = document.getElementById('lives-count');
   const gameContainer = document.getElementById('game-container');
   const completeScreen = document.getElementById('complete-screen');
+  const gameoverScreen = document.getElementById('gameover-screen');
+  const buyLifeBtn = document.getElementById('btn-buy-life');
+  const buyLifeInfo = document.getElementById('buy-life-info');
   
   function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -100,8 +221,13 @@
     return arr;
   }
   
+  function updateLivesUI() {
+    livesEl.textContent = lives;
+  }
+  
   function render() {
     grid.innerHTML = '';
+    updateLivesUI();
     
     tiles.forEach((tile, i) => {
       const btn = document.createElement('button');
@@ -162,7 +288,10 @@
         setTimeout(showComplete, 500);
       }
     } else {
-      // Wrong match - flash and reset
+      // Wrong match - lose a life
+      lives--;
+      updateLivesUI();
+      
       locked = true;
       const btns = grid.querySelectorAll('button');
       btns[selected.index].classList.add('df-game-option--wrong');
@@ -171,7 +300,12 @@
       setTimeout(() => {
         selected = null;
         locked = false;
-        render();
+        
+        if (lives <= 0) {
+          showGameOver();
+        } else {
+          render();
+        }
       }, 600);
     }
   }
@@ -179,6 +313,19 @@
   function showComplete() {
     gameContainer.classList.add('hidden');
     completeScreen.classList.remove('hidden');
+    gameoverScreen.classList.add('hidden');
+  }
+  
+  function showGameOver() {
+    gameContainer.classList.add('hidden');
+    completeScreen.classList.add('hidden');
+    gameoverScreen.classList.remove('hidden');
+    buyLifeInfo.textContent = '';
+  }
+  
+  function hideGameOver() {
+    gameoverScreen.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
   }
   
   function resetGame() {
@@ -186,13 +333,51 @@
     selected = null;
     matchedPairs = new Set();
     locked = false;
+    lives = MAX_LIVES;
     gameContainer.classList.remove('hidden');
     completeScreen.classList.add('hidden');
+    gameoverScreen.classList.add('hidden');
     render();
+  }
+  
+  async function buyLife() {
+    buyLifeBtn.disabled = true;
+    buyLifeInfo.textContent = 'Đang xử lý...';
+    
+    try {
+      const res = await fetch(BUY_LIFE_URL, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': CSRF_TOKEN,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        lives = 1; // Give 1 life
+        buyLifeInfo.textContent = `✓ ${data.message} Số dư: ${data.new_balance} coin`;
+        
+        // Resume game after short delay
+        setTimeout(() => {
+          hideGameOver();
+          render();
+        }, 1000);
+      } else {
+        buyLifeInfo.textContent = `✗ ${data.message}`;
+        buyLifeBtn.disabled = false;
+      }
+    } catch (err) {
+      buyLifeInfo.textContent = '✗ Lỗi kết nối. Vui lòng thử lại.';
+      buyLifeBtn.disabled = false;
+    }
   }
   
   document.getElementById('btn-reset').addEventListener('click', resetGame);
   document.getElementById('btn-play-again').addEventListener('click', resetGame);
+  document.getElementById('btn-restart').addEventListener('click', resetGame);
+  buyLifeBtn.addEventListener('click', buyLife);
   
   render();
 })();

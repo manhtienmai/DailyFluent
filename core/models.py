@@ -447,3 +447,109 @@ class UserBadge(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.badge.name}"
 
+
+class UserProfile(models.Model):
+    """
+    Extended profile for users with social info, skills, etc.
+    """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+    
+    # Bio
+    bio = models.TextField(
+        blank=True,
+        max_length=500,
+        help_text="Giới thiệu ngắn về bản thân"
+    )
+    
+    # Display name/title
+    display_title = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Tiêu đề hiển thị (VD: Hello Fellow < Love />! 👋)"
+    )
+    subtitle = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Phụ đề (VD: Welcome to my profile)"
+    )
+    
+    # Avatar & Cover
+    avatar = models.ImageField(
+        upload_to="profiles/avatars/",
+        blank=True,
+        null=True,
+        help_text="Ảnh đại diện"
+    )
+    cover_image = models.ImageField(
+        upload_to="profiles/covers/",
+        blank=True,
+        null=True,
+        help_text="Ảnh bìa"
+    )
+    
+    # Equipped avatar frame (from shop)
+    equipped_frame = models.ForeignKey(
+        'shop.AvatarFrame',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipped_by',
+        help_text="Khung avatar đang sử dụng"
+    )
+    
+    # Social links (JSON)
+    social_links = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Links mạng xã hội: {'facebook': 'url', 'tiktok': 'url', ...}"
+    )
+    
+    # Info items (JSON list)
+    info_items = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Các mục thông tin: [{'icon': '👋', 'text': 'Hi, I'm...'}, ...]"
+    )
+    
+    # Skills (JSON)
+    skills = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Kỹ năng: {'languages': ['English', ...], 'tools': [...], 'soft_skills': [...]}"
+    )
+    
+    # Certificates (JSON list)
+    certificates = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Chứng chỉ: [{'name': 'IELTS', 'score': '7.5'}, ...]"
+    )
+    
+    # Hobbies (JSON list)
+    hobbies = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Sở thích: [{'icon': '🏔️', 'text': 'Traveling'}, ...]"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
+    
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+    
+    @classmethod
+    def get_or_create_for_user(cls, user):
+        """Get or create profile for a user."""
+        profile, created = cls.objects.get_or_create(user=user)
+        return profile
+

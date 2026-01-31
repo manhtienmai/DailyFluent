@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/search/', views.search_words_api, name='api_search'),
     path('api/sets/<int:set_id>/add/', views.add_item_api, name='api_add_item'),
     path('api/sets/<int:set_id>/remove/', views.remove_item_api, name='api_remove_item'),
+    path('sets/<int:pk>/import/', views.import_json_view, name='set_import'),
 
     # Lists
     path('', views.EnglishListView.as_view(), name='list'),
@@ -56,4 +57,7 @@ urlpatterns = [
     
     # Flashcard APIs (unified)
     path('api/flashcard/grade/', views.api_flashcard_grade_english, name='flashcard_grade_english'),
+    
+    # Game APIs
+    path('api/games/buy-life/', views.api_buy_game_life, name='api_buy_game_life'),
 ]

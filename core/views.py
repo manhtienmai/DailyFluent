@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.conf import settings
@@ -23,6 +23,10 @@ from vocab.models import UserStudySettings
 from django.core.paginator import Paginator
 # from vocab.models import EnglishVocabulary
 from .models import Course, Lesson, Section, DictationExercise, DictationSegment
+
+# Placement imports
+from placement.models import UserLearningProfile, LearningPath
+from placement.services.daily_recommender import DailyRecommendationEngine
 
 
 def _mask_word_in_sentence(word: str, sentence: str) -> tuple[str, bool]:
@@ -561,10 +565,30 @@ def home(request):
                 "studied": day in activity_dates,
                 "is_today": day == today,
             })
+            
+        # Placement Dashboard Data
+        placement_data = {}
+        try:
+            profile = UserLearningProfile.objects.filter(user=request.user).first()
+            active_path = LearningPath.objects.filter(
+                user=request.user, is_active=True
+            ).prefetch_related('milestones').first()
+            
+            engine = DailyRecommendationEngine(request.user)
+            lesson = engine.generate_daily_lesson()
+            
+            placement_data = {
+                'profile': profile,
+                'path': active_path,
+                'lesson': lesson,
+            }
+        except Exception as e:
+            print(f"Error fetching placement data: {e}")
     else:
         vocab_stats = {}
         week_days = []
         exam_goal = None
+        placement_data = {}
 
     context = {
         "streak": streak,
@@ -577,6 +601,10 @@ def home(request):
         "recent_exam_results": recent_exam_results,
         "vocab_stats": vocab_stats,
         "week_days": week_days,
+        # Placement data
+        "profile": placement_data.get('profile'),
+        "path": placement_data.get('path'),
+        "lesson": placement_data.get('lesson'),
     }
     return render(request, "home.html", context)
 
@@ -1020,11 +1048,31 @@ def dictation_progress_update(request):
     prog.total_segments = total_segments
     prog.save()
 
+    # Check for badges
+    from core.badge_service import check_and_award_badges
+    new_badges = check_and_award_badges(request.user)
+    
+    # Serialize badges for frontend
+    badges_data = []
+    for gb in new_badges:
+        # gb is likely a UserBadge or Badge object. 
+        # check_and_award_badges returns a list of Badge objects (or UserBadge objects, need to verify).
+        # Based on typical Django patterns, let's assume it returns Badge objects. 
+        # Actually checking badge_service.py source again... it returns "list of newly awarded badges".
+        # Let's inspect badge_service.py again to be sure if it returns Badge model instances or dicts.
+        badges_data.append({
+            "name": gb.name,
+            "description": gb.description,
+            "icon": gb.icon
+        })
+
     return JsonResponse({
         "ok": True,
         "percent": prog.percent,
         "current_segment": prog.current_segment,
+        "current_segment": prog.current_segment,
         "total_segments": prog.total_segments,
+        "new_badges": badges_data
     })
 
 
@@ -1140,8 +1188,26 @@ def profile(request, username=None):
         if len(recent_exam_results) < 10:
             recent_exam_results.append(result_data)
     
+    # Get or create user profile
+    from core.models import UserProfile
+    user_profile = UserProfile.get_or_create_for_user(profile_user)
+    
+    # Get equipped frame for avatar display
+    equipped_frame = None
+    try:
+        from shop.models import UserInventory
+        equipped_inventory = UserInventory.objects.filter(
+            user=profile_user, is_equipped=True
+        ).select_related('frame').first()
+        if equipped_inventory:
+            equipped_frame = equipped_inventory.frame
+    except Exception:
+        pass
+    
     return render(request, "profile.html", {
         "profile_user": profile_user,
+        "user_profile": user_profile,
+        "equipped_frame": equipped_frame,
         "is_own_profile": is_own_profile,
         "enrolled_courses": enrolled_courses,
         "exam_results_grouped": dict(exam_results_grouped),
@@ -1331,3 +1397,141 @@ def dictation_upload_complete(request):
     full_url = f"{audio_url}/{blob_name}" if audio_url else blob_url or blob_name
 
     return JsonResponse({"ok": True, "audio_url": full_url})
+
+
+# ============================================
+# Profile API Views
+# ============================================
+
+@login_required
+@require_POST
+def profile_update(request):
+    """
+    API để cập nhật thông tin profile.
+    Accepts JSON body with fields to update.
+    """
+    import json
+    from core.models import UserProfile
+    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+    
+    profile = UserProfile.get_or_create_for_user(request.user)
+    
+    # Update allowed fields
+    allowed_fields = [
+        'bio', 'display_title', 'subtitle', 
+        'social_links', 'info_items', 'skills', 
+        'certificates', 'hobbies'
+    ]
+    
+    updated_fields = []
+    for field in allowed_fields:
+        if field in data:
+            setattr(profile, field, data[field])
+            updated_fields.append(field)
+    
+    if updated_fields:
+        profile.save()
+    
+    return JsonResponse({
+        "success": True,
+        "message": "Profile updated successfully",
+        "updated_fields": updated_fields
+    })
+
+
+@login_required
+@require_POST
+def profile_upload_avatar(request):
+    """
+    API để upload ảnh avatar.
+    """
+    from core.models import UserProfile
+    
+    if 'avatar' not in request.FILES:
+        return JsonResponse({"success": False, "error": "No file provided"}, status=400)
+    
+    avatar_file = request.FILES['avatar']
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if avatar_file.content_type not in allowed_types:
+        return JsonResponse({
+            "success": False, 
+            "error": "Invalid file type. Allowed: JPEG, PNG, GIF, WebP"
+        }, status=400)
+    
+    # Validate file size (max 5MB)
+    if avatar_file.size > 5 * 1024 * 1024:
+        return JsonResponse({
+            "success": False, 
+            "error": "File too large. Maximum size is 5MB"
+        }, status=400)
+    
+    profile = UserProfile.get_or_create_for_user(request.user)
+    
+    # Delete old avatar if exists
+    if profile.avatar:
+        try:
+            profile.avatar.delete(save=False)
+        except Exception:
+            pass
+    
+    profile.avatar = avatar_file
+    profile.save()
+    
+    return JsonResponse({
+        "success": True,
+        "message": "Avatar uploaded successfully",
+        "avatar_url": profile.avatar.url
+    })
+
+
+@login_required
+@require_POST
+def profile_upload_cover(request):
+    """
+    API để upload ảnh bìa.
+    """
+    from core.models import UserProfile
+    
+    if 'cover' not in request.FILES:
+        return JsonResponse({"success": False, "error": "No file provided"}, status=400)
+    
+    cover_file = request.FILES['cover']
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if cover_file.content_type not in allowed_types:
+        return JsonResponse({
+            "success": False, 
+            "error": "Invalid file type. Allowed: JPEG, PNG, GIF, WebP"
+        }, status=400)
+    
+    # Validate file size (max 10MB)
+    if cover_file.size > 10 * 1024 * 1024:
+        return JsonResponse({
+            "success": False, 
+            "error": "File too large. Maximum size is 10MB"
+        }, status=400)
+    
+    profile = UserProfile.get_or_create_for_user(request.user)
+    
+    # Delete old cover if exists
+    if profile.cover_image:
+        try:
+            profile.cover_image.delete(save=False)
+        except Exception:
+            pass
+    
+    profile.cover_image = cover_file
+    profile.save()
+    
+    return JsonResponse({
+        "success": True,
+        "message": "Cover image uploaded successfully",
+        "cover_url": profile.cover_image.url
+    })

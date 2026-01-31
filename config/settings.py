@@ -118,6 +118,8 @@ INSTALLED_APPS = [
     'feedback',
     'wallet',
     'analytics',
+    'shop',
+    'placement',
     'rest_framework',
 ]
 

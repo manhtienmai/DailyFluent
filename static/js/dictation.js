@@ -1010,7 +1010,14 @@ document.addEventListener('DOMContentLoaded', () => {
           current_segment: currentIndex,
           total_segments: total,
         }),
-      }).catch(() => {});
+      })
+      .then(r => r.json())
+      .then(data => {
+          if (data && data.new_badges && window.BadgeManager) {
+              window.BadgeManager.show(data.new_badges);
+          }
+      })
+      .catch(() => {});
     }, 300);
   };
 

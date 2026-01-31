@@ -333,6 +333,21 @@ def take_exam(request, session_id):
         attempt.status = ExamAttempt.Status.SUBMITTED
         attempt.submitted_at = timezone.now()
         attempt.save()
+        
+        # Check for badges
+        from core.badge_service import check_and_award_badges
+        new_badges = check_and_award_badges(request.user)
+        
+        if new_badges:
+            badges_data = []
+            for gb in new_badges:
+                badges_data.append({
+                    "name": gb.name,
+                    "description": gb.description,
+                    "icon": gb.icon
+                })
+            request.session['new_badges'] = badges_data
+
         return redirect("exam:exam_result", session_id=attempt.id)
 
     # Build nhóm Mondai, trong đó mỗi nhóm biết phần dokkai / thường
@@ -507,6 +522,7 @@ def exam_result(request, session_id):
             "skipped_count": skipped_count,
             "time_taken": time_taken,
             "toeic_stats_json": json.dumps(toeic_stats),
+            "new_badges": request.session.pop('new_badges', []),
         },
     )
 
@@ -862,6 +878,21 @@ def take_toeic_exam(request, session_id):
         attempt.status = ExamAttempt.Status.SUBMITTED
         attempt.submitted_at = timezone.now()
         attempt.save()
+        
+        # Check for badges
+        from core.badge_service import check_and_award_badges
+        new_badges = check_and_award_badges(request.user)
+        
+        if new_badges:
+            badges_data = []
+            for gb in new_badges:
+                badges_data.append({
+                    "name": gb.name,
+                    "description": gb.description,
+                    "icon": gb.icon
+                })
+            request.session['new_badges'] = badges_data
+            
         return redirect("exam:exam_result", session_id=attempt.id)
 
     # Lấy passages cho Part 6, 7

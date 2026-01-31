@@ -167,7 +167,7 @@ function toeicLearn() {
        else unknownIds.push(id);
 
        try {
-         await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
@@ -179,6 +179,10 @@ function toeicLearn() {
              unknown_ids: unknownIds,
            }),
          });
+         const data = await resp.json();
+         if (data && data.new_badges && window.BadgeManager) {
+             window.BadgeManager.show(data.new_badges);
+         }
        } catch (err) {
          console.error("Progress save failed", err);
        }
@@ -232,6 +236,9 @@ function toeicLearn() {
            }),
          });
         const data = await resp.json();
+        if (data && data.new_badges && window.BadgeManager) {
+            window.BadgeManager.show(data.new_badges);
+        }
         this.quizUrl = data.quiz_url || "{% url 'vocab:course_detail' slug=course.slug %}";
         this.levelUrl = data.level_url || "{% url 'vocab:course_detail' slug=course.slug %}";
       } catch (err) {

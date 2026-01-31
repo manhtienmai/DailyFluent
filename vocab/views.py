@@ -2,11 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, F
 from django.contrib import messages
 from django.http import JsonResponse, Http404
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.decorators import login_required
 import json
 import random
@@ -202,6 +202,141 @@ def remove_item_api(request, set_id):
     except SetItem.DoesNotExist:
         return JsonResponse({"error": "Item not found"}, status=404)
 
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def import_json_view(request, pk):
+    """
+    Import vocabulary from JSON file into a VocabularySet.
+    
+    Supported formats:
+    - English: {"language": "en", "words": [{"word": "...", "part_of_speech": "...", "ipa": "...", "meaning": "...", "example": "...", "example_trans": "..."}]}
+    - Japanese: {"language": "jp", "words": [{"word": "...", "part_of_speech": "...", "reading": "...", "romaji": "...", "meaning": "...", "example": "...", "example_trans": "...", "furigana": "..."}]}
+    """
+    import json
+    
+    vocab_set = get_object_or_404(VocabularySet, id=pk, owner=request.user)
+    
+    if request.method == "GET":
+        # Show import form
+        return render(request, 'vocab/set_import.html', {'vocab_set': vocab_set})
+    
+    # POST - handle file upload
+    json_file = request.FILES.get('json_file')
+    if not json_file:
+        messages.error(request, "Vui lòng chọn file JSON để import.")
+        return redirect('vocab:set_import', pk=pk)
+    
+    try:
+        data = json.load(json_file)
+    except json.JSONDecodeError as e:
+        messages.error(request, f"File JSON không hợp lệ: {e}")
+        return redirect('vocab:set_import', pk=pk)
+    
+    # Validate structure
+    if 'words' not in data or not isinstance(data['words'], list):
+        messages.error(request, "JSON phải có key 'words' chứa danh sách từ vựng.")
+        return redirect('vocab:set_import', pk=pk)
+    
+    language = data.get('language', 'en')
+    if language not in ['en', 'jp']:
+        messages.error(request, "Language phải là 'en' hoặc 'jp'.")
+        return redirect('vocab:set_import', pk=pk)
+    
+    # Update set language if needed
+    if vocab_set.language != language:
+        vocab_set.language = language
+        vocab_set.save(update_fields=['language'])
+    
+    imported_count = 0
+    skipped_count = 0
+    errors = []
+    
+    for idx, word_data in enumerate(data['words']):
+        try:
+            word_text = word_data.get('word', '').strip()
+            if not word_text:
+                errors.append(f"Row {idx + 1}: Missing 'word' field")
+                continue
+            
+            part_of_speech = word_data.get('part_of_speech', 'noun').strip()
+            meaning = word_data.get('meaning', '').strip()
+            
+            if not meaning:
+                errors.append(f"Row {idx + 1}: Missing 'meaning' for '{word_text}'")
+                continue
+            
+            # Build extra_data for Japanese
+            extra_data = {}
+            if language == 'jp':
+                if word_data.get('reading'):
+                    extra_data['reading'] = word_data['reading']
+                if word_data.get('romaji'):
+                    extra_data['romaji'] = word_data['romaji']
+            
+            # Get or create Vocabulary
+            vocab_obj, _ = Vocabulary.objects.get_or_create(
+                word=word_text,
+                defaults={
+                    'language': language,
+                    'extra_data': extra_data
+                }
+            )
+            # Update extra_data if vocab already existed
+            if extra_data and vocab_obj.extra_data != extra_data:
+                vocab_obj.extra_data = extra_data
+                vocab_obj.save(update_fields=['extra_data'])
+            
+            # Get or create WordEntry
+            entry_obj, _ = WordEntry.objects.get_or_create(
+                vocab=vocab_obj,
+                part_of_speech=part_of_speech,
+                defaults={
+                    'ipa': word_data.get('ipa', ''),
+                    'audio_us': word_data.get('audio_us', ''),
+                    'audio_uk': word_data.get('audio_uk', ''),
+                }
+            )
+            
+            # Build definition extra_data
+            def_extra = {}
+            if language == 'jp' and word_data.get('furigana'):
+                def_extra['furigana'] = word_data['furigana']
+            
+            # Get or create WordDefinition
+            definition_obj, created = WordDefinition.objects.get_or_create(
+                entry=entry_obj,
+                meaning=meaning,
+                defaults={
+                    'example_sentence': word_data.get('example', ''),
+                    'example_trans': word_data.get('example_trans', ''),
+                    'extra_data': def_extra,
+                }
+            )
+            
+            # Check if already in set
+            if SetItem.objects.filter(vocabulary_set=vocab_set, definition=definition_obj).exists():
+                skipped_count += 1
+                continue
+            
+            # Add to set
+            SetItem.objects.create(vocabulary_set=vocab_set, definition=definition_obj)
+            imported_count += 1
+            
+        except Exception as e:
+            errors.append(f"Row {idx + 1}: {str(e)}")
+    
+    # Build result message
+    if imported_count > 0:
+        messages.success(request, f"Đã import thành công {imported_count} từ vựng!")
+    if skipped_count > 0:
+        messages.warning(request, f"Bỏ qua {skipped_count} từ đã có trong bộ.")
+    if errors:
+        messages.error(request, f"Có {len(errors)} lỗi: " + "; ".join(errors[:5]))
+    
+    return redirect('vocab:set_detail', pk=pk)
+
+
 class EnglishListView(LoginRequiredMixin, ListView):
     model = WordDefinition
     template_name = 'vocab/english_list.html'
@@ -393,11 +528,22 @@ class MyWordsView(LoginRequiredMixin, ListView):
     paginate_by = 30
 
     def get_queryset(self):
-        # Filter cards for this user that are not "New"
-        return FsrsCardStateEn.objects.filter(
-            user=self.request.user, 
-            state__gt=0
-        ).select_related('vocab').order_by('due')
+        qs = FsrsCardStateEn.objects.filter(user=self.request.user).select_related('vocab')
+        
+        filter_type = self.request.GET.get('filter')
+        
+        if filter_type == 'mastered':
+            # Matches logic in core/views.py for "mastered"
+            return qs.filter(total_reviews__gte=3, successful_reviews__gte=2).order_by('due')
+        elif filter_type == 'learning':
+            # Matches logic in core/views.py for "learning" (Total - Mastered)
+            return qs.exclude(total_reviews__gte=3, successful_reviews__gte=2).order_by('due')
+        elif filter_type == 'all':
+            # Show all words
+            return qs.order_by('due')
+        
+        # Default: Filter cards for this user that are not "New" (state > 0)
+        return qs.filter(state__gt=0).order_by('due')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -407,6 +553,29 @@ class MyWordsView(LoginRequiredMixin, ListView):
         context['total_learning'] = qs.count()
         # Mastered should strictly be Review (2). Relearning (3) is NOT mastered.
         context['mastered_count'] = qs.filter(state=2).count()
+        
+        # Ready count for FSRS review (cards due for review)
+        from django.utils import timezone
+        all_cards = FsrsCardStateEn.objects.filter(user=self.request.user)
+        context['ready_count'] = all_cards.filter(due__lte=timezone.now()).count()
+        
+        # Learning sets (in progress)
+        learning_sets = list(UserSetProgress.objects.filter(
+            user=self.request.user,
+            status='in_progress'
+        ).select_related('vocabulary_set').order_by('-started_at')[:5])
+        
+        # Attach course slugs by level
+        # This is a quick fix. Ideally VocabularySet should have a FK to Course.
+        courses = Course.objects.all()
+        level_slug_map = {c.toeic_level: c.slug for c in courses}
+        
+        for progress in learning_sets:
+            lvl = progress.vocabulary_set.toeic_level
+            # Default fallback if map missing (e.g. custom sets) -> assume 'toeic-600-essential' or just string
+            progress.course_slug = level_slug_map.get(lvl, 'toeic-600-essential')
+
+        context['learning_sets'] = learning_sets
         
         return context
 
@@ -852,6 +1021,18 @@ def api_toeic_learn_result(request):
 
     progress.save()
 
+    # Check for badges
+    from core.badge_service import check_and_award_badges
+    new_badges = check_and_award_badges(request.user)
+    
+    badges_data = []
+    for gb in new_badges:
+        badges_data.append({
+            "name": gb.name,
+            "description": gb.description,
+            "icon": gb.icon
+        })
+
     # Determine redirect
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
@@ -878,6 +1059,7 @@ def api_toeic_learn_result(request):
         'next_url': next_url,
         'quiz_url': reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number}),
         'level_url': reverse('vocab:course_detail', kwargs={'slug': course_slug}),
+        'new_badges': badges_data,
     })
 
 
@@ -914,6 +1096,18 @@ def api_toeic_quiz_result(request):
         progress.words_learned = progress.words_total
 
     progress.save()
+    
+    # Check for badges
+    from core.badge_service import check_and_award_badges
+    new_badges = check_and_award_badges(request.user)
+    
+    badges_data = []
+    for gb in new_badges:
+        badges_data.append({
+            "name": gb.name,
+            "description": gb.description,
+            "icon": gb.icon
+        })
 
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
@@ -934,6 +1128,7 @@ def api_toeic_quiz_result(request):
         'next_url': reverse('vocab:course_detail', kwargs={'slug': course_slug}),
         'retry_url': reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number}),
         'learn_url': reverse('vocab:course_learn', kwargs={'slug': course_slug, 'set_number': set_number}),
+        'new_badges': badges_data,
     })
 
 
@@ -1026,46 +1221,255 @@ def api_flashcard_grade_english(request):
 # ==========================
 
 class GameMCQView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/games/placeholder.html'
+    template_name = 'vocab/games/mcq.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['game_title'] = "Trắc nghiệm"
-        context['message'] = "Tính năng này đang được phát triển!"
+        
+        # 1. Fetch random definitions
+        # Optimization: Use samples if table is large. For now, random order is fine for small db.
+        definitions = list(WordDefinition.objects.select_related('entry__vocab').all().values(
+            'meaning', 'entry__vocab__word'
+        ))
+        
+        # If not enough data
+        if len(definitions) < 4:
+            context['questions'] = []
+            context['questions_json'] = '[]'
+            context['total_count'] = 0
+            return context
+
+        # Pick 10 random questions
+        random.shuffle(definitions)
+        selection = definitions[:10]
+        
+        questions = []
+        all_words = list(set(d['entry__vocab__word'] for d in definitions))
+
+        for item in selection:
+            correct_word = item['entry__vocab__word']
+            meaning = item['meaning']
+            
+            # Pick 3 distractors
+            distractors = [w for w in all_words if w != correct_word]
+            if len(distractors) < 3:
+                opts = distractors
+            else:
+                opts = random.sample(distractors, 3)
+            
+            options = opts + [correct_word]
+            random.shuffle(options)
+            
+            questions.append({
+                'question': meaning,
+                'answer': correct_word,
+                'options': options,
+                'hint': None # Could add hints later
+            })
+            
+        context['questions'] = questions
+        context['questions_json'] = json.dumps(questions)
+        context['total_count'] = len(questions)
         return context
 
 class GameMatchingView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/games/placeholder.html'
+    template_name = 'vocab/games/matching.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['game_title'] = "Nối từ"
-        context['message'] = "Tính năng này đang được phát triển!"
+        
+        # 2. Fetch random pairs
+        definitions = list(WordDefinition.objects.select_related('entry__vocab').all().values(
+            'meaning', 'entry__vocab__word'
+        ))
+        
+        if len(definitions) < 4:
+             context['tiles'] = []
+             context['tiles_json'] = '[]'
+             context['total_pairs'] = 0
+             return context
+             
+        random.shuffle(definitions)
+        selection = definitions[:6] # 6 pairs = 12 tiles
+        
+        tiles = []
+        for i, item in enumerate(selection):
+            # Word tile
+            tiles.append({
+                'id': f"w-{i}",
+                'text': item['entry__vocab__word'],
+                'type': 'word',
+                'pair_id': i
+            })
+            # Meaning tile
+            tiles.append({
+                'id': f"m-{i}",
+                'text': item['meaning'],
+                'type': 'meaning',
+                'pair_id': i
+            })
+            
+        random.shuffle(tiles)
+        
+        context['tiles'] = tiles
+        context['tiles_json'] = json.dumps(tiles)
+        context['total_pairs'] = len(selection)
         return context
 
 class GameListeningView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/games/placeholder.html'
+    template_name = 'vocab/games/listening.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['game_title'] = "Nghe từ"
-        context['message'] = "Tính năng này đang được phát triển!"
+        
+        # 3. Fetch entries with audio
+        # Optimally we filter for entries that have either audio_us or audio_uk
+        entries = list(WordEntry.objects.filter(
+            Q(audio_us__startswith='http') | Q(audio_uk__startswith='http')
+        ).select_related('vocab').values(
+            'vocab__word', 'audio_us', 'audio_uk'
+        ))
+        
+        if len(entries) < 4:
+            context['questions'] = []
+            context['questions_json'] = '[]'
+            context['total_count'] = 0
+            return context
+            
+        random.shuffle(entries)
+        selection = entries[:10]
+        
+        questions = []
+        all_words = list(set(e['vocab__word'] for e in entries))
+        
+        for item in selection:
+            correct_word = item['vocab__word']
+            audio = item['audio_us'] if item['audio_us'] else item['audio_uk']
+            
+            # Distractors
+            distractors = [w for w in all_words if w != correct_word]
+            if len(distractors) < 3:
+                opts = distractors
+            else:
+                opts = random.sample(distractors, 3)
+            
+            options = opts + [correct_word]
+            random.shuffle(options)
+            
+            questions.append({
+                'audio': audio,
+                'answer': correct_word,
+                'options': options
+            })
+            
+        context['questions'] = questions
+        context['questions_json'] = json.dumps(questions)
+        context['total_count'] = len(questions)
         return context
 
 class GameFillView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/games/placeholder.html'
+    template_name = 'vocab/games/fill.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['game_title'] = "Điền từ"
-        context['message'] = "Tính năng này đang được phát triển!"
+
+        # 4. Fetch random definitions for spelling
+        definitions = list(WordDefinition.objects.select_related('entry__vocab').all().values(
+            'meaning', 'entry__vocab__word'
+        ))
+        
+        if not definitions:
+            context['questions'] = []
+            context['questions_json'] = '[]'
+            context['total_count'] = 0
+            return context
+
+        random.shuffle(definitions)
+        selection = definitions[:10]
+        
+        questions = []
+        for item in selection:
+            questions.append({
+                'question': item['meaning'],
+                'answer': item['entry__vocab__word'],
+                'hint': f"Từ có {len(item['entry__vocab__word'])} chữ cái"
+            })
+            
+        context['questions'] = questions
+        context['questions_json'] = json.dumps(questions)
+        context['total_count'] = len(questions)
         return context
 
 class GameDictationView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/games/placeholder.html'
+    template_name = 'vocab/games/dictation.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['game_title'] = "Nghe chép chính tả"
-        context['message'] = "Tính năng này đang được phát triển!"
+        
+        # 5. Fetch entries with audio for dictation
+        entries = list(WordEntry.objects.filter(
+            Q(audio_us__startswith='http') | Q(audio_uk__startswith='http')
+        ).select_related('vocab').values(
+            'vocab__word', 'audio_us', 'audio_uk'
+        ))
+        
+        if not entries:
+            context['questions'] = []
+            context['questions_json'] = '[]'
+            context['total_count'] = 0
+            return context
+            
+        random.shuffle(entries)
+        selection = entries[:10]
+        
+        questions = []
+        for item in selection:
+            audio = item['audio_us'] if item['audio_us'] else item['audio_uk']
+            questions.append({
+                'audio': audio,
+                'answer': item['vocab__word']
+            })
+            
+        context['questions'] = questions
+        context['questions_json'] = json.dumps(questions)
+        context['total_count'] = len(questions)
         return context
+
+
+# ==========================
+# GAME UTILITY APIS
+# ==========================
+
+@login_required
+@require_POST
+def api_buy_game_life(request):
+    """
+    API để mua thêm mạng trong game.
+    POST /api/games/buy-life/
+    Cost: 10 coins
+    """
+    from wallet.services import CoinService
+    from wallet.models import CoinTransaction
+    from wallet.exceptions import InsufficientCoinsError
+    
+    LIFE_COST = 10
+    
+    try:
+        result = CoinService.execute_transaction(
+            user=request.user,
+            amount=-LIFE_COST,
+            transaction_type=CoinTransaction.TransactionType.PURCHASE,
+            description="Mua thêm mạng trong game"
+        )
+        return JsonResponse({
+            'success': True,
+            'new_balance': result['new_balance'],
+            'message': 'Đã mua thêm 1 mạng!'
+        })
+    except InsufficientCoinsError as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'insufficient_coins',
+            'message': f'Không đủ coin. Bạn cần {LIFE_COST} coin.',
+            'current_balance': e.current_balance
+        }, status=400)

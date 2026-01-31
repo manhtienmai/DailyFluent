@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .df-import-page {
+    padding: 2rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .df-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--action-primary);
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+
+  .df-back-link:hover {
+    text-decoration: underline;
+  }
+
+  .df-import-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .df-import-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  .df-import-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+  }
+
+  .df-upload-section {
+    background: var(--bg-interactive);
+    border: 2px dashed var(--border-default);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.15s ease;
+  }
+
+  .df-upload-section:hover {
+    border-color: var(--action-primary);
+  }
+
+  .df-upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    color: var(--text-tertiary);
+  }
+
+  .df-upload-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .df-file-input {
+    display: none;
+  }
+
+  .df-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--action-primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s ease;
+  }
+
+  .df-upload-btn:hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-selected-file {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+
+  .df-format-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-default);
+  }
+
+  .df-format-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+  }
+
+  .df-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-default);
+  }
+
+  .df-tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s ease;
+  }
+
+  .df-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .df-tab.active {
+    color: var(--action-primary);
+    border-color: var(--action-primary);
+  }
+
+  .df-code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .df-format-note {
+    background: var(--bg-interactive);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+
+  .df-format-note strong {
+    color: var(--text-primary);
+  }
+
+  .df-field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .df-field-table th,
+  .df-field-table td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .df-field-table th {
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-interactive);
+  }
+
+  .df-field-table td {
+    color: var(--text-secondary);
+  }
+
+  .df-field-required {
+    color: #ef4444;
+  }
+
+  .df-submit-section {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  .df-btn-secondary {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    background: var(--bg-interactive);
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .df-btn-secondary:hover {
+    background: var(--bg-surface);
+  }
+
+  .df-btn-primary {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    background: var(--action-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .df-btn-primary:hover {
+    background: var(--action-primary-hover);
+  }
+
+  .df-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    .df-import-page {
+      padding: 1rem;
+    }
+
+    .df-import-card {
+      padding: 1rem;
+    }
+
+    .df-upload-section {
+      padding: 1.5rem 1rem;
+    }
+
+    .df-code-block {
+      font-size: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .df-submit-section {
+      flex-direction: column-reverse;
+    }
+
+    .df-btn-secondary,
+    .df-btn-primary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-import-page">
+  <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    Quay lại {{ vocab_set.title }}
+  </a>
+
+  <div class="df-import-card">
+    <h1 class="df-import-title">📥 Import từ JSON</h1>
+    <p class="df-import-subtitle">Thêm từ vựng vào bộ "{{ vocab_set.title }}" bằng cách upload file JSON</p>
+
+    <form method="post" enctype="multipart/form-data" id="import-form">
+      {% csrf_token %}
+      
+      <div class="df-upload-section" id="drop-zone">
+        <svg class="df-upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p class="df-upload-text">Kéo thả file JSON hoặc bấm chọn</p>
+        <input type="file" name="json_file" id="json-file" accept=".json" class="df-file-input">
+        <label for="json-file" class="df-upload-btn">
+          Chọn file JSON
+        </label>
+        <p class="df-selected-file" id="selected-file" style="display: none;"></p>
+      </div>
+
+      <div class="df-format-section">
+        <h2 class="df-format-title">📋 Định dạng JSON</h2>
+        
+        <div class="df-tabs">
+          <button type="button" class="df-tab active" data-lang="en">🇺🇸 English</button>
+          <button type="button" class="df-tab" data-lang="jp">🇯🇵 Japanese</button>
+          <button type="button" class="df-tab" data-lang="phrase">💬 Phrase / Idiom</button>
+        </div>
+
+        <div id="format-en" class="df-format-content">
+          <div class="df-code-block">{
+  "language": "en",
+  "words": [
+    {
+      "word": "achieve",
+      "part_of_speech": "verb",
+      "ipa": "/əˈtʃiːv/",
+      "meaning": "đạt được, hoàn thành",
+      "example": "She worked hard to achieve her goals.",
+      "example_trans": "Cô ấy làm việc chăm chỉ để đạt được mục tiêu."
+    }
+  ]
+}</div>
+        </div>
+
+        <div id="format-jp" class="df-format-content" style="display: none;">
+          <div class="df-code-block">{
+  "language": "jp",
+  "words": [
+    {
+      "word": "食べる",
+      "part_of_speech": "verb",
+      "reading": "たべる",
+      "romaji": "taberu",
+      "meaning": "ăn",
+      "example": "私は寿司を食べる。",
+      "example_trans": "Tôi ăn sushi.",
+      "furigana": "わたしはすしをたべる。"
+    }
+  ]
+}</div>
+        </div>
+
+        <div id="format-phrase" class="df-format-content" style="display: none;">
+          <div class="df-code-block">{
+  "language": "en",
+  "words": [
+    {
+      "word": "make a decision",
+      "part_of_speech": "phrase",
+      "ipa": "/meɪk ə dɪˈsɪʒ.ən/",
+      "meaning": "đưa ra quyết định",
+      "example": "I need to make a decision soon.",
+      "example_trans": "Tôi cần đưa ra quyết định sớm."
+    },
+    {
+      "word": "look forward to",
+      "part_of_speech": "phrasal verb",
+      "meaning": "mong đợi",
+      "example": "I look forward to meeting you.",
+      "example_trans": "Tôi mong được gặp bạn."
+    }
+  ]
+}</div>
+        </div>
+
+        <table class="df-field-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Mô tả</th>
+              <th>Bắt buộc</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>word</code></td>
+              <td>Từ vựng (VD: "achieve", "食べる")</td>
+              <td class="df-field-required">✓</td>
+            </tr>
+            <tr>
+              <td><code>meaning</code></td>
+              <td>Nghĩa tiếng Việt</td>
+              <td class="df-field-required">✓</td>
+            </tr>
+            <tr>
+              <td><code>part_of_speech</code></td>
+              <td>Loại từ (noun, verb, adj...)</td>
+              <td>Mặc định: noun</td>
+            </tr>
+            <tr>
+              <td><code>ipa</code></td>
+              <td>Phiên âm quốc tế</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>example</code></td>
+              <td>Câu ví dụ</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>example_trans</code></td>
+              <td>Dịch câu ví dụ</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>reading</code></td>
+              <td>🇯🇵 Hiragana reading</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>romaji</code></td>
+              <td>🇯🇵 Romaji</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>furigana</code></td>
+              <td>🇯🇵 Furigana cho ví dụ</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="df-format-note">
+          <strong>💡 Mẹo:</strong> Bạn có thể dùng ChatGPT/Gemini để tạo JSON từ danh sách từ vựng. 
+          Ví dụ: "Tạo JSON với định dạng trên cho các từ: achieve, accomplish, succeed"
+        </div>
+      </div>
+
+      <div class="df-submit-section">
+        <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-btn-secondary">Hủy</a>
+        <button type="submit" class="df-btn-primary" id="submit-btn" disabled>
+          Import từ vựng
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.df-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.df-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      const lang = tab.dataset.lang;
+      document.getElementById('format-en').style.display = lang === 'en' ? 'block' : 'none';
+      document.getElementById('format-jp').style.display = lang === 'jp' ? 'block' : 'none';
+      document.getElementById('format-phrase').style.display = lang === 'phrase' ? 'block' : 'none';
+    });
+  });
+
+  // File input handling
+  const fileInput = document.getElementById('json-file');
+  const selectedFile = document.getElementById('selected-file');
+  const submitBtn = document.getElementById('submit-btn');
+  const dropZone = document.getElementById('drop-zone');
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      selectedFile.textContent = '📄 ' + e.target.files[0].name;
+      selectedFile.style.display = 'block';
+      submitBtn.disabled = false;
+    }
+  });
+
+  // Drag and drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--action-primary)';
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = 'var(--border-default)';
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--border-default)';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].name.endsWith('.json')) {
+      fileInput.files = files;
+      selectedFile.textContent = '📄 ' + files[0].name;
+      selectedFile.style.display = 'block';
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+{% endblock %}

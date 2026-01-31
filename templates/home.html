@@ -568,18 +568,18 @@
 
     <!-- Vocabulary Stats -->
     <div class="df-vocab-stats">
-      <div class="df-vocab-stat">
+      <a href="{% url 'vocab:my_words' %}?filter=mastered" class="df-vocab-stat" style="text-decoration: none;">
         <div class="df-vocab-stat-value df-vocab-stat-value--primary">{{ vocab_stats.mastered|default:0 }}</div>
         <div class="df-vocab-stat-label">Đã thuộc</div>
-      </div>
-      <div class="df-vocab-stat">
+      </a>
+      <a href="{% url 'vocab:my_words' %}?filter=learning" class="df-vocab-stat" style="text-decoration: none;">
         <div class="df-vocab-stat-value df-vocab-stat-value--secondary">{{ vocab_stats.learning|default:0 }}</div>
         <div class="df-vocab-stat-label">Chưa thuộc</div>
-      </div>
-      <div class="df-vocab-stat">
+      </a>
+      <a href="{% url 'vocab:my_words' %}?filter=all" class="df-vocab-stat" style="text-decoration: none;">
         <div class="df-vocab-stat-value df-vocab-stat-value--primary">{{ vocab_stats.total|default:0 }}</div>
         <div class="df-vocab-stat-label">Tổng từ</div>
-      </div>
+      </a>
       <div class="df-vocab-stat">
         <div class="df-vocab-stat-value df-vocab-stat-value--accent">{{ vocab_stats.progress|default:"0%" }}</div>
         <div class="df-vocab-stat-label">Tiến độ</div>
@@ -610,6 +610,134 @@
       </div>
     </div>
   </div>
+
+  </div>
+
+  <!-- Placement Dashboard Integration -->
+  {% if user.is_authenticated %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Daily Lesson -->
+        {% if lesson %}
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    📋 Bài học hôm nay
+                </h2>
+                <span class="text-sm text-slate-500 font-medium">{{ lesson.target_minutes }} phút</span>
+            </div>
+            
+            {% if lesson.recommended_activities %}
+            <div class="space-y-3">
+                {% for activity in lesson.recommended_activities|slice:":2" %}
+                <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
+                                {% if activity.type == 'vocab_review' %}bg-blue-100 text-blue-600
+                                {% elif activity.type == 'skill_practice' %}bg-orange-100 text-orange-600
+                                {% elif activity.type == 'path_vocab' %}bg-green-100 text-green-600
+                                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {% if activity.type == 'vocab_review' %}📚
+                        {% elif activity.type == 'skill_practice' %}🎯
+                        {% else %}📝{% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-slate-900 dark:text-white truncate">{{ activity.reason }}</p>
+                        <p class="text-xs text-slate-500">{{ activity.estimated_minutes|floatformat:0 }} phút</p>
+                    </div>
+                    <a href="{% if activity.type == 'vocab_review' %}{% url 'vocab:flashcards_english' %}{% else %}#{% endif %}"
+                       class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
+                        Bắt đầu
+                    </a>
+                </div>
+                {% endfor %}
+                {% if lesson.recommended_activities|length > 2 %}
+                 <div class="text-center mt-2">
+                    <a href="{% url 'placement:daily_dashboard' %}" class="text-sm text-indigo-600 font-medium hover:underline">
+                        + {{ lesson.recommended_activities|length|add:"-2" }} hoạt động khác
+                    </a>
+                 </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="text-slate-500 text-center py-4 text-sm">Bạn đã hoàn thành bài học hôm nay!</p>
+            {% endif %}
+
+            <!-- Simple Progress -->
+            {% if lesson.actual_minutes > 0 %}
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-500">Tiến độ</span>
+                    <span class="font-bold text-indigo-600">{{ lesson.actual_minutes }}/{{ lesson.target_minutes }}m</span>
+                </div>
+                <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    {% widthratio lesson.actual_minutes lesson.target_minutes 100 as progress %}
+                    <div class="h-full bg-indigo-500 rounded-full" style="width: {{ progress }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Path Status / CTA -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col justify-center">
+            {% if path %}
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        🛤️ Lộ trình học
+                    </h2>
+                    <a href="{% url 'placement:learning_path' %}" class="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg">
+                        Chi tiết
+                    </a>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <p class="text-sm text-slate-500">Mục tiêu</p>
+                            <p class="text-xl font-bold text-slate-900 dark:text-white">{{ path.target_score }} TOEIC</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-sm text-slate-500">Hoàn thành</p>
+                             <p class="text-xl font-bold text-indigo-600">{{ path.progress_percentage|floatformat:0 }}%</p>
+                        </div>
+                    </div>
+                    <div class="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-1000" 
+                             style="width: {{ path.progress_percentage }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-3">
+                    <p class="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wide">Milestone tiếp theo</p>
+                    {% for m in path.milestones.all %}
+                        {% if m.is_unlocked and not m.is_completed %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                                {{ m.order }}
+                            </div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white line-clamp-1">{{ m.title }}</span>
+                        </div>
+                        <!-- Break after finding first active milestone -->
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- No Path CTA -->
+                <div class="text-center py-2">
+                    <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        🚀
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Chưa có lộ trình?</h3>
+                    <p class="text-sm text-slate-500 mb-4 px-4">Làm bài test đánh giá năng lực để nhận lộ trình cá nhân hóa.</p>
+                    <a href="{% url 'placement:welcome' %}" 
+                       class="inline-block px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
+                        Làm bài test ngay
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+  {% endif %}
 
   <!-- Quick Access -->
   <div class="df-quick-access">

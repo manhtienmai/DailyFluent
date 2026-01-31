@@ -17,4 +17,9 @@ urlpatterns = [
     # Direct upload to Azure (SAS) for dictation audio
     path("api/dictation/upload-sas/", views.dictation_upload_sas, name="dictation_upload_sas"),
     path("api/dictation/complete-upload/", views.dictation_upload_complete, name="dictation_upload_complete"),
+    
+    # Profile API endpoints
+    path("api/profile/update/", views.profile_update, name="profile_update"),
+    path("api/profile/upload-avatar/", views.profile_upload_avatar, name="profile_upload_avatar"),
+    path("api/profile/upload-cover/", views.profile_upload_cover, name="profile_upload_cover"),
 ]

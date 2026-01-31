@@ -1008,3 +1008,17 @@
     height: 20px;
   }
 }
+
+/* ========================================
+   Global Avatar Frame Styles
+   ======================================== */
+.df-avatar-frame { position: absolute; inset: 0; border-radius: 50%; z-index: 1; pointer-events: none; }
+.df-avatar-frame--gradient { border: 6px solid transparent; background-origin: border-box; background-clip: padding-box, border-box; }
+.df-avatar-frame--glow { animation: frame-glow 2s ease-in-out infinite; }
+.df-avatar-frame--pulse { animation: frame-pulse 1.5s ease-in-out infinite; }
+.df-avatar-frame--rainbow { animation: frame-rainbow 3s linear infinite; }
+.df-avatar-frame--spin { animation: frame-spin 8s linear infinite; }
+@keyframes frame-glow { 0%,100% { filter: drop-shadow(0 0 8px currentColor); } 50% { filter: drop-shadow(0 0 20px currentColor); } }
+@keyframes frame-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+@keyframes frame-rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+@keyframes frame-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Đặt mục tiêu - DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8" x-data="goalSetting()">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">🎯 Đặt mục tiêu của bạn</h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            Điểm hiện tại: <span class="font-bold text-indigo-600">{{ profile.estimated_score }}</span> điểm
+        </p>
+    </div>
+    
+    <!-- Target Score Selection -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <h2 class="font-semibold text-gray-900 dark:text-white mb-4">Điểm mục tiêu</h2>
+        
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {% for score in target_score_options %}
+            <button @click="targetScore = {{ score }}"
+                    :class="targetScore === {{ score }} ? 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/30' : 'bg-gray-50 dark:bg-gray-700'"
+                    class="py-3 px-4 rounded-xl font-bold text-center transition-all hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                {{ score }}
+            </button>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <label class="block text-sm text-gray-500 mb-2">Hoặc nhập điểm tùy chỉnh:</label>
+            <input type="number" x-model="targetScore" min="{{ profile.estimated_score }}" max="990" step="5"
+                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+    </div>
+    
+    <!-- Estimated Duration -->
+    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6" x-show="targetScore > {{ profile.estimated_score }}">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">📅</span>
+            <div>
+                <p class="text-gray-900 dark:text-white font-medium">
+                    Thời gian dự kiến: <span class="text-indigo-600 font-bold" x-text="estimatedDays + ' ngày'"></span>
+                </p>
+                <p class="text-sm text-gray-500">Học 30 phút/ngày</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Target Date (Optional) -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <h2 class="font-semibold text-gray-900 dark:text-white mb-4">Ngày thi dự kiến (tùy chọn)</h2>
+        <input type="date" x-model="targetDate"
+               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+    </div>
+    
+    <!-- Generate Path Button -->
+    <button @click="generatePath()"
+            :disabled="loading || targetScore <= {{ profile.estimated_score }}"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+        <template x-if="!loading">
+            <span class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                Tạo lộ trình học tập
+            </span>
+        </template>
+        <template x-if="loading">
+            <span class="flex items-center gap-2">
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang tạo...
+            </span>
+        </template>
+    </button>
+    
+    <a href="/" class="block w-full text-center text-gray-500 hover:text-gray-700 py-4 mt-4">
+        Bỏ qua
+    </a>
+</div>
+
+<script>
+function goalSetting() {
+    const currentScore = {{ profile.estimated_score }};
+    
+    return {
+        targetScore: Math.min(currentScore + 100, 990),
+        targetDate: '',
+        loading: false,
+        
+        get estimatedDays() {
+            const gap = this.targetScore - currentScore;
+            if (gap <= 0) return 0;
+            
+            let pointsPerDay;
+            if (currentScore < 400) pointsPerDay = 1.5;
+            else if (currentScore < 600) pointsPerDay = 1.0;
+            else if (currentScore < 800) pointsPerDay = 0.7;
+            else pointsPerDay = 0.4;
+            
+            return Math.max(30, Math.min(365, Math.round(gap / pointsPerDay)));
+        },
+        
+        async generatePath() {
+            if (this.targetScore <= currentScore) return;
+            
+            this.loading = true;
+            try {
+                const response = await fetch('{% url "placement:api_generate_path" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        target_score: this.targetScore,
+                        target_date: this.targetDate || null
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.path_id) {
+                    window.location.href = '{% url "placement:daily_dashboard" %}';
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            } catch (error) {
+                console.error('Error generating path:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            }
+            this.loading = false;
+        }
+    };
+}
+</script>
+{% endblock %}

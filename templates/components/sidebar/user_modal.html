@@ -14,18 +14,35 @@ User Profile Modal Component
   </button>
 
   {# Avatar #}
-  <div class="df-user-modal-avatar">
-    {% if user.is_authenticated %}
-      {% if user.socialaccount_set.all.0.get_avatar_url %}
-        <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="Avatar">
+  {# Avatar #}
+  <div class="df-user-modal-avatar-wrapper" style="position: relative; width: 130px; height: 130px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+    {% if user.is_authenticated and equipped_frame %}
+      {% if equipped_frame.slug == 'nebula-galaxy' %}
+        <img src="{% static 'images/frames/nebula_galaxy.png' %}" alt="Nebula Galaxy" class="df-avatar-frame-img" style="position: absolute; inset: -15px; width: 160px; height: 160px; pointer-events: none; z-index: 1;">
+      {% elif equipped_frame.slug == 'royal-gold' %}
+        <img src="{% static 'images/frames/royal_gold.png' %}" alt="Royal Gold" class="df-avatar-frame-img" style="position: absolute; inset: -15px; width: 160px; height: 160px; pointer-events: none; z-index: 1;">
+      {% elif equipped_frame.slug == 'frozen-aurora' %}
+        <img src="{% static 'images/frames/frozen_aurora.png' %}" alt="Frozen Aurora" class="df-avatar-frame-img" style="position: absolute; inset: -15px; width: 160px; height: 160px; pointer-events: none; z-index: 1;">
       {% else %}
-        <div class="df-user-modal-avatar-placeholder">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-          </svg>
+        <div class="df-avatar-frame df-avatar-frame--gradient{% if equipped_frame.css_animation %} df-avatar-frame--{{ equipped_frame.css_animation }}{% endif %}"
+             style="background-image: linear-gradient(var(--bg-surface), var(--bg-surface)), {{ equipped_frame.css_gradient }}; border-width: {{ equipped_frame.border_width }}px;">
         </div>
       {% endif %}
     {% endif %}
+
+    <div class="df-user-modal-avatar" style="margin: 0; z-index: 2;">
+      {% if user.is_authenticated %}
+        {% if user.socialaccount_set.all.0.get_avatar_url %}
+          <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="Avatar">
+        {% else %}
+          <div class="df-user-modal-avatar-placeholder">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
   </div>
 
   {# User Name #}

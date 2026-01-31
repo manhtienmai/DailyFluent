@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Kết quả Placement Test - DailyFluent{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <!-- Result Header -->
+    <div class="text-center mb-8">
+        <div class="inline-block p-4 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full mb-4">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Hoàn thành!</h1>
+        <p class="text-gray-600 dark:text-gray-400">Đây là kết quả đánh giá của bạn</p>
+    </div>
+    
+    <!-- Score Card -->
+    <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl shadow-xl p-8 text-white mb-8">
+        <div class="text-center">
+            <p class="text-indigo-200 mb-2">Điểm TOEIC ước tính</p>
+            <div class="flex items-center justify-center gap-2">
+                <span class="text-6xl font-bold">{{ test.estimated_score }}</span>
+                <span class="text-xl text-indigo-200">±{{ test.confidence_interval }}</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-8 mt-8 pt-6 border-t border-white/20">
+            <div class="text-center">
+                <p class="text-indigo-200 text-sm mb-1">Listening</p>
+                <p class="text-3xl font-bold">{{ test.estimated_listening }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-indigo-200 text-sm mb-1">Reading</p>
+                <p class="text-3xl font-bold">{{ test.estimated_reading }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Skill Breakdown -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">📊 Chi tiết kỹ năng</h2>
+        
+        <div class="space-y-4">
+            {% for skill, score in test.skill_scores.items %}
+            {% with proficiency=score|add:3|floatformat:2 %}
+            <div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {% if skill == 'L1' %}Listening - Photos
+                        {% elif skill == 'L2' %}Listening - Q&A
+                        {% elif skill == 'L3' %}Listening - Conversations
+                        {% elif skill == 'L4' %}Listening - Talks
+                        {% elif skill == 'R5' %}Reading - Incomplete Sentences
+                        {% elif skill == 'R6' %}Reading - Text Completion
+                        {% elif skill == 'R7' %}Reading - Comprehension
+                        {% elif skill == 'VOC' %}Vocabulary
+                        {% elif skill == 'GRM' %}Grammar
+                        {% else %}{{ skill }}
+                        {% endif %}
+                    </span>
+                    <span class="text-sm font-medium 
+                        {% if score >= 1 %}text-green-600
+                        {% elif score >= 0 %}text-yellow-600
+                        {% else %}text-red-600
+                        {% endif %}">
+                        {% if score >= 1 %}Tốt
+                        {% elif score >= 0 %}Trung bình
+                        {% elif score >= -1 %}Cần cải thiện
+                        {% else %}Yếu
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    {% widthratio score 3 50 as bar_width %}
+                    <div class="h-full rounded-full
+                        {% if score >= 1 %}bg-green-500
+                        {% elif score >= 0 %}bg-yellow-500
+                        {% elif score >= -1 %}bg-orange-500
+                        {% else %}bg-red-500
+                        {% endif %}"
+                        style="width: calc(50% + {{ bar_width }}%)"></div>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <p class="text-gray-500">Không có dữ liệu kỹ năng</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ test.questions_answered }}</p>
+            <p class="text-sm text-gray-500">Câu đã trả lời</p>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                {% widthratio test.answers.filter.is_correct|length test.questions_answered 100 %}%
+            </p>
+            <p class="text-sm text-gray-500">Độ chính xác</p>
+        </div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="space-y-4">
+        <a href="{% url 'placement:goal_setting' %}" 
+           class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl text-center transition-all shadow-lg hover:shadow-xl">
+            <span class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+                Đặt mục tiêu & Tạo lộ trình học tập
+            </span>
+        </a>
+        
+        <a href="/" class="block w-full text-center text-gray-500 hover:text-gray-700 py-3">
+            Quay về trang chủ
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1286 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Cửa hàng | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* =========================================
+     Shop Page - WebGL Avatar Frames
+     ========================================= */
+  
+  .df-shop-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  
+  /* Header */
+  .df-shop-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .df-shop-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  
+  .df-shop-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Tabs */
+  .df-shop-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .df-shop-tab {
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+  }
+  
+  .df-shop-tab:hover {
+    background: var(--bg-interactive);
+    color: var(--text-primary);
+  }
+  
+  .df-shop-tab.active {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: white;
+    border-color: transparent;
+  }
+  
+  .df-shop-tab--plus {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1c1917;
+  }
+  
+  .df-shop-tab--limited {
+    background: linear-gradient(135deg, #EF4444, #F97316);
+    color: white;
+  }
+  
+  /* Wallet Banner */
+  .df-shop-wallet {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 9999px;
+    color: #1c1917;
+    font-weight: 700;
+    width: fit-content;
+    margin-left: auto;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  }
+  
+  .df-shop-coin-icon {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #FCD34D, #F59E0B);
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  
+  .df-shop-coin-count {
+    font-size: 1.125rem;
+  }
+  
+  /* Category Tabs */
+  .df-category-tabs {
+    display: flex;
+    gap: 0.375rem;
+    margin-bottom: 2rem;
+    background: var(--bg-surface);
+    padding: 0.375rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    width: fit-content;
+  }
+  
+  .df-category-tab {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: var(--text-secondary);
+  }
+  
+  .df-category-tab:hover {
+    color: var(--text-primary);
+  }
+  
+  .df-category-tab.active {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: white;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+  
+  /* Frames Grid */
+  .df-frames-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .df-frames-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  
+  @media (max-width: 768px) {
+    .df-frames-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  @media (max-width: 480px) {
+    .df-frames-grid { grid-template-columns: 1fr; }
+  }
+  
+  /* Frame Card */
+  .df-frame-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .df-frame-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    border-color: var(--border-default);
+  }
+  
+  /* Frame Preview Container */
+  .df-frame-preview {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 1.25rem;
+    position: relative;
+  }
+  
+  .df-frame-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  
+  .df-frame-avatar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--bg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    z-index: 10;
+    overflow: hidden;
+  }
+  
+  /* Frame Info */
+  .df-frame-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  
+  .df-frame-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-bottom: 1rem;
+  }
+  
+  .df-frame-type svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  /* Price Row */
+  .df-frame-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
+  
+  .df-frame-price {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #F59E0B;
+  }
+  
+  .df-frame-price-icon {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border-radius: 50%;
+  }
+  
+  .df-frame-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: white;
+  }
+  
+  .df-frame-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  }
+  
+  /* Premium Frame Cards */
+  .df-frame-card--premium {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .df-frame-card--premium::before {
+    content: 'LEGENDARY';
+    position: absolute;
+    top: 12px;
+    right: -30px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 0.25rem 2rem;
+    transform: rotate(45deg);
+    letter-spacing: 0.05em;
+  }
+  
+  .df-frame-card--premium:hover {
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25);
+  }
+  
+  /* Image-based frame preview */
+  .df-frame-preview--image {
+    position: relative;
+  }
+  
+  .df-frame-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 5px rgba(139, 92, 246, 0.5)); }
+    50% { filter: brightness(1.1) drop-shadow(0 0 15px rgba(139, 92, 246, 0.8)); }
+  }
+  
+  .df-particle-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  
+  .df-frame-preview--image .df-frame-avatar {
+    z-index: 3;
+  }
+  
+  /* Legendary button */
+  .df-frame-btn--legendary {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    animation: shimmer 2s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  .df-frame-btn--legendary:hover {
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5);
+  }
+  
+  /* Frame ring for database frames */
+  .df-frame-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    z-index: 1;
+  }
+  
+  /* Equip button (green) */
+  .df-frame-btn--equip {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+  }
+  .df-frame-btn--equip:hover {
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
+  }
+  
+  /* Equipped button (gray, disabled) */
+  .df-frame-btn--equipped {
+    background: var(--bg-muted);
+    color: var(--text-secondary);
+    cursor: default;
+    opacity: 0.7;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="df-shop-container">
+  <!-- Header -->
+  <div class="df-shop-header">
+    <h1 class="df-shop-title">Cửa hàng</h1>
+  </div>
+  
+  <!-- Top Navigation -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div class="df-shop-tabs">
+      <button class="df-shop-tab active">Vật phẩm</button>
+      <button class="df-shop-tab">Kho đồ</button>
+      <button class="df-shop-tab">Nhiệm vụ</button>
+      <button class="df-shop-tab df-shop-tab--plus">Plus ⭐</button>
+      <button class="df-shop-tab df-shop-tab--limited">Giới hạn 🔥</button>
+    </div>
+    
+    <div class="df-shop-wallet">
+      <div class="df-shop-coin-icon"></div>
+      <span class="df-shop-coin-count" id="user-coins">{{ wallet.coins|intcomma }}</span>
+    </div>
+  </div>
+  
+  <!-- Category Tabs -->
+  <div class="df-category-tabs">
+    <button class="df-category-tab">Tất cả vật phẩm</button>
+    <button class="df-category-tab active">Hiệu ứng Avatar</button>
+    <button class="df-category-tab">Khung tên</button>
+    <button class="df-category-tab">Huy hiệu</button>
+  </div>
+  
+  <!-- Frames Grid -->
+  <div class="df-frames-grid">
+    
+    {% for frame in frames %}
+    <div class="df-frame-card{% if frame.rarity == 'LEGENDARY' %} df-frame-card--premium{% endif %}" id="frame-card-{{ frame.id }}">
+      
+      <!-- Frame Preview -->
+      <div class="df-frame-preview{% if frame.slug == 'nebula-galaxy' or frame.slug == 'royal-gold' or frame.slug == 'frozen-aurora' %} df-frame-preview--image{% endif %}">
+        
+        {% if frame.slug == 'nebula-galaxy' %}
+          <img src="{% static 'images/frames/nebula_galaxy.png' %}" alt="{{ frame.name }}" class="df-frame-img">
+          <canvas class="df-particle-canvas" id="particles-{{ frame.id }}" data-particle-type="nebula"></canvas>
+        {% elif frame.slug == 'royal-gold' %}
+          <img src="{% static 'images/frames/royal_gold.png' %}" alt="{{ frame.name }}" class="df-frame-img">
+          <canvas class="df-particle-canvas" id="particles-{{ frame.id }}" data-particle-type="gold"></canvas>
+        {% elif frame.slug == 'frozen-aurora' %}
+          <img src="{% static 'images/frames/frozen_aurora.png' %}" alt="{{ frame.name }}" class="df-frame-img">
+          <canvas class="df-particle-canvas" id="particles-{{ frame.id }}" data-particle-type="ice"></canvas>
+        {% else %}
+          <!-- Standard CSS Frame -->
+          <div class="df-frame-ring" style="background: {{ frame.css_gradient }}; border-width: {{ frame.border_width }}px;"></div>
+        {% endif %}
+        
+        <div class="df-frame-avatar">👤</div>
+      </div>
+      
+      <h3 class="df-frame-name">
+        {% if frame.rarity == 'LEGENDARY' %}{% if frame.slug == 'nebula-galaxy' %}✨{% elif frame.slug == 'royal-gold' %}👑{% elif frame.slug == 'frozen-aurora' %}❄️{% endif %} {% endif %}
+        {{ frame.name }}
+      </h3>
+      
+      <div class="df-frame-type">
+        {% if frame.rarity == 'LEGENDARY' %}
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+        {% elif frame.rarity == 'EPIC' %}
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        {% elif frame.rarity == 'RARE' %}
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+        {% else %}
+          📦
+        {% endif %}
+        {{ frame.get_rarity_display }}
+      </div>
+      
+      <div class="df-frame-footer">
+        <div class="df-frame-price">
+          <div class="df-frame-price-icon"></div>
+          {{ frame.price|intcomma }}
+        </div>
+        
+        {% if frame.id in owned_frame_ids %}
+          {% if frame.id == equipped_frame_id %}
+          <button class="df-frame-btn df-frame-btn--equipped" disabled>✓ Đang dùng</button>
+          {% else %}
+          <button class="df-frame-btn df-frame-btn--equip" onclick="equipFrame({{ frame.id }})">Trang bị</button>
+          {% endif %}
+        {% else %}
+        <button class="df-frame-btn{% if frame.rarity == 'LEGENDARY' %} df-frame-btn--legendary{% endif %}" onclick="buyFrameDB({{ frame.id }})">Mua</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="df-shop-toast" id="shop-toast" style="position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);padding:1rem 1.5rem;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:0.75rem;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:1000;opacity:0;transition:all 0.3s ease;">
+  <span id="toast-message"></span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+// =============================================
+// WebGL Avatar Frame Renderer using Three.js + GLSL
+// =============================================
+
+class AvatarFrameRenderer {
+  constructor(canvas, frameType) {
+    this.canvas = canvas;
+    this.frameType = frameType;
+    this.clock = new THREE.Clock();
+    
+    this.init();
+    this.animate();
+  }
+  
+  init() {
+    // Setup renderer
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      alpha: true,
+      antialias: true
+    });
+    this.renderer.setSize(160, 160);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    // Setup scene and camera
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    this.camera.position.z = 1;
+    
+    // Create shader material based on frame type
+    this.createMaterial();
+    
+    // Create ring geometry
+    const geometry = new THREE.RingGeometry(0.6, 0.9, 64);
+    this.mesh = new THREE.Mesh(geometry, this.material);
+    this.scene.add(this.mesh);
+  }
+  
+  createMaterial() {
+    const shaders = this.getShaders();
+    
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uResolution: { value: new THREE.Vector2(160, 160) }
+      },
+      vertexShader: shaders.vertex,
+      fragmentShader: shaders.fragment,
+      transparent: true,
+      side: THREE.DoubleSide
+    });
+  }
+  
+  getShaders() {
+    const vertexShader = `
+      varying vec2 vUv;
+      varying vec2 vPosition;
+      
+      void main() {
+        vUv = uv;
+        vPosition = position.xy;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+    
+    // Different fragment shaders for each frame type
+    const fragmentShaders = {
+      // Leo Bundle - Golden fire with ornate design
+      leo: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        float fbm(vec2 p) {
+          float value = 0.0;
+          float amplitude = 0.5;
+          for(int i = 0; i < 5; i++) {
+            value += amplitude * noise(p);
+            p *= 2.0;
+            amplitude *= 0.5;
+          }
+          return value;
+        }
+        
+        void main() {
+          vec2 center = vec2(0.0);
+          float dist = length(vPosition - center);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Fire effect
+          float fire = fbm(vec2(angle * 3.0, dist * 5.0 - uTime * 2.0));
+          fire += fbm(vec2(angle * 5.0, dist * 8.0 - uTime * 3.0)) * 0.5;
+          
+          // Golden color palette
+          vec3 gold1 = vec3(1.0, 0.84, 0.0);
+          vec3 gold2 = vec3(1.0, 0.65, 0.0);
+          vec3 gold3 = vec3(0.85, 0.55, 0.0);
+          
+          vec3 color = mix(gold3, gold1, fire);
+          color = mix(color, gold2, sin(angle * 8.0 + uTime) * 0.3 + 0.3);
+          
+          // Sparkle effect
+          float sparkle = noise(vPosition * 20.0 + uTime * 5.0);
+          sparkle = pow(sparkle, 10.0) * 2.0;
+          color += vec3(sparkle);
+          
+          // Edge glow
+          float edge = smoothstep(0.85, 0.9, dist) + smoothstep(0.65, 0.6, dist);
+          color += vec3(1.0, 0.9, 0.5) * edge * 0.5;
+          
+          // Alpha
+          float alpha = smoothstep(0.9, 0.85, dist) * smoothstep(0.55, 0.6, dist);
+          alpha *= 0.9 + fire * 0.1;
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Aries Bundle - Red fire with flames
+      aries: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        float fbm(vec2 p) {
+          float value = 0.0;
+          float amplitude = 0.5;
+          for(int i = 0; i < 6; i++) {
+            value += amplitude * noise(p);
+            p *= 2.0;
+            amplitude *= 0.5;
+          }
+          return value;
+        }
+        
+        void main() {
+          vec2 center = vec2(0.0);
+          float dist = length(vPosition - center);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Flame turbulence
+          float flame = fbm(vec2(angle * 4.0, dist * 6.0 - uTime * 3.0));
+          flame += fbm(vec2(angle * 6.0, dist * 10.0 - uTime * 4.0)) * 0.5;
+          
+          // Fire color palette (red to orange to yellow)
+          vec3 red = vec3(0.8, 0.1, 0.0);
+          vec3 orange = vec3(1.0, 0.4, 0.0);
+          vec3 yellow = vec3(1.0, 0.8, 0.2);
+          
+          vec3 color = mix(red, orange, flame);
+          color = mix(color, yellow, pow(flame, 2.0));
+          
+          // Flame tips
+          float tips = pow(flame, 3.0);
+          color = mix(color, vec3(1.0, 1.0, 0.8), tips * 0.5);
+          
+          // Alpha with flame edge
+          float alpha = smoothstep(0.95, 0.8, dist) * smoothstep(0.5, 0.6, dist);
+          alpha *= 0.8 + flame * 0.4;
+          
+          // Outer glow
+          float glow = (1.0 - smoothstep(0.8, 1.0, dist)) * 0.3;
+          color += vec3(1.0, 0.3, 0.0) * glow;
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Gemini Bundle - Purple/Pink ethereal
+      gemini: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        void main() {
+          vec2 center = vec2(0.0);
+          float dist = length(vPosition - center);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Swirling pattern
+          float swirl = sin(angle * 6.0 + uTime * 0.5 + dist * 5.0);
+          swirl += sin(angle * 3.0 - uTime * 0.3 + dist * 3.0) * 0.5;
+          swirl = swirl * 0.5 + 0.5;
+          
+          // Color palette
+          vec3 purple = vec3(0.6, 0.3, 0.9);
+          vec3 pink = vec3(0.9, 0.4, 0.8);
+          vec3 lavender = vec3(0.8, 0.7, 1.0);
+          
+          vec3 color = mix(purple, pink, swirl);
+          color = mix(color, lavender, sin(angle * 4.0 + uTime) * 0.3 + 0.3);
+          
+          // Sparkles
+          float sparkle = noise(vPosition * 30.0 + uTime * 3.0);
+          sparkle = pow(sparkle, 15.0) * 3.0;
+          color += vec3(1.0, 0.9, 1.0) * sparkle;
+          
+          // Vine-like decorations
+          float vine = sin(angle * 8.0 + dist * 10.0 + uTime * 0.5);
+          vine = smoothstep(0.7, 1.0, vine) * 0.3;
+          color += lavender * vine;
+          
+          float alpha = smoothstep(0.9, 0.85, dist) * smoothstep(0.55, 0.6, dist);
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Spirit Blossom - Green nature
+      spirit: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        void main() {
+          vec2 center = vec2(0.0);
+          float dist = length(vPosition - center);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Organic flowing pattern
+          float flow = sin(angle * 5.0 + uTime * 0.3);
+          flow += sin(angle * 3.0 - uTime * 0.2 + dist * 4.0) * 0.5;
+          flow = flow * 0.5 + 0.5;
+          
+          // Nature colors
+          vec3 mint = vec3(0.6, 0.95, 0.8);
+          vec3 teal = vec3(0.3, 0.8, 0.7);
+          vec3 sage = vec3(0.7, 0.9, 0.7);
+          
+          vec3 color = mix(teal, mint, flow);
+          color = mix(color, sage, sin(dist * 8.0 - uTime) * 0.3 + 0.3);
+          
+          // Leaf-like details
+          float leaf = sin(angle * 12.0 + uTime * 0.5);
+          leaf = smoothstep(0.6, 1.0, leaf);
+          color = mix(color, vec3(0.9, 1.0, 0.9), leaf * 0.2);
+          
+          // Soft particles
+          float particle = noise(vPosition * 15.0 + uTime * 2.0);
+          particle = pow(particle, 12.0) * 2.0;
+          color += vec3(0.8, 1.0, 0.9) * particle;
+          
+          float alpha = smoothstep(0.9, 0.85, dist) * smoothstep(0.55, 0.6, dist);
+          
+          gl_FragColor = vec4(color, alpha * 0.9);
+        }
+      `,
+      
+      // Nebula Galaxy - Deep space
+      nebula: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.5;
+          for(int i = 0; i < 5; i++) {
+            v += a * noise(p);
+            p = p * 2.0;
+            a *= 0.5;
+          }
+          return v;
+        }
+        
+        void main() {
+          float dist = length(vPosition);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Nebula clouds
+          float nebula = fbm(vPosition * 3.0 + uTime * 0.1);
+          nebula += fbm(vPosition * 6.0 - uTime * 0.15) * 0.5;
+          
+          // Deep space colors
+          vec3 deepBlue = vec3(0.05, 0.05, 0.2);
+          vec3 purple = vec3(0.4, 0.1, 0.6);
+          vec3 pink = vec3(0.8, 0.2, 0.5);
+          vec3 cyan = vec3(0.1, 0.6, 0.8);
+          
+          vec3 color = mix(deepBlue, purple, nebula);
+          color = mix(color, pink, pow(nebula, 2.0) * 0.8);
+          color = mix(color, cyan, sin(angle * 4.0 + uTime * 0.3) * 0.2 + 0.2);
+          
+          // Stars
+          float stars = noise(vPosition * 50.0);
+          stars = pow(stars, 20.0) * 5.0;
+          color += vec3(1.0) * stars;
+          
+          // Rotating galaxy core glow
+          float glow = 1.0 - smoothstep(0.6, 0.9, dist);
+          glow *= sin(angle + uTime * 0.5) * 0.3 + 0.7;
+          color += purple * glow * 0.3;
+          
+          float alpha = smoothstep(0.95, 0.85, dist) * smoothstep(0.5, 0.6, dist);
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Ocean Wave - Blue water
+      ocean: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        void main() {
+          float dist = length(vPosition);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Wave pattern
+          float wave = sin(angle * 8.0 + uTime * 2.0 + dist * 5.0);
+          wave += sin(angle * 4.0 - uTime * 1.5) * 0.5;
+          wave = wave * 0.5 + 0.5;
+          
+          // Ocean colors
+          vec3 deep = vec3(0.0, 0.2, 0.4);
+          vec3 blue = vec3(0.1, 0.5, 0.8);
+          vec3 aqua = vec3(0.3, 0.8, 0.9);
+          vec3 foam = vec3(0.9, 0.95, 1.0);
+          
+          vec3 color = mix(deep, blue, wave);
+          color = mix(color, aqua, pow(wave, 2.0));
+          
+          // Foam highlights
+          float foamPattern = sin(angle * 16.0 + uTime * 3.0 + dist * 8.0);
+          foamPattern = smoothstep(0.7, 1.0, foamPattern);
+          color = mix(color, foam, foamPattern * 0.4);
+          
+          // Sparkles on water
+          float sparkle = noise(vPosition * 25.0 + uTime * 4.0);
+          sparkle = pow(sparkle, 12.0) * 2.0;
+          color += foam * sparkle;
+          
+          float alpha = smoothstep(0.9, 0.85, dist) * smoothstep(0.55, 0.6, dist);
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Aurora Frost - Ice/Northern lights
+      aurora: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        void main() {
+          float dist = length(vPosition);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Aurora wave
+          float aurora = sin(angle * 6.0 + uTime * 0.8 + sin(dist * 5.0 + uTime) * 2.0);
+          aurora = aurora * 0.5 + 0.5;
+          
+          // Ice colors
+          vec3 iceBlue = vec3(0.7, 0.9, 1.0);
+          vec3 cyan = vec3(0.0, 0.8, 0.9);
+          vec3 green = vec3(0.2, 0.9, 0.6);
+          vec3 purple = vec3(0.6, 0.3, 0.9);
+          
+          vec3 color = mix(iceBlue, cyan, aurora);
+          color = mix(color, green, sin(angle * 3.0 + uTime * 0.5) * 0.3 + 0.2);
+          color = mix(color, purple, cos(angle * 4.0 - uTime * 0.3) * 0.2);
+          
+          // Ice crystals
+          float crystal = noise(vPosition * 20.0);
+          crystal = pow(crystal, 8.0) * 3.0;
+          color += vec3(1.0) * crystal;
+          
+          // Inner glow
+          float innerGlow = smoothstep(0.8, 0.6, dist);
+          color += iceBlue * innerGlow * 0.2;
+          
+          float alpha = smoothstep(0.9, 0.85, dist) * smoothstep(0.55, 0.6, dist);
+          alpha *= 0.85;
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      
+      // Plasma Core - Electric energy
+      plasma: `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec2 vPosition;
+        
+        float noise(vec2 p) {
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+        
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.5;
+          for(int i = 0; i < 5; i++) {
+            v += a * noise(p);
+            p = p * 2.0;
+            a *= 0.5;
+          }
+          return v;
+        }
+        
+        void main() {
+          float dist = length(vPosition);
+          float angle = atan(vPosition.y, vPosition.x);
+          
+          // Electric plasma
+          float plasma = fbm(vec2(angle * 4.0 + uTime * 2.0, dist * 8.0));
+          plasma += fbm(vec2(angle * 6.0 - uTime * 3.0, dist * 12.0)) * 0.5;
+          
+          // Electric colors
+          vec3 darkPurple = vec3(0.2, 0.0, 0.3);
+          vec3 purple = vec3(0.5, 0.0, 0.8);
+          vec3 cyan = vec3(0.0, 0.9, 1.0);
+          vec3 white = vec3(1.0);
+          
+          vec3 color = mix(darkPurple, purple, plasma);
+          color = mix(color, cyan, pow(plasma, 2.0));
+          
+          // Lightning bolts
+          float bolt = sin(angle * 20.0 + uTime * 10.0 + plasma * 10.0);
+          bolt = smoothstep(0.95, 1.0, bolt);
+          color = mix(color, white, bolt);
+          
+          // Core energy
+          float energy = noise(vPosition * 10.0 + uTime * 5.0);
+          energy = pow(energy, 6.0) * 2.0;
+          color += cyan * energy;
+          
+          // Outer electric glow
+          float glow = (1.0 - smoothstep(0.7, 0.95, dist)) * (plasma * 0.5 + 0.5);
+          color += purple * glow * 0.4;
+          
+          float alpha = smoothstep(0.95, 0.85, dist) * smoothstep(0.5, 0.6, dist);
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `
+    };
+    
+    return {
+      vertex: vertexShader,
+      fragment: fragmentShaders[this.frameType] || fragmentShaders.leo
+    };
+  }
+  
+  animate() {
+    requestAnimationFrame(() => this.animate());
+    
+    const elapsedTime = this.clock.getElapsedTime();
+    this.material.uniforms.uTime.value = elapsedTime;
+    
+    this.renderer.render(this.scene, this.camera);
+  }
+  
+  dispose() {
+    this.renderer.dispose();
+    this.material.dispose();
+  }
+}
+
+// Initialize all frame canvases
+document.addEventListener('DOMContentLoaded', () => {
+  const canvases = document.querySelectorAll('.df-frame-canvas');
+  
+  canvases.forEach(canvas => {
+    const frameType = canvas.dataset.frameType;
+    new AvatarFrameRenderer(canvas, frameType);
+  });
+});
+
+// (Moved to bottom of file)
+
+// =============================================
+// Three.js Particle Renderer for Premium Frames
+// Floating dust/sparkle effects on image frames
+// =============================================
+
+class ParticleRenderer {
+  constructor(canvas, particleType) {
+    this.canvas = canvas;
+    this.particleType = particleType;
+    this.particles = [];
+    this.clock = new THREE.Clock();
+    
+    this.init();
+    this.animate();
+  }
+  
+  init() {
+    const rect = this.canvas.parentElement.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) || 160;
+    
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      alpha: true,
+      antialias: true
+    });
+    this.renderer.setSize(size, size);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    this.camera.position.z = 1;
+    
+    this.createParticles();
+  }
+  
+  getParticleColors() {
+    const colors = {
+      nebula: [
+        new THREE.Color(0x7C3AED), // Purple
+        new THREE.Color(0xEC4899), // Pink
+        new THREE.Color(0x06B6D4), // Cyan
+        new THREE.Color(0xFFFFFF)  // White sparkle
+      ],
+      gold: [
+        new THREE.Color(0xFFD700), // Gold
+        new THREE.Color(0xFFA500), // Orange gold
+        new THREE.Color(0xFFE4B5), // Moccasin
+        new THREE.Color(0xFFFFFF)  // White sparkle
+      ],
+      ice: [
+        new THREE.Color(0x00FFFF), // Cyan
+        new THREE.Color(0x87CEEB), // Sky blue
+        new THREE.Color(0xE0FFFF), // Light cyan
+        new THREE.Color(0xFFFFFF)  // White sparkle
+      ]
+    };
+    return colors[this.particleType] || colors.nebula;
+  }
+  
+  createParticles() {
+    const count = 50;
+    const colors = this.getParticleColors();
+    
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const colorAttr = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const velocities = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Position in a ring around center
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 0.5 + Math.random() * 0.4;
+      positions[i * 3] = Math.cos(angle) * radius;
+      positions[i * 3 + 1] = Math.sin(angle) * radius;
+      positions[i * 3 + 2] = 0;
+      
+      // Random color from palette
+      const col = colors[Math.floor(Math.random() * colors.length)];
+      colorAttr[i * 3] = col.r;
+      colorAttr[i * 3 + 1] = col.g;
+      colorAttr[i * 3 + 2] = col.b;
+      
+      // Size
+      sizes[i] = 2 + Math.random() * 4;
+      
+      // Velocity for animation
+      velocities.push({
+        x: (Math.random() - 0.5) * 0.002,
+        y: 0.002 + Math.random() * 0.003,
+        angle: angle,
+        radius: radius,
+        speed: 0.2 + Math.random() * 0.3
+      });
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colorAttr, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    
+    this.velocities = velocities;
+    this.positions = positions;
+    
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        varying vec3 vColor;
+        varying float vAlpha;
+        uniform float uTime;
+        
+        void main() {
+          vColor = color;
+          vAlpha = 0.5 + 0.5 * sin(uTime * 2.0 + position.x * 10.0);
+          
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = size * (1.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vAlpha;
+        
+        void main() {
+          float dist = length(gl_PointCoord - vec2(0.5));
+          if (dist > 0.5) discard;
+          
+          float glow = 1.0 - (dist * 2.0);
+          glow = pow(glow, 2.0);
+          
+          gl_FragColor = vec4(vColor, glow * vAlpha * 0.8);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    
+    this.particleSystem = new THREE.Points(geometry, material);
+    this.material = material;
+    this.geometry = geometry;
+    this.scene.add(this.particleSystem);
+  }
+  
+  animate() {
+    requestAnimationFrame(() => this.animate());
+    
+    const time = this.clock.getElapsedTime();
+    this.material.uniforms.uTime.value = time;
+    
+    // Animate particles floating upward in circular motion
+    const positions = this.geometry.attributes.position.array;
+    for (let i = 0; i < this.velocities.length; i++) {
+      const v = this.velocities[i];
+      v.angle += v.speed * 0.01;
+      
+      // Circular float with upward drift
+      positions[i * 3] = Math.cos(v.angle) * v.radius;
+      positions[i * 3 + 1] = Math.sin(v.angle) * v.radius + Math.sin(time * v.speed) * 0.1;
+      
+      // Reset if out of bounds
+      if (positions[i * 3 + 1] > 1.2) {
+        positions[i * 3 + 1] = -1.2;
+      }
+    }
+    this.geometry.attributes.position.needsUpdate = true;
+    
+    this.renderer.render(this.scene, this.camera);
+  }
+  
+  dispose() {
+    this.renderer.dispose();
+    this.material.dispose();
+    this.geometry.dispose();
+  }
+}
+
+// Initialize particle canvases
+document.addEventListener('DOMContentLoaded', () => {
+  const particleCanvases = document.querySelectorAll('.df-particle-canvas');
+  
+  particleCanvases.forEach(canvas => {
+    const particleType = canvas.dataset.particleType;
+    new ParticleRenderer(canvas, particleType);
+  });
+});
+
+// =============================================
+// Shop API Functions
+// =============================================
+
+const csrfToken = '{{ csrf_token }}';
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('shop-toast');
+  const msgEl = document.getElementById('toast-message');
+  
+  if (toast && msgEl) {
+    msgEl.textContent = message;
+    toast.style.borderColor = type === 'success' ? '#10B981' : '#EF4444';
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(100px)';
+    }, 3000);
+  }
+}
+
+// Buy frame from database
+async function buyFrameDB(frameId) {
+  try {
+    const response = await fetch(`/shop/buy/${frameId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      
+      // Update button to show "Trang bị"
+      const card = document.getElementById(`frame-card-${frameId}`);
+      if (card) {
+        const footer = card.querySelector('.df-frame-footer');
+        const btn = footer.querySelector('.df-frame-btn');
+        btn.className = 'df-frame-btn df-frame-btn--equip';
+        btn.textContent = 'Trang bị';
+        btn.onclick = () => equipFrame(frameId);
+      }
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (error) {
+    showToast('Có lỗi xảy ra!', 'error');
+    console.error(error);
+  }
+}
+
+// Equip owned frame
+async function equipFrame(frameId) {
+  try {
+    const response = await fetch(`/shop/equip/${frameId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      
+      // Update all buttons: reset other equipped to "Trang bị"
+      document.querySelectorAll('.df-frame-btn--equipped').forEach(btn => {
+        btn.className = 'df-frame-btn df-frame-btn--equip';
+        btn.textContent = 'Trang bị';
+        btn.disabled = false;
+        const cardId = btn.closest('.df-frame-card')?.id;
+        if (cardId) {
+          const id = cardId.replace('frame-card-', '');
+          btn.onclick = () => equipFrame(parseInt(id));
+        }
+      });
+      
+      // Set current as equipped
+      const card = document.getElementById(`frame-card-${frameId}`);
+      if (card) {
+        const btn = card.querySelector('.df-frame-btn');
+        btn.className = 'df-frame-btn df-frame-btn--equipped';
+        btn.textContent = '✓ Đang dùng';
+        btn.disabled = true;
+        btn.onclick = null;
+      }
+    } else {
+      showToast(data.message || 'Không thể trang bị!', 'error');
+    }
+  } catch (error) {
+    showToast('Có lỗi xảy ra!', 'error');
+    console.error(error);
+  }
+}
+
+// Legacy buyFrame function for hardcoded demo frames
+async function buyFrame(frameType, price) {
+  showToast(`Đang xử lý mua ${frameType}...`, 'success');
+  setTimeout(() => {
+    showToast(`Đã mua thành công khung ${frameType}!`, 'success');
+  }, 1000);
+}
+</script>
+{% endblock %}

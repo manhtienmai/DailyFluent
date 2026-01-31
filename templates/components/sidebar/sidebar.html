@@ -34,7 +34,7 @@ Sidebar Navigation Component
     </a>
 
     <a href="{% url 'vocab:my_words' %}" data-title="Từ vựng của tôi"
-      class="df-sidebar-item {% if 'my-words' in request.path %}active{% endif %}">
+      class="df-sidebar-item {% if 'my-words' in request.path or 'games' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-book">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -42,17 +42,6 @@ Sidebar Navigation Component
         </svg>
       </span>
       <span class="df-sidebar-label">Từ vựng của tôi</span>
-    </a>
-
-    <a href="{% url 'vocab:games' %}" data-title="Trò chơi từ vựng" class="df-sidebar-item {% if 'games' in request.path %}active{% endif %}">
-      <span class="df-sidebar-icon df-icon-games">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <circle cx="8" cy="12" r="2" />
-          <path d="M15 9v6M12 12h6" />
-        </svg>
-      </span>
-      <span class="df-sidebar-label">Trò chơi từ vựng</span>
     </a>
 
     <a href="{% url 'exam:exam_list' %}" data-title="Đề thi"
@@ -81,7 +70,7 @@ Sidebar Navigation Component
 
 
 
-    <a href="#" data-title="Cửa hàng" class="df-sidebar-item">
+    <a href="{% url 'shop:list' %}" data-title="Cửa hàng" class="df-sidebar-item {% if 'shop' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-store">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="9" cy="21" r="1" />

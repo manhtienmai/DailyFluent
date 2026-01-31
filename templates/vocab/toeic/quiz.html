@@ -208,6 +208,9 @@ function toeicQuiz() {
           }),
         });
         const data = await resp.json();
+        if (data && data.new_badges && window.BadgeManager) {
+            window.BadgeManager.show(data.new_badges);
+        }
         if (data.next_url) this.levelUrl = data.next_url;
       } catch (err) {
         console.error('Failed to submit quiz results', err);

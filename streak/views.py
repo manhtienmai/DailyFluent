@@ -13,12 +13,34 @@ from vocab.models import UserStudySettings
 @login_required
 def overview(request):
     """
-    Trang đơn giản hiển thị card streak.
-    Bạn có thể include template _streak_card.html vào dashboard chính của app học tập.
+    Trang hiển thị bảng xếp hạng (Leaderboard) tính từ thứ 2 đầu tuần.
+    Xếp hạng dựa trên số ngày hoạt động (streak) trong tuần này.
+    Nếu bằng nhau thì so sánh số phút học.
     """
+    from django.contrib.auth import get_user_model
+    from django.db.models import Count, Sum
+    import datetime
+    
+    User = get_user_model()
     streak, _ = StreakStat.objects.get_or_create(user=request.user)
+    
+    # Tính thứ 2 đầu tuần
+    today = timezone.localdate()
+    start_of_week = today - datetime.timedelta(days=today.weekday())
+    
+    # Query leaderboard
+    leaderboard = User.objects.filter(
+        dailyactivity__date__gte=start_of_week
+    ).annotate(
+        weekly_days=Count('dailyactivity__date', distinct=True),
+        weekly_minutes=Sum('dailyactivity__minutes_studied')
+    ).order_by('-weekly_days', '-weekly_minutes')[:50]
+
     context = {
         "streak": streak,
+        "leaderboard": leaderboard,
+        "start_of_week": start_of_week,
+        "today": today,
     }
     return render(request, "streak/overview.html", context)
 

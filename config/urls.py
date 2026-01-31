@@ -22,6 +22,8 @@ urlpatterns = [
     path("payment/", include("payment.urls", namespace="payment")),
     path("feedback/", include("feedback.urls", namespace="feedback")),
     path("api/wallet/", include("wallet.urls", namespace="wallet")),
+    path("shop/", include("shop.urls", namespace="shop")),
+    path("placement/", include("placement.urls", namespace="placement")),
     path("health", health),
     path("", include("analytics.urls", namespace="analytics")),
 ]

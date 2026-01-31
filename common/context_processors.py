@@ -35,6 +35,17 @@ def sidebar_data(request):
         # Get Coins (if you have a coin system, add here)
         # For now, just a placeholder
         context['user_coins'] = 0
+        
+        # Get Equipped Frame
+        try:
+            from shop.models import UserInventory
+            equipped_inventory = UserInventory.objects.filter(
+                user=request.user, is_equipped=True
+            ).select_related('frame').first()
+            if equipped_inventory:
+                context['equipped_frame'] = equipped_inventory.frame
+        except Exception:
+            pass
     
     return context
 
