@@ -1,4 +1,4 @@
-{# templates/home.html #}
+{# templates/home.html - Frosted Crystal Dashboard #}
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
@@ -6,205 +6,326 @@
 
 {% block extra_css %}
 <style>
-  /* ========================================
-     Dashboard - Theme Aware Styles
-     ======================================== */
+  /* =============================================
+     Home Dashboard - Frosted Crystal Design
+     ============================================= */
 
-  .df-dashboard {
-    padding: 1.5rem 1rem;
-    max-width: 1200px;
+  /* Pastel Gradient Mesh Background */
+  .crystal-dashboard {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(199, 210, 254, 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(251, 207, 232, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(254, 215, 170, 0.35) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 50% at 80% 30%, rgba(167, 243, 208, 0.25) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+    padding: 1.25rem;
+  }
+
+  [data-theme="dark"] .crystal-dashboard {
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(245, 158, 11, 0.1) 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
+  }
+
+  .dashboard-container {
+    max-width: 900px;
     margin: 0 auto;
   }
 
-  /* Hero Section */
-  .df-hero {
-    display: grid;
-    grid-template-columns: 200px 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+  /* ========== GLASS PANELS ========== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
-  @media (max-width: 900px) {
-    .df-hero {
-      grid-template-columns: 1fr 1fr;
-    }
-    .df-hero-avatar {
-      display: none;
-    }
+  [data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow:
+      0 4px 24px -4px rgba(0, 0, 0, 0.35),
+      0 8px 48px -8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-light {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 16px;
+    box-shadow:
+      0 2px 12px -2px rgba(99, 102, 241, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+
+  [data-theme="dark"] .glass-panel-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  /* ========== HERO STATS HUB ========== */
+  .stats-hub {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   @media (max-width: 640px) {
-    .df-hero {
+    .stats-hub {
       grid-template-columns: 1fr;
     }
   }
 
-  /* Avatar Card */
-  .df-hero-avatar {
-    position: relative;
-    border-radius: 1.5rem;
-    overflow: hidden;
-    height: 200px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .df-hero-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .df-hero-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5rem;
-  }
-
-  /* Stats Card - Modern Glassmorphism */
-  .df-vocab-stats {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 1.5rem;
+  /* Vocabulary Stats Card */
+  .vocab-stats-card {
     padding: 1.25rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    height: 200px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1);
     position: relative;
     overflow: hidden;
   }
-  
-  .df-vocab-stats::before {
+
+  .vocab-stats-card::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    top: -30%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
     pointer-events: none;
   }
 
-  .df-vocab-stat {
-    text-align: center;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 1rem;
+  .vocab-header {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .vocab-wave {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    position: relative;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    font-size: 1.375rem;
+    box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.5);
   }
-  
-  [data-theme="dark"] .df-vocab-stat {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.1);
+
+  .vocab-greeting {
+    flex: 1;
   }
-  
-  .df-vocab-stat:hover {
+
+  .vocab-greeting-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  [data-theme="dark"] .vocab-greeting-title {
+    color: #f1f5f9;
+  }
+
+  .vocab-greeting-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .vocab-greeting-sub {
+    color: #94a3b8;
+  }
+
+  .vocab-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .vocab-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .vocab-stat {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: block;
+  }
+
+  [data-theme="dark"] .vocab-stat {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+  }
+
+  .vocab-stat:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.15);
   }
 
-  .df-vocab-stat-value {
-    font-size: 1.75rem;
+  [data-theme="dark"] .vocab-stat:hover {
+    background: rgba(99, 102, 241, 0.15);
+  }
+
+  .vocab-stat-value {
+    font-size: 1.5rem;
     font-weight: 800;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .vocab-stat-value--green {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .df-vocab-stat-value--primary {
-    background: linear-gradient(135deg, #10B981, #34D399);
+  .vocab-stat-value--amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .df-vocab-stat-value--secondary {
-    background: linear-gradient(135deg, #F59E0B, #FBBF24);
+  .vocab-stat-value--indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .df-vocab-stat-value--accent {
-    background: linear-gradient(135deg, #EC4899, #F472B6);
+  .vocab-stat-value--rose {
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .df-vocab-stat-label {
-    font-size: 0.6875rem;
+  .vocab-stat-label {
+    font-size: 0.625rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    margin-top: 0.375rem;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    margin-top: 0.25rem;
   }
 
-  /* Streak Card */
-  .df-streak-card {
-    background: linear-gradient(135deg, #F97316, #FBBF24);
-    border-radius: 1.5rem;
-    padding: 1rem;
-    color: #fff;
+  [data-theme="dark"] .vocab-stat-label {
+    color: #94a3b8;
+  }
+
+  /* Streak Card - Warm Gradient Glass */
+  .streak-card {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.9) 0%, rgba(234, 88, 12, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     position: relative;
     overflow: hidden;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
-  .df-streak-title {
+  .streak-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .streak-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -20%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .streak-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .streak-label {
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    opacity: 0.9;
-    margin-bottom: 0.25rem;
   }
 
-  .df-streak-count {
+  .streak-fire {
+    font-size: 1.5rem;
+    animation: fireGlow 1.5s ease-in-out infinite;
+  }
+
+  @keyframes fireGlow {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 200, 100, 0.6)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.9)); transform: scale(1.1); }
+  }
+
+  .streak-count {
     display: flex;
     align-items: baseline;
-    gap: 0.375rem;
-    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
   }
 
-  .df-streak-number {
-    font-size: 2.5rem;
-    font-weight: 700;
+  .streak-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
     line-height: 1;
+    letter-spacing: -0.04em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
-  .df-streak-unit {
-    font-size: 0.875rem;
-    opacity: 0.9;
+  .streak-unit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
   }
 
-  /* Week Days */
-  .df-streak-days {
+  .streak-days {
     display: flex;
     gap: 0.375rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
   }
 
-  .df-streak-day {
+  .streak-day {
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -212,832 +333,910 @@
     align-items: center;
     justify-content: center;
     font-size: 0.6875rem;
-    font-weight: 600;
-    transition: all 0.2s;
+    font-weight: 700;
+    transition: all 0.2s ease;
   }
 
-  .df-streak-day--inactive {
+  .streak-day--inactive {
     background: rgba(255, 255, 255, 0.2);
     color: rgba(255, 255, 255, 0.7);
   }
 
-  .df-streak-day--active {
-    background: #fff;
-    color: #F97316;
+  .streak-day--active {
+    background: white;
+    color: #ea580c;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
-  .df-streak-day--today {
-    background: #fff;
-    color: #F97316;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+  .streak-day--today {
+    background: white;
+    color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Quick Access */
-  .df-quick-access {
-    margin-bottom: 2rem;
-  }
-
-  .df-quick-access-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-align: center;
+  /* ========== TODAY'S MISSION ========== */
+  .mission-section {
     margin-bottom: 1rem;
   }
 
-  .df-quick-access-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-  }
-
-  @media (max-width: 768px) {
-    .df-quick-access-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  .df-quick-card {
+  .section-label {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+  }
+
+  [data-theme="dark"] .section-label {
+    color: #94a3b8;
+  }
+
+  .section-label svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    transition: all 0.2s ease;
     text-decoration: none;
-    transition: all 0.2s;
+    backdrop-filter: blur(10px);
   }
 
-  .df-quick-card:hover {
-    border-color: var(--action-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+  [data-theme="dark"] .mission-item {
+    background: rgba(51, 65, 85, 0.4);
+    border-color: rgba(148, 163, 184, 0.1);
   }
 
-  .df-quick-icon {
+  .mission-item:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.15);
+  }
+
+  [data-theme="dark"] .mission-item:hover {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .mission-icon {
     width: 40px;
     height: 40px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
     flex-shrink: 0;
   }
 
-  .df-quick-icon--blue { background: rgba(99, 102, 241, 0.15); }
-  .df-quick-icon--yellow { background: rgba(245, 158, 11, 0.15); }
-  .df-quick-icon--green { background: rgba(16, 185, 129, 0.15); }
-  .df-quick-icon--red { background: rgba(239, 68, 68, 0.15); }
+  .mission-icon--review {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.5);
+  }
 
-  .df-quick-text {
+  .mission-icon--milestone {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
+  }
+
+  .mission-icon svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+  }
+
+  .mission-content {
     flex: 1;
     min-width: 0;
   }
 
-  .df-quick-label {
+  .mission-title {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .df-quick-desc {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-quick-arrow {
-    color: var(--text-tertiary);
-    transition: transform 0.2s;
-  }
-
-  .df-quick-card:hover .df-quick-arrow {
-    transform: translateX(4px);
-  }
-
-  /* Section */
-  .df-section {
-    margin-bottom: 2rem;
-  }
-
-  .df-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-
-  .df-section-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .df-section-link {
-    font-size: 0.8125rem;
-    color: var(--action-primary);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .df-section-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Course/Vocab Card */
-  .df-item-card {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
-    text-decoration: none;
-    transition: all 0.15s;
-    margin-bottom: 0.75rem;
-  }
-
-  .df-item-card:hover {
-    background: var(--bg-interactive);
-    border-color: var(--action-primary);
-  }
-
-  .df-item-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .df-item-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .df-item-title {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    color: #1e293b;
     margin-bottom: 0.125rem;
   }
 
-  .df-item-meta {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+  [data-theme="dark"] .mission-title {
+    color: #f1f5f9;
   }
 
-  /* Two Column Grid */
-  .df-grid-2 {
+  .mission-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .mission-meta {
+    color: #94a3b8;
+  }
+
+  .mission-btn {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5);
+  }
+
+  .mission-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.6);
+  }
+
+  .mission-btn--pulse {
+    animation: pulse-btn 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5); }
+    50% { box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.7); }
+  }
+
+  .mission-arrow {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+  }
+
+  .mission-item:hover .mission-arrow {
+    transform: translateX(4px);
+    color: #6366f1;
+  }
+
+  /* ========== QUICK ACTIONS ========== */
+  .quick-actions {
+    margin-bottom: 1rem;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .quick-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .quick-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .quick-btn:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow:
+      0 8px 24px -8px rgba(99, 102, 241, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  [data-theme="dark"] .quick-btn:hover {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .quick-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  .quick-btn:hover .quick-icon {
+    transform: scale(1.1);
+  }
+
+  .quick-icon--blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.5);
+  }
+
+  .quick-icon--amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    box-shadow: 0 4px 12px -4px rgba(245, 158, 11, 0.5);
+  }
+
+  .quick-icon--green {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
+  }
+
+  .quick-icon--rose {
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    box-shadow: 0 4px 12px -4px rgba(236, 72, 153, 0.5);
+  }
+
+  .quick-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+  }
+
+  [data-theme="dark"] .quick-label {
+    color: #cbd5e1;
+  }
+
+  /* ========== CONTENT GRID ========== */
+  .content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   @media (max-width: 768px) {
-    .df-grid-2 {
+    .content-grid {
       grid-template-columns: 1fr;
     }
   }
 
-  .df-grid-section {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1.25rem;
-    padding: 1.25rem;
+  .content-panel {
+    padding: 1rem;
   }
 
-  /* Mobile Specific Styles */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+  }
+
+  .panel-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  [data-theme="dark"] .panel-title {
+    color: #f1f5f9;
+  }
+
+  .panel-link {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6366f1;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .panel-link:hover {
+    color: #4f46e5;
+  }
+
+  [data-theme="dark"] .panel-link {
+    color: #a5b4fc;
+  }
+
+  /* Course Ticket */
+  .course-ticket {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+  }
+
+  .course-ticket:last-child {
+    margin-bottom: 0;
+  }
+
+  .course-ticket:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.25);
+    transform: translateX(4px);
+  }
+
+  [data-theme="dark"] .course-ticket {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+
+  .course-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.5);
+  }
+
+  .course-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .course-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.125rem;
+  }
+
+  [data-theme="dark"] .course-title {
+    color: #f1f5f9;
+  }
+
+  .course-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .course-meta {
+    color: #94a3b8;
+  }
+
+  .course-arrow {
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+  }
+
+  .course-ticket:hover .course-arrow {
+    color: #6366f1;
+  }
+
+  /* Exam Result Item */
+  .exam-result {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-bottom: 0.375rem;
+  }
+
+  .exam-result:last-child {
+    margin-bottom: 0;
+  }
+
+  .exam-result:hover {
+    background: rgba(99, 102, 241, 0.06);
+  }
+
+  [data-theme="dark"] .exam-result:hover {
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .exam-score {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .exam-score--high {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .exam-score--medium {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.15) 100%);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .exam-score--low {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(248, 113, 113, 0.15) 100%);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+
+  .exam-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .exam-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-theme="dark"] .exam-title {
+    color: #f1f5f9;
+  }
+
+  .exam-meta {
+    font-size: 0.6875rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .exam-meta {
+    color: #94a3b8;
+  }
+
+  /* ========== NEW EXAMS SCROLL ========== */
+  .exams-section {
+    margin-bottom: 1rem;
+  }
+
+  .exams-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .exams-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .exam-card {
+    flex: 0 0 160px;
+    padding: 1rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .exam-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  [data-theme="dark"] .exam-card:hover {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .exam-card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .exam-card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .exam-card-title {
+    color: #f1f5f9;
+  }
+
+  .exam-card-meta {
+    font-size: 0.625rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  [data-theme="dark"] .exam-card-meta {
+    color: #94a3b8;
+  }
+
+  /* ========== EMPTY STATE ========== */
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .empty-state {
+    color: #94a3b8;
+  }
+
+  .empty-state a {
+    color: #6366f1;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .empty-state a:hover {
+    text-decoration: underline;
+  }
+
+  /* ========== GUEST LANDING ========== */
+  .guest-hero {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .guest-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  [data-theme="dark"] .guest-title {
+    color: #f1f5f9;
+  }
+
+  .guest-desc {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+
+  [data-theme="dark"] .guest-desc {
+    color: #94a3b8;
+  }
+
+  .guest-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .guest-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .guest-btn--primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.5);
+  }
+
+  .guest-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.6);
+  }
+
+  .guest-btn--secondary {
+    background: rgba(255, 255, 255, 0.7);
+    color: #475569;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  .guest-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 640px) {
-    .df-dashboard {
-      padding: 1rem 0.75rem;
-    }
-    
-    .df-hero {
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .df-vocab-stats {
-      height: auto;
-      padding: 0.75rem;
-      gap: 0.375rem;
-    }
-    
-    .df-vocab-stat {
-      padding: 0.5rem 0.25rem;
-    }
-    
-    .df-vocab-stat-value {
-      font-size: 1.25rem;
-    }
-    
-    .df-vocab-stat-label {
-      font-size: 0.6875rem;
-    }
-    
-    .df-streak-card {
-      height: auto;
+    .crystal-dashboard {
       padding: 1rem;
     }
-    
-    .df-streak-number {
-      font-size: 2rem;
+
+    .vocab-stats-card {
+      padding: 1rem;
     }
-    
-    .df-streak-days {
-      gap: 0.25rem;
+
+    .vocab-stat-value {
+      font-size: 1.25rem;
     }
-    
-    .df-streak-day {
-      width: 30px;
-      height: 30px;
+
+    .streak-number {
+      font-size: 2.5rem;
+    }
+
+    .streak-day {
+      width: 32px;
+      height: 32px;
       font-size: 0.625rem;
     }
-    
-    .df-quick-access {
-      margin-bottom: 1.5rem;
-    }
-    
-    .df-quick-access-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-    
-    .df-quick-card {
-      padding: 0.75rem;
-      gap: 0.75rem;
-      border-radius: 0.875rem;
-    }
-    
-    .df-quick-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      font-size: 1.125rem;
-    }
-    
-    .df-quick-label {
-      font-size: 0.8125rem;
-    }
-    
-    .df-quick-desc {
-      display: none;
-    }
-    
-    .df-quick-arrow {
-      display: none;
-    }
-    
-    .df-grid-2 {
-      gap: 1rem;
-    }
-    
-    .df-grid-section {
-      padding: 1rem;
-      border-radius: 1rem;
-    }
-    
-    .df-section-title {
-      font-size: 1.0625rem;
-    }
-    
-    .df-item-card {
-      padding: 0.875rem;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .df-item-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 1.25rem;
-    }
-    
-    .df-item-title {
-      font-size: 0.875rem;
-    }
-    
-    .df-item-meta {
-      font-size: 0.6875rem;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .df-quick-access-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-    
-    .df-quick-card {
-      flex-direction: column;
-      text-align: center;
+
+    .quick-btn {
       padding: 0.875rem 0.5rem;
     }
-    
-    .df-quick-text {
-      width: 100%;
+
+    .quick-icon {
+      width: 40px;
+      height: 40px;
     }
-    
-    .df-quick-label {
-      font-size: 0.75rem;
+
+    .quick-label {
+      font-size: 0.6875rem;
     }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-dashboard">
-  {% if user.is_authenticated %}
+<div class="crystal-dashboard">
+  <div class="dashboard-container">
 
-  <!-- Hero Section: Avatar + Vocab Stats + Streak -->
-  <div class="df-hero">
-    <!-- Avatar -->
-    <div class="df-hero-avatar">
-      {% if user.profile.avatar %}
-        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
-      {% else %}
-        <div class="df-hero-avatar-placeholder">👋</div>
-      {% endif %}
-    </div>
+    {% if user.is_authenticated %}
 
-    <!-- Vocabulary Stats -->
-    <div class="df-vocab-stats">
-      <a href="{% url 'vocab:my_words' %}?filter=mastered" class="df-vocab-stat" style="text-decoration: none;">
-        <div class="df-vocab-stat-value df-vocab-stat-value--primary">{{ vocab_stats.mastered|default:0 }}</div>
-        <div class="df-vocab-stat-label">Đã thuộc</div>
-      </a>
-      <a href="{% url 'vocab:my_words' %}?filter=learning" class="df-vocab-stat" style="text-decoration: none;">
-        <div class="df-vocab-stat-value df-vocab-stat-value--secondary">{{ vocab_stats.learning|default:0 }}</div>
-        <div class="df-vocab-stat-label">Chưa thuộc</div>
-      </a>
-      <a href="{% url 'vocab:my_words' %}?filter=all" class="df-vocab-stat" style="text-decoration: none;">
-        <div class="df-vocab-stat-value df-vocab-stat-value--primary">{{ vocab_stats.total|default:0 }}</div>
-        <div class="df-vocab-stat-label">Tổng từ</div>
-      </a>
-      <div class="df-vocab-stat">
-        <div class="df-vocab-stat-value df-vocab-stat-value--accent">{{ vocab_stats.progress|default:"0%" }}</div>
-        <div class="df-vocab-stat-label">Tiến độ</div>
-      </div>
-    </div>
-
-    <!-- Streak Card -->
-    <div class="df-streak-card">
-      <div class="df-streak-title">🔥 Chuỗi ngày học</div>
-      <div class="df-streak-count">
-        <span class="df-streak-number" id="streak-number" data-streak="{{ streak.current_streak|default:0 }}">{{ streak.current_streak|default:0 }}</span>
-        <span class="df-streak-unit">ngày</span>
-      </div>
-      <div class="df-streak-days">
-        {% for day in week_days %}
-        <div class="df-streak-day {% if day.is_today %}df-streak-day--today{% elif day.studied %}df-streak-day--active{% else %}df-streak-day--inactive{% endif %}">
-          {{ day.label }}
+    <!-- ========== STATS HUB ========== -->
+    <section class="stats-hub">
+      <!-- Vocabulary Stats Card -->
+      <article class="glass-panel vocab-stats-card">
+        <div class="vocab-header">
+          <div class="vocab-wave">👋</div>
+          <div class="vocab-greeting">
+            <div class="vocab-greeting-title">Xin chào, {{ user.first_name|default:user.username }}!</div>
+            <div class="vocab-greeting-sub">Tiếp tục học tập hôm nay</div>
+          </div>
         </div>
-        {% empty %}
-        <div class="df-streak-day df-streak-day--inactive">T6</div>
-        <div class="df-streak-day df-streak-day--inactive">T7</div>
-        <div class="df-streak-day df-streak-day--inactive">CN</div>
-        <div class="df-streak-day df-streak-day--inactive">T2</div>
-        <div class="df-streak-day df-streak-day--inactive">T3</div>
-        <div class="df-streak-day df-streak-day--today">T4</div>
-        <div class="df-streak-day df-streak-day--inactive">T5</div>
+        <div class="vocab-stats-grid">
+          <a href="{% url 'vocab:my_words' %}?filter=mastered" class="vocab-stat">
+            <div class="vocab-stat-value vocab-stat-value--green">{{ vocab_stats.mastered|default:0 }}</div>
+            <div class="vocab-stat-label">Đã thuộc</div>
+          </a>
+          <a href="{% url 'vocab:my_words' %}?filter=learning" class="vocab-stat">
+            <div class="vocab-stat-value vocab-stat-value--amber">{{ vocab_stats.learning|default:0 }}</div>
+            <div class="vocab-stat-label">Đang học</div>
+          </a>
+          <a href="{% url 'vocab:my_words' %}?filter=all" class="vocab-stat">
+            <div class="vocab-stat-value vocab-stat-value--indigo">{{ vocab_stats.total|default:0 }}</div>
+            <div class="vocab-stat-label">Tổng từ</div>
+          </a>
+          <div class="vocab-stat">
+            <div class="vocab-stat-value vocab-stat-value--rose">{{ vocab_stats.progress|default:"0%" }}</div>
+            <div class="vocab-stat-label">Tiến độ</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Streak Card -->
+      <article class="glass-panel streak-card">
+        <div class="streak-header">
+          <span class="streak-label">Chuỗi ngày học</span>
+          <span class="streak-fire">🔥</span>
+        </div>
+        <div class="streak-count">
+          <span class="streak-number" id="streak-number" data-streak="{{ streak.current_streak|default:0 }}">{{ streak.current_streak|default:0 }}</span>
+          <span class="streak-unit">ngày</span>
+        </div>
+        <div class="streak-days">
+          {% for day in week_days %}
+          <div class="streak-day {% if day.is_today %}streak-day--today{% elif day.studied %}streak-day--active{% else %}streak-day--inactive{% endif %}">
+            {{ day.label }}
+          </div>
+          {% empty %}
+          <div class="streak-day streak-day--inactive">T2</div>
+          <div class="streak-day streak-day--inactive">T3</div>
+          <div class="streak-day streak-day--today">T4</div>
+          <div class="streak-day streak-day--inactive">T5</div>
+          <div class="streak-day streak-day--inactive">T6</div>
+          <div class="streak-day streak-day--inactive">T7</div>
+          <div class="streak-day streak-day--inactive">CN</div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+
+    <!-- ========== TODAY'S MISSION ========== -->
+    {% if lesson and lesson.recommended_activities %}
+    <section class="mission-section">
+      <div class="section-label">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        Today's Focus
+      </div>
+      <div class="mission-list">
+        {% for activity in lesson.recommended_activities|slice:":2" %}
+        <a href="{% if activity.type == 'vocab_review' %}{% url 'vocab:set_list' %}?tab=my{% else %}#{% endif %}" class="mission-item">
+          <div class="mission-icon {% if activity.type == 'vocab_review' %}mission-icon--review{% else %}mission-icon--milestone{% endif %}">
+            {% if activity.type == 'vocab_review' %}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            {% else %}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            {% endif %}
+          </div>
+          <div class="mission-content">
+            <div class="mission-title">{{ activity.reason }}</div>
+            <div class="mission-meta">{{ activity.estimated_minutes|floatformat:0 }} phút</div>
+          </div>
+          <span class="mission-btn {% if activity.type == 'vocab_review' %}mission-btn--pulse{% endif %}">Bắt đầu</span>
+        </a>
         {% endfor %}
       </div>
-    </div>
-  </div>
+    </section>
+    {% endif %}
 
-  </div>
+    <!-- ========== QUICK ACTIONS ========== -->
+    <section class="quick-actions">
+      <div class="section-label">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
+        Quick Actions
+      </div>
+      <div class="quick-grid">
+        <a href="{% url 'vocab:english_list' %}" class="glass-panel-light quick-btn">
+          <div class="quick-icon quick-icon--blue">➕</div>
+          <span class="quick-label">Thêm từ mới</span>
+        </a>
+        <a href="{% url 'vocab:games' %}" class="glass-panel-light quick-btn">
+          <div class="quick-icon quick-icon--amber">⚡</div>
+          <span class="quick-label">Luyện tập</span>
+        </a>
+        <a href="{% url 'vocab:course_list' %}" class="glass-panel-light quick-btn">
+          <div class="quick-icon quick-icon--green">🛤️</div>
+          <span class="quick-label">Lộ trình</span>
+        </a>
+        <a href="{% url 'core:profile' %}" class="glass-panel-light quick-btn">
+          <div class="quick-icon quick-icon--rose">🏆</div>
+          <span class="quick-label">Xếp hạng</span>
+        </a>
+      </div>
+    </section>
 
-  <!-- Placement Dashboard Integration -->
-  {% if user.is_authenticated %}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Daily Lesson -->
-        {% if lesson %}
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    📋 Bài học hôm nay
-                </h2>
-                <span class="text-sm text-slate-500 font-medium">{{ lesson.target_minutes }} phút</span>
-            </div>
-            
-            {% if lesson.recommended_activities %}
-            <div class="space-y-3">
-                {% for activity in lesson.recommended_activities|slice:":2" %}
-                <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
-                                {% if activity.type == 'vocab_review' %}bg-blue-100 text-blue-600
-                                {% elif activity.type == 'skill_practice' %}bg-orange-100 text-orange-600
-                                {% elif activity.type == 'path_vocab' %}bg-green-100 text-green-600
-                                {% else %}bg-gray-100 text-gray-600{% endif %}">
-                        {% if activity.type == 'vocab_review' %}📚
-                        {% elif activity.type == 'skill_practice' %}🎯
-                        {% else %}📝{% endif %}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-medium text-slate-900 dark:text-white truncate">{{ activity.reason }}</p>
-                        <p class="text-xs text-slate-500">{{ activity.estimated_minutes|floatformat:0 }} phút</p>
-                    </div>
-                    <a href="{% if activity.type == 'vocab_review' %}{% url 'vocab:flashcards_english' %}{% else %}#{% endif %}"
-                       class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">
-                        Bắt đầu
-                    </a>
-                </div>
-                {% endfor %}
-                {% if lesson.recommended_activities|length > 2 %}
-                 <div class="text-center mt-2">
-                    <a href="{% url 'placement:daily_dashboard' %}" class="text-sm text-indigo-600 font-medium hover:underline">
-                        + {{ lesson.recommended_activities|length|add:"-2" }} hoạt động khác
-                    </a>
-                 </div>
-                {% endif %}
-            </div>
-            {% else %}
-            <p class="text-slate-500 text-center py-4 text-sm">Bạn đã hoàn thành bài học hôm nay!</p>
-            {% endif %}
-
-            <!-- Simple Progress -->
-            {% if lesson.actual_minutes > 0 %}
-            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                <div class="flex justify-between text-xs mb-1">
-                    <span class="text-slate-500">Tiến độ</span>
-                    <span class="font-bold text-indigo-600">{{ lesson.actual_minutes }}/{{ lesson.target_minutes }}m</span>
-                </div>
-                <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                    {% widthratio lesson.actual_minutes lesson.target_minutes 100 as progress %}
-                    <div class="h-full bg-indigo-500 rounded-full" style="width: {{ progress }}%"></div>
-                </div>
-            </div>
-            {% endif %}
+    <!-- ========== CONTENT GRID ========== -->
+    <section class="content-grid">
+      <!-- My Courses -->
+      <article class="glass-panel content-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">📚 Khóa học của tôi</h2>
+          <a href="{% url 'core:course_list' %}" class="panel-link">Xem tất cả →</a>
         </div>
+        {% if enrolled_courses %}
+          {% for enrollment in enrolled_courses|slice:":2" %}
+          <a href="{% url 'core:course_detail' enrollment.course.slug %}" class="course-ticket">
+            <div class="course-icon">{{ enrollment.course.title|slice:":2"|upper }}</div>
+            <div class="course-info">
+              <div class="course-title">{{ enrollment.course.title }}</div>
+              <div class="course-meta">{% if enrollment.progress %}{{ enrollment.progress }}% hoàn thành{% else %}Chưa bắt đầu{% endif %}</div>
+            </div>
+            <svg class="course-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>Bạn chưa đăng ký khóa học nào.</p>
+            <a href="{% url 'core:course_list' %}">Khám phá khóa học →</a>
+          </div>
         {% endif %}
+      </article>
 
-        <!-- Path Status / CTA -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col justify-center">
-            {% if path %}
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        🛤️ Lộ trình học
-                    </h2>
-                    <a href="{% url 'placement:learning_path' %}" class="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg">
-                        Chi tiết
-                    </a>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="flex justify-between items-end mb-2">
-                        <div>
-                            <p class="text-sm text-slate-500">Mục tiêu</p>
-                            <p class="text-xl font-bold text-slate-900 dark:text-white">{{ path.target_score }} TOEIC</p>
-                        </div>
-                        <div class="text-right">
-                             <p class="text-sm text-slate-500">Hoàn thành</p>
-                             <p class="text-xl font-bold text-indigo-600">{{ path.progress_percentage|floatformat:0 }}%</p>
-                        </div>
-                    </div>
-                    <div class="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-1000" 
-                             style="width: {{ path.progress_percentage }}%"></div>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-3">
-                    <p class="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wide">Milestone tiếp theo</p>
-                    {% for m in path.milestones.all %}
-                        {% if m.is_unlocked and not m.is_completed %}
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
-                                {{ m.order }}
-                            </div>
-                            <span class="text-sm font-medium text-slate-900 dark:text-white line-clamp-1">{{ m.title }}</span>
-                        </div>
-                        <!-- Break after finding first active milestone -->
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-            {% else %}
-                <!-- No Path CTA -->
-                <div class="text-center py-2">
-                    <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                        🚀
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Chưa có lộ trình?</h3>
-                    <p class="text-sm text-slate-500 mb-4 px-4">Làm bài test đánh giá năng lực để nhận lộ trình cá nhân hóa.</p>
-                    <a href="{% url 'placement:welcome' %}" 
-                       class="inline-block px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
-                        Làm bài test ngay
-                    </a>
-                </div>
-            {% endif %}
+      <!-- Exam Results -->
+      <article class="glass-panel content-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">📊 Kết quả luyện thi</h2>
+          <a href="{% url 'core:profile' %}" class="panel-link">Xem tất cả →</a>
         </div>
-    </div>
-  {% endif %}
+        {% if recent_exam_results %}
+          {% for result in recent_exam_results|slice:":3" %}
+          <a href="{% url 'exam:exam_result' result.id %}" class="exam-result">
+            <div class="exam-score {% if result.score >= 80 %}exam-score--high{% elif result.score >= 60 %}exam-score--medium{% else %}exam-score--low{% endif %}">
+              {{ result.score|floatformat:0 }}%
+            </div>
+            <div class="exam-info">
+              <div class="exam-title">{{ result.template.title }}</div>
+              <div class="exam-meta">{{ result.submitted_at|date:"d/m/Y" }} • {{ result.correct_count }}/{{ result.total_questions }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>Bạn chưa làm bài thi nào.</p>
+            <a href="{% url 'exam:exam_list' %}">Làm bài thi ngay →</a>
+          </div>
+        {% endif %}
+      </article>
+    </section>
 
-  <!-- Quick Access -->
-  <div class="df-quick-access">
-    <div class="df-quick-access-title">Truy cập nhanh</div>
-    <div class="df-quick-access-grid">
-      <a href="{% url 'vocab:english_list' %}" class="df-quick-card">
-        <div class="df-quick-icon df-quick-icon--blue">➕</div>
-        <div class="df-quick-text">
-          <div class="df-quick-label">Thêm từ mới</div>
-          <div class="df-quick-desc">Tạo từ vựng cá nhân</div>
-        </div>
-        <svg class="df-quick-arrow" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
-
-      <a href="{% url 'vocab:games' %}" class="df-quick-card">
-        <div class="df-quick-icon df-quick-icon--yellow">⚡</div>
-        <div class="df-quick-text">
-          <div class="df-quick-label">Luyện tập</div>
-          <div class="df-quick-desc">Flashcard & Games</div>
-        </div>
-        <svg class="df-quick-arrow" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
-
-      <a href="{% url 'core:course_list' %}" class="df-quick-card">
-        <div class="df-quick-icon df-quick-icon--green">🏛️</div>
-        <div class="df-quick-text">
-          <div class="df-quick-label">Lộ trình học</div>
-          <div class="df-quick-desc">Học theo chủ đề</div>
-        </div>
-        <svg class="df-quick-arrow" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
-
-      <a href="{% url 'core:profile' %}" class="df-quick-card">
-        <div class="df-quick-icon df-quick-icon--red">🏆</div>
-        <div class="df-quick-text">
-          <div class="df-quick-label">Xếp hạng</div>
-          <div class="df-quick-desc">Xem thành tích</div>
-        </div>
-        <svg class="df-quick-arrow" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-  </div>
-
-  <!-- Courses + Exam Results -->
-  <div class="df-grid-2 df-section">
-    <!-- My Courses -->
-    <div class="df-grid-section">
-      <div class="df-section-header">
-        <h2 class="df-section-title">📚 Khóa học của tôi</h2>
-        <a href="{% url 'core:course_list' %}" class="df-section-link">Xem tất cả →</a>
+    <!-- ========== NEW EXAMS ========== -->
+    {% if latest_exams %}
+    <section class="exams-section">
+      <div class="section-label">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Đề thi mới
       </div>
-      {% if enrolled_courses %}
-        {% for enrollment in enrolled_courses %}
-        <a href="{% url 'core:course_detail' enrollment.course.slug %}" class="df-item-card">
-          <div class="df-item-icon" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;">
-            {{ enrollment.course.title|slice:":2"|upper }}
-          </div>
-          <div class="df-item-content">
-            <div class="df-item-title">{{ enrollment.course.title }}</div>
-            <div class="df-item-meta">{% if enrollment.progress %}{{ enrollment.progress }}% hoàn thành{% else %}Chưa bắt đầu{% endif %}</div>
-          </div>
+      <div class="exams-scroll">
+        {% for exam in latest_exams|slice:":8" %}
+        <a href="{% url 'exam:exam_detail' exam.slug %}" class="glass-panel-light exam-card">
+          <div class="exam-card-icon">📄</div>
+          <div class="exam-card-title">{{ exam.title|truncatechars:30 }}</div>
+          <div class="exam-card-meta">{{ exam.total_questions }} câu</div>
         </a>
         {% endfor %}
-      {% else %}
-        <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">
-          Bạn chưa đăng ký khóa học nào.<br>
-          <a href="{% url 'core:course_list' %}" style="color: var(--action-primary);">Khám phá khóa học →</a>
-        </p>
-      {% endif %}
-    </div>
-
-    <!-- Exam Results -->
-    <div class="df-grid-section">
-      <div class="df-section-header">
-        <h2 class="df-section-title">📊 Kết quả luyện thi</h2>
-        <a href="{% url 'core:profile' %}" class="df-section-link">Xem tất cả →</a>
       </div>
-      {% if recent_exam_results %}
-        {% for result in recent_exam_results|slice:":3" %}
-        <a href="{% url 'exam:exam_result' result.id %}" class="df-item-card">
-          <div class="df-item-icon" style="{% if result.score >= 80 %}background: rgba(16, 185, 129, 0.15); color: #059669;{% elif result.score >= 60 %}background: rgba(245, 158, 11, 0.15); color: #D97706;{% else %}background: rgba(239, 68, 68, 0.15); color: #DC2626;{% endif %}">
-            {{ result.score|floatformat:0 }}%
-          </div>
-          <div class="df-item-content">
-            <div class="df-item-title">{{ result.template.title }}</div>
-            <div class="df-item-meta">{{ result.submitted_at|date:"d/m/Y" }} • {{ result.correct_count }}/{{ result.total_questions }} câu đúng</div>
-          </div>
+    </section>
+    {% endif %}
+
+    {% else %}
+    <!-- ========== GUEST LANDING ========== -->
+    <article class="glass-panel guest-hero">
+      <h1 class="guest-title">📚 Kho đề thi TOEIC & JLPT</h1>
+      <p class="guest-desc">Luyện thi miễn phí với hàng ngàn câu hỏi thực tế</p>
+      <div class="guest-actions">
+        <a href="{% url 'account_login' %}" class="guest-btn guest-btn--primary">Đăng nhập</a>
+        <a href="{% url 'account_signup' %}" class="guest-btn guest-btn--secondary">Đăng ký</a>
+      </div>
+    </article>
+
+    {% if latest_exams %}
+    <section class="exams-section">
+      <div class="section-label">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Đề thi mới nhất
+      </div>
+      <div class="exams-scroll">
+        {% for exam in latest_exams|slice:":8" %}
+        <a href="{% url 'exam:exam_detail' exam.slug %}" class="glass-panel-light exam-card">
+          <div class="exam-card-icon">📄</div>
+          <div class="exam-card-title">{{ exam.title|truncatechars:30 }}</div>
+          <div class="exam-card-meta">{{ exam.total_questions }} câu</div>
         </a>
         {% endfor %}
-      {% else %}
-        <p style="text-align: center; padding: 2rem; color: var(--text-tertiary);">
-          Bạn chưa làm bài thi nào.<br>
-          <a href="{% url 'exam:exam_list' %}" style="color: var(--action-primary);">Làm bài thi ngay →</a>
-        </p>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Latest Exams Section -->
-  {% if latest_exams %}
-  <div class="df-section">
-    <div class="df-section-header">
-      <h2 class="df-section-title">📝 Đề thi mới nhất</h2>
-      <a href="{% url 'exam:exam_list' %}" class="df-section-link">Xem tất cả →</a>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-      {% for exam in latest_exams|slice:":8" %}
-      <a href="{% url 'exam:exam_detail' exam.slug %}" class="df-item-card" style="flex-direction: column; text-align: center;">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
-        <div class="df-item-title" style="font-size: 0.8125rem; line-height: 1.3;">{{ exam.title|truncatechars:40 }}</div>
-        <div class="df-item-meta">{{ exam.total_questions }} câu • {{ exam.attempt_count|default:0 }} lượt</div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-
-  {% else %}
-  <!-- Non-authenticated user landing -->
-  <div style="text-align: center; margin-bottom: 2rem;">
-    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
-      📚 Kho đề thi TOEIC & JLPT
-    </h1>
-    <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-      Luyện thi miễn phí với hàng ngàn câu hỏi thực tế
-    </p>
-    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
-      <a href="{% url 'account_login' %}" style="padding: 0.75rem 1.5rem; background: var(--action-primary); color: var(--action-primary-text); border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
-        Đăng nhập
-      </a>
-      <a href="{% url 'account_signup' %}" style="padding: 0.75rem 1.5rem; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default); border-radius: 0.75rem; text-decoration: none; font-weight: 600;">
-        Đăng ký
-      </a>
-    </div>
-  </div>
-
-  <!-- Exam Grid (same UI as exam_list.html) -->
-  {% if latest_exams %}
-  <style>
-    .df-guest-exam-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.25rem;
-    }
-    .df-guest-exam-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .df-guest-exam-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--action-primary) 0%, var(--action-accent) 100%);
-      opacity: 0;
-      transition: opacity 0.25s;
-    }
-    .df-guest-exam-card:hover {
-      border-color: var(--card-hover-border);
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-2px);
-    }
-    .df-guest-exam-card:hover::before { opacity: 1; }
-    .df-guest-exam-card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-    .df-guest-exam-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .df-guest-exam-card-level {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.625rem;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: 0.375rem;
-    }
-    .df-guest-exam-card-level--toeic {
-      background: rgba(245, 158, 11, 0.15);
-      color: #D97706;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    .df-guest-exam-card-level--n5 { background: rgba(59, 130, 246, 0.15); color: #2563EB; border: 1px solid rgba(59, 130, 246, 0.3); }
-    .df-guest-exam-card-level--n4 { background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .df-guest-exam-card-level--n3 { background: rgba(249, 115, 22, 0.15); color: #EA580C; border: 1px solid rgba(249, 115, 22, 0.3); }
-    .df-guest-exam-card-level--n2 { background: rgba(236, 72, 153, 0.15); color: #DB2777; border: 1px solid rgba(236, 72, 153, 0.3); }
-    .df-guest-exam-card-level--n1 { background: rgba(139, 92, 246, 0.15); color: #7C3AED; border: 1px solid rgba(139, 92, 246, 0.3); }
-    .df-guest-exam-card-users {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-    }
-    .df-guest-exam-card-users svg { width: 14px; height: 14px; }
-    .df-guest-exam-card-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      font-size: 0.8125rem;
-      color: var(--text-secondary);
-    }
-    .df-guest-exam-card-meta-item { display: flex; align-items: center; gap: 0.375rem; }
-    .df-guest-exam-card-meta-item svg { width: 14px; height: 14px; opacity: 0.7; }
-    .df-guest-exam-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .df-guest-exam-card-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 1.25rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--action-primary-text);
-      background: var(--action-primary);
-      border-radius: 0.5rem;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .df-guest-exam-card-btn:hover {
-      background: var(--action-primary-hover);
-      transform: translateX(2px);
-      box-shadow: var(--shadow-primary);
-    }
-    .df-guest-exam-card-btn svg { width: 16px; height: 16px; transition: transform 0.2s; }
-    .df-guest-exam-card-btn:hover svg { transform: translateX(2px); }
-    @media (max-width: 640px) {
-      .df-guest-exam-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-  <div class="df-guest-exam-grid">
-    {% for exam in latest_exams %}
-    <div class="df-guest-exam-card">
-      <h2 class="df-guest-exam-card-title">{{ exam.title }}</h2>
-      <div class="df-guest-exam-card-header">
-        <span class="df-guest-exam-card-level df-guest-exam-card-level--{{ exam.level|lower }}">
-          {{ exam.level }}
-        </span>
-        <span class="df-guest-exam-card-users">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          {{ exam.attempt_count|default:0 }} lượt làm
-        </span>
       </div>
-      <div class="df-guest-exam-card-meta">
-        <span class="df-guest-exam-card-meta-item">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {{ exam.questions.count }} câu
-        </span>
-        <span class="df-guest-exam-card-meta-item">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {{ exam.duration_minutes }} phút
-        </span>
-      </div>
-      <div class="df-guest-exam-card-footer">
-        <a href="{% url 'exam:exam_detail' exam.slug %}" class="df-guest-exam-card-btn">
-          Chi tiết
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-    {% endfor %}
+    </section>
+    {% endif %}
+
+    {% include "components/landing/why_choose_us.html" %}
+    {% include "components/landing/student_stories.html" %}
+    {% endif %}
+
   </div>
-  <div style="text-align: center; margin-top: 1.5rem;">
-    <a href="{% url 'exam:exam_list' %}" style="color: var(--action-primary); font-weight: 600; text-decoration: none;">
-      Xem tất cả đề thi →
-    </a>
-  </div>
-  {% endif %}
-  {% endif %}
 </div>
 
 {% if user.is_authenticated and streak and streak.current_streak > 0 %}
@@ -1060,10 +1259,5 @@ document.addEventListener('DOMContentLoaded', () => {
   requestAnimationFrame(animate);
 });
 </script>
-{% endif %}
-
-{% if not user.is_authenticated %}
-{% include "components/landing/why_choose_us.html" %}
-{% include "components/landing/student_stories.html" %}
 {% endif %}
 {% endblock %}
