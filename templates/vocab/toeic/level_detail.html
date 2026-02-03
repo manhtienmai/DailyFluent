@@ -4,330 +4,826 @@
 {% block title %}{{ config.label }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
 <style>
-  /* Base Variables Override for this page */
-  :root {
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --card-radius: 16px;
+  /* =============================================
+     Course Detail - Frosted Crystal Design
+     ============================================= */
+
+  /* Pastel Gradient Mesh Background */
+  .course-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 25%, rgba(167, 243, 208, 0.45) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 85% 75%, rgba(199, 210, 254, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 50% 5%, rgba(254, 215, 170, 0.3) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 40% at 90% 10%, rgba(251, 207, 232, 0.25) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+    padding: 1.25rem;
   }
 
-  /* Chapter Accordion */
-  .df-chapter-accordion {
-    margin-top: 2rem;
+  [data-theme="dark"] .course-page {
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 25%, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 85% 75%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 50% 5%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
+  }
+
+  .course-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* ========== GLASS PANELS ========== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 18px;
+    box-shadow:
+      0 4px 24px -4px rgba(16, 185, 129, 0.1),
+      0 8px 48px -8px rgba(16, 185, 129, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow:
+      0 4px 24px -4px rgba(0, 0, 0, 0.35),
+      0 8px 48px -8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-light {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 14px;
+    box-shadow:
+      0 2px 12px -2px rgba(16, 185, 129, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+
+  [data-theme="dark"] .glass-panel-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+    box-shadow:
+      0 2px 12px -2px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* ========== LAYER 1: HEADER ========== */
+  .course-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+  }
+
+  [data-theme="dark"] .course-back {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+  }
+
+  .course-back:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #10b981;
+    transform: translateX(-2px);
+  }
+
+  [data-theme="dark"] .course-back:hover {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+
+  .course-back svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Header Card */
+  .course-header {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 1rem;
   }
-  
-  .df-chapter {
-    background: var(--bg-surface, #ffffff);
-    border: 1px solid var(--border-default, #e2e8f0);
-    border-radius: var(--card-radius);
-    overflow: hidden;
-    transition: all 0.2s ease;
+
+  .course-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px -8px rgba(16, 185, 129, 0.5);
   }
-  
-  .df-chapter:not(.open):hover {
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
-    border-color: var(--border-strong, #cbd5e1);
+
+  .course-header-content {
+    flex: 1;
+    min-width: 0;
   }
-  
-  .df-chapter-header {
+
+  .course-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  [data-theme="dark"] .course-title {
+    color: #f1f5f9;
+  }
+
+  .course-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  [data-theme="dark"] .course-desc {
+    color: #94a3b8;
+  }
+
+  /* ========== LAYER 2: REVIEW BANNER ========== */
+  .review-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.875rem 1rem;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(52, 211, 153, 0.12) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
     cursor: pointer;
-    background: transparent;
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
   }
-  
-  .df-chapter-header-left {
+
+  .review-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .review-banner:hover::before {
+    opacity: 1;
+  }
+
+  .review-banner:hover {
+    transform: translateY(-2px);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow:
+      0 8px 24px -8px rgba(16, 185, 129, 0.3),
+      0 0 0 1px rgba(16, 185, 129, 0.1);
+  }
+
+  [data-theme="dark"] .review-banner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.1) 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .review-banner-left {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
   }
-  
-  .df-chapter-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+
+  .review-banner-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
+  }
+
+  .review-banner-icon svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+  }
+
+  .review-banner-text {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #059669;
+  }
+
+  [data-theme="dark"] .review-banner-text {
+    color: #34d399;
+  }
+
+  .review-banner-count {
+    font-weight: 800;
+  }
+
+  .review-banner-arrow {
+    width: 20px;
+    height: 20px;
+    color: #10b981;
+    transition: transform 0.2s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .review-banner:hover .review-banner-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ========== LAYER 3: STATISTICS ========== */
+  .stats-panel {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-bottom: 1rem;
+  }
+
+  .stats-item {
+    text-align: center;
+    padding: 0.75rem;
+    position: relative;
+  }
+
+  .stats-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, transparent, rgba(148, 163, 184, 0.25), transparent);
+  }
+
+  .stats-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  [data-theme="dark"] .stats-value {
+    color: #f1f5f9;
+  }
+
+  .stats-value--accent {
+    color: #10b981;
+  }
+
+  [data-theme="dark"] .stats-value--accent {
+    color: #34d399;
+  }
+
+  .stats-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.25rem;
+  }
+
+  [data-theme="dark"] .stats-label {
+    color: #94a3b8;
+  }
+
+  /* Progress Bar */
+  .progress-container {
+    padding: 0 0.5rem;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  [data-theme="dark"] .progress-bar {
+    background: rgba(148, 163, 184, 0.12);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ========== LAYER 4: CURRICULUM ========== */
+  .curriculum-section {
+    margin-top: 0.5rem;
+  }
+
+  .curriculum-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.875rem;
+    padding-left: 0.25rem;
+  }
+
+  [data-theme="dark"] .curriculum-title {
+    color: #94a3b8;
+  }
+
+  .curriculum-title svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Chapter Accordion */
+  .chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .chapter-item {
+    transition: all 0.25s ease;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .chapter-item:not(.open):hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px -8px rgba(16, 185, 129, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .chapter-item.open {
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  [data-theme="dark"] .chapter-item.open {
+    background: rgba(30, 41, 59, 0.8);
+  }
+
+  .chapter-left {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chapter-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.125rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.25s ease;
   }
-  
-  /* Gradient Icons based on Chapter Number */
-  .df-chapter-icon--1 { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .df-chapter-icon--2 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-  .df-chapter-icon--3 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-  .df-chapter-icon--4 { background: linear-gradient(135deg, #10b981, #059669); }
-  
-  .df-chapter-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-primary, #1e293b);
+
+  .chapter-item:hover .chapter-icon {
+    transform: scale(1.08);
   }
-  
-  .df-chapter-subtitle {
+
+  .chapter-icon--1 { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+  .chapter-icon--2 { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); }
+  .chapter-icon--3 { background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); }
+  .chapter-icon--4 { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+
+  .chapter-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chapter-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-theme="dark"] .chapter-name {
+    color: #f1f5f9;
+  }
+
+  .chapter-meta {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .chapter-meta {
+    color: #94a3b8;
+  }
+
+  .chapter-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .chapter-progress {
     font-size: 0.875rem;
-    color: var(--text-secondary, #64748b);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 2px;
+    font-weight: 700;
+    color: #10b981;
   }
-  
-  .df-chapter-header-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+
+  [data-theme="dark"] .chapter-progress {
+    color: #34d399;
   }
-  
-  .df-chapter-chevron {
-    width: 24px;
-    height: 24px;
-    color: var(--text-tertiary, #94a3b8);
+
+  .chapter-chevron {
+    width: 20px;
+    height: 20px;
+    color: #94a3b8;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
-  .df-chapter.open .df-chapter-chevron {
+
+  .chapter-item.open .chapter-chevron {
     transform: rotate(180deg);
   }
-  
-  .df-chapter-content {
+
+  /* Chapter Content (Expanded) */
+  .chapter-content {
     display: none;
     padding: 0 1rem 1rem;
-    border-top: 1px solid var(--border-default, #e2e8f0);
     animation: slideDown 0.3s ease-out;
   }
-  
+
   @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
+    from { opacity: 0; transform: translateY(-8px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  
-  .df-chapter.open .df-chapter-content {
+
+  .chapter-item.open .chapter-content {
     display: block;
   }
-  
-  /* Milestone */
-  .df-milestone {
-    margin-top: 1rem;
-  }
-  
-  .df-milestone-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+
+  .chapter-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.2), transparent);
     margin-bottom: 1rem;
   }
-  
-  .df-milestone-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-primary, #1e293b);
+
+  /* Lesson Grid */
+  .lesson-grid {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
-  .df-milestone-title::before {
-    content: '';
-    width: 4px;
-    height: 16px;
-    background: var(--action-primary, #0D9488);
-    border-radius: 2px;
-  }
-  
-  /* Sets Grid - Compact */
-  .df-chapter-sets {
+
+  .lesson-tile {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-    padding: 0.75rem 0;
-  }
-  
-  .df-set-tile {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     position: relative;
-    border: 1.5px solid transparent;
+    text-decoration: none;
   }
-  
-  .df-set-tile:hover {
-    transform: translateY(-2px) scale(1.08);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+
+  .lesson-tile:hover {
+    transform: translateY(-3px) scale(1.08);
     z-index: 2;
   }
-  
-  /* Status Colors (Light/Dark Mode Compatible) */
-  
-  /* Completed */
-  .df-set-tile--completed {
-    background: #10b981;
+
+  /* Lesson Status */
+  .lesson-tile--completed {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     color: white;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
   }
-  
-  /* In Progress */
-  .df-set-tile--in_progress {
-    background: #3b82f6;
+
+  .lesson-tile--completed:hover {
+    box-shadow: 0 8px 20px -8px rgba(16, 185, 129, 0.6);
+  }
+
+  .lesson-tile--in_progress {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     color: white;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.5);
   }
-  
-  /* Available (Default) */
-  .df-set-tile--available {
-    background: var(--bg-surface, #ffffff);
-    color: var(--text-primary, #334155);
-    border-color: var(--border-default, #e2e8f0);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+  .lesson-tile--in_progress:hover {
+    box-shadow: 0 8px 20px -8px rgba(59, 130, 246, 0.6);
   }
-  
-  .df-set-tile--available:hover {
-    border-color: var(--action-primary, #0D9488);
-    color: var(--action-primary, #0D9488);
+
+  .lesson-tile--available {
+    background: rgba(255, 255, 255, 0.7);
+    color: #475569;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.06);
   }
-  
-  /* Icons for status */
-  .df-set-tile-icon {
+
+  [data-theme="dark"] .lesson-tile--available {
+    background: rgba(51, 65, 85, 0.5);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.15);
+  }
+
+  .lesson-tile--available:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.2);
+  }
+
+  [data-theme="dark"] .lesson-tile--available:hover {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.12);
+  }
+
+  /* Completed Check Badge */
+  .lesson-check {
     position: absolute;
     top: -4px;
     right: -4px;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    z-index: 3;
+    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.15);
   }
-  
-  .df-set-tile--completed .df-set-tile-icon svg {
+
+  .lesson-check svg {
+    width: 10px;
+    height: 10px;
     color: #10b981;
-    width: 12px;
-    height: 12px;
+  }
+
+  /* ========== EMPTY STATE ========== */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .empty-state {
+    color: #94a3b8;
+  }
+
+  .empty-state svg {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    opacity: 0.5;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 640px) {
+    .course-page {
+      padding: 1rem;
+    }
+
+    .course-header {
+      padding: 1rem 1.25rem;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .course-badge {
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stats-value {
+      font-size: 1.5rem;
+    }
+
+    .stats-label {
+      font-size: 0.625rem;
+    }
+
+    .chapter-header {
+      padding: 0.75rem;
+    }
+
+    .chapter-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+
+    .chapter-name {
+      font-size: 0.875rem;
+    }
+
+    .lesson-tile {
+      width: 36px;
+      height: 36px;
+      font-size: 0.75rem;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-toeic-container">
-  <!-- Back + Header -->
-  <div class="df-toeic-level-header">
-    <a href="{% url 'vocab:course_list' %}" class="df-toeic-back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M15 18l-6-6 6-6"/>
+<div class="course-page">
+  <div class="course-container">
+
+    <!-- Back Link -->
+    <a href="{% url 'vocab:course_list' %}" class="course-back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
       </svg>
       Quay lại
     </a>
-    <div class="df-toeic-level-header-info">
-      <span class="df-toeic-level-badge" style="background: {{ config.gradient }};">
-        {{ config.icon }} {{ config.label }}
-      </span>
-      <p class="df-toeic-level-header-desc">{{ config.description }}</p>
-    </div>
-  </div>
 
-  <!-- Review Banner -->
-  {% if review_count > 0 %}
-  <a href="{% url 'vocab:toeic_review' %}" class="df-toeic-review-banner df-toeic-review-banner--compact">
-    <div class="df-toeic-review-banner-content">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;">
-        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-      </svg>
-      <span>🔄 {{ review_count }} thẻ cần ôn tập</span>
-    </div>
-    <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M9 5l7 7-7 7"/>
-    </svg>
-  </a>
-  {% endif %}
+    <!-- LAYER 1: Header Card -->
+    <header class="glass-panel course-header">
+      <div class="course-badge" style="background: {{ config.gradient }};">
+        {{ config.icon }}
+      </div>
+      <div class="course-header-content">
+        <h1 class="course-title">{{ config.label }}</h1>
+        <p class="course-desc">{{ config.description }}</p>
+      </div>
+    </header>
 
-  <!-- Overall Progress -->
-  <div class="df-toeic-overview-card">
-    <div class="df-toeic-overview-stats">
-      <div class="df-toeic-overview-stat">
-        <span class="df-toeic-overview-stat-value">{{ learned_words }}</span>
-        <span class="df-toeic-overview-stat-label">Từ đã học</span>
-      </div>
-      <div class="df-toeic-overview-stat">
-        <span class="df-toeic-overview-stat-value">{{ total_words }}</span>
-        <span class="df-toeic-overview-stat-label">Tổng số từ</span>
-      </div>
-      <div class="df-toeic-overview-stat">
-        <span class="df-toeic-overview-stat-value">{{ completion }}%</span>
-        <span class="df-toeic-overview-stat-label">Hoàn thành</span>
-      </div>
-    </div>
-    <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
-      <div class="df-toeic-progress-fill" style="width: {{ completion }}%; background: {{ config.color }};"></div>
-    </div>
-  </div>
-
-  <!-- Chapters Accordion -->
-  <div class="df-chapter-accordion">
-    {% for chapter in chapters %}
-    <div class="df-chapter {% if forloop.first %}open{% endif %}" data-chapter="{{ chapter.number }}">
-      <div class="df-chapter-header" onclick="toggleChapter(this)">
-        <div class="df-chapter-header-left">
-          <div class="df-chapter-icon df-chapter-icon--{{ chapter.number }}">
-            {% if chapter.number == 1 %}🏆{% elif chapter.number == 2 %}📈{% elif chapter.number == 3 %}🚀{% else %}👑{% endif %}
-          </div>
-          <div>
-            <div class="df-chapter-title">Chương {{ chapter.number }}: {{ chapter.name }}</div>
-            <div class="df-chapter-subtitle">{{ chapter.words_learned }}/{{ chapter.words_total }} từ</div>
-          </div>
-        </div>
-        <div class="df-chapter-header-right">
-          <span class="df-chapter-progress-text">{{ chapter.completion }}%</span>
-          <svg class="df-chapter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 9l6 6 6-6"/>
+    <!-- LAYER 2: Review Banner -->
+    {% if review_count > 0 %}
+    <a href="{% url 'vocab:toeic_review' %}" class="review-banner">
+      <div class="review-banner-left">
+        <div class="review-banner-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
         </div>
+        <span class="review-banner-text">
+          <span class="review-banner-count">{{ review_count }}</span> thẻ cần ôn tập
+        </span>
       </div>
-      
-      <div class="df-chapter-content">
-        <div class="df-chapter-sets">
-          {% for sd in chapter.sets %}
-          {% with set=sd.set state=sd.state %}
-          <div class="df-set-tile df-set-tile--{{ state }}"
-                 onclick="window.location.href='{% url 'vocab:course_set_detail' slug=course.slug set_number=set.set_number %}'"
-               title="Bộ {{ set.set_number }}{% if set.priority_range %} ({{ set.priority_range }}){% endif %}">
-            {{ set.set_number }}
-            {% if state == 'completed' %}
-            <div class="df-set-tile-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            {% endif %}
-          </div>
-          {% endwith %}
-          {% endfor %}
+      <svg class="review-banner-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+    {% endif %}
+
+    <!-- LAYER 3: Statistics Dashboard -->
+    <section class="glass-panel stats-panel">
+      <div class="stats-grid">
+        <div class="stats-item">
+          <div class="stats-value">{{ learned_words }}</div>
+          <div class="stats-label">Đã học</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-value">{{ total_words }}</div>
+          <div class="stats-label">Tổng số từ</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-value stats-value--accent">{{ completion }}%</div>
+          <div class="stats-label">Hoàn thành</div>
         </div>
       </div>
-    </div>
-    {% empty %}
-    <div style="text-align:center; padding: 2rem; color: var(--text-muted);">
-      Chưa có set nào được import cho level này.
-    </div>
-    {% endfor %}
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ completion }}%; background: {{ config.gradient }};"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAYER 4: Curriculum -->
+    <section class="curriculum-section">
+      <div class="curriculum-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        Chương trình học
+      </div>
+
+      <div class="chapter-list">
+        {% for chapter in chapters %}
+        <article class="glass-panel-light chapter-item {% if forloop.first %}open{% endif %}" data-chapter="{{ chapter.number }}">
+          <div class="chapter-header" onclick="toggleChapter(this)">
+            <div class="chapter-left">
+              <div class="chapter-icon chapter-icon--{{ chapter.number }}">
+                {% if chapter.number == 1 %}🏆{% elif chapter.number == 2 %}📈{% elif chapter.number == 3 %}🚀{% else %}👑{% endif %}
+              </div>
+              <div class="chapter-info">
+                <div class="chapter-name">Chương {{ chapter.number }}: {{ chapter.name }}</div>
+                <div class="chapter-meta">{{ chapter.words_learned }}/{{ chapter.words_total }} từ</div>
+              </div>
+            </div>
+            <div class="chapter-right">
+              <span class="chapter-progress">{{ chapter.completion }}%</span>
+              <svg class="chapter-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="chapter-content">
+            <div class="chapter-divider"></div>
+            <div class="lesson-grid">
+              {% for sd in chapter.sets %}
+              {% with set=sd.set state=sd.state %}
+              <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set.set_number %}"
+                 class="lesson-tile lesson-tile--{{ state }}"
+                 title="Bộ {{ set.set_number }}{% if set.priority_range %} ({{ set.priority_range }}){% endif %}">
+                {{ set.set_number }}
+                {% if state == 'completed' %}
+                <span class="lesson-check">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </span>
+                {% endif %}
+              </a>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+        </article>
+        {% empty %}
+        <div class="glass-panel empty-state">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          <p>Chưa có set nào được import cho level này.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
   </div>
 </div>
 
