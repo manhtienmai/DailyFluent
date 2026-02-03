@@ -95,7 +95,8 @@ class SetStudyView(DetailView):
             e = d.entry  # WordEntry (has ipa, audio)
             v = e.vocab  # Vocabulary (has word)
             items_data.append({
-                'id': item.id,
+                'id': v.id, # Use Vocab ID for grading API
+                'set_item_id': item.id,
                 'word': v.word,
                 'ipa': e.ipa,
                 'audio_url': e.get_audio_url('us'),  # Default to US
@@ -221,14 +222,19 @@ def import_json_view(request, pk):
         # Show import form
         return render(request, 'vocab/set_import.html', {'vocab_set': vocab_set})
     
-    # POST - handle file upload
+    # POST - handle file upload or text input
     json_file = request.FILES.get('json_file')
-    if not json_file:
-        messages.error(request, "Vui lòng chọn file JSON để import.")
-        return redirect('vocab:set_import', pk=pk)
+    json_text = request.POST.get('json_text')
     
+    data = None
     try:
-        data = json.load(json_file)
+        if json_file:
+            data = json.load(json_file)
+        elif json_text:
+            data = json.loads(json_text)
+        else:
+            messages.error(request, "Vui lòng chọn file JSON hoặc nhập nội dung JSON.")
+            return redirect('vocab:set_import', pk=pk)
     except json.JSONDecodeError as e:
         messages.error(request, f"File JSON không hợp lệ: {e}")
         return redirect('vocab:set_import', pk=pk)
@@ -273,6 +279,8 @@ def import_json_view(request, pk):
                     extra_data['reading'] = word_data['reading']
                 if word_data.get('romaji'):
                     extra_data['romaji'] = word_data['romaji']
+                if word_data.get('han_viet'):
+                    extra_data['han_viet'] = word_data['han_viet']
             
             # Get or create Vocabulary
             vocab_obj, _ = Vocabulary.objects.get_or_create(

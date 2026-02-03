@@ -1,282 +1,133 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
 
-{% block extra_css %}
-<style>
-  .df-form-page {
-    padding: 2rem 1rem;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .df-form-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-card);
-  }
-
-  .df-form-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 1.5rem;
-  }
-
-  .df-form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  .df-form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-  }
-
-  .df-form-input {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 0.5rem;
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .df-form-input:hover {
-    border-color: var(--input-border-hover);
-  }
-
-  .df-form-input:focus {
-    border-color: var(--input-border-focus);
-    box-shadow: 0 0 0 3px var(--action-primary-subtle);
-  }
-
-  .df-form-group input[type="text"],
-  .df-form-group input[type="url"],
-  .df-form-group input[type="number"],
-  .df-form-group textarea,
-  .df-form-group select {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 0.5rem;
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .df-form-group input:hover,
-  .df-form-group textarea:hover,
-  .df-form-group select:hover {
-    border-color: var(--input-border-hover);
-  }
-
-  .df-form-group input:focus,
-  .df-form-group textarea:focus,
-  .df-form-group select:focus {
-    border-color: var(--input-border-focus);
-    box-shadow: 0 0 0 3px var(--action-primary-subtle);
-  }
-
-  .df-form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-
-  .df-form-checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .df-form-checkbox {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--action-primary);
-    cursor: pointer;
-  }
-
-  .df-form-checkbox-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-
-  .df-form-hint {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    font-style: italic;
-    margin-top: 0.375rem;
-  }
-
-  .df-form-error {
-    font-size: 0.75rem;
-    color: var(--status-error-text);
-    font-style: italic;
-    margin-top: 0.375rem;
-  }
-
-  .df-form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-default);
-  }
-
-  .df-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    min-height: 44px;
-  }
-
-  .df-btn-primary {
-    background: var(--action-primary);
-    color: white;
-  }
-
-  .df-btn-primary:hover {
-    background: var(--action-primary-hover);
-  }
-
-  .df-btn-link {
-    background: transparent;
-    color: var(--action-primary);
-    padding: 0.75rem 1rem;
-  }
-
-  .df-btn-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Mobile */
-  @media (max-width: 640px) {
-    .df-form-page {
-      padding: 1rem;
-      padding-bottom: env(safe-area-inset-bottom, 1rem);
-    }
-
-    .df-form-card {
-      padding: 1.25rem;
-      border-radius: 0.5rem;
-    }
-
-    .df-form-title {
-      font-size: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .df-form-input {
-      padding: 0.875rem;
-      font-size: 1rem; /* Prevent iOS zoom */
-      min-height: 48px;
-    }
-
-    .df-form-checkbox-group {
-      min-height: 44px;
-    }
-
-    .df-form-checkbox {
-      width: 22px;
-      height: 22px;
-    }
-
-    .df-form-actions {
-      flex-direction: column-reverse;
-      gap: 0.75rem;
-    }
-
-    .df-btn {
-      width: 100%;
-      padding: 0.875rem;
-      min-height: 48px;
-    }
-  }
-
-  /* Small phones */
-  @media (max-width: 375px) {
-    .df-form-page {
-      padding: 0.75rem;
-    }
-
-    .df-form-card {
-      padding: 1rem;
-    }
-
-    .df-form-title {
-      font-size: 1.125rem;
-    }
-
-    .df-form-label {
-      font-size: 0.8125rem;
-    }
-  }
-</style>
+{% block title %}
+  {% if form.instance.pk %}Edit Set | DailyFluent{% else %}Create Set | DailyFluent{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="df-form-page">
-  <div class="df-form-card">
-    <h1 class="df-form-title">
-      {% if form.instance.pk %}Edit Vocabulary Set{% else %}Create Vocabulary Set{% endif %}
+<div class="max-w-2xl mx-auto">
+  
+  {# --- PAGE HEADER --- #}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-primary">
+      {% if form.instance.pk %}Edit Vocabulary Set{% else %}Create New Set{% endif %}
     </h1>
+    <p class="text-secondary text-sm mt-1">
+      Fill in the details below to {% if form.instance.pk %}update your{% else %}create a new{% endif %} vocabulary collection.
+    </p>
+  </div>
 
-    <form method="post">
+  {# --- FORM CARD --- #}
+  <div class="bg-surface border border-default rounded-xl shadow-sm overflow-hidden">
+    <form method="post" class="p-6 md:p-8">
       {% csrf_token %}
 
-      {% for field in form %}
-      <div class="df-form-group">
-        {% if field.name == 'is_public' %}
-          <div class="df-form-checkbox-group">
-            <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                   class="df-form-checkbox"
-                   {% if field.value %}checked{% endif %}>
-            <label for="{{ field.id_for_label }}" class="df-form-checkbox-label">
-              {{ field.label }} - {{ field.help_text }}
-            </label>
-          </div>
-        {% else %}
-          <label for="{{ field.id_for_label }}" class="df-form-label">
-            {{ field.label }}
+      {# Display Non-Field Errors #}
+      {% if form.non_field_errors %}
+        <div class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm dark:bg-red-900/20 dark:border-red-800 dark:text-red-300">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="space-y-6">
+        
+        {# Title Field #}
+        <div>
+          <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-secondary mb-1.5">
+            {{ form.title.label }}
           </label>
-          {{ field }}
-          {% if field.help_text %}
-          <p class="df-form-hint">{{ field.help_text }}</p>
+          <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" 
+                 value="{{ form.title.value|default:'' }}"
+                 class="w-full px-4 py-2.5 bg-app text-primary border border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder-tertiary"
+                 placeholder="e.g., My TOEIC Words, Daily Conversation..."
+                 required>
+          {% if form.title.errors %}
+            <p class="mt-1 text-sm text-error">{{ form.title.errors.0 }}</p>
           {% endif %}
-        {% endif %}
+          {% if form.title.help_text %}
+            <p class="mt-1.5 text-xs text-tertiary">{{ form.title.help_text }}</p>
+          {% endif %}
+        </div>
 
-        {% if field.errors %}
-        <p class="df-form-error">{{ field.errors.0 }}</p>
-        {% endif %}
+        {# Description Field #}
+        <div>
+          <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-secondary mb-1.5">
+            {{ form.description.label }}
+          </label>
+          <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="4"
+                    class="w-full px-4 py-3 bg-app text-primary border border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder-tertiary resize-y min-h-[100px]"
+                    placeholder="Describe what this set is about...">{{ form.description.value|default:'' }}</textarea>
+          {% if form.description.errors %}
+            <p class="mt-1 text-sm text-error">{{ form.description.errors.0 }}</p>
+          {% endif %}
+          {% if form.description.help_text %}
+            <p class="mt-1.5 text-xs text-tertiary">{{ form.description.help_text }}</p>
+          {% endif %}
+        </div>
+
+        {# Status Field #}
+        <div>
+             <label for="{{ form.status.id_for_label }}" class="block text-sm font-semibold text-secondary mb-1.5">
+            {{ form.status.label }}
+          </label>
+          <div class="relative">
+            <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}"
+                    class="w-full appearance-none px-4 py-2.5 bg-app text-primary border border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+              {% for value, label in form.status.field.choices %}
+                <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary">
+              <svg class="h-4 w-4" opacity="0.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+          {% if form.status.errors %}
+            <p class="mt-1 text-sm text-error">{{ form.status.errors.0 }}</p>
+          {% endif %}
+          {% if form.status.help_text %}
+            <p class="mt-1.5 text-xs text-tertiary">{{ form.status.help_text }}</p>
+          {% endif %}
+        </div>
+
+        {# Is Public Checkbox #}
+        <div class="flex items-start gap-3 p-4 bg-app-subtle rounded-lg border border-default">
+          <div class="flex h-6 items-center">
+            <input type="checkbox" name="{{ form.is_public.name }}" id="{{ form.is_public.id_for_label }}"
+                   class="h-5 w-5 rounded border-default text-primary focus:ring-primary bg-surface transition-colors cursor-pointer"
+                   {% if form.is_public.value %}checked{% endif %}>
+          </div>
+          <div class="text-sm leading-6">
+            <label for="{{ form.is_public.id_for_label }}" class="font-medium text-primary cursor-pointer select-none">
+              {{ form.is_public.label }}
+            </label>
+            <p class="text-tertiary text-xs mt-0.5">
+              If checked, other users will be able to see and study this set.
+            </p>
+          </div>
+        </div>
+
       </div>
-      {% endfor %}
 
-      <div class="df-form-actions">
-        <a href="{% url 'vocab:set_list' %}" class="df-btn df-btn-link">
+      {# --- ACTIONS --- #}
+      <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-default">
+        <a href="{% url 'vocab:set_list' %}" 
+           class="px-5 py-2.5 text-sm font-semibold text-secondary hover:text-primary transition-colors">
           Cancel
         </a>
-        <button type="submit" class="df-btn df-btn-primary">
-          Save Set
+        <button type="submit" 
+                class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-sm">
+          <span>{% if form.instance.pk %}Save Changes{% else %}Create Set{% endif %}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
         </button>
       </div>
+
     </form>
   </div>
 </div>

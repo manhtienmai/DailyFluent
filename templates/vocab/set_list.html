@@ -1,455 +1,188 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
 
-{% block extra_css %}
-<style>
-  .df-sets-page {
-    padding: 2rem 1rem;
-  }
-
-  .df-sets-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-  }
-
-  .df-sets-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
-  .df-create-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--action-primary);
-    color: white;
-    font-weight: 600;
-    padding: 0.625rem 1rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.15s ease;
-  }
-
-  .df-create-btn:hover {
-    background: var(--action-primary-hover);
-  }
-
-  .df-filters-section {
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-default);
-    padding-bottom: 0;
-  }
-
-  .df-filters-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .df-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .df-tab-link {
-    display: inline-block;
-    padding: 0.875rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s ease;
-  }
-
-  .df-tab-link:hover {
-    color: var(--text-primary);
-    border-color: var(--border-strong);
-  }
-
-  .df-tab-link.active {
-    color: var(--action-primary);
-    border-color: var(--action-primary);
-  }
-
-  .df-lang-filters {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .df-lang-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.8125rem;
-    border-radius: 9999px;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    background: var(--bg-interactive);
-    color: var(--text-secondary);
-  }
-
-  .df-lang-btn:hover {
-    background: var(--bg-surface);
-  }
-
-  .df-lang-btn.active-all {
-    background: var(--text-primary);
-    color: white;
-  }
-
-  .df-lang-btn.active-en {
-    background: #2563eb;
-    color: white;
-  }
-
-  .df-lang-btn.active-jp {
-    background: #dc2626;
-    color: white;
-  }
-
-  .df-sets-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .df-set-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    transition: box-shadow 0.2s ease;
-  }
-
-  .df-set-card:hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-
-  .df-set-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem;
-  }
-
-  .df-set-title a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .df-set-title a:hover {
-    text-decoration: underline;
-  }
-
-  .df-set-desc {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0 0 1rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .df-set-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8125rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-set-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
-    font-size: 0.6875rem;
-    font-weight: 500;
-  }
-
-  .df-badge-mine {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .df-badge-user {
-    background: var(--bg-interactive);
-    color: var(--text-secondary);
-  }
-
-  .df-badge-system {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-
-  .df-badge-toeic {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: white;
-    font-weight: 600;
-  }
-
-  .df-empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-pagination {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: center;
-  }
-
-  .df-pagination-nav {
-    display: inline-flex;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .df-pagination-nav a,
-  .df-pagination-nav span {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    border: 1px solid var(--border-default);
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    text-decoration: none;
-    margin-left: -1px;
-  }
-
-  .df-pagination-nav a:first-child {
-    margin-left: 0;
-    border-radius: 0.5rem 0 0 0.5rem;
-  }
-
-  .df-pagination-nav > *:last-child {
-    border-radius: 0 0.5rem 0.5rem 0;
-  }
-
-  .df-pagination-nav a:hover {
-    background: var(--bg-interactive);
-  }
-
-  .df-pagination-nav span {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  /* Tablet */
-  @media (max-width: 1024px) {
-    .df-sets-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  /* Mobile */
-  @media (max-width: 640px) {
-    .df-sets-page {
-      padding: 1rem;
-      padding-bottom: env(safe-area-inset-bottom, 1rem);
-    }
-
-    .df-sets-header {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .df-sets-title {
-      font-size: 1.5rem;
-    }
-
-    .df-create-btn {
-      justify-content: center;
-      padding: 0.75rem 1rem;
-      min-height: 44px;
-    }
-
-    .df-filters-row {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
-    }
-
-    .df-tabs {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .df-tab-link {
-      padding: 0.75rem 0.875rem;
-      flex: 1;
-      text-align: center;
-    }
-
-    .df-lang-filters {
-      justify-content: center;
-      padding-bottom: 0.75rem;
-    }
-
-    .df-lang-btn {
-      padding: 0.5rem 0.875rem;
-      min-height: 36px;
-    }
-
-    .df-sets-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .df-set-card {
-      padding: 1rem;
-    }
-
-    .df-set-title {
-      font-size: 1rem;
-    }
-
-    .df-set-desc {
-      font-size: 0.8125rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .df-pagination-nav a,
-    .df-pagination-nav span {
-      padding: 0.625rem 0.875rem;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  /* Small phones */
-  @media (max-width: 375px) {
-    .df-sets-page {
-      padding: 0.75rem;
-    }
-
-    .df-sets-title {
-      font-size: 1.25rem;
-    }
-
-    .df-tab-link {
-      padding: 0.625rem 0.5rem;
-      font-size: 0.8125rem;
-    }
-
-    .df-lang-btn {
-      padding: 0.375rem 0.625rem;
-      font-size: 0.75rem;
-    }
-  }
-</style>
-{% endblock %}
+{% block title %}Vocabulary Sets | DailyFluent{% endblock %}
 
 {% block content %}
-<div class="df-sets-page container mx-auto">
-  <div class="df-sets-header">
-    <h1 class="df-sets-title">Vocabulary Sets</h1>
-    <a href="{% url 'vocab:set_create' %}" class="df-create-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
+<div class="max-w-7xl mx-auto">
+  
+  {# --- HEADER SECTION --- #}
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-primary mb-1">Vocabulary Sets</h1>
+      <p class="text-secondary text-sm">Manage and explore vocabulary collections.</p>
+    </div>
+    
+    <a href="{% url 'vocab:set_create' %}" 
+       class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-colors shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
-      Create New Set
+      <span>Create New Set</span>
     </a>
   </div>
 
-  <div class="df-filters-section">
-    <div class="df-filters-row">
-      <!-- Main Filter (Private/Public) -->
-      <ul class="df-tabs">
-        <li>
-          <a href="?tab=public&lang={{ current_lang }}" class="df-tab-link {% if tab != 'my' %}active{% endif %}">
-            Public Sets
-          </a>
-        </li>
+  {# --- FILTERS SECTION --- #}
+  <div class="bg-surface border border-default rounded-xl p-4 mb-6 shadow-sm">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      
+      {# Tabs: Public vs My Sets #}
+      <div class="flex p-1 bg-app-subtle rounded-lg">
+        <a href="?tab=public&lang={{ current_lang }}" 
+           class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {% if tab != 'my' %}bg-surface text-primary shadow-sm{% else %}text-secondary hover:text-primary{% endif %}">
+          Public Sets
+        </a>
         {% if user.is_authenticated %}
-        <li>
-          <a href="?tab=my&lang={{ current_lang }}" class="df-tab-link {% if tab == 'my' %}active{% endif %}">
-            My Sets
-          </a>
-        </li>
+        <a href="?tab=my&lang={{ current_lang }}" 
+           class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 {% if tab == 'my' %}bg-surface text-primary shadow-sm{% else %}text-secondary hover:text-primary{% endif %}">
+          My Sets
+        </a>
         {% endif %}
-      </ul>
+      </div>
 
-      <!-- Language Filter -->
-      <div class="df-lang-filters">
-        <a href="?tab={{ tab }}&lang=all" class="df-lang-btn {% if current_lang == 'all' %}active-all{% endif %}">
-          All
-        </a>
-        <a href="?tab={{ tab }}&lang=en" class="df-lang-btn {% if current_lang == 'en' %}active-en{% endif %}">
-          EN
-        </a>
-        <a href="?tab={{ tab }}&lang=jp" class="df-lang-btn {% if current_lang == 'jp' %}active-jp{% endif %}">
-          JP
-        </a>
+      {# Language Pills #}
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold text-tertiary uppercase tracking-wider">Language</span>
+        <div class="flex items-center gap-1">
+          <a href="?tab={{ tab }}&lang=all" 
+             class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border {% if current_lang == 'all' %}bg-primary text-white border-transparent{% else %}bg-surface text-secondary border-default hover:border-strong{% endif %}">
+            All
+          </a>
+          <a href="?tab={{ tab }}&lang=en" 
+             class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border {% if current_lang == 'en' %}bg-blue-600 text-white border-transparent{% else %}bg-surface text-secondary border-default hover:border-strong{% endif %}">
+            EN
+          </a>
+          <a href="?tab={{ tab }}&lang=jp" 
+             class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border {% if current_lang == 'jp' %}bg-red-600 text-white border-transparent{% else %}bg-surface text-secondary border-default hover:border-strong{% endif %}">
+            JP
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="df-sets-grid">
+  {# --- GRID SECTION --- #}
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
     {% for set in sets %}
-    <div class="df-set-card">
-      {% if set.toeic_level %}
-      <div style="margin-bottom: 0.5rem;">
-        <span class="df-set-badge df-badge-toeic">TOEIC {{ set.toeic_level }} - Set {{ set.set_number }}</span>
-      </div>
-      {% endif %}
-      <h2 class="df-set-title">
-        <a href="{% url 'vocab:set_detail' set.pk %}">{{ set.title }}</a>
-      </h2>
-      <p class="df-set-desc">{{ set.description|default:"No description" }}</p>
+    <div class="group flex flex-col bg-surface border border-default rounded-xl overflow-hidden hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
+      {# Card Header: Badges & TOEIC Info #}
+      <div class="p-5 flex-1">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+            {% if set.toeic_level %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold text-white shadow-sm"
+                  style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+              TOEIC {{ set.toeic_level }}
+            </span>
+            {% if set.set_number %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-app-subtle text-secondary border border-default">
+              Set {{ set.set_number }}
+            </span>
+            {% endif %}
+          {% endif %}
+          
+          {% if set.language == 'jp' %}
+             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+               JP
+             </span>
+          {% endif %}
+        </div>
 
-      <div class="df-set-meta">
-        <span>{{ set.items.count }} words</span>
-        <span>
+        {# Title #}
+        <h3 class="text-lg font-bold text-primary mb-2 line-clamp-1 group-hover:text-action transition-colors">
+          <a href="{% url 'vocab:set_detail' set.pk %}" class="focus:outline-none">
+            <span class="absolute inset-0" aria-hidden="true"></span>
+            {{ set.title }}
+          </a>
+        </h3>
+
+        {# Description #}
+        <p class="text-sm text-secondary line-clamp-2 mb-4 h-[40px]">
+          {{ set.description|default:"No description provided." }}
+        </p>
+      </div>
+
+      {# Card Footer: Meta Info #}
+      <div class="px-5 py-3 bg-app-subtle/50 border-t border-default flex items-center justify-between text-xs">
+        <div class="flex items-center gap-1.5 text-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span class="font-medium">{{ set.items.count }} words</span>
+        </div>
+
+        <div>
           {% if set.owner %}
             {% if set.owner == user %}
-            <span class="df-set-badge df-badge-mine">My Set</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                My Set
+              </span>
             {% else %}
-            <span class="df-set-badge df-badge-user">{{ set.owner.username }}</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-app text-secondary border border-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {{ set.owner.username }}
+              </span>
             {% endif %}
           {% else %}
-            <span class="df-set-badge df-badge-system">System</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50 font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              System
+            </span>
           {% endif %}
-        </span>
+        </div>
       </div>
     </div>
     {% empty %}
-    <div class="df-empty-state">
-      No sets found.
+    <div class="col-span-1 md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-default rounded-xl bg-app-subtle">
+      <div class="w-16 h-16 bg-surface rounded-full flex items-center justify-center mb-4 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-primary mb-1">No sets found</h3>
+      <p class="text-secondary max-w-sm mx-auto mb-6">We couldn't find any vocabulary sets matching your filters. Try changing your search or create a new set.</p>
+      
+      <a href="{% url 'vocab:set_create' %}" class="btn-primary">
+        Create New Set
+      </a>
     </div>
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
+  {# --- PAGINATION --- #}
   {% if is_paginated %}
-  <div class="df-pagination">
-    <nav class="df-pagination-nav" aria-label="Pagination">
+  <div class="mt-8 flex justify-center">
+    <nav class="inline-flex rounded-md shadow-sm isolate -space-x-px">
       {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}&tab={{ tab }}&lang={{ current_lang }}">
-        Previous
+      <a href="?page={{ page_obj.previous_page_number }}&tab={{ tab }}&lang={{ current_lang }}" 
+         class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-l-md border border-default bg-surface text-secondary hover:bg-app-subtle focus:z-10">
+        <span class="sr-only">Previous</span>
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+        </svg>
       </a>
       {% endif %}
-      <span>{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      
+      <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold border border-default bg-surface text-primary focus:z-10">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
       {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}&tab={{ tab }}&lang={{ current_lang }}">
-        Next
+      <a href="?page={{ page_obj.next_page_number }}&tab={{ tab }}&lang={{ current_lang }}" 
+         class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-r-md border border-default bg-surface text-secondary hover:bg-app-subtle focus:z-10">
+        <span class="sr-only">Next</span>
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+        </svg>
       </a>
       {% endif %}
     </nav>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

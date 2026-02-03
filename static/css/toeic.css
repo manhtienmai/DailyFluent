@@ -487,12 +487,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0; /* Reduced from implicit padding */
 }
 
 .df-toeic-learn-card {
   width: 100%;
-  max-width: 480px;
-  min-height: 320px;
+  max-width: 600px; /* Increased from 480px (1.25x) */
+  min-height: 400px; /* Increased from 320px (1.25x) */
   perspective: 1000px;
   cursor: pointer;
   position: relative;

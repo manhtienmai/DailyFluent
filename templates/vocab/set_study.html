@@ -1,1080 +1,287 @@
-{% extends "base.html" %}
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Study Set: {{ vocab_set.title }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
 <style>
-  .df-study-page {
-    padding: 2rem 1rem;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .df-study-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .df-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: var(--text-secondary);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .df-back-link:hover {
-    color: var(--text-primary);
-  }
-
-  .df-progress-text {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-tertiary);
-  }
-
-  /* Progress Bar */
-  .df-progress-bar-wrap {
-    width: 100%;
-    height: 4px;
-    background: var(--border-default);
-    border-radius: 2px;
-    margin-bottom: 0.75rem;
-    overflow: hidden;
-  }
-
-  .df-progress-bar {
-    height: 100%;
-    background: var(--action-primary);
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
-  /* Progress Dots */
-  .df-progress-dots {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-  }
-
-  .df-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--border-default);
-    transition: all 0.2s ease;
-  }
-
-  .df-dot--current {
-    background: var(--action-primary);
-    transform: scale(1.4);
-  }
-
-  .df-dot--known {
-    background: #22c55e;
-  }
-
-  .df-dot--unknown {
-    background: #f97316;
-  }
-
-  .df-dot--skipped {
-    background: var(--text-tertiary);
-  }
-
-  /* Mode Toggle */
-  .df-mode-toggle {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .df-mode-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    border-radius: 9999px;
-    border: 1px solid var(--border-default);
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .df-mode-btn:hover {
-    border-color: var(--action-primary);
-  }
-
-  .df-mode-btn--active {
-    background: var(--action-primary);
-    color: white;
-    border-color: var(--action-primary);
-  }
-
-  /* Flashcard Container */
-  .df-flashcard-container {
-    perspective: 1000px;
-    height: 380px;
-    width: 100%;
-    cursor: pointer;
-    margin-bottom: 1.5rem;
-  }
-
-  .df-flashcard {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.5s ease;
-    transform-style: preserve-3d;
-    border-radius: 1rem;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .df-flashcard.flipped {
-    transform: rotateY(180deg);
-  }
-
-  .df-flashcard-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-  }
-
-  .df-flashcard-back {
-    transform: rotateY(180deg);
-  }
-
-  .df-card-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-tertiary);
-    margin-bottom: 1rem;
-  }
-
-  .df-card-word {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.75rem;
-    word-break: break-word;
-  }
-
-  .df-card-ipa {
-    font-size: 1.125rem;
-    color: var(--text-tertiary);
-    font-family: monospace;
-  }
-
-  .df-card-audio-btn {
-    margin-top: 1.25rem;
-    padding: 0.75rem;
-    background: transparent;
-    border: none;
-    color: var(--action-primary);
-    cursor: pointer;
-    border-radius: 50%;
-    transition: background 0.15s ease;
-  }
-
-  .df-card-audio-btn:hover {
-    background: var(--action-primary-subtle);
-  }
-
-  .df-card-audio-btn svg {
-    width: 32px;
-    height: 32px;
-  }
-
-  .df-card-flip-hint {
-    margin-top: 1rem;
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    opacity: 0.6;
-  }
-
-  .df-card-meaning {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    text-align: center;
-  }
-
-  .df-card-pos {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-    font-style: italic;
-    margin-bottom: 1.25rem;
-  }
-
-  .df-card-example {
-    background: var(--bg-interactive);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-  }
-
-  .df-card-example-text {
-    font-size: 1rem;
-    color: var(--text-primary);
-    margin-bottom: 0.375rem;
-  }
-
-  .df-card-example-trans {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-  }
-
-  /* Study Action Buttons (Known / Still Learning) */
-  .df-study-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .df-study-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    border-radius: 0.75rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    min-height: 48px;
-    flex: 1;
-    max-width: 200px;
-  }
-
-  .df-study-action-btn svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-  }
-
-  .df-btn-unknown {
-    background: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #fed7aa;
-  }
-
-  .df-btn-unknown:hover {
-    background: #ffedd5;
-    border-color: #fdba74;
-  }
-
-  .df-btn-known {
-    background: #f0fdf4;
-    color: #16a34a;
-    border: 1px solid #bbf7d0;
-  }
-
-  .df-btn-known:hover {
-    background: #dcfce7;
-    border-color: #86efac;
-  }
-
-  /* Browse Controls */
-  .df-study-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .df-control-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    border-radius: 9999px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    min-height: 48px;
-  }
-
-  .df-control-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .df-btn-prev {
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-default);
-  }
-
-  .df-btn-prev:not(:disabled):hover {
-    background: var(--bg-interactive);
-  }
-
-  .df-btn-next {
-    background: var(--action-primary);
-    color: white;
-  }
-
-  .df-btn-next:not(:disabled):hover {
-    background: var(--action-primary-hover);
-  }
-
-  .df-btn-shuffle {
-    padding: 0.75rem;
-    border-radius: 50%;
-    background: transparent;
-    border: none;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .df-btn-shuffle:hover {
-    background: var(--bg-interactive);
-  }
-
-  .df-btn-shuffle.active {
-    background: var(--action-primary-subtle);
-    color: var(--action-primary);
-  }
-
-  .df-btn-shuffle svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  /* Keyboard Hints */
-  .df-kbd-hints {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .df-kbd-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 22px;
-    padding: 0 6px;
-    background: var(--bg-interactive);
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    font-family: inherit;
-    color: var(--text-secondary);
-  }
-
-  /* Summary Screen */
-  .df-summary {
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-
-  .df-summary-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .df-summary-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem;
-  }
-
-  .df-summary-subtitle {
-    font-size: 0.9375rem;
-    color: var(--text-secondary);
-    margin: 0 0 2rem;
-  }
-
-  .df-summary-stats {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .df-summary-stat {
-    text-align: center;
-  }
-
-  .df-summary-stat-value {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 0.375rem;
-  }
-
-  .df-summary-stat-label {
-    font-size: 0.8125rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-summary-stat--known .df-summary-stat-value {
-    color: #16a34a;
-  }
-
-  .df-summary-stat--unknown .df-summary-stat-value {
-    color: #ea580c;
-  }
-
-  .df-summary-stat--total .df-summary-stat-value {
-    color: var(--action-primary);
-  }
-
-  .df-summary-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .df-summary-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.875rem 2rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    border-radius: 0.75rem;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    min-height: 48px;
-    min-width: 220px;
-  }
-
-  .df-summary-btn--primary {
-    background: var(--action-primary);
-    color: white;
-  }
-
-  .df-summary-btn--primary:hover {
-    background: var(--action-primary-hover);
-  }
-
-  .df-summary-btn--secondary {
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-default);
-  }
-
-  .df-summary-btn--secondary:hover {
-    background: var(--bg-interactive);
-  }
-
-  .df-summary-btn--warning {
-    background: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #fed7aa;
-  }
-
-  .df-summary-btn--warning:hover {
-    background: #ffedd5;
-  }
-
-  /* Empty State */
-  .df-study-empty {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-study-empty svg {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  .df-study-empty p {
-    margin: 0 0 1rem;
-    font-size: 1rem;
-  }
-
-  /* Mobile */
-  @media (max-width: 768px) {
-    .df-study-page {
-      padding: 1rem;
-      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    /* Custom Override for Study Set Header to match Course style but generic */
+    .df-study-set-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: white;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
     }
-
-    .df-study-header {
-      margin-bottom: 0.75rem;
-    }
-
-    .df-back-link {
-      font-size: 0.875rem;
-    }
-
-    .df-progress-dots {
-      gap: 3px;
-      margin-bottom: 1rem;
-    }
-
-    .df-dot {
-      width: 6px;
-      height: 6px;
-    }
-
-    .df-flashcard-container {
-      height: 340px;
-      margin-bottom: 1.25rem;
-    }
-
-    .df-flashcard-face {
-      padding: 1.5rem;
-    }
-
-    .df-card-word {
-      font-size: 2rem;
-    }
-
-    .df-card-ipa {
-      font-size: 1rem;
-    }
-
-    .df-card-meaning {
-      font-size: 1.25rem;
-    }
-
-    .df-card-example {
-      padding: 0.75rem;
-    }
-
-    .df-card-example-text {
-      font-size: 0.9375rem;
-    }
-
-    .df-card-example-trans {
-      font-size: 0.8125rem;
-    }
-
-    .df-study-actions {
-      gap: 0.75rem;
-    }
-
-    .df-study-action-btn {
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-    }
-
-    .df-study-controls {
-      gap: 0.75rem;
-    }
-
-    .df-control-btn {
-      padding: 0.75rem 1.25rem;
-      font-size: 0.875rem;
-    }
-
-    .df-kbd-hints {
-      display: none;
-    }
-
-    .df-summary-stats {
-      gap: 1.5rem;
-    }
-
-    .df-summary-stat-value {
-      font-size: 1.75rem;
-    }
-  }
-
-  /* Small phones */
-  @media (max-width: 480px) {
-    .df-study-page {
-      padding: 0.75rem;
-    }
-
-    .df-flashcard-container {
-      height: 300px;
-      margin-bottom: 1rem;
-    }
-
-    .df-flashcard-face {
-      padding: 1rem;
-    }
-
-    .df-card-label {
-      font-size: 0.6875rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .df-card-word {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .df-card-ipa {
-      font-size: 0.875rem;
-    }
-
-    .df-card-audio-btn {
-      margin-top: 0.75rem;
-      padding: 0.5rem;
-    }
-
-    .df-card-audio-btn svg {
-      width: 28px;
-      height: 28px;
-    }
-
-    .df-card-meaning {
-      font-size: 1.125rem;
-    }
-
-    .df-card-pos {
-      font-size: 0.8125rem;
-      margin-bottom: 1rem;
-    }
-
-    .df-card-example {
-      padding: 0.625rem;
-    }
-
-    .df-card-example-text {
-      font-size: 0.875rem;
-    }
-
-    .df-card-example-trans {
-      font-size: 0.75rem;
-    }
-
-    .df-study-action-btn {
-      padding: 0.625rem 0.875rem;
-      font-size: 0.8125rem;
-      min-height: 44px;
-    }
-
-    .df-control-btn {
-      padding: 0.625rem 1rem;
-      font-size: 0.8125rem;
-      min-height: 44px;
-    }
-
-    .df-mode-btn {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
-    }
-  }
-
-  /* Extra small phones */
-  @media (max-width: 375px) {
-    .df-flashcard-container {
-      height: 280px;
-    }
-
-    .df-card-word {
-      font-size: 1.375rem;
-    }
-
-    .df-card-meaning {
-      font-size: 1rem;
-    }
-  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-study-page" x-data="flashcardStudy()" x-init="init()">
+<div class="df-toeic-container" x-data="setStudy()" x-init="init()">
+  <!-- Header -->
+  <div class="df-toeic-learn-header">
+    <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-toeic-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    <div class="df-toeic-learn-header-info">
+      <span class="df-study-set-badge">
+        Study Mode
+      </span>
+      <span class="df-toeic-learn-set-label">{{ vocab_set.title }}</span>
+    </div>
+    <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + items.length"></div>
+  </div>
+
+  <!-- Progress Dots -->
+  <div class="df-toeic-learn-dots">
+    <template x-for="(item, i) in items" :key="i">
+      <div class="df-toeic-learn-dot"
+           :class="{
+             'df-toeic-learn-dot--current': i === currentIndex && !showSummary,
+             'df-toeic-learn-dot--known': results[i] === 'known',
+             'df-toeic-learn-dot--unknown': results[i] === 'unknown',
+           }"></div>
+    </template>
+  </div>
+
   <!-- Empty State -->
   <template x-if="items.length === 0">
-    <div class="df-study-empty">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-        <polyline points="17 21 17 13 7 13 7 21"/>
-        <polyline points="7 3 7 8 15 8"/>
-      </svg>
-      <p>No words in this set yet.</p>
-      <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-summary-btn df-summary-btn--primary">
-        Go Back & Add Words
-      </a>
+    <div class="text-center py-12">
+       <p class="text-secondary mb-4">No words to study.</p>
+       <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-hover">
+         Go Back
+       </a>
     </div>
   </template>
 
-  <template x-if="items.length > 0">
-    <div>
-      <!-- Header -->
-      <div class="df-study-header">
-        <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-back-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m15 18-6-6 6-6"/>
-          </svg>
-          {{ vocab_set.title }}
-        </a>
-        <div class="df-progress-text" x-show="!showSummary">
-          <span x-text="currentIndex + 1"></span> / <span x-text="items.length"></span>
-        </div>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="df-progress-bar-wrap" x-show="!showSummary">
-        <div class="df-progress-bar" :style="'width:' + progressPercent + '%'"></div>
-      </div>
-
-      <!-- Progress Dots -->
-      <div class="df-progress-dots" x-show="!showSummary && items.length <= 40">
-        <template x-for="(item, i) in items" :key="i">
-          <div class="df-dot"
-               :class="{
-                 'df-dot--current': i === currentIndex,
-                 'df-dot--known': results[i] === 'known',
-                 'df-dot--unknown': results[i] === 'unknown',
-               }"
-               @click="goToCard(i)"
-               style="cursor: pointer;"></div>
+  <!-- Flashcard -->
+  <div class="df-toeic-learn-card-area" x-show="!showSummary && items.length > 0">
+    <div class="df-toeic-learn-card" :class="{'df-toeic-learn-card--flipped': isFlipped}" @click="flip()">
+      <!-- Front: Language-specific -->
+      <div class="df-toeic-learn-card-front">
+        <!-- Japanese Front -->
+        <template x-if="isJapanese">
+          <div class="text-center">
+            <!-- Kanji (large) -->
+            <div class="text-5xl font-extrabold text-primary leading-tight" x-text="currentItem?.word"></div>
+            <!-- Hán Việt (Badge) -->
+            <template x-if="currentItem?.extra_data?.han_viet">
+              <div class="mt-3 inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-700 text-sm font-bold border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700" 
+                   x-text="currentItem.extra_data.han_viet"></div>
+            </template>
+            <!-- Audio Button -->
+            <button type="button" class="df-toeic-learn-audio-btn mt-4"
+                    @click.stop="playAudio()" x-show="currentItem?.audio_url">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+              </svg>
+            </button>
+            <div class="df-toeic-learn-flip-hint">Chạm để lật</div>
+          </div>
+        </template>
+        <!-- English/Default Front -->
+        <template x-if="!isJapanese">
+          <div class="text-center">
+            <div class="df-toeic-learn-word" x-text="currentItem?.word"></div>
+            <div class="df-toeic-learn-ipa" x-text="currentItem?.ipa"></div>
+            <button type="button" class="df-toeic-learn-audio-btn"
+                    @click.stop="playAudio()" x-show="currentItem?.audio_url">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+              </svg>
+            </button>
+            <div class="df-toeic-learn-flip-hint">Chạm để lật</div>
+          </div>
         </template>
       </div>
 
-      <!-- Mode Toggle -->
-      <div class="df-mode-toggle" x-show="!showSummary">
-        <button class="df-mode-btn" :class="{ 'df-mode-btn--active': mode === 'browse' }" @click="setMode('browse')">
-          Browse
-        </button>
-        <button class="df-mode-btn" :class="{ 'df-mode-btn--active': mode === 'study' }" @click="setMode('study')">
-          Study
-        </button>
-      </div>
-
-      <!-- Flashcard Area -->
-      <div x-show="!showSummary">
-        <div class="df-flashcard-container" @click="flipCard()">
-          <div class="df-flashcard" :class="{ 'flipped': isFlipped }">
-            <!-- Front -->
-            <div class="df-flashcard-face">
-              <span class="df-card-label">Term</span>
-              <h2 class="df-card-word" x-text="currentItem.word"></h2>
-              <p class="df-card-ipa" x-show="currentItem.ipa" x-text="currentItem.ipa"></p>
-              <button @click.stop="playAudio()" class="df-card-audio-btn" x-show="currentItem.audio_url">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-              </button>
-              <span class="df-card-flip-hint" x-show="!isFlipped">Tap to flip</span>
+      <!-- Back: Language-specific -->
+      <div class="df-toeic-learn-card-back">
+        <!-- Japanese Back -->
+        <template x-if="isJapanese">
+          <div class="w-full">
+            <!-- Kanji + Reading -->
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <span class="text-2xl font-bold text-primary" x-text="currentItem?.word"></span>
+              <template x-if="currentItem?.extra_data?.reading">
+                <span class="text-base text-secondary" x-text="'(' + currentItem.extra_data.reading + ')'"></span>
+              </template>
             </div>
-
-            <!-- Back -->
-            <div class="df-flashcard-face df-flashcard-back">
-              <span class="df-card-label">Definition</span>
-              <h3 class="df-card-meaning" x-text="currentItem.meaning"></h3>
-              <p class="df-card-pos" x-text="currentItem.part_of_speech"></p>
-              <div class="df-card-example" x-show="currentItem.example">
-                <p class="df-card-example-text" x-text="currentItem.example"></p>
-                <p class="df-card-example-trans" x-text="currentItem.example_trans"></p>
+            <!-- Part of Speech -->
+            <div class="df-toeic-learn-back-pos" x-text="currentItem?.part_of_speech"></div>
+            <!-- Meaning -->
+            <div class="df-toeic-learn-meaning" x-text="currentItem?.meaning"></div>
+            <!-- Example -->
+            <template x-if="currentItem?.example">
+              <div class="df-toeic-learn-example">
+                <div class="df-toeic-learn-example-text" x-text="currentItem?.example"></div>
+                <div class="df-toeic-learn-example-trans" x-text="currentItem?.example_trans"></div>
               </div>
-            </div>
+            </template>
           </div>
-        </div>
-
-        <!-- Study Mode: Known/Unknown Buttons -->
-        <div class="df-study-actions" x-show="mode === 'study' && isFlipped" x-transition>
-          <button @click="markWord('unknown')" class="df-study-action-btn df-btn-unknown">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            Still Learning
-          </button>
-          <button @click="markWord('known')" class="df-study-action-btn df-btn-known">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            Known
-          </button>
-        </div>
-
-        <!-- Browse Mode: Prev/Next Controls -->
-        <div class="df-study-controls" x-show="mode === 'browse'">
-          <button @click="prevCard()" class="df-control-btn df-btn-prev" :disabled="currentIndex === 0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-            Prev
-          </button>
-
-          <button @click="toggleShuffle()" class="df-btn-shuffle" :class="{ 'active': isShuffled }" title="Shuffle">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-
-          <button @click="nextCard()" class="df-control-btn df-btn-next" :disabled="currentIndex === items.length - 1">
-            Next
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Keyboard Hints -->
-        <div class="df-kbd-hints" x-show="mode === 'study'">
-          <span class="df-kbd-hint"><span class="df-kbd">Space</span> Flip</span>
-          <span class="df-kbd-hint"><span class="df-kbd">1</span> Still Learning</span>
-          <span class="df-kbd-hint"><span class="df-kbd">2</span> Known</span>
-        </div>
-        <div class="df-kbd-hints" x-show="mode === 'browse'">
-          <span class="df-kbd-hint"><span class="df-kbd">Space</span> Flip</span>
-          <span class="df-kbd-hint"><span class="df-kbd">&larr;</span> Prev</span>
-          <span class="df-kbd-hint"><span class="df-kbd">&rarr;</span> Next</span>
-        </div>
-      </div>
-
-      <!-- Summary Screen -->
-      <div class="df-summary" x-show="showSummary" x-transition>
-        <div class="df-summary-icon">&#127881;</div>
-        <h2 class="df-summary-title">Study Complete!</h2>
-        <p class="df-summary-subtitle">{{ vocab_set.title }}</p>
-
-        <div class="df-summary-stats">
-          <div class="df-summary-stat df-summary-stat--known">
-            <span class="df-summary-stat-value" x-text="knownCount"></span>
-            <span class="df-summary-stat-label">Known</span>
+        </template>
+        <!-- English/Default Back -->
+        <template x-if="!isJapanese">
+          <div class="w-full">
+            <div class="df-toeic-learn-back-word" x-text="currentItem?.word"></div>
+            <div class="df-toeic-learn-back-pos" x-text="currentItem?.part_of_speech"></div>
+            <div class="df-toeic-learn-meaning" x-text="currentItem?.meaning"></div>
+            <template x-if="currentItem?.example">
+              <div class="df-toeic-learn-example">
+                <div class="df-toeic-learn-example-text" x-text="currentItem?.example"></div>
+                <div class="df-toeic-learn-example-trans" x-text="currentItem?.example_trans"></div>
+              </div>
+            </template>
           </div>
-          <div class="df-summary-stat df-summary-stat--unknown">
-            <span class="df-summary-stat-value" x-text="unknownCount"></span>
-            <span class="df-summary-stat-label">Still Learning</span>
-          </div>
-          <div class="df-summary-stat df-summary-stat--total">
-            <span class="df-summary-stat-value" x-text="items.length"></span>
-            <span class="df-summary-stat-label">Total</span>
-          </div>
-        </div>
-
-        <div class="df-summary-actions">
-          <button x-show="unknownCount > 0" @click="restudyUnknown()" class="df-summary-btn df-summary-btn--warning">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            Restudy Unknown (<span x-text="unknownCount"></span>)
-          </button>
-          <button @click="restart()" class="df-summary-btn df-summary-btn--primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="23 4 23 10 17 10"/>
-              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
-            </svg>
-            Study Again
-          </button>
-          <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-summary-btn df-summary-btn--secondary">
-            Back to Set
-          </a>
-        </div>
+        </template>
       </div>
     </div>
-  </template>
+
+    <!-- Action Buttons (shown after flip) -->
+    <div class="df-toeic-learn-actions" x-show="isFlipped" x-transition>
+      <button type="button" class="df-toeic-learn-btn df-toeic-learn-btn--unknown"
+              @click="markWord('again')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Chưa thuộc
+      </button>
+      <button type="button" class="df-toeic-learn-btn df-toeic-learn-btn--known"
+              @click="markWord('good')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Đã biết
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Screen -->
+  <div class="df-toeic-learn-summary" x-show="showSummary" x-transition>
+    <div class="df-toeic-learn-summary-icon">🎉</div>
+    <h2 class="df-toeic-learn-summary-title">Hoàn thành!</h2>
+    <p class="text-secondary mb-6">Bạn đã ôn tập hết danh sách từ này.</p>
+
+    <div class="df-toeic-learn-summary-stats">
+      <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--known">
+        <span class="df-toeic-learn-summary-stat-value" x-text="knownCount"></span>
+        <span class="df-toeic-learn-summary-stat-label">Đã biết</span>
+      </div>
+      <div class="df-toeic-learn-summary-stat df-toeic-learn-summary-stat--unknown">
+        <span class="df-toeic-learn-summary-stat-value" x-text="unknownCount"></span>
+        <span class="df-toeic-learn-summary-stat-label">Cần học lại</span>
+      </div>
+    </div>
+
+    <div class="df-toeic-learn-summary-actions">
+      <a href="{% url 'vocab:set_detail' vocab_set.pk %}" class="df-toeic-btn df-toeic-btn--primary">
+        Quay về danh sách
+      </a>
+      <button @click="location.reload()" class="df-toeic-btn df-toeic-btn--secondary">
+        Học lại
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden data -->
+  <script id="items-data" type="application/json">{{ items_json|safe }}</script>
+  <form id="csrf-form" class="hidden">{% csrf_token %}</form>
 </div>
 
-<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('flashcardStudy', () => ({
-      items: [],
-      originalItems: [],
-      currentIndex: 0,
-      isFlipped: false,
-      isShuffled: false,
-      mode: 'study',
-      results: {},
-      showSummary: false,
-      audioEl: null,
+function setStudy() {
+  return {
+    items: [],
+    currentIndex: 0,
+    isFlipped: false,
+    results: {},
+    showSummary: false,
+    audioEl: null,
+    setLanguage: '{{ vocab_set.language|default:"en" }}',
 
-      init() {
-        this.items = {{ items_json|safe }};
-        this.originalItems = [...this.items];
-        this.audioEl = new Audio();
+    get currentItem() {
+      return this.items[this.currentIndex] || null;
+    },
+    get isJapanese() {
+      return this.setLanguage === 'jp';
+    },
+    get knownCount() {
+      return Object.values(this.results).filter(r => r === 'known').length;
+    },
+    get unknownCount() {
+      return Object.values(this.results).filter(r => r === 'unknown').length;
+    },
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-          if (this.showSummary) return;
-          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-          switch (e.key) {
-            case ' ':
-              e.preventDefault();
-              this.flipCard();
-              break;
-            case 'ArrowRight':
-              e.preventDefault();
-              if (this.mode === 'browse') this.nextCard();
-              break;
-            case 'ArrowLeft':
-              e.preventDefault();
-              if (this.mode === 'browse') this.prevCard();
-              break;
-            case '1':
-              if (this.mode === 'study' && this.isFlipped) {
-                e.preventDefault();
-                this.markWord('unknown');
-              }
-              break;
-            case '2':
-              if (this.mode === 'study' && this.isFlipped) {
-                e.preventDefault();
-                this.markWord('known');
-              }
-              break;
-          }
-        });
-      },
-
-      get currentItem() {
-        return this.items[this.currentIndex] || {};
-      },
-
-      get progressPercent() {
-        if (this.items.length === 0) return 0;
-        if (this.mode === 'study') {
-          const answered = Object.keys(this.results).length;
-          return Math.round((answered / this.items.length) * 100);
-        }
-        return Math.round(((this.currentIndex + 1) / this.items.length) * 100);
-      },
-
-      get knownCount() {
-        return Object.values(this.results).filter(r => r === 'known').length;
-      },
-
-      get unknownCount() {
-        return Object.values(this.results).filter(r => r === 'unknown').length;
-      },
-
-      setMode(m) {
-        this.mode = m;
-        this.isFlipped = false;
-      },
-
-      flipCard() {
-        this.isFlipped = !this.isFlipped;
-      },
-
-      playAudio() {
-        if (this.currentItem.audio_url) {
-          this.audioEl.src = this.currentItem.audio_url;
-          this.audioEl.play().catch(() => {});
-        }
-      },
-
-      goToCard(index) {
-        if (index === this.currentIndex) return;
-        this.isFlipped = false;
-        this.currentIndex = index;
-      },
-
-      nextCard() {
-        if (this.currentIndex < this.items.length - 1) {
-          this.isFlipped = false;
-          setTimeout(() => {
-            this.currentIndex++;
-            this.playAudio();
-          }, 150);
-        }
-      },
-
-      prevCard() {
-        if (this.currentIndex > 0) {
-          this.isFlipped = false;
-          setTimeout(() => {
-            this.currentIndex--;
-            this.playAudio();
-          }, 150);
-        }
-      },
-
-      markWord(result) {
-        this.results[this.currentIndex] = result;
-        if (this.currentIndex < this.items.length - 1) {
-          this.isFlipped = false;
-          setTimeout(() => {
-            this.currentIndex++;
-            this.playAudio();
-          }, 200);
-        } else {
-          this.showSummary = true;
-        }
-      },
-
-      restudyUnknown() {
-        const unknownItems = [];
-        this.items.forEach((item, i) => {
-          if (this.results[i] === 'unknown') {
-            unknownItems.push(item);
-          }
-        });
-        this.items = unknownItems;
-        this.results = {};
-        this.currentIndex = 0;
-        this.isFlipped = false;
-        this.showSummary = false;
-      },
-
-      restart() {
-        this.items = [...this.originalItems];
-        this.results = {};
-        this.currentIndex = 0;
-        this.isFlipped = false;
-        this.showSummary = false;
-        if (this.isShuffled) {
-          for (let i = this.items.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
-          }
-        }
-      },
-
-      toggleShuffle() {
-        this.isShuffled = !this.isShuffled;
-        this.isFlipped = false;
-        this.currentIndex = 0;
-        if (this.isShuffled) {
-          for (let i = this.items.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
-          }
-        } else {
-          this.items = [...this.originalItems];
-        }
+    init() {
+      const raw = document.getElementById('items-data');
+      if (raw) {
+          this.items = JSON.parse(raw.textContent);
       }
-    }));
-  });
+      this.audioEl = new Audio();
+    },
+
+    flip() {
+      this.isFlipped = !this.isFlipped;
+    },
+
+    playAudio() {
+      if (this.currentItem && this.currentItem.audio_url) {
+        this.audioEl.src = this.currentItem.audio_url;
+        this.audioEl.play().catch(() => {});
+      }
+    },
+
+    async gradeCard(vocabId, rating) {
+       // Call FSRS API
+       const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+       
+       try {
+        await fetch("{% url 'vocab:flashcard_grade_english' %}", {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'X-CSRFToken': csrf,
+           },
+           body: JSON.stringify({
+             vocab_id: vocabId,
+             rating: rating,
+           }),
+         });
+         // We don't necessarily need to wait for response or handle intervals here for simple study mode
+       } catch (err) {
+         console.error("Grading failed", err);
+       }
+    },
+
+    async markWord(rating) {
+      // rating: 'good' (known) or 'again' (unknown)
+      const visualResult = rating === 'good' ? 'known' : 'unknown';
+      this.results[this.currentIndex] = visualResult;
+      
+      // Async grade in background
+      if (this.currentItem) {
+          this.gradeCard(this.currentItem.id, rating); // id here is vocab id from view
+      }
+
+      if (this.currentIndex < this.items.length - 1) {
+        this.currentIndex++;
+        this.isFlipped = false;
+      } else {
+        this.showSummary = true;
+      }
+    },
+  };
+}
 </script>
 {% endblock %}
