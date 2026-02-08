@@ -1,3 +1,4 @@
+{# templates/vocab/set_detail.html - Frosted Crystal Generic Set Detail #}
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
@@ -5,1018 +6,544 @@
 
 {% block extra_css %}
 <style>
-  /* ========================================
-     Set Detail - Hybrid Glass Design
-     Glass Shell + Solid Learning Core
-     ======================================== */
+  /* =============================================
+     Set Detail - Frosted Crystal Design
+     ============================================= */
 
-  /* === GRADIENT MESH BACKGROUND === */
-  .hg-set-page {
+  /* --- Accent System --- */
+  .sd-page { --accent: #6366f1; --accent-end: #4f46e5; --accent-light: rgba(99, 102, 241, 0.08); --accent-border: rgba(99, 102, 241, 0.2); --accent-shadow: rgba(99, 102, 241, 0.12); --accent-glow: rgba(99, 102, 241, 0.5); }
+  .sd-page--jp { --accent: #dc2626; --accent-end: #b91c1c; --accent-light: rgba(220, 38, 38, 0.08); --accent-border: rgba(220, 38, 38, 0.2); --accent-shadow: rgba(220, 38, 38, 0.1); --accent-glow: rgba(220, 38, 38, 0.45); }
+  .sd-page--en { --accent: #3b82f6; --accent-end: #2563eb; --accent-light: rgba(59, 130, 246, 0.08); --accent-border: rgba(59, 130, 246, 0.2); --accent-shadow: rgba(59, 130, 246, 0.1); --accent-glow: rgba(59, 130, 246, 0.45); }
+
+  /* Gradient Mesh */
+  .sd-page {
     min-height: 100vh;
     background:
       radial-gradient(ellipse 80% 50% at 5% 15%, rgba(199, 210, 254, 0.45) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 95% 85%, rgba(252, 231, 243, 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 35% at 50% 60%, rgba(224, 242, 254, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 95% 85%, rgba(252, 231, 243, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 35% at 50% 60%, rgba(224, 242, 254, 0.3) 0%, transparent 50%),
       linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+    background-attachment: fixed;
     padding: 1.25rem 1rem 3rem;
   }
-  [data-theme="dark"] .hg-set-page {
+  [data-theme="dark"] .sd-page {
     background:
-      radial-gradient(ellipse 80% 50% at 5% 15%, rgba(67, 56, 202, 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 95% 85%, rgba(157, 23, 77, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 35% at 50% 60%, rgba(30, 64, 175, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 5% 15%, rgba(67, 56, 202, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 95% 85%, rgba(157, 23, 77, 0.06) 0%, transparent 50%),
       linear-gradient(to bottom right, #0f172a, #1e293b);
+    background-attachment: fixed;
   }
 
-  .hg-container {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
+  .sd-container { max-width: 960px; margin: 0 auto; }
 
-  /* === GLASS SHELL COMPONENTS === */
-
-  /* Back Link */
-  .hg-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: #64748b;
-    text-decoration: none;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    padding: 0.375rem 0.625rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    margin-left: -0.5rem;
-    transition: all 0.2s ease;
-  }
-  .hg-back-link:hover {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.08);
-  }
-  .hg-back-link svg {
-    width: 16px;
-    height: 16px;
-  }
-  [data-theme="dark"] .hg-back-link {
-    color: #94a3b8;
-  }
-  [data-theme="dark"] .hg-back-link:hover {
-    color: #a5b4fc;
-    background: rgba(99, 102, 241, 0.12);
-  }
-
-  /* Header Glass Panel */
-  .hg-header {
-    background: rgba(255, 255, 255, 0.6);
+  /* ========== GLASS PANELS ========== */
+  .gp {
+    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 1.25rem;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow:
-      0 4px 24px -4px rgba(99, 102, 241, 0.1),
-      0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px -4px var(--accent-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
-  [data-theme="dark"] .hg-header {
-    background: rgba(30, 41, 59, 0.6);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+  [data-theme="dark"] .gp {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .gp-light {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px -2px var(--accent-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+  [data-theme="dark"] .gp-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+    box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  .hg-header-top {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  /* ========== BACK LINK ========== */
+  .sd-back {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.375rem 0.75rem; margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 8px; font-size: 0.8125rem; font-weight: 600; color: #64748b;
+    text-decoration: none; transition: all 0.2s ease;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  [data-theme="dark"] .sd-back { background: rgba(51, 65, 85, 0.5); border-color: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+  .sd-back:hover { background: rgba(255, 255, 255, 0.9); color: var(--accent); transform: translateX(-2px); }
+  [data-theme="dark"] .sd-back:hover { background: var(--accent-light); color: var(--accent); }
+  .sd-back svg { width: 16px; height: 16px; }
+
+  /* ========== HEADER PANEL ========== */
+  .sd-header { padding: 1.5rem; margin-bottom: 1rem; position: relative; overflow: hidden; }
+  .sd-header::before {
+    content: ''; position: absolute; top: -40%; right: -12%; width: 220px; height: 220px;
+    border-radius: 50%; background: radial-gradient(circle, var(--accent-shadow) 0%, transparent 70%); pointer-events: none;
+  }
+
+  .sd-header-top {
+    display: flex; flex-direction: column; gap: 1rem;
+    position: relative; z-index: 1;
   }
   @media (min-width: 768px) {
-    .hg-header-top {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
+    .sd-header-top { flex-direction: row; justify-content: space-between; align-items: flex-start; }
   }
+
+  .sd-header-info { flex: 1; min-width: 0; }
 
   /* Badges */
-  .hg-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    margin-bottom: 0.625rem;
+  .sd-badges { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.625rem; }
+  .sd-badge {
+    display: inline-flex; align-items: center; gap: 0.2rem;
+    padding: 0.2rem 0.5625rem; font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; border-radius: 6px; color: #fff;
   }
-
-  .hg-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    border-radius: 0.5rem;
-    color: #fff;
-  }
-  .hg-badge--jp {
-    background: linear-gradient(135deg, #dc2626, #f97316);
-    box-shadow: 0 2px 8px -2px rgba(220, 38, 38, 0.4);
-  }
-  .hg-badge--en {
-    background: linear-gradient(135deg, #3b82f6, #06b6d4);
-    box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.4);
-  }
-  .hg-badge--toeic {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.4);
-  }
-  .hg-badge--status {
-    background: rgba(34, 197, 94, 0.15);
-    color: #16a34a;
+  .sd-badge--jp { background: linear-gradient(135deg, #dc2626, #f97316); box-shadow: 0 2px 8px -2px rgba(220, 38, 38, 0.4); }
+  .sd-badge--en { background: linear-gradient(135deg, #3b82f6, #06b6d4); box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.4); }
+  .sd-badge--toeic { background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.4); }
+  .sd-badge--status {
+    background: rgba(34, 197, 94, 0.12); color: #16a34a;
     border: 1px solid rgba(34, 197, 94, 0.25);
   }
-  .hg-badge--private {
-    background: rgba(100, 116, 139, 0.1);
-    color: #64748b;
+  .sd-badge--private {
+    background: rgba(100, 116, 139, 0.08); color: #64748b;
     border: 1px solid rgba(100, 116, 139, 0.2);
   }
-  [data-theme="dark"] .hg-badge--status {
-    background: rgba(34, 197, 94, 0.2);
-    color: #4ade80;
-    border-color: rgba(34, 197, 94, 0.3);
-  }
-  [data-theme="dark"] .hg-badge--private {
-    background: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
-    border-color: rgba(148, 163, 184, 0.2);
-  }
+  [data-theme="dark"] .sd-badge--status { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+  [data-theme="dark"] .sd-badge--private { background: rgba(148, 163, 184, 0.12); color: #94a3b8; border-color: rgba(148, 163, 184, 0.2); }
 
-  /* Title & Description */
-  .hg-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin: 0 0 0.375rem;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-  }
-  [data-theme="dark"] .hg-title {
-    color: #f1f5f9;
-  }
+  /* Title */
+  .sd-title { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0 0 0.25rem; letter-spacing: -0.01em; line-height: 1.25; }
+  [data-theme="dark"] .sd-title { color: #f1f5f9; }
+  .sd-desc { font-size: 0.8125rem; color: #64748b; line-height: 1.5; max-width: 36rem; margin: 0; }
+  [data-theme="dark"] .sd-desc { color: #94a3b8; }
 
-  .hg-description {
-    font-size: 0.875rem;
-    color: #64748b;
-    line-height: 1.5;
-    max-width: 36rem;
-  }
-  [data-theme="dark"] .hg-description {
-    color: #94a3b8;
-  }
+  /* Meta */
+  .sd-meta { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; font-size: 0.8125rem; color: #64748b; }
+  [data-theme="dark"] .sd-meta { color: #94a3b8; }
+  .sd-meta-item { display: flex; align-items: center; gap: 0.375rem; }
+  .sd-meta-item svg { width: 15px; height: 15px; opacity: 0.7; }
+  .sd-meta-val { font-weight: 700; color: #1e293b; }
+  [data-theme="dark"] .sd-meta-val { color: #f1f5f9; }
 
-  /* Meta Info */
-  .hg-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.875rem;
-    font-size: 0.8125rem;
-    color: #64748b;
-  }
-  [data-theme="dark"] .hg-meta {
-    color: #94a3b8;
-  }
+  /* Actions */
+  .sd-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; flex-shrink: 0; }
 
-  .hg-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
+  .sd-btn-study {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6875rem 1.375rem; font-size: 0.875rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-end)); border: none;
+    border-radius: 11px; cursor: pointer; text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px -4px var(--accent-glow);
   }
-  .hg-meta-item svg {
-    width: 15px;
-    height: 15px;
-    opacity: 0.7;
-  }
-  .hg-meta-value {
-    font-weight: 700;
-    color: #1e293b;
-  }
-  [data-theme="dark"] .hg-meta-value {
-    color: #f1f5f9;
-  }
+  .sd-btn-study:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px var(--accent-glow); }
+  .sd-btn-study svg { width: 18px; height: 18px; }
 
-  /* Action Buttons */
-  .hg-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .sd-btn-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #64748b; cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   }
+  .sd-btn-icon:hover { background: rgba(255, 255, 255, 0.9); color: #475569; transform: translateY(-1px); box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.08); }
+  .sd-btn-icon svg { width: 18px; height: 18px; }
+  .sd-btn-icon--danger:hover { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.25); color: #dc2626; }
+  .sd-btn-icon--active { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); color: #d97706; }
+  [data-theme="dark"] .sd-btn-icon { background: rgba(51, 65, 85, 0.5); border-color: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+  [data-theme="dark"] .sd-btn-icon:hover { background: rgba(71, 85, 105, 0.7); color: #e2e8f0; }
+  [data-theme="dark"] .sd-btn-icon--danger:hover { background: rgba(220, 38, 38, 0.15); border-color: rgba(248, 113, 113, 0.3); color: #f87171; }
+  [data-theme="dark"] .sd-btn-icon--active { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.35); color: #fbbf24; }
 
-  .hg-btn-study {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-    border: none;
-    border-radius: 0.75rem;
-    cursor: pointer;
+  /* ========== BULK ACTIONS BAR ========== */
+  .sd-bulk {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.75rem 1rem; margin-bottom: 0.75rem;
+    background: rgba(245, 158, 11, 0.08); border: 1.5px dashed rgba(245, 158, 11, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  [data-theme="dark"] .sd-bulk { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); }
+  .sd-bulk-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; font-weight: 600; color: #92400e; }
+  [data-theme="dark"] .sd-bulk-info { color: #fbbf24; }
+  .sd-bulk-count { font-weight: 800; }
+  .sd-bulk-del {
+    padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 700; color: #dc2626;
+    background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 7px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .sd-bulk-del:hover { background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.35); }
+  [data-theme="dark"] .sd-bulk-del { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.25); color: #f87171; }
+  .sd-bulk-hint { font-size: 0.75rem; color: #a16207; }
+  [data-theme="dark"] .sd-bulk-hint { color: #fcd34d; }
+
+  /* ========== SEARCH PANEL ========== */
+  .sd-search {
+    padding: 0.375rem; margin-bottom: 1rem; max-width: 28rem;
+    position: relative; z-index: 20;
+  }
+  .sd-search-wrap { position: relative; }
+  .sd-search-icon {
+    position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; color: #94a3b8; pointer-events: none;
+  }
+  .sd-search-input {
+    width: 100%; padding: 0.625rem 1rem 0.625rem 2.5rem; font-size: 0.875rem;
+    color: #1e293b; background: rgba(255, 255, 255, 0.9);
+    border: 1px solid transparent; border-radius: 10px; transition: all 0.2s ease;
+  }
+  .sd-search-input:focus { outline: none; background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .sd-search-input::placeholder { color: #94a3b8; }
+  [data-theme="dark"] .sd-search-input { background: rgba(51, 65, 85, 0.8); color: #f1f5f9; }
+  [data-theme="dark"] .sd-search-input:focus { background: rgba(51, 65, 85, 1); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+
+  .sd-search-results {
+    position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 12px;
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.12); overflow: hidden;
+    max-height: 260px; overflow-y: auto; z-index: 50;
+  }
+  [data-theme="dark"] .sd-search-results { background: rgba(30, 41, 59, 0.95); border-color: rgba(148, 163, 184, 0.1); box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4); }
+  .sd-search-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.625rem 1rem; cursor: pointer; transition: background 0.15s ease;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  }
+  .sd-search-item:last-child { border-bottom: none; }
+  .sd-search-item:hover { background: var(--accent-light); }
+  .sd-search-word { font-weight: 700; color: #1e293b; font-size: 0.875rem; }
+  [data-theme="dark"] .sd-search-word { color: #f1f5f9; }
+  .sd-search-meaning { font-size: 0.75rem; color: #64748b; font-style: italic; margin-left: 0.5rem; }
+  [data-theme="dark"] .sd-search-meaning { color: #94a3b8; }
+  .sd-search-add {
+    padding: 0.25rem 0.5rem; font-size: 0.6875rem; font-weight: 600;
+    color: var(--accent); background: var(--accent-light); border-radius: 6px; transition: all 0.15s ease;
+  }
+  .sd-search-item:hover .sd-search-add { background: var(--accent); color: #fff; }
+  .sd-search-empty { padding: 1rem; text-align: center; font-size: 0.8125rem; color: #94a3b8; font-style: italic; }
+
+  /* ========== SECTION LABEL ========== */
+  .sd-section-label {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.6875rem; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 0.75rem; padding-left: 0.25rem;
+  }
+  [data-theme="dark"] .sd-section-label { color: #94a3b8; }
+  .sd-section-label svg { width: 14px; height: 14px; }
+
+  /* ========== VOCABULARY GRID ========== */
+  .sd-grid { display: grid; grid-template-columns: 1fr; gap: 0.625rem; }
+  @media (min-width: 768px) { .sd-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ========== WORD CARD (SHARED BASE) ========== */
+  .sd-card {
+    position: relative; padding: 1.125rem 1.25rem;
     transition: all 0.2s ease;
-    box-shadow:
-      0 4px 14px -3px rgba(16, 185, 129, 0.4),
-      0 2px 4px rgba(6, 182, 212, 0.2);
-    text-decoration: none;
   }
-  .hg-btn-study:hover {
+  .sd-card:hover {
     transform: translateY(-2px);
-    box-shadow:
-      0 6px 20px -3px rgba(16, 185, 129, 0.5),
-      0 4px 8px rgba(6, 182, 212, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 28px -8px var(--accent-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
-  .hg-btn-study svg {
-    width: 18px;
-    height: 18px;
-  }
+  [data-theme="dark"] .sd-card:hover { background: rgba(30, 41, 59, 0.8); box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
 
-  .hg-btn-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 0.625rem;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-  }
-  .hg-btn-icon:hover {
-    background: #fff;
-    border-color: #cbd5e1;
-    color: #475569;
-    transform: translateY(-1px);
-  }
-  .hg-btn-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-  .hg-btn-icon--danger:hover {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #dc2626;
-  }
-  .hg-btn-icon--active {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #d97706;
-  }
-  [data-theme="dark"] .hg-btn-icon {
-    background: rgba(51, 65, 85, 0.6);
-    border-color: rgba(71, 85, 105, 0.6);
-    color: #94a3b8;
-  }
-  [data-theme="dark"] .hg-btn-icon:hover {
-    background: rgba(71, 85, 105, 0.8);
-    color: #e2e8f0;
-  }
-  [data-theme="dark"] .hg-btn-icon--danger:hover {
-    background: rgba(220, 38, 38, 0.2);
-    border-color: rgba(248, 113, 113, 0.4);
-    color: #f87171;
-  }
-  [data-theme="dark"] .hg-btn-icon--active {
-    background: rgba(245, 158, 11, 0.2);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #fbbf24;
-  }
-
-  /* Bulk Actions Bar */
-  .hg-bulk-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1.5px dashed rgba(245, 158, 11, 0.5);
-    border-radius: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-  [data-theme="dark"] .hg-bulk-bar {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-  }
-
-  .hg-bulk-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: #92400e;
-  }
-  [data-theme="dark"] .hg-bulk-info {
-    color: #fbbf24;
-  }
-
-  .hg-bulk-count {
-    font-weight: 800;
-  }
-
-  .hg-bulk-delete {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.25);
-    border-radius: 0.5rem;
-    cursor: pointer;
+  .sd-card-check {
+    position: absolute; top: 0.875rem; right: 0.875rem;
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid #cbd5e1; cursor: pointer; accent-color: var(--accent);
     transition: all 0.15s ease;
   }
-  .hg-bulk-delete:hover {
-    background: rgba(220, 38, 38, 0.2);
-    border-color: rgba(220, 38, 38, 0.4);
-  }
-  [data-theme="dark"] .hg-bulk-delete {
-    background: rgba(248, 113, 113, 0.15);
-    border-color: rgba(248, 113, 113, 0.3);
-    color: #f87171;
-  }
+  .sd-card-check:checked { border-color: var(--accent); }
+  [data-theme="dark"] .sd-card-check { border-color: #475569; background: #334155; }
 
-  .hg-bulk-hint {
-    font-size: 0.75rem;
-    color: #a16207;
-  }
-  [data-theme="dark"] .hg-bulk-hint {
-    color: #fcd34d;
-  }
+  .sd-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.375rem; }
 
-  /* Search Glass Panel */
-  .hg-search-panel {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 0.875rem;
-    padding: 0.375rem;
-    margin-bottom: 1rem;
-    max-width: 28rem;
-    box-shadow: 0 2px 12px -2px rgba(99, 102, 241, 0.08);
+  /* Audio */
+  .sd-audio-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent-light); color: var(--accent);
+    border: 1px solid var(--accent-border); cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
   }
-  [data-theme="dark"] .hg-search-panel {
-    background: rgba(30, 41, 59, 0.6);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
+  .sd-audio-btn:hover { background: var(--accent); color: #fff; border-color: transparent; transform: scale(1.08); box-shadow: 0 4px 12px -4px var(--accent-glow); }
+  .sd-audio-btn svg { width: 15px; height: 15px; }
 
-  .hg-search-wrapper {
-    position: relative;
+  /* Japanese card */
+  .sd-kanji {
+    font-size: 2rem; font-weight: 800; line-height: 1.2; color: #1e293b;
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic Pro", sans-serif; letter-spacing: 0.02em;
   }
+  [data-theme="dark"] .sd-kanji { color: #f1f5f9; }
+  .sd-reading { font-size: 0.875rem; color: #64748b; margin-top: 0.125rem; font-family: "Noto Sans JP", sans-serif; }
+  [data-theme="dark"] .sd-reading { color: #94a3b8; }
+  .sd-hanviet {
+    display: inline-block; padding: 0.2rem 0.5rem; margin-top: 0.4rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(251, 191, 36, 0.08));
+    color: #92400e; font-size: 0.6875rem; font-weight: 700;
+    border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+  [data-theme="dark"] .sd-hanviet { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
 
-  .hg-search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    color: #94a3b8;
-    pointer-events: none;
-  }
+  /* English card */
+  .sd-en-word { font-size: 1.25rem; font-weight: 700; color: #1e293b; letter-spacing: -0.01em; }
+  [data-theme="dark"] .sd-en-word { color: #f1f5f9; }
+  .sd-en-ipa { font-size: 0.8125rem; color: #94a3b8; margin-top: 0.0625rem; }
+  [data-theme="dark"] .sd-en-ipa { color: #64748b; }
 
-  .hg-search-input {
-    width: 100%;
-    padding: 0.625rem 1rem 0.625rem 2.5rem;
-    font-size: 0.875rem;
-    color: #1e293b;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid transparent;
-    border-radius: 0.625rem;
-    transition: all 0.2s ease;
+  /* Shared card elements */
+  .sd-card-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .sd-pos {
+    display: inline-block; padding: 0.125rem 0.4375rem;
+    background: var(--accent-light); color: var(--accent);
+    font-size: 0.625rem; font-weight: 700; border-radius: 5px;
+    text-transform: uppercase; letter-spacing: 0.03em;
+    border: 1px solid var(--accent-border);
   }
-  .hg-search-input:focus {
-    outline: none;
-    background: #fff;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  }
-  .hg-search-input::placeholder {
-    color: #94a3b8;
-  }
-  [data-theme="dark"] .hg-search-input {
-    background: rgba(51, 65, 85, 0.8);
-    color: #f1f5f9;
-  }
-  [data-theme="dark"] .hg-search-input:focus {
-    background: rgba(51, 65, 85, 1);
-    border-color: #818cf8;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  }
+  .sd-meaning { font-size: 0.9375rem; font-weight: 600; color: #1e293b; line-height: 1.45; }
+  [data-theme="dark"] .sd-meaning { color: #f1f5f9; }
 
-  .hg-search-results {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 0;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
-    overflow: hidden;
-    max-height: 240px;
-    overflow-y: auto;
-    z-index: 50;
+  .sd-example {
+    margin-top: 0.625rem; padding: 0.625rem 0.875rem;
+    background: rgba(99, 102, 241, 0.04); border-radius: 10px;
+    border-left: 3px solid var(--accent);
   }
-  [data-theme="dark"] .hg-search-results {
-    background: #1e293b;
-    border-color: #334155;
-  }
-
-  .hg-search-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.625rem 1rem;
-    cursor: pointer;
-    transition: background 0.15s ease;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .hg-search-item:last-child {
-    border-bottom: none;
-  }
-  .hg-search-item:hover {
-    background: #f8fafc;
-  }
-  [data-theme="dark"] .hg-search-item {
-    border-bottom-color: #334155;
-  }
-  [data-theme="dark"] .hg-search-item:hover {
-    background: #334155;
-  }
-
-  .hg-search-word {
-    font-weight: 700;
-    color: #1e293b;
-    font-size: 0.875rem;
-  }
-  [data-theme="dark"] .hg-search-word {
-    color: #f1f5f9;
-  }
-
-  .hg-search-meaning {
-    font-size: 0.75rem;
-    color: #64748b;
-    font-style: italic;
-    margin-left: 0.5rem;
-  }
-  [data-theme="dark"] .hg-search-meaning {
-    color: #94a3b8;
-  }
-
-  .hg-search-add {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 0.375rem;
-    transition: all 0.15s ease;
-  }
-  .hg-search-item:hover .hg-search-add {
-    background: #6366f1;
-    color: #fff;
-  }
-  [data-theme="dark"] .hg-search-add {
-    background: rgba(99, 102, 241, 0.2);
-    color: #a5b4fc;
-  }
-  [data-theme="dark"] .hg-search-item:hover .hg-search-add {
-    background: #6366f1;
-    color: #fff;
-  }
-
-  .hg-search-empty {
-    padding: 1rem;
-    text-align: center;
-    font-size: 0.8125rem;
-    color: #94a3b8;
-    font-style: italic;
-  }
-
-  /* === SOLID CORE - LEARNING CARDS === */
-
-  .hg-vocab-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  @media (min-width: 768px) {
-    .hg-vocab-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  /* Japanese Word Card - SOLID SURFACE */
-  .hg-jp-card {
-    position: relative;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    padding: 1.25rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-  .hg-jp-card:hover {
-    border-color: #cbd5e1;
-    box-shadow:
-      0 4px 12px -2px rgba(99, 102, 241, 0.1),
-      0 2px 4px rgba(0, 0, 0, 0.04);
-    transform: translateY(-2px);
-  }
-  [data-theme="dark"] .hg-jp-card {
-    background: #1e293b;
-    border-color: #334155;
-  }
-  [data-theme="dark"] .hg-jp-card:hover {
-    border-color: #475569;
-    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
-  }
-
-  /* Card Selection Checkbox */
-  .hg-card-check {
-    position: absolute;
-    top: 0.875rem;
-    right: 0.875rem;
-    width: 20px;
-    height: 20px;
-    border-radius: 0.375rem;
-    border: 2px solid #cbd5e1;
-    cursor: pointer;
-    accent-color: #6366f1;
-    transition: all 0.15s ease;
-  }
-  .hg-card-check:checked {
-    border-color: #6366f1;
-  }
-  [data-theme="dark"] .hg-card-check {
-    border-color: #475569;
-    background: #334155;
-  }
-
-  /* Kanji - HIGH CONTRAST */
-  .hg-kanji {
-    font-size: 2.25rem;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #1e293b;
-    font-family: "Noto Sans JP", "Hiragino Kaku Gothic Pro", "Yu Gothic", "Meiryo", sans-serif;
-    letter-spacing: 0.02em;
-  }
-  [data-theme="dark"] .hg-kanji {
-    color: #f1f5f9;
-  }
-
-  /* Reading */
-  .hg-reading {
-    font-size: 0.9375rem;
-    color: #64748b;
-    margin-top: 0.25rem;
-    font-family: "Noto Sans JP", sans-serif;
-  }
-  [data-theme="dark"] .hg-reading {
-    color: #94a3b8;
-  }
-
-  /* Han Viet Badge */
-  .hg-hanviet {
-    display: inline-block;
-    padding: 0.25rem 0.625rem;
-    margin-top: 0.5rem;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #92400e;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 0.5rem;
-    border: 1px solid #fcd34d;
-  }
-  [data-theme="dark"] .hg-hanviet {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.15));
-    color: #fbbf24;
-    border-color: rgba(251, 191, 36, 0.35);
-  }
-
-  /* Part of Speech */
-  .hg-pos {
-    display: inline-block;
-    padding: 0.1875rem 0.5rem;
-    background: #f1f5f9;
-    color: #64748b;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    border-radius: 0.375rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-  [data-theme="dark"] .hg-pos {
-    background: #334155;
-    color: #94a3b8;
-  }
-
-  /* Meaning - HIGH CONTRAST */
-  .hg-meaning {
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: #1e293b;
-    line-height: 1.45;
-  }
-  [data-theme="dark"] .hg-meaning {
-    color: #f1f5f9;
-  }
-
-  /* Example Section */
-  .hg-example {
-    margin-top: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: #f8fafc;
-    border-radius: 0.625rem;
-    border-left: 3px solid #6366f1;
-  }
-  [data-theme="dark"] .hg-example {
-    background: rgba(51, 65, 85, 0.5);
-    border-left-color: #818cf8;
-  }
-
-  .hg-example-text {
-    font-size: 0.875rem;
-    color: #334155;
-    line-height: 1.6;
-  }
-  [data-theme="dark"] .hg-example-text {
-    color: #e2e8f0;
-  }
-
-  .hg-example-trans {
-    font-size: 0.8125rem;
-    color: #64748b;
-    margin-top: 0.375rem;
-    font-style: italic;
-  }
-  [data-theme="dark"] .hg-example-trans {
-    color: #94a3b8;
-  }
-
-  /* Audio Button */
-  .hg-audio-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .hg-audio-btn:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.4);
-    transform: scale(1.08);
-  }
-  .hg-audio-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-  [data-theme="dark"] .hg-audio-btn {
-    background: rgba(99, 102, 241, 0.15);
-    color: #a5b4fc;
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-  [data-theme="dark"] .hg-audio-btn:hover {
-    background: rgba(99, 102, 241, 0.25);
-  }
-
-  /* English Word Card */
-  .hg-en-card {
-    position: relative;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.875rem;
-    padding: 1rem 1.25rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-  .hg-en-card:hover {
-    border-color: #cbd5e1;
-    box-shadow:
-      0 4px 12px -2px rgba(99, 102, 241, 0.1),
-      0 2px 4px rgba(0, 0, 0, 0.04);
-    transform: translateY(-2px);
-  }
-  [data-theme="dark"] .hg-en-card {
-    background: #1e293b;
-    border-color: #334155;
-  }
-  [data-theme="dark"] .hg-en-card:hover {
-    border-color: #475569;
-    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
-  }
-
-  .hg-en-word {
-    font-size: 1.375rem;
-    font-weight: 700;
-    color: #1e293b;
-    letter-spacing: -0.01em;
-  }
-  [data-theme="dark"] .hg-en-word {
-    color: #f1f5f9;
-  }
-
-  .hg-en-ipa {
-    font-size: 0.8125rem;
-    color: #64748b;
-    font-family: monospace;
-    margin-top: 0.125rem;
-  }
-  [data-theme="dark"] .hg-en-ipa {
-    color: #94a3b8;
-  }
+  [data-theme="dark"] .sd-example { background: rgba(99, 102, 241, 0.06); }
+  .sd-example-text { font-size: 0.8125rem; color: #334155; line-height: 1.55; }
+  [data-theme="dark"] .sd-example-text { color: #e2e8f0; }
+  .sd-example-trans { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; font-style: italic; }
+  [data-theme="dark"] .sd-example-trans { color: #94a3b8; }
 
   /* Empty State */
-  .hg-empty {
-    grid-column: 1 / -1;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    padding: 3rem 1.5rem;
-    text-align: center;
+  .sd-empty {
+    grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem;
   }
-  [data-theme="dark"] .hg-empty {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: #334155;
-  }
+  .sd-empty-icon { width: 52px; height: 52px; color: #cbd5e1; margin: 0 auto 1rem; }
+  [data-theme="dark"] .sd-empty-icon { color: #475569; }
+  .sd-empty-title { font-size: 1rem; font-weight: 700; color: #64748b; margin-bottom: 0.25rem; }
+  [data-theme="dark"] .sd-empty-title { color: #94a3b8; }
+  .sd-empty-hint { font-size: 0.8125rem; color: #94a3b8; }
 
-  .hg-empty-icon {
-    width: 56px;
-    height: 56px;
-    color: #cbd5e1;
-    margin: 0 auto 1rem;
-  }
-  [data-theme="dark"] .hg-empty-icon {
-    color: #475569;
-  }
-
-  .hg-empty-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 0.375rem;
-  }
-  [data-theme="dark"] .hg-empty-title {
-    color: #94a3b8;
-  }
-
-  .hg-empty-hint {
-    font-size: 0.8125rem;
-    color: #94a3b8;
-  }
-
-  /* Card Meta Row */
-  .hg-card-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 0.625rem;
-  }
-
-  .hg-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 640px) {
+    .sd-page { padding: 1rem 0.75rem 2rem; }
+    .sd-header { padding: 1.125rem; }
+    .sd-title { font-size: 1.25rem; }
+    .sd-actions { width: 100%; }
+    .sd-btn-study { flex: 1; justify-content: center; }
+    .sd-card { padding: 1rem; }
+    .sd-kanji { font-size: 1.75rem; }
+    .sd-grid { gap: 0.5rem; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hg-set-page" x-data="setManager()">
-  <div class="hg-container">
+<div class="sd-page {% if vocab_set.language == 'jp' %}sd-page--jp{% else %}sd-page--en{% endif %}" x-data="setManager()">
+  <div class="sd-container">
 
-    <!-- Back Link -->
-    <a href="{% url 'vocab:set_list' %}" class="hg-back-link">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    <!-- Back -->
+    <a href="{% url 'vocab:set_list' %}" class="sd-back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
       </svg>
       Back to Sets
     </a>
 
-    <!-- Header Glass Panel -->
-    <div class="hg-header">
-      <div class="hg-header-top">
-        <div style="flex: 1;">
+    <!-- ========== HEADER ========== -->
+    <header class="gp sd-header">
+      <div class="sd-header-top">
+        <div class="sd-header-info">
           <!-- Badges -->
-          <div class="hg-badges">
+          <div class="sd-badges">
             {% if vocab_set.language == 'jp' %}
-              <span class="hg-badge hg-badge--jp">Japanese</span>
+              <span class="sd-badge sd-badge--jp">Japanese</span>
             {% else %}
-              <span class="hg-badge hg-badge--en">English</span>
+              <span class="sd-badge sd-badge--en">English</span>
             {% endif %}
-
             {% if vocab_set.toeic_level %}
-              <span class="hg-badge hg-badge--toeic">TOEIC {{ vocab_set.toeic_level }}</span>
+              <span class="sd-badge sd-badge--toeic">TOEIC {{ vocab_set.toeic_level }}</span>
             {% endif %}
-
             {% if vocab_set.is_public %}
-              <span class="hg-badge hg-badge--status">Public</span>
+              <span class="sd-badge sd-badge--status">Public</span>
             {% else %}
-              <span class="hg-badge hg-badge--private">Private</span>
+              <span class="sd-badge sd-badge--private">Private</span>
             {% endif %}
           </div>
 
-          <!-- Title & Description -->
-          <h1 class="hg-title">{{ vocab_set.title }}</h1>
-          <p class="hg-description">{{ vocab_set.description|default:"No description available." }}</p>
+          <h1 class="sd-title">{{ vocab_set.title }}</h1>
+          <p class="sd-desc">{{ vocab_set.description|default:"No description available." }}</p>
 
-          <!-- Meta Info -->
-          <div class="hg-meta">
-            <span class="hg-meta-item">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          <div class="sd-meta">
+            <span class="sd-meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               {{ vocab_set.owner.username|default:"System" }}
             </span>
-            <span class="hg-meta-item">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <span class="sd-meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
               </svg>
-              <span class="hg-meta-value">{{ vocab_set.items.count }}</span> words
+              <span class="sd-meta-val">{{ vocab_set.items.count }}</span> words
             </span>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="hg-actions">
-          <a href="{% url 'vocab:set_study' vocab_set.pk %}" class="hg-btn-study">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5 3l14 9-14 9V3z" />
-            </svg>
+        <div class="sd-actions">
+          <a href="{% url 'vocab:set_study' vocab_set.pk %}" class="sd-btn-study">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
             Study Now
           </a>
 
           {% if request.user == vocab_set.owner %}
             <button @click="toggleEditMode()"
-                    :class="editMode ? 'hg-btn-icon--active' : ''"
-                    class="hg-btn-icon"
-                    title="Manage words">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    :class="editMode ? 'sd-btn-icon--active' : ''"
+                    class="sd-btn-icon" title="Manage words">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
             </button>
 
-            <a href="{% url 'vocab:set_import' vocab_set.pk %}"
-               class="hg-btn-icon"
-               title="Import from JSON">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            <a href="{% url 'vocab:set_import' vocab_set.pk %}" class="sd-btn-icon" title="Import from JSON">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
               </svg>
             </a>
 
-            <a href="{% url 'vocab:set_delete' vocab_set.pk %}"
-               class="hg-btn-icon hg-btn-icon--danger"
-               title="Delete set">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <a href="{% url 'vocab:set_delete' vocab_set.pk %}" class="sd-btn-icon sd-btn-icon--danger" title="Delete set">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
             </a>
           {% endif %}
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Bulk Actions Bar -->
-    <div x-show="editMode" x-transition class="hg-bulk-bar" style="display: none;">
-      <div class="hg-bulk-info">
-        <span>Selected: <span class="hg-bulk-count" x-text="selectedItems.length">0</span></span>
-        <button x-show="selectedItems.length > 0" @click="deleteSelected()" class="hg-bulk-delete">
+    <!-- ========== BULK ACTIONS BAR ========== -->
+    <div x-show="editMode" x-transition class="sd-bulk" style="display: none;">
+      <div class="sd-bulk-info">
+        <span>Selected: <span class="sd-bulk-count" x-text="selectedItems.length">0</span></span>
+        <button x-show="selectedItems.length > 0" @click="deleteSelected()" class="sd-bulk-del">
           Delete Selected
         </button>
       </div>
-      <span class="hg-bulk-hint">Select words to remove</span>
+      <span class="sd-bulk-hint">Select words to remove</span>
     </div>
 
-    <!-- Search Panel (Owner Only) -->
+    <!-- ========== SEARCH (OWNER ONLY) ========== -->
     {% if request.user == vocab_set.owner %}
-    <div x-show="!editMode" class="hg-search-panel" style="position: relative; z-index: 20;">
-      <div class="hg-search-wrapper">
-        <svg class="hg-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <div x-show="!editMode" class="gp-light sd-search">
+      <div class="sd-search-wrap">
+        <svg class="sd-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" id="word-search"
-               class="hg-search-input"
-               placeholder="Search to add words...">
-
-        <div id="search-results" class="hg-search-results hidden">
-          <!-- Populated via JS -->
-        </div>
+        <input type="text" id="word-search" class="sd-search-input" placeholder="Search to add words...">
+        <div id="search-results" class="sd-search-results hidden"></div>
       </div>
     </div>
     {% endif %}
 
-    <!-- Vocabulary Grid - SOLID LEARNING CARDS -->
-    <div class="hg-vocab-grid" id="vocab-grid">
+    <!-- ========== VOCABULARY GRID ========== -->
+    <div class="sd-section-label">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+      </svg>
+      Words &middot; {{ vocab_set.items.count }}
+    </div>
+
+    <div class="sd-grid" id="vocab-grid">
       {% for item in items %}
         {% if vocab_set.language == 'jp' %}
-        <!-- Japanese Word Card -->
-        <div class="hg-jp-card" id="item-card-{{ item.id }}">
-          <!-- Checkbox for Edit Mode -->
+        <!-- Japanese Card -->
+        <article class="gp-light sd-card" id="item-card-{{ item.id }}">
           <input type="checkbox" value="{{ item.id }}" x-model="selectedItems" x-show="editMode"
-                 class="hg-card-check" style="display: none;">
+                 class="sd-card-check" style="display: none;">
 
-          <div class="hg-card-top">
+          <div class="sd-card-top">
             <div>
-              <div class="hg-kanji">{{ item.definition.entry.vocab.word }}</div>
+              <div class="sd-kanji">{{ item.definition.entry.vocab.word }}</div>
               {% if item.definition.entry.vocab.extra_data.reading %}
-                <div class="hg-reading">{{ item.definition.entry.vocab.extra_data.reading }}</div>
+                <div class="sd-reading">{{ item.definition.entry.vocab.extra_data.reading }}</div>
               {% endif %}
             </div>
             {% if item.definition.entry.audio_us or item.definition.entry.audio_uk %}
               <button onclick="playAudio(this)" data-src="{{ item.definition.entry.audio_us|default:item.definition.entry.audio_uk }}"
-                      class="hg-audio-btn" title="Play audio">
+                      class="sd-audio-btn" title="Play audio">
                 <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
                 </svg>
               </button>
             {% endif %}
           </div>
 
           {% if item.definition.entry.vocab.extra_data.han_viet %}
-            <span class="hg-hanviet">{{ item.definition.entry.vocab.extra_data.han_viet }}</span>
+            <span class="sd-hanviet">{{ item.definition.entry.vocab.extra_data.han_viet }}</span>
           {% endif %}
 
-          <div class="hg-card-row">
-            <span class="hg-pos">{{ item.definition.entry.part_of_speech }}</span>
-            <span class="hg-meaning">{{ item.definition.meaning }}</span>
+          <div class="sd-card-row">
+            <span class="sd-pos">{{ item.definition.entry.part_of_speech }}</span>
+            <span class="sd-meaning">{{ item.definition.meaning }}</span>
           </div>
 
           {% if item.definition.example_sentence %}
-          <div class="hg-example">
-            <div class="hg-example-text">{{ item.definition.example_sentence }}</div>
-            <div class="hg-example-trans">{{ item.definition.example_trans }}</div>
+          <div class="sd-example">
+            <div class="sd-example-text">{{ item.definition.example_sentence }}</div>
+            <div class="sd-example-trans">{{ item.definition.example_trans }}</div>
           </div>
           {% endif %}
-        </div>
+        </article>
 
         {% else %}
-        <!-- English Word Card -->
-        <div class="hg-en-card" id="item-card-{{ item.id }}">
-          <!-- Checkbox for Edit Mode -->
+        <!-- English Card -->
+        <article class="gp-light sd-card" id="item-card-{{ item.id }}">
           <input type="checkbox" value="{{ item.id }}" x-model="selectedItems" x-show="editMode"
-                 class="hg-card-check" style="display: none;">
+                 class="sd-card-check" style="display: none;">
 
-          <div class="hg-card-top">
+          <div class="sd-card-top">
             <div>
-              <div class="hg-en-word">{{ item.definition.entry.vocab.word }}</div>
-              <div class="hg-en-ipa">{{ item.definition.entry.ipa }}</div>
+              <div class="sd-en-word">{{ item.definition.entry.vocab.word }}</div>
+              <div class="sd-en-ipa">{{ item.definition.entry.ipa }}</div>
             </div>
             {% if item.definition.entry.audio_us or item.definition.entry.audio_uk %}
               <button onclick="playAudio(this)" data-src="{{ item.definition.entry.audio_us|default:item.definition.entry.audio_uk }}"
-                      class="hg-audio-btn" title="Play audio">
+                      class="sd-audio-btn" title="Play audio">
                 <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
                 </svg>
               </button>
             {% endif %}
           </div>
 
-          <div class="hg-card-row">
-            <span class="hg-pos">{{ item.definition.entry.part_of_speech }}</span>
-            <span class="hg-meaning">{{ item.definition.meaning }}</span>
+          <div class="sd-card-row">
+            <span class="sd-pos">{{ item.definition.entry.part_of_speech }}</span>
+            <span class="sd-meaning">{{ item.definition.meaning }}</span>
           </div>
 
           {% if item.definition.example_sentence %}
-          <div class="hg-example">
-            <div class="hg-example-text">{{ item.definition.example_sentence }}</div>
-            <div class="hg-example-trans">{{ item.definition.example_trans }}</div>
+          <div class="sd-example">
+            <div class="sd-example-text">{{ item.definition.example_sentence }}</div>
+            <div class="sd-example-trans">{{ item.definition.example_trans }}</div>
           </div>
           {% endif %}
-        </div>
+        </article>
         {% endif %}
       {% empty %}
-        <div class="hg-empty">
-          <svg class="hg-empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        <div class="gp sd-empty">
+          <svg class="sd-empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
-          <p class="hg-empty-title">This set doesn't have any words yet.</p>
+          <p class="sd-empty-title">This set doesn't have any words yet.</p>
           {% if request.user == vocab_set.owner %}
-          <p class="hg-empty-hint">Use the search box above to add some words!</p>
+          <p class="sd-empty-hint">Use the search box above to add some words!</p>
           {% endif %}
         </div>
       {% endfor %}
@@ -1036,9 +563,7 @@
 
       toggleEditMode() {
         this.editMode = !this.editMode;
-        if (!this.editMode) {
-          this.selectedItems = [];
-        }
+        if (!this.editMode) this.selectedItems = [];
       },
 
       async deleteSelected() {
@@ -1046,21 +571,16 @@
         if (!confirm(`Are you sure you want to delete ${this.selectedItems.length} items?`)) return;
 
         const csrf = '{{ csrf_token }}';
-        const setId = {{ vocab_set.id }};
-
         const deletePromises = this.selectedItems.map(itemId => {
           return fetch(`{% url 'vocab:api_remove_item' vocab_set.id %}`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-CSRFToken': csrf
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrf },
             body: `item_id=${itemId}`
           }).then(res => res.json());
         });
 
         try {
-          const results = await Promise.all(deletePromises);
+          await Promise.all(deletePromises);
           window.location.reload();
         } catch (e) {
           console.error("Delete failed", e);
@@ -1073,49 +593,38 @@
   function playAudio(btn) {
     const src = btn.getAttribute('data-src');
     const player = document.getElementById('global-audio-player');
-    if(src && player) {
-      player.src = src;
-      player.play().catch(e => console.error(e));
-    }
+    if (src && player) { player.src = src; player.play().catch(e => console.error(e)); }
   }
 
   const searchInput = document.getElementById('word-search');
   const resultsDiv = document.getElementById('search-results');
-  const setId = {{ vocab_set.id }};
   let debounceTimer;
 
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       clearTimeout(debounceTimer);
       const query = e.target.value.trim();
-
-      if (query.length < 2) {
-        resultsDiv.classList.add('hidden');
-        return;
-      }
+      if (query.length < 2) { resultsDiv.classList.add('hidden'); return; }
 
       debounceTimer = setTimeout(() => {
         fetch(`{% url 'vocab:api_search' %}?q=${encodeURIComponent(query)}`)
-          .then(response => response.json())
+          .then(r => r.json())
           .then(data => {
             resultsDiv.innerHTML = '';
             if (data.length > 0) {
               data.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'hg-search-item';
+                div.className = 'sd-search-item';
                 div.innerHTML = `
-                  <div>
-                    <span class="hg-search-word">${item.text}</span>
-                    <span class="hg-search-meaning">${item.meaning || ''}</span>
-                  </div>
-                  <span class="hg-search-add">Add</span>
+                  <div><span class="sd-search-word">${item.text}</span><span class="sd-search-meaning">${item.meaning || ''}</span></div>
+                  <span class="sd-search-add">Add</span>
                 `;
                 div.onclick = () => addItem(item.id);
                 resultsDiv.appendChild(div);
               });
               resultsDiv.classList.remove('hidden');
             } else {
-              resultsDiv.innerHTML = '<div class="hg-search-empty">No words found</div>';
+              resultsDiv.innerHTML = '<div class="sd-search-empty">No words found</div>';
               resultsDiv.classList.remove('hidden');
             }
           })
@@ -1133,31 +642,20 @@
   function addItem(definitionId) {
     fetch(`{% url 'vocab:api_add_item' vocab_set.id %}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
       body: `definition_id=${definitionId}`
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert(data.error);
-      }
-    });
+    .then(r => r.json())
+    .then(data => { if (data.success) location.reload(); else alert(data.error); });
   }
 </script>
 {% else %}
 <script>
+  function setManager() { return { editMode: false, selectedItems: [] } }
   function playAudio(btn) {
     const src = btn.getAttribute('data-src');
     const player = document.getElementById('global-audio-player');
-    if(src && player) {
-      player.src = src;
-      player.play().catch(e => console.error(e));
-    }
+    if (src && player) { player.src = src; player.play().catch(e => console.error(e)); }
   }
 </script>
 {% endif %}
