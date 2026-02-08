@@ -1,70 +1,463 @@
+{# templates/vocab/toeic/home.html - Frosted Crystal Courses #}
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
 {% block title %}TOEIC Vocabulary | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
 <style>
-  /* Modern TOEIC Level Cards - Light Pastel Design */
-  .df-toeic-levels-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-  }
-  
-  @media (max-width: 1024px) {
-    .df-toeic-levels-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  /* =============================================
+     Courses Page - Frosted Crystal Design
+     ============================================= */
+
+  /* Pastel Gradient Mesh Background */
+  .crystal-courses {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(199, 210, 254, 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(251, 207, 232, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(254, 215, 170, 0.3) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 50% at 80% 30%, rgba(167, 243, 208, 0.2) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+    padding: 1.25rem;
   }
 
-  @media (max-width: 640px) {
-    .df-toeic-levels-grid {
-      grid-template-columns: 1fr;
-    }
+  [data-theme="dark"] .crystal-courses {
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
   }
-  
-  .df-level-card {
-    position: relative;
+
+  .courses-container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ========== GLASS PANELS ========== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow:
+      0 4px 24px -4px rgba(0, 0, 0, 0.35),
+      0 8px 48px -8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-light {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 16px;
+    box-shadow:
+      0 2px 12px -2px rgba(99, 102, 241, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+
+  [data-theme="dark"] .glass-panel-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+    box-shadow:
+      0 2px 12px -2px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* ========== PAGE HEADER ========== */
+  .courses-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .courses-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .courses-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.375rem;
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.5);
+    flex-shrink: 0;
+  }
+
+  .courses-title {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  [data-theme="dark"] .courses-title {
+    color: #f1f5f9;
+  }
+
+  .courses-subtitle {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0.125rem 0 0;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .courses-subtitle {
+    color: #94a3b8;
+  }
+
+  /* ========== OVERALL STATS BAR ========== */
+  .overall-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .overall-stat {
+    padding: 1rem 0.75rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .overall-stat::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .overall-stat--words::before { background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%); }
+  .overall-stat--learned::before { background: radial-gradient(circle, rgba(16, 185, 129, 0.3), transparent 70%); }
+  .overall-stat--sets::before { background: radial-gradient(circle, rgba(245, 158, 11, 0.3), transparent 70%); }
+  .overall-stat--progress::before { background: radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent 70%); }
+
+  .overall-stat:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.15);
+  }
+
+  [data-theme="dark"] .overall-stat:hover {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .overall-stat-value {
+    font-size: 1.625rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .overall-stat-value--indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-stat-value--green {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-stat-value--amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-stat-value--rose {
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-stat-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  [data-theme="dark"] .overall-stat-label {
+    color: #94a3b8;
+  }
+
+  /* ========== OVERALL PROGRESS BAR ========== */
+  .overall-progress {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .overall-progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.625rem;
+  }
+
+  .overall-progress-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  [data-theme="dark"] .overall-progress-label {
+    color: #cbd5e1;
+  }
+
+  .overall-progress-pct {
+    font-size: 0.875rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  [data-theme="dark"] .overall-progress-track {
+    background: rgba(99, 102, 241, 0.15);
+  }
+
+  .overall-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .overall-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ========== REVIEW BANNER ========== */
+  .review-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(52, 211, 153, 0.08) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  [data-theme="dark"] .review-banner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.08) 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .review-banner:hover {
+    transform: translateX(4px);
+    border-color: rgba(16, 185, 129, 0.45);
+    box-shadow: 0 4px 20px -4px rgba(16, 185, 129, 0.2);
+  }
+
+  .review-banner-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(16, 185, 129, 0.5);
+  }
+
+  .review-banner-icon svg {
+    width: 22px;
+    height: 22px;
+    color: white;
+  }
+
+  .review-banner-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .review-banner-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  [data-theme="dark"] .review-banner-title {
+    color: #f1f5f9;
+  }
+
+  .review-banner-text {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.125rem;
+  }
+
+  [data-theme="dark"] .review-banner-text {
+    color: #94a3b8;
+  }
+
+  .review-banner-btn {
+    padding: 0.5rem 1.125rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    border-radius: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.5);
+    transition: all 0.2s ease;
+    animation: pulse-review 2.5s ease-in-out infinite;
+  }
+
+  .review-banner-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px -4px rgba(16, 185, 129, 0.6);
+  }
+
+  @keyframes pulse-review {
+    0%, 100% { box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.5); }
+    50% { box-shadow: 0 4px 20px -4px rgba(16, 185, 129, 0.7); }
+  }
+
+  .review-banner-arrow {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .review-banner:hover .review-banner-arrow {
+    transform: translateX(4px);
+    color: #10b981;
+  }
+
+  /* ========== SECTION LABEL ========== */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+  }
+
+  [data-theme="dark"] .section-label {
+    color: #94a3b8;
+  }
+
+  .section-label svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ========== COURSE CARDS GRID ========== */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ========== COURSE CARD ========== */
+  .course-card {
+    position: relative;
     padding: 1.25rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    min-height: 160px;
     display: flex;
     flex-direction: column;
+    min-height: 200px;
   }
-  
-  .df-level-card:hover {
+
+  .course-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    box-shadow:
+      0 12px 40px -8px var(--card-shadow-color, rgba(99, 102, 241, 0.2)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
-  
-  /* Card Backgrounds */
-  .df-level-card--600 {
-    background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
-    border: 1px solid #81c784;
+
+  [data-theme="dark"] .course-card:hover {
+    box-shadow:
+      0 12px 40px -8px var(--card-shadow-color, rgba(0, 0, 0, 0.4)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
-  
-  .df-level-card--730 {
-    background: linear-gradient(145deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
-    border: 1px solid #64b5f6;
-  }
-  
-  .df-level-card--860 {
-    background: linear-gradient(145deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%);
-    border: 1px solid #ba68c8;
-  }
-  
-  .df-level-card--990 {
-    background: linear-gradient(145deg, #fff8e1 0%, #ffe082 50%, #ffd54f 100%);
-    border: 1px solid #ffca28;
-  }
-  
-  /* Decorative Background Elements */
-  .df-level-card::before {
+
+  /* Decorative orbs */
+  .course-card::before {
     content: '';
     position: absolute;
     top: -30px;
@@ -72,11 +465,16 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.3);
+    background: var(--card-orb-color, rgba(99, 102, 241, 0.12));
     pointer-events: none;
+    transition: transform 0.5s ease;
   }
-  
-  .df-level-card::after {
+
+  .course-card:hover::before {
+    transform: scale(1.2);
+  }
+
+  .course-card::after {
     content: '';
     position: absolute;
     bottom: -40px;
@@ -84,194 +482,496 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.2);
+    background: var(--card-orb-color-2, rgba(99, 102, 241, 0.06));
     pointer-events: none;
   }
-  
-  /* Icon Container */
-  .df-level-icon {
-    width: 56px;
-    height: 56px;
+
+  /* Color variants */
+  .course-card--green {
+    --card-orb-color: rgba(16, 185, 129, 0.15);
+    --card-orb-color-2: rgba(16, 185, 129, 0.08);
+    --card-shadow-color: rgba(16, 185, 129, 0.2);
+    --card-accent: #10b981;
+    --card-accent-end: #059669;
+    --card-accent-bg: rgba(16, 185, 129, 0.08);
+    --card-accent-border: rgba(16, 185, 129, 0.2);
+  }
+
+  .course-card--blue {
+    --card-orb-color: rgba(59, 130, 246, 0.15);
+    --card-orb-color-2: rgba(59, 130, 246, 0.08);
+    --card-shadow-color: rgba(59, 130, 246, 0.2);
+    --card-accent: #3b82f6;
+    --card-accent-end: #2563eb;
+    --card-accent-bg: rgba(59, 130, 246, 0.08);
+    --card-accent-border: rgba(59, 130, 246, 0.2);
+  }
+
+  .course-card--purple {
+    --card-orb-color: rgba(139, 92, 246, 0.15);
+    --card-orb-color-2: rgba(139, 92, 246, 0.08);
+    --card-shadow-color: rgba(139, 92, 246, 0.2);
+    --card-accent: #8b5cf6;
+    --card-accent-end: #7c3aed;
+    --card-accent-bg: rgba(139, 92, 246, 0.08);
+    --card-accent-border: rgba(139, 92, 246, 0.2);
+  }
+
+  .course-card--amber {
+    --card-orb-color: rgba(245, 158, 11, 0.15);
+    --card-orb-color-2: rgba(245, 158, 11, 0.08);
+    --card-shadow-color: rgba(245, 158, 11, 0.2);
+    --card-accent: #f59e0b;
+    --card-accent-end: #d97706;
+    --card-accent-bg: rgba(245, 158, 11, 0.08);
+    --card-accent-border: rgba(245, 158, 11, 0.2);
+  }
+
+  /* Card header */
+  .course-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0.875rem;
+  }
+
+  .course-card-icon {
+    width: 52px;
+    height: 52px;
     border-radius: 16px;
+    background: linear-gradient(135deg, var(--card-accent, #6366f1) 0%, var(--card-accent-end, #4f46e5) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 1.5rem;
+    box-shadow: 0 4px 16px -4px var(--card-shadow-color, rgba(99, 102, 241, 0.5));
+    transition: transform 0.3s ease;
+  }
+
+  .course-card:hover .course-card-icon {
+    transform: scale(1.08) rotate(-2deg);
+  }
+
+  .course-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    background: var(--card-accent-bg, rgba(99, 102, 241, 0.08));
+    color: var(--card-accent, #6366f1);
+    border: 1px solid var(--card-accent-border, rgba(99, 102, 241, 0.2));
+  }
+
+  /* Card content */
+  .course-card-content {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .course-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  [data-theme="dark"] .course-card-title {
+    color: #f1f5f9;
+  }
+
+  .course-card-desc {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0 0 1rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .course-card-desc {
+    color: #94a3b8;
+  }
+
+  /* Card stats row */
+  .course-card-stats {
+    display: flex;
+    gap: 1rem;
     margin-bottom: 1rem;
     position: relative;
     z-index: 1;
   }
-  
-  .df-level-card--600 .df-level-icon {
-    background: linear-gradient(135deg, #4caf50, #2e7d32);
+
+  .course-card-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
   }
-  
-  .df-level-card--730 .df-level-icon {
-    background: linear-gradient(135deg, #2196f3, #1565c0);
+
+  [data-theme="dark"] .course-card-stat {
+    color: #94a3b8;
   }
-  
-  .df-level-card--860 .df-level-icon {
-    background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+
+  .course-card-stat svg {
+    width: 14px;
+    height: 14px;
+    color: var(--card-accent, #6366f1);
+    opacity: 0.7;
   }
-  
-  .df-level-card--990 .df-level-icon {
-    background: linear-gradient(135deg, #ff9800, #e65100);
-  }
-  
-  /* Content */
-  .df-level-content {
-    position: relative;
-    z-index: 1;
-    flex: 1;
-  }
-  
-  .df-level-title {
-    font-size: 1.375rem;
+
+  .course-card-stat strong {
     font-weight: 700;
-    color: #1a1a2e;
-    margin: 0 0 0.25rem;
+    color: #475569;
   }
-  
-  .df-level-desc {
-    font-size: 0.875rem;
-    color: #4a4a6a;
-    margin: 0 0 1rem;
+
+  [data-theme="dark"] .course-card-stat strong {
+    color: #e2e8f0;
   }
-  
-  /* Progress Section */
-  .df-level-progress-section {
+
+  /* Card progress section */
+  .course-card-progress {
     position: relative;
     z-index: 1;
     margin-top: auto;
   }
-  
-  .df-level-progress-bar {
-    width: 100%;
-    height: 8px;
-    background: rgba(255,255,255,0.6);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-  }
-  
-  .df-level-progress-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-  
-  .df-level-card--600 .df-level-progress-fill { background: #2e7d32; }
-  .df-level-card--730 .df-level-progress-fill { background: #1565c0; }
-  .df-level-card--860 .df-level-progress-fill { background: #6a1b9a; }
-  .df-level-card--990 .df-level-progress-fill { background: #e65100; }
-  
-  .df-level-stats {
+
+  .course-card-progress-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    font-size: 0.8125rem;
-    color: #4a4a6a;
-    font-weight: 500;
+    margin-bottom: 0.375rem;
   }
-  
-  /* Start Button - Primary Card */
-  .df-level-start-btn {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    background: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
+
+  .course-card-progress-label {
+    font-size: 0.6875rem;
     font-weight: 600;
-    color: #1a1a2e;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.2s;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .course-card-progress-label {
+    color: #94a3b8;
+  }
+
+  .course-card-progress-pct {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var(--card-accent, #6366f1);
+  }
+
+  .course-card-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--card-accent-bg, rgba(99, 102, 241, 0.1));
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .course-card-progress-bar {
+    background: var(--card-accent-bg, rgba(99, 102, 241, 0.15));
+  }
+
+  .course-card-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--card-accent, #6366f1), var(--card-accent-end, #4f46e5));
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* CTA button */
+  .course-card-cta {
+    position: absolute;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--card-accent-bg, rgba(99, 102, 241, 0.1));
+    border: 1px solid var(--card-accent-border, rgba(99, 102, 241, 0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
     z-index: 2;
   }
-  
-  .df-level-start-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  .course-card-cta svg {
+    width: 16px;
+    height: 16px;
+    color: var(--card-accent, #6366f1);
+    transition: transform 0.2s ease;
   }
-  
-  /* Streak Badge */
-  .df-toeic-streak {
-    background: white !important;
-    border: 1px solid #e0e0e0 !important;
-    color: #1a1a2e !important;
+
+  .course-card:hover .course-card-cta {
+    background: linear-gradient(135deg, var(--card-accent, #6366f1), var(--card-accent-end, #4f46e5));
+    border-color: transparent;
+    box-shadow: 0 4px 12px -4px var(--card-shadow-color, rgba(99, 102, 241, 0.5));
+  }
+
+  .course-card:hover .course-card-cta svg {
+    color: white;
+    transform: translateX(2px);
+  }
+
+  /* ========== EMPTY STATE ========== */
+  .courses-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .courses-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+
+  .courses-empty-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.375rem;
+  }
+
+  [data-theme="dark"] .courses-empty-title {
+    color: #cbd5e1;
+  }
+
+  .courses-empty-text {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .courses-empty-text {
+    color: #94a3b8;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .courses-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .overall-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .crystal-courses {
+      padding: 1rem;
+    }
+
+    .courses-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .overall-stats {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .overall-stat {
+      padding: 0.875rem 0.625rem;
+    }
+
+    .overall-stat-value {
+      font-size: 1.375rem;
+    }
+
+    .course-card {
+      padding: 1rem;
+      min-height: 180px;
+    }
+
+    .course-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      font-size: 1.25rem;
+    }
+
+    .course-card-title {
+      font-size: 1.125rem;
+    }
+
+    .course-card-stats {
+      gap: 0.75rem;
+    }
+
+    .review-banner {
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .review-banner-btn {
+      width: 100%;
+      text-align: center;
+      padding: 0.625rem 1rem;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-toeic-container">
-  <!-- Header -->
-  <div class="df-toeic-header">
-    <div>
-      <h1 class="df-toeic-title">TOEIC Vocabulary</h1>
-      <p class="df-toeic-subtitle">Master TOEIC vocabulary from 600 to 990</p>
+<div class="crystal-courses">
+  <div class="courses-container">
+
+    <!-- ========== PAGE HEADER ========== -->
+    <header class="courses-header">
+      <div class="courses-header-left">
+        <div class="courses-header-icon">📚</div>
+        <div>
+          <h1 class="courses-title">TOEIC Vocabulary</h1>
+          <p class="courses-subtitle">Master vocabulary from beginner to advanced</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========== OVERALL STATS ========== -->
+    <section class="overall-stats">
+      <article class="glass-panel-light overall-stat overall-stat--words">
+        <div class="overall-stat-value overall-stat-value--indigo">{{ total_words_all|default:0 }}</div>
+        <div class="overall-stat-label">Total Words</div>
+      </article>
+      <article class="glass-panel-light overall-stat overall-stat--learned">
+        <div class="overall-stat-value overall-stat-value--green">{{ total_learned_all|default:0 }}</div>
+        <div class="overall-stat-label">Learned</div>
+      </article>
+      <article class="glass-panel-light overall-stat overall-stat--sets">
+        <div class="overall-stat-value overall-stat-value--amber">{{ total_completed_sets_all|default:0 }}<span style="font-size: 0.75em; opacity: 0.6">/{{ total_sets_all|default:0 }}</span></div>
+        <div class="overall-stat-label">Sets Done</div>
+      </article>
+      <article class="glass-panel-light overall-stat overall-stat--progress">
+        <div class="overall-stat-value overall-stat-value--rose">{{ overall_completion|default:0 }}%</div>
+        <div class="overall-stat-label">Progress</div>
+      </article>
+    </section>
+
+    <!-- ========== OVERALL PROGRESS BAR ========== -->
+    <div class="glass-panel-light overall-progress">
+      <div class="overall-progress-header">
+        <span class="overall-progress-label">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Overall Mastery
+        </span>
+        <span class="overall-progress-pct">{{ overall_completion|default:0 }}%</span>
+      </div>
+      <div class="overall-progress-track">
+        <div class="overall-progress-fill" style="width: {{ overall_completion|default:0 }}%;"></div>
+      </div>
     </div>
 
-  </div>
-
-  <!-- Review CTA Banner -->
-  {% if review_count > 0 %}
-  <a href="{% url 'vocab:toeic_review' %}" class="df-toeic-review-banner">
-    <div class="df-toeic-review-banner-content">
-      <div class="df-toeic-review-banner-icon">
+    <!-- ========== REVIEW BANNER ========== -->
+    {% if review_count > 0 %}
+    <a href="{% url 'vocab:toeic_review' %}" class="review-banner">
+      <div class="review-banner-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
       </div>
-      <div>
-        <div class="df-toeic-review-banner-title">{{ review_count }} cards due for review</div>
-        <div class="df-toeic-review-banner-text">Keep your memory fresh with spaced repetition</div>
+      <div class="review-banner-content">
+        <div class="review-banner-title">{{ review_count }} cards due for review</div>
+        <div class="review-banner-text">Keep your memory fresh with spaced repetition</div>
       </div>
-    </div>
-    <svg class="df-toeic-review-banner-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M9 5l7 7-7 7"/>
-    </svg>
-  </a>
-  {% endif %}
+      <span class="review-banner-btn">Review Now</span>
+      <svg class="review-banner-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+    {% endif %}
 
-  <!-- Level Cards -->
-  <div class="df-toeic-levels-grid">
-    {% for item in levels %}
-    <div class="df-level-card df-level-card--{{ item.config.level }}"
-         onclick="window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">
-      
-      <!-- Start Button (shown on first available card) -->
-      {% if forloop.first and item.completion == 0 %}
-      <button class="df-level-start-btn" onclick="event.stopPropagation(); window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">Học ngay</button>
-      {% endif %}
-      
-      <!-- Icon -->
-      <div class="df-level-icon">
-        {{ item.config.icon }}
-      </div>
-      
-      <!-- Content -->
-      <div class="df-level-content">
-        <h2 class="df-level-title">{{ item.config.label }}</h2>
-        <p class="df-level-desc">{{ item.config.description }}</p>
-      </div>
-      
-      <!-- Progress -->
-      <div class="df-level-progress-section">
-        <div class="df-level-progress-bar">
-          <div class="df-level-progress-fill" style="width: {{ item.completion }}%;"></div>
-        </div>
-        <div class="df-level-stats">
-          <!-- <span>{{ item.completed_sets }}/{{ item.total_sets }} sets</span> -->
-          <span>{{ item.words_learned }}/{{ item.total_words }} words</span>
-          <span>{{ item.completion }}%</span>
-        </div>
-      </div>
+    <!-- ========== COURSE CARDS ========== -->
+    <div class="section-label">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+      Courses
     </div>
-    {% endfor %}
+
+    {% if levels %}
+    <div class="courses-grid">
+      {% for item in levels %}
+      <article class="glass-panel course-card {% if item.config.level == 600 %}course-card--green{% elif item.config.level == 730 %}course-card--blue{% elif item.config.level == 860 %}course-card--purple{% elif item.config.level == 990 %}course-card--amber{% else %}course-card--blue{% endif %}"
+               onclick="window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">
+
+        <!-- Header: Icon + Badge -->
+        <div class="course-card-header">
+          <div class="course-card-icon">{{ item.config.icon }}</div>
+          <div class="course-card-badge">
+            {% if item.completion == 100 %}
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Complete
+            {% elif item.completion > 0 %}
+              In Progress
+            {% else %}
+              Not Started
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="course-card-content">
+          <h2 class="course-card-title">{{ item.config.label }}</h2>
+          <p class="course-card-desc">{{ item.config.description }}</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="course-card-stats">
+          <div class="course-card-stat">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            <strong>{{ item.total_sets }}</strong> sets
+          </div>
+          <div class="course-card-stat">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+            <strong>{{ item.words_learned }}</strong>/{{ item.total_words }} words
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="course-card-progress">
+          <div class="course-card-progress-header">
+            <span class="course-card-progress-label">{{ item.completed_sets }}/{{ item.total_sets }} sets completed</span>
+            <span class="course-card-progress-pct">{{ item.completion }}%</span>
+          </div>
+          <div class="course-card-progress-bar">
+            <div class="course-card-progress-fill" style="width: {{ item.completion }}%;"></div>
+          </div>
+        </div>
+
+        <!-- Arrow CTA -->
+        <div class="course-card-cta">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-panel courses-empty">
+      <div class="courses-empty-icon">📚</div>
+      <div class="courses-empty-title">No courses available</div>
+      <div class="courses-empty-text">Courses are being prepared. Check back soon!</div>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}

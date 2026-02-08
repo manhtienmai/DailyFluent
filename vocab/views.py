@@ -502,10 +502,22 @@ class CourseListView(LoginRequiredMixin, TemplateView):
             except ImportError:
                 pass  # Handle case where FsrsService is not ready
 
+        # Aggregate stats
+        total_words_all = sum(c['total_words'] for c in courses_data)
+        total_learned_all = sum(c['words_learned'] for c in courses_data)
+        total_sets_all = sum(c['total_sets'] for c in courses_data)
+        total_completed_sets_all = sum(c['completed_sets'] for c in courses_data)
+        overall_completion = round(total_learned_all / total_words_all * 100) if total_words_all > 0 else 0
+
         context.update({
             'levels': courses_data,
             'review_count': review_count,
             'streak': 0,
+            'total_words_all': total_words_all,
+            'total_learned_all': total_learned_all,
+            'total_sets_all': total_sets_all,
+            'total_completed_sets_all': total_completed_sets_all,
+            'overall_completion': overall_completion,
         })
         return context
 
