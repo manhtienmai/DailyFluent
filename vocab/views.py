@@ -733,6 +733,28 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
             'level': level
         }
 
+        # Computed stats
+        known_count = sum(1 for i in items_data if i['status'] == 'known')
+        new_count = len(items_data) - known_count
+        total_count = len(items_data)
+        progress_pct = round(known_count / total_count * 100) if total_count > 0 else 0
+
+        # User progress record
+        user_progress = UserSetProgress.objects.filter(
+            user=user, vocabulary_set=vocab_set
+        ).first()
+        quiz_best = user_progress.quiz_best_score if user_progress else 0
+        set_status = user_progress.status if user_progress else 'not_started'
+
+        # Navigation: prev/next sets within the same level
+        level_sets = VocabularySet.objects.filter(
+            toeic_level=level, status='published'
+        ).order_by('set_number').values_list('set_number', flat=True)
+        set_numbers = list(level_sets)
+        current_idx = set_numbers.index(set_number) if set_number in set_numbers else -1
+        prev_set = set_numbers[current_idx - 1] if current_idx > 0 else None
+        next_set = set_numbers[current_idx + 1] if current_idx < len(set_numbers) - 1 else None
+
         context.update({
             'course': course,
             'level': level,
@@ -740,6 +762,14 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
             'config': config,
             'vocab_set': vocab_set,
             'items': items_data,
+            'known_count': known_count,
+            'new_count': new_count,
+            'total_count': total_count,
+            'progress_pct': progress_pct,
+            'quiz_best': quiz_best,
+            'set_status': set_status,
+            'prev_set': prev_set,
+            'next_set': next_set,
         })
         return context
 
