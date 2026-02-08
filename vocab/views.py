@@ -647,6 +647,12 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
         learned_words = toeic_utils.get_level_words_learned_count(user, level)
         completion = toeic_utils.get_level_completion_percent(user, level)
 
+        # Aggregate set stats for the level
+        all_sets_flat = [sd for ch in chapters_list for sd in ch['sets']]
+        total_sets = len(all_sets_flat)
+        completed_sets = sum(1 for sd in all_sets_flat if sd['state'] == 'completed')
+        in_progress_sets = sum(1 for sd in all_sets_flat if sd['state'] == 'in_progress')
+
         context.update({
             'course': course,
             'level': level,
@@ -656,6 +662,9 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             'learned_words': learned_words,
             'completion': completion,
             'review_count': toeic_utils.get_level_review_count(user, level),
+            'total_sets': total_sets,
+            'completed_sets': completed_sets,
+            'in_progress_sets': in_progress_sets,
         })
         return context
 
