@@ -1201,39 +1201,6 @@
     </section>
     {% endif %}
 
-    {% else %}
-    <!-- ========== GUEST LANDING ========== -->
-    <article class="glass-panel guest-hero">
-      <h1 class="guest-title">📚 Kho đề thi TOEIC & JLPT</h1>
-      <p class="guest-desc">Luyện thi miễn phí với hàng ngàn câu hỏi thực tế</p>
-      <div class="guest-actions">
-        <a href="{% url 'account_login' %}" class="guest-btn guest-btn--primary">Đăng nhập</a>
-        <a href="{% url 'account_signup' %}" class="guest-btn guest-btn--secondary">Đăng ký</a>
-      </div>
-    </article>
-
-    {% if latest_exams %}
-    <section class="exams-section">
-      <div class="section-label">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        Đề thi mới nhất
-      </div>
-      <div class="exams-scroll">
-        {% for exam in latest_exams|slice:":8" %}
-        <a href="{% url 'exam:exam_detail' exam.slug %}" class="glass-panel-light exam-card">
-          <div class="exam-card-icon">📄</div>
-          <div class="exam-card-title">{{ exam.title|truncatechars:30 }}</div>
-          <div class="exam-card-meta">{{ exam.total_questions }} câu</div>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-
-    {% include "components/landing/why_choose_us.html" %}
-    {% include "components/landing/student_stories.html" %}
     {% endif %}
 
   </div>

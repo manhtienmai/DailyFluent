@@ -1,0 +1,253 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        /* Theme-aware variables */
+        :root {
+            --qa-primary: #4f46e5;
+            --qa-primary-light: #6366f1;
+            --qa-success: #10b981;
+            --qa-error: #ef4444;
+            
+            /* Default (Light Mode) values */
+            --qa-bg: #ffffff;
+            --qa-bg-alt: #f9fafb;
+            --qa-border: #e5e7eb;
+            --qa-text: #374151;
+            --qa-text-muted: #6b7280;
+            --qa-input-bg: #ffffff;
+            --qa-input-border: #d1d5db;
+        }
+
+        /* Dark Mode Override - strictly using Django's data-theme attribute */
+        [data-theme="dark"] {
+            --qa-bg: #1e293b;
+            --qa-bg-alt: #334155;
+            --qa-border: #475569;
+            --qa-text: #e2e8f0;
+            --qa-text-muted: #94a3b8;
+            --qa-input-bg: #1e293b;
+            --qa-input-border: #475569;
+        }
+
+        .quick-add-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background: var(--qa-bg);
+            border-radius: 12px;
+            border: 1px solid var(--qa-border);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qa-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--qa-primary);
+            display: inline-block;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-row label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--qa-text);
+        }
+
+        .form-row label.required::after {
+            content: " *";
+            color: var(--qa-error);
+        }
+
+        .form-row input[type="text"],
+        .form-row input[type="number"],
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--qa-input-border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--qa-input-bg);
+            color: var(--qa-text);
+            box-sizing: border-box;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--qa-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .submit-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .submit-row input[type="submit"] {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-row input[type="submit"].default {
+            background: linear-gradient(135deg, var(--qa-primary) 0%, var(--qa-primary-light) 100%);
+            color: white;
+        }
+
+        .submit-row input[type="submit"].default:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .submit-row input[name="save_and_add_words"] {
+            background: var(--qa-success);
+            color: white;
+        }
+
+        .submit-row input[name="save_and_add_words"]:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabularyset_changelist' %}">Vocabulary Sets</a>
+&rsaquo; Quick Add
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="quick-add-form">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Basic Info Section -->
+            <div class="form-section">
+                <span class="section-title">📚 Set Information</span>
+                
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="title" class="required">Title</label>
+                        <input type="text" name="title" id="title" placeholder="e.g., TOEIC 600 - Set 1" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" placeholder="Mô tả bộ từ vựng..."></textarea>
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label for="language">Language</label>
+                            <select name="language" id="language">
+                                {% for value, label in languages %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="status">Status</label>
+                            <select name="status" id="status">
+                                {% for value, label in statuses %}
+                                <option value="{{ value }}" {% if value == 'draft' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOEIC Organization (Optional) -->
+            <div class="form-section">
+                <span class="section-title">🎯 TOEIC Organization (Optional)</span>
+                
+                <div class="form-grid">
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label for="toeic_level">TOEIC Level</label>
+                            <select name="toeic_level" id="toeic_level">
+                                <option value="">-- None --</option>
+                                {% for value, label in toeic_levels %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="set_number">Set Number</label>
+                            <input type="number" name="set_number" id="set_number" min="1" placeholder="1, 2, 3...">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label for="chapter">Chapter</label>
+                            <input type="number" name="chapter" id="chapter" min="1" placeholder="1, 2, 3, 4...">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="chapter_name">Chapter Name</label>
+                            <input type="text" name="chapter_name" id="chapter_name" placeholder="e.g., Nền tảng cốt lõi">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="submit-row">
+                <input type="submit" value="💾 Create Set" class="default">
+                <input type="submit" name="save_and_add_words" value="💾 Create & Add Words →">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

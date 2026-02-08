@@ -12,7 +12,16 @@
       "Bash(ls -la \"E:\\\\DailyFluent\\\\static\"\" 2>/dev/null || echo \"static directory check \")",
       "Bash(find:*)",
       "Bash(wc:*)",
-      "Bash(python manage.py check:*)"
+      "Bash(python manage.py check:*)",
+      "Bash(python manage.py runserver:*)",
+      "Bash(timeout:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: redesign my-words page with glassmorphism UI\n\n- Add glassmorphism visual style with backdrop-blur effects\n- Implement Bento Grid layout for modern card arrangement\n- Add soothing pastel color palette with dark theme support\n- Add micro-interactions: hover effects, animations, shimmer progress bars\n- Make fully responsive for mobile/tablet/desktop\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(python:*)",
+      "Bash(set:*)",
+      "Bash(copy:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

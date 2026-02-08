@@ -23,7 +23,7 @@ urlpatterns = [
     path('english/', views.EnglishListView.as_view(), name='english_list'),
     path('english/<str:word>/', views.VocabularyDetailView.as_view(), name='vocabulary_detail'),
     path('games/', views.GamesView.as_view(), name='games'),
-    path('flashcards/english/', views.FlashcardsEnglishView.as_view(), name='flashcards_english'),
+
     path('progress/', views.ProgressView.as_view(), name='progress'),
     path('study-status/', views.StudyStatusView.as_view(), name='study_status'),
     path('typing/', views.TypingView.as_view(), name='typing'),

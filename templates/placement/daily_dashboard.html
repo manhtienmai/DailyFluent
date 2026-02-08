@@ -56,7 +56,7 @@
                     <p class="font-medium text-gray-900 dark:text-white">{{ activity.reason }}</p>
                     <p class="text-sm text-gray-500">{{ activity.estimated_minutes|floatformat:0 }} phút</p>
                 </div>
-                <a href="{% if activity.type == 'vocab_review' %}{% url 'vocab:flashcards_english' %}{% else %}#{% endif %}"
+                <a href="{% if activity.type == 'vocab_review' %}{% url 'vocab:set_list' %}?tab=my{% else %}#{% endif %}"
                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-all">
                     Bắt đầu
                 </a>
@@ -124,7 +124,7 @@
     
     <!-- Quick Actions -->
     <div class="grid grid-cols-2 gap-4">
-        <a href="{% url 'vocab:flashcards_english' %}" 
+        <a href="{% url 'vocab:set_list' %}?tab=my" 
            class="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-all">
             <span class="text-2xl">📚</span>
             <span class="font-medium text-gray-900 dark:text-white">Ôn từ vựng</span>

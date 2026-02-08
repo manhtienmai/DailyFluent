@@ -1,4 +1,6 @@
 import json
+import os
+import uuid
 from django.contrib import admin, messages
 from django.shortcuts import render, redirect
 from django.urls import path
@@ -7,6 +9,8 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
+from django.conf import settings
+from django.core.files.storage import default_storage
 from .models import Vocabulary, WordEntry, WordDefinition, VocabularySet, SetItem, UserSetProgress, Course
 from .utils_scraper import scrape_cambridge
 import nested_admin
@@ -54,6 +58,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             path('bulk-process/', self.admin_site.admin_view(self.bulk_process_api), name='vocab_vocabulary_bulk_process'),
             path('chapter-import/', self.admin_site.admin_view(self.chapter_import_view), name='vocab_vocabulary_chapter_import'),
             path('chapter-import/create-set/', self.admin_site.admin_view(self.chapter_import_create_set), name='vocab_vocabulary_chapter_import_create_set'),
+            path('upload-image/', self.admin_site.admin_view(self.upload_image_api), name='vocab_vocabulary_upload_image'),
         ]
         return custom_urls + urls
 
@@ -330,6 +335,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             pos = request.POST.get("pos")
             example = request.POST.get("example")
             example_trans = request.POST.get("example_trans")
+            image_url = request.POST.get("image_url", "")
             
             if not word or not meaning:
                  messages.error(request, "Word and Meaning are required.")
@@ -354,12 +360,13 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                         }
                     )
 
-                    # Create Definition
+                    # Create Definition with image_url
                     WordDefinition.objects.create(
                         entry=entry,
                         meaning=meaning,
                         example_sentence=example or "",
-                        example_trans=example_trans or ""
+                        example_trans=example_trans or "",
+                        image_url=image_url or None
                     )
                 
                 messages.success(request, f"Successfully added '{word}'.")
@@ -375,6 +382,55 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
            title="Quick Add Vocabulary"
         )
         return render(request, "admin/vocab/vocabulary/manual_add.html", context)
+
+    def upload_image_api(self, request):
+        """
+        API endpoint to upload vocabulary image to Azure Storage.
+        Returns the public URL of the uploaded image.
+        """
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+        
+        if "image" not in request.FILES:
+            return JsonResponse({"error": "No image file provided"}, status=400)
+        
+        image_file = request.FILES["image"]
+        
+        # Validate file type
+        allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+        if image_file.content_type not in allowed_types:
+            return JsonResponse({
+                "error": "Invalid file type. Allowed: JPEG, PNG, GIF, WebP"
+            }, status=400)
+        
+        # Validate file size (max 5MB)
+        if image_file.size > 5 * 1024 * 1024:
+            return JsonResponse({
+                "error": "File too large. Maximum size is 5MB"
+            }, status=400)
+        
+        try:
+            # Generate unique filename
+            ext = os.path.splitext(image_file.name)[1].lower() or ".jpg"
+            unique_name = f"vocab/images/{uuid.uuid4().hex}{ext}"
+            
+            # Use Django's default storage (configured for Azure in production)
+            from config.storage_backends import AzureMediaStorage
+            
+            storage = AzureMediaStorage()
+            saved_name = storage.save(unique_name, image_file)
+            image_url = storage.url(saved_name)
+            
+            return JsonResponse({
+                "success": True,
+                "url": image_url,
+                "filename": saved_name
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                "error": f"Upload failed: {str(e)}"
+            }, status=500)
 
 
 @admin.register(WordEntry)
@@ -419,8 +475,154 @@ class VocabularySetAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('import-json/', self.admin_site.admin_view(self.import_json_view), name='vocab_vocabularyset_import_json'),
+            path('quick-add/', self.admin_site.admin_view(self.quick_add_set_view), name='vocab_vocabularyset_quick_add'),
+            path('search-words/', self.admin_site.admin_view(self.search_words_api), name='vocab_vocabularyset_search_words'),
+            path('<int:set_id>/add-words/', self.admin_site.admin_view(self.add_words_to_set_api), name='vocab_vocabularyset_add_words'),
+            path('<int:set_id>/manage-words/', self.admin_site.admin_view(self.manage_words_view), name='vocab_vocabularyset_manage_words'),
+            path('<int:set_id>/remove-word/<int:word_id>/', self.admin_site.admin_view(self.remove_word_from_set_api), name='vocab_vocabularyset_remove_word'),
         ]
         return custom_urls + urls
+
+    def quick_add_set_view(self, request):
+        """View for quickly creating a new vocabulary set."""
+        if request.method == "POST":
+            title = request.POST.get("title", "").strip()
+            description = request.POST.get("description", "")
+            language = request.POST.get("language", Vocabulary.Language.ENGLISH)
+            toeic_level = request.POST.get("toeic_level") or None
+            set_number = request.POST.get("set_number") or None
+            chapter = request.POST.get("chapter") or None
+            chapter_name = request.POST.get("chapter_name", "")
+            status = request.POST.get("status", "draft")
+
+            if not title:
+                messages.error(request, "Title is required.")
+                return redirect("admin:vocab_vocabularyset_quick_add")
+
+            try:
+                if toeic_level:
+                    toeic_level = int(toeic_level)
+                if set_number:
+                    set_number = int(set_number)
+                if chapter:
+                    chapter = int(chapter)
+
+                vocab_set = VocabularySet.objects.create(
+                    title=title,
+                    description=description,
+                    language=language,
+                    toeic_level=toeic_level,
+                    set_number=set_number,
+                    chapter=chapter,
+                    chapter_name=chapter_name,
+                    status=status,
+                    is_public=True,
+                )
+                messages.success(request, f"Created set: '{title}'")
+                
+                # Redirect to manage words if requested
+                if "save_and_add_words" in request.POST:
+                    return redirect("admin:vocab_vocabularyset_manage_words", set_id=vocab_set.id)
+                return redirect("admin:vocab_vocabularyset_changelist")
+
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Quick Add Vocabulary Set",
+            toeic_levels=VocabularySet.ToeicLevel.choices,
+            languages=Vocabulary.Language.choices,
+            statuses=VocabularySet.Status.choices,
+        )
+        return render(request, "admin/vocab/vocabularyset/quick_add.html", context)
+
+    def manage_words_view(self, request, set_id):
+        """View for managing words in a set."""
+        try:
+            vocab_set = VocabularySet.objects.get(pk=set_id)
+        except VocabularySet.DoesNotExist:
+            messages.error(request, "Set not found.")
+            return redirect("admin:vocab_vocabularyset_changelist")
+
+        # Get current words in set
+        set_items = SetItem.objects.filter(vocabulary_set=vocab_set).select_related(
+            'definition__entry__vocab'
+        ).order_by('order', 'id')
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title=f"Manage Words: {vocab_set.title}",
+            vocab_set=vocab_set,
+            set_items=set_items,
+        )
+        return render(request, "admin/vocab/vocabularyset/manage_words.html", context)
+
+    def search_words_api(self, request):
+        """API endpoint to search for existing words."""
+        query = request.GET.get("q", "").strip()
+        if len(query) < 2:
+            return JsonResponse({"results": []})
+
+        # Search in Vocabulary and WordDefinition
+        definitions = WordDefinition.objects.filter(
+            models.Q(entry__vocab__word__icontains=query) |
+            models.Q(meaning__icontains=query)
+        ).select_related('entry__vocab').distinct()[:20]
+
+        results = []
+        for defn in definitions:
+            results.append({
+                "id": defn.id,
+                "word": defn.entry.vocab.word,
+                "meaning": defn.meaning[:100] + ("..." if len(defn.meaning) > 100 else ""),
+                "pos": defn.entry.part_of_speech or "",
+                "ipa": defn.entry.ipa or "",
+            })
+
+        return JsonResponse({"results": results})
+
+    def add_words_to_set_api(self, request, set_id):
+        """API endpoint to add words to a set."""
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+
+        try:
+            vocab_set = VocabularySet.objects.get(pk=set_id)
+        except VocabularySet.DoesNotExist:
+            return JsonResponse({"error": "Set not found"}, status=404)
+
+        try:
+            data = json.loads(request.body)
+            word_ids = data.get("word_ids", [])
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        added = 0
+        for word_id in word_ids:
+            try:
+                definition = WordDefinition.objects.get(pk=word_id)
+                _, created = SetItem.objects.get_or_create(
+                    vocabulary_set=vocab_set,
+                    definition=definition
+                )
+                if created:
+                    added += 1
+            except WordDefinition.DoesNotExist:
+                continue
+
+        return JsonResponse({"success": True, "added": added})
+
+    def remove_word_from_set_api(self, request, set_id, word_id):
+        """API endpoint to remove a word from a set."""
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+
+        try:
+            SetItem.objects.filter(vocabulary_set_id=set_id, definition_id=word_id).delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
     def import_json_view(self, request):
         if request.method == "POST":
@@ -507,29 +709,29 @@ class VocabularySetAdmin(admin.ModelAdmin):
                                 # Scrape from Cambridge
                                 scraped_entries = scrape_cambridge(word_text)
                                 if not scraped_entries:
-                                    # Create placeholder
-                                    vocab, _ = Vocabulary.objects.get_or_create(word=word_text)
-                                    entry, _ = WordEntry.objects.get_or_create(vocab=vocab, part_of_speech='unknown')
-                                else:
-                                    vocab, _ = Vocabulary.objects.get_or_create(word=word_text)
-                                    for entry_data in scraped_entries:
-                                        entry, _ = WordEntry.objects.get_or_create(
-                                            vocab=vocab,
-                                            part_of_speech=entry_data.get('type') or 'unknown',
-                                            defaults={
-                                                'ipa': entry_data.get('ipa', ''),
-                                                'audio_us': entry_data.get('audio_us') or '',
-                                                'audio_uk': entry_data.get('audio_uk') or ''
-                                            }
-                                        )
-                                        def_text = entry_data.get('definition', '')
-                                        if def_text and not entry.definitions.filter(meaning=def_text).exists():
-                                            WordDefinition.objects.create(
-                                                entry=entry,
-                                                meaning=def_text,
-                                                example_sentence=entry_data.get('example', '')
-                                            )
-                                created_words += 1
+                                    continue
+                                
+                                vocab, _ = Vocabulary.objects.get_or_create(
+                                    word=word_text,
+                                    defaults={'language': 'en'}
+                                )
+                                
+                                for entry_data in scraped_entries:
+                                    word_entry, _ = WordEntry.objects.get_or_create(
+                                        vocab=vocab,
+                                        part_of_speech=entry_data.get('type', ''),
+                                        defaults={
+                                            'ipa': entry_data.get('ipa', ''),
+                                            'audio_us': entry_data.get('audio_us', ''),
+                                            'audio_uk': entry_data.get('audio_uk', ''),
+                                        }
+                                    )
+                                    WordDefinition.objects.create(
+                                        entry=word_entry,
+                                        meaning=entry_data.get('definition', ''),
+                                        example_sentence=entry_data.get('example', ''),
+                                    )
+                                    created_words += 1
                             
                             # Link to Set
                             if vocab:

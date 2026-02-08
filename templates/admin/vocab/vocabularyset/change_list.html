@@ -3,8 +3,13 @@
 {% block object-tools-items %}
   {{ block.super }}
   <li>
+    <a class="addlink" href="{% url 'admin:vocab_vocabularyset_quick_add' %}">
+      ⚡ Quick Add Set
+    </a>
+  </li>
+  <li>
     <a class="addlink" href="{% url 'admin:vocab_vocabularyset_import_json' %}">
-      Import JSON
+      📥 Import JSON
     </a>
   </li>
 {% endblock %}

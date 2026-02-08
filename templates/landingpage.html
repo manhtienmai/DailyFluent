@@ -1,164 +1,937 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}DailyFluent - Học tiếng Nhật mỗi ngày{% endblock %}
-
+{% block title %}DailyFluent - Luyện thi TOEIC hiệu quả{% endblock %}
 {% block main_classes %}df-page-full{% endblock %}
 
-{% block content %}
-<div class="px-4 lg:px-6">
-<div class="grid md:grid-cols-2 gap-10 items-center">
-  <!-- HERO LEFT -->
-  <div>
-    <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-xs font-medium text-blue-700 mb-4">
-      <span>🇯🇵</span>
-      <span>Lộ trình tiếng Nhật cho người bận rộn</span>
-    </p>
-
-    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
-      Học tiếng Nhật<br class="hidden sm:block">
-      <span class="text-blue-600">mỗi ngày một chút</span>
-    </h1>
-
-    <p class="text-slate-600 text-sm sm:text-base mb-5">
-      DailyFluent giúp bạn luyện từ vựng, ngữ pháp và mẫu câu giao tiếp một cách nhẹ nhàng,
-      phù hợp với người Việt mới bắt đầu hoặc đang ở trình độ N5–N4.
-    </p>
-
-    <ul class="space-y-2 text-sm text-slate-700 mb-6">
-      <li class="flex items-start gap-2">
-        <span class="mt-0.5 text-green-500">✓</span>
-        <span>Bài học ngắn gọn, chỉ 10–15 phút mỗi ngày.</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="mt-0.5 text-green-500">✓</span>
-        <span>Kết hợp tiếng Việt – tiếng Nhật, dễ hiểu, dễ nhớ.</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="mt-0.5 text-green-500">✓</span>
-        <span>Theo dõi tiến độ học tập và quay lại bất kỳ lúc nào.</span>
-      </li>
-    </ul>
-
-    {% if user.is_authenticated %}
-      <div class="space-y-2">
-        <p class="text-sm text-slate-600">
-          Xin chào, <strong>{{ user.email }}</strong> 👋<br>
-          Tiếp tục hành trình tiếng Nhật của bạn nào!
-        </p>
-        <div class="flex flex-wrap items-center gap-3 mt-2">
-          <a href="#"
-             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
-            Tiếp tục học
-          </a>
-          <a href="#"
-             class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50">
-            Xem lộ trình (sắp có)
-          </a>
-        </div>
+{% block site_header %}
+<header id="landing-header" class="fixed top-0 left-0 right-0 transition-all duration-300" style="z-index:9999;">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2.5 no-underline hover:opacity-80 transition-opacity">
+      <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
+        <img src="{% static 'logo_official.png' %}" alt="DailyFluent logo" class="w-full h-full object-contain">
       </div>
-    {% else %}
-      <div class="flex flex-wrap items-center gap-3">
-        <a href="{% url 'account_signup' %}"
-           class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
-          Bắt đầu miễn phí
-        </a>
-        <a href="{% url 'account_login' %}"
-           class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50">
-          Tôi đã có tài khoản
-        </a>
-      </div>
-      <p class="mt-3 text-xs text-slate-500">
-        Không cần thẻ ngân hàng · Có thể xoá tài khoản bất kỳ lúc nào.
-      </p>
-    {% endif %}
+      <span class="hidden sm:block font-bold text-white text-base lp-logo-text">DailyFluent</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <a href="#features" class="lp-nav-link text-white/70 hover:text-white transition-colors">Tính năng</a>
+      <a href="#how-it-works" class="lp-nav-link text-white/70 hover:text-white transition-colors">Cách học</a>
+      <a href="#demo" class="lp-nav-link text-white/70 hover:text-white transition-colors">Thử ngay</a>
+      <a href="#testimonials" class="lp-nav-link text-white/70 hover:text-white transition-colors">Review</a>
+      <a href="#faq" class="lp-nav-link text-white/70 hover:text-white transition-colors">FAQ</a>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a href="{% url 'account_login' %}" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">Đăng nhập</a>
+      <a href="{% url 'account_signup' %}" class="lp-btn-accent inline-flex items-center px-5 py-2.5 rounded-full text-sm font-bold">Đăng ký miễn phí</a>
+    </div>
+
+    <button onclick="document.getElementById('lp-mobile-menu').classList.toggle('hidden')" class="md:hidden text-white p-2" aria-label="Menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
   </div>
 
-  <!-- HERO RIGHT: CARD / PREVIEW -->
-  <div class="relative">
-    <div class="absolute -top-6 -right-4 w-24 h-24 bg-blue-100 rounded-full blur-2xl opacity-70"></div>
-    <div class="absolute -bottom-8 -left-4 w-28 h-28 bg-pink-100 rounded-full blur-2xl opacity-70"></div>
+  <div id="lp-mobile-menu" class="hidden md:hidden border-t border-white/10 lp-header-scrolled">
+    <div class="px-6 py-4 space-y-2">
+      <a href="#features" class="block text-white/70 hover:text-white text-sm py-2">Tính năng</a>
+      <a href="#how-it-works" class="block text-white/70 hover:text-white text-sm py-2">Cách học</a>
+      <a href="#demo" class="block text-white/70 hover:text-white text-sm py-2">Thử ngay</a>
+      <a href="#testimonials" class="block text-white/70 hover:text-white text-sm py-2">Review</a>
+      <a href="#faq" class="block text-white/70 hover:text-white text-sm py-2">FAQ</a>
+      <div class="pt-4 border-t border-white/10 flex gap-3">
+        <a href="{% url 'account_login' %}" class="flex-1 text-center py-2.5 rounded-full text-white/80 border border-white/20 text-sm">Đăng nhập</a>
+        <a href="{% url 'account_signup' %}" class="flex-1 text-center py-2.5 rounded-full lp-btn-accent text-sm font-bold">Đăng ký</a>
+      </div>
+    </div>
+  </div>
+</header>
+{% endblock %}
 
-    <div class="relative bg-white rounded-3xl shadow-xl border border-slate-100 p-6 space-y-4">
-      <div class="flex items-center justify-between mb-2">
-        <div>
-          <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide">Bài học hôm nay</p>
-          <p class="text-sm text-slate-500">Mẫu câu chào hỏi cơ bản</p>
+{% block extra_css %}
+<style>
+  /* ==========================================================================
+     DESIGN TOKENS - MODERN PALETTE
+     Primary:  Indigo (#4F46E5) - professional, trustworthy
+     Accent:   Orange (#F97316) - energetic CTAs
+     Success:  Emerald (#10B981) - progress, achievements
+     
+     Spacing: 8px grid → 8, 16, 24, 32, 48, 64, 96
+     Radius:  8px (sm), 16px (card), 24px (lg), 9999px (pill)
+     ========================================================================== */
+
+  /* --- Header --- */
+  .lp-header-scrolled {
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .lp-header-scrolled .lp-logo-text { color: #fff; }
+  .lp-header-scrolled .lp-nav-link { color: rgba(255,255,255,0.7); }
+  .lp-header-scrolled .lp-nav-link:hover { color: #fff; }
+
+  /* --- Accent Button (Orange CTA) --- */
+  .lp-btn-accent {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .lp-btn-accent:hover {
+    background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.5);
+    transform: translateY(-2px);
+  }
+  .lp-btn-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    transition: left 0.6s ease;
+  }
+  .lp-btn-accent:hover::before {
+    left: 100%;
+  }
+
+  /* --- Secondary Button --- */
+  .lp-btn-secondary {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    transition: all 0.3s ease;
+  }
+  .lp-btn-secondary:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  /* --- Hero Background (Indigo/Purple Gradient) --- */
+  .lp-hero {
+    background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 25%, #312E81 50%, #4338CA 75%, #1E1B4B 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .lp-hero::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(99,102,241,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(168,85,247,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 20%, rgba(249,115,22,0.08) 0%, transparent 40%);
+    animation: meshDrift 30s ease-in-out infinite alternate;
+  }
+  @keyframes meshDrift {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-2%, 1%) rotate(1deg); }
+  }
+
+  /* --- Glass Card (dark bg) --- */
+  .lp-glass {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+  }
+
+  /* --- Cards (light bg) --- */
+  .lp-card {
+    background: #fff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .lp-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+
+  /* --- Gradient Text --- */
+  .lp-gradient-text {
+    background: linear-gradient(135deg, #818CF8 0%, #F97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* --- Chart Animation --- */
+  .lp-chart-line {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    animation: drawChart 2s ease-out 0.5s forwards;
+  }
+  @keyframes drawChart {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* --- Floating Cards --- */
+  @keyframes float1 { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(-1deg); } }
+  @keyframes float2 { 0%,100% { transform: translateY(0) rotate(2deg); }  50% { transform: translateY(-8px) rotate(4deg); } }
+  @keyframes float3 { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-12px) rotate(1deg); } }
+  .lp-float-1 { animation: float1 5s ease-in-out infinite; }
+  .lp-float-2 { animation: float2 6s ease-in-out infinite 0.5s; }
+  .lp-float-3 { animation: float3 5.5s ease-in-out infinite 1s; }
+
+  /* --- Quiz Option --- */
+  .lp-quiz-opt {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .lp-quiz-opt:hover {
+    border-color: #4F46E5;
+    background: rgba(79, 70, 229, 0.04);
+  }
+
+  /* --- Testimonial Scroll --- */
+  .lp-scroll-track {
+    display: flex;
+    gap: 24px;
+    animation: marquee 40s linear infinite;
+  }
+  .lp-scroll-track:hover { animation-play-state: paused; }
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* --- FAQ --- */
+  .lp-faq-item { transition: all 0.2s ease; border-radius: 16px; }
+  .lp-faq-item:hover { background: #F8FAFC; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+
+  /* --- Points Pop --- */
+  @keyframes pointsPop {
+    0%   { opacity: 0; transform: translateY(8px) scale(0.9); }
+    25%  { opacity: 1; transform: translateY(-6px) scale(1.1); }
+    100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+  }
+  .lp-points-pop { animation: pointsPop 1.4s ease-out forwards; }
+
+  /* --- Section Spacing --- */
+  .lp-section {
+    padding: 6rem 0;
+    position: relative;
+  }
+  
+  .lp-section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148,163,184,0.3), transparent);
+    margin: 0 auto;
+    max-width: 80%;
+  }
+
+  /* --- Page Overrides --- */
+  html { scroll-behavior: smooth; }
+  body.df-has-fixed-header { padding-top: 0 !important; }
+  body { overflow: auto !important; overflow-x: hidden !important; height: auto !important; }
+  .df-main-scroll { height: auto !important; overflow: visible !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ================================================================
+     HERO
+     ================================================================ -->
+<section class="lp-hero min-h-screen flex items-center pt-24 pb-16 lg:py-0">
+  <div class="relative z-10 max-w-7xl mx-auto px-6 w-full">
+    <div class="grid lg:grid-cols-2 gap-16 items-center lg:min-h-screen lg:py-24">
+
+      <div class="text-center lg:text-left">
+        <p class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-cyan-200 mb-8">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          5,000+ học viên đang học tháng này
+        </p>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
+          <span class="text-white">Nâng trình TOEIC.</span><br>
+          <span class="lp-gradient-text">Mở lối sự nghiệp.</span>
+        </h1>
+
+        <p class="text-lg text-slate-300 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+          Học từ vựng 600 Essential Words &amp; Luyện đề chuẩn ETS với phương pháp
+          <strong class="text-cyan-300">Spaced Repetition</strong> thông minh.
+          Chỉ <strong class="text-white">15 phút/ngày</strong>.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
+          <a href="{% url 'account_signup' %}" class="lp-btn-accent w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-base font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Test trình độ miễn phí
+          </a>
+          <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors">
+            Xem lộ trình học
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </a>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-xs text-green-700">
-          N5 · Beginner
-        </span>
+
+        <p class="text-sm text-slate-400">
+          Không cần thẻ ngân hàng &middot; Hủy bất kỳ lúc nào &middot; 100% miễn phí
+        </p>
       </div>
 
-      <div class="bg-slate-50 rounded-2xl p-4 space-y-2">
-        <p class="text-xs font-medium text-slate-500">Tiếng Nhật</p>
-        <p class="text-lg font-semibold text-slate-900">
-          はじめまして。よろしくお願いします。
-        </p>
-        <p class="text-xs text-slate-500">Hajimemashite. Yoroshiku onegaishimasu.</p>
-        <p class="text-xs text-slate-600 mt-2">
-          <strong>Ý nghĩa:</strong> "Rất vui được gặp bạn, mong bạn giúp đỡ."
-        </p>
+      {# Dashboard Visual — Desktop #}
+      <div class="relative hidden lg:block">
+        <div class="absolute -top-4 -left-6 z-20 lp-float-1">
+          <div class="lp-glass px-4 py-2.5 text-sm">
+            <span class="text-emerald-300 font-bold">Merger</span>
+            <span class="text-white/60 ml-2 text-xs">n. sáp nhập</span>
+          </div>
+        </div>
+        <div class="absolute top-20 -right-4 z-20 lp-float-2">
+          <div class="lp-glass px-4 py-2.5 text-sm">
+            <span class="text-cyan-300 font-bold">Invoice</span>
+            <span class="text-white/60 ml-2 text-xs">n. hóa đơn</span>
+          </div>
+        </div>
+        <div class="absolute bottom-24 -left-8 z-20 lp-float-3">
+          <div class="lp-glass px-4 py-2.5 text-sm">
+            <span class="text-teal-300 font-bold">Deadline</span>
+            <span class="text-white/60 ml-2 text-xs">n. hạn chót</span>
+          </div>
+        </div>
+
+        <div class="lp-glass p-8">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="text-xs text-cyan-300 font-semibold uppercase tracking-wider">Tiến trình học tập</p>
+              <p class="text-white/60 text-sm mt-1">TOEIC Score Tracker</p>
+            </div>
+            <div class="text-right">
+              <p class="text-3xl font-extrabold text-emerald-400" style="text-shadow:0 0 24px rgba(52,211,153,0.4)">850</p>
+              <p class="text-xs text-emerald-300/80">+400 điểm</p>
+            </div>
+          </div>
+
+          <div class="relative bg-white/5 rounded-lg p-4 mb-6">
+            <div class="flex justify-between text-xs text-white/50 mb-2">
+              <span>Điểm TOEIC</span>
+              <span class="text-emerald-400 font-semibold">+45% tuần này</span>
+            </div>
+            <svg viewBox="0 0 400 120" class="w-full" fill="none">
+              <line x1="40" y1="10" x2="380" y2="10" stroke="rgba(255,255,255,0.05)"/>
+              <line x1="40" y1="40" x2="380" y2="40" stroke="rgba(255,255,255,0.05)"/>
+              <line x1="40" y1="70" x2="380" y2="70" stroke="rgba(255,255,255,0.05)"/>
+              <line x1="40" y1="100" x2="380" y2="100" stroke="rgba(255,255,255,0.05)"/>
+              <text x="8" y="14" fill="rgba(255,255,255,0.4)" font-size="9">850</text>
+              <text x="8" y="44" fill="rgba(255,255,255,0.35)" font-size="9">700</text>
+              <text x="8" y="74" fill="rgba(255,255,255,0.35)" font-size="9">550</text>
+              <text x="8" y="104" fill="rgba(255,255,255,0.35)" font-size="9">450</text>
+              <defs>
+                <linearGradient id="areaG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(52,211,153,0.2)"/>
+                  <stop offset="100%" stop-color="rgba(52,211,153,0)"/>
+                </linearGradient>
+                <linearGradient id="lineG" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#0e7490"/>
+                  <stop offset="100%" stop-color="#34d399"/>
+                </linearGradient>
+              </defs>
+              <path d="M50,95 L90,90 L130,82 L170,70 L210,58 L250,45 L290,32 L330,22 L370,15 L370,110 L50,110Z" fill="url(#areaG)"/>
+              <path d="M50,95 L90,90 L130,82 L170,70 L210,58 L250,45 L290,32 L330,22 L370,15" stroke="url(#lineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lp-chart-line"/>
+              <circle cx="50" cy="95" r="4" fill="#0e7490" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+              <circle cx="170" cy="70" r="3.5" fill="#0891b2"/>
+              <circle cx="290" cy="32" r="3.5" fill="#10b981"/>
+              <circle cx="370" cy="15" r="5" fill="#34d399" stroke="#fff" stroke-width="2" class="animate-pulse"/>
+              <text x="40"  y="120" fill="rgba(255,255,255,0.35)" font-size="9">450</text>
+              <text x="130" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 1</text>
+              <text x="230" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 2</text>
+              <text x="330" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 3</text>
+            </svg>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white/5 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-cyan-300">142</p>
+              <p class="text-xs text-white/50">Từ đã học</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-emerald-300">28</p>
+              <p class="text-xs text-white/50">Đề đã làm</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-teal-300">15</p>
+              <p class="text-xs text-white/50">Chuỗi ngày</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 text-xs">
-        <div class="bg-blue-50 rounded-xl p-3">
-          <p class="text-[11px] text-slate-500 mb-1">Chuỗi ngày liên tục</p>
-          <p class="text-lg font-bold text-blue-700">{{ user.is_authenticated|yesno:"3,0" }}</p>
-        </div>
-        <div class="bg-emerald-50 rounded-xl p-3">
-          <p class="text-[11px] text-slate-500 mb-1">Từ mới tuần này</p>
-          <p class="text-lg font-bold text-emerald-700">24</p>
-        </div>
-        <div class="bg-violet-50 rounded-xl p-3">
-          <p class="text-[11px] text-slate-500 mb-1">Mục tiêu hôm nay</p>
-          <p class="text-xs text-violet-800">Hoàn thành 1 bài học & 1 bài ôn từ vựng</p>
+      {# Dashboard Visual — Mobile #}
+      <div class="lg:hidden">
+        <div class="lp-glass p-6">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs text-cyan-300 font-semibold">TOEIC Progress</p>
+            <div class="text-right">
+              <span class="text-2xl font-extrabold text-emerald-400">850</span>
+              <span class="text-xs text-emerald-300/80 ml-1">+400</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="bg-white/5 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-cyan-300">142</p>
+              <p class="text-xs text-white/50">Từ vựng</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-emerald-300">28</p>
+              <p class="text-xs text-white/50">Đề thi</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-teal-300">15</p>
+              <p class="text-xs text-white/50">Streak</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Why Choose Us Section -->
-{% if not user.is_authenticated %}
-  {% include "components/landing/why_choose_us.html" %}
-{% endif %}
 
-<!-- Student Stories Section -->
-{% if not user.is_authenticated %}
-  {% include "components/landing/student_stories.html" %}
-{% endif %}
-
-<!-- FEATURE SECTION -->
-<section class="mt-12 grid md:grid-cols-3 gap-6 px-4 lg:px-6">
-  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-    <h2 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-      <span class="text-lg">📚</span>
-      Bài học từng bước
-    </h2>
-    <p class="text-xs sm:text-sm text-slate-600">
-      Chia nhỏ kiến thức theo chủ đề: chào hỏi, tự giới thiệu, mua sắm, đi tàu điện,… phù hợp người mới bắt đầu.
-    </p>
-  </div>
-
-  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-    <h2 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-      <span class="text-lg">🧠</span>
-      Từ vựng & Kanji
-    </h2>
-    <p class="text-xs sm:text-sm text-slate-600">
-      Học từ vựng với ví dụ, âm Hán Việt và cách dùng thực tế. Ôn tập lặp lại để nhớ lâu hơn.
-    </p>
-  </div>
-
-  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-    <h2 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-      <span class="text-lg">🎧</span>
-      Nghe & phát âm
-    </h2>
-    <p class="text-xs sm:text-sm text-slate-600">
-      Luyện nghe câu ngắn, giọng chậm, quen dần với nhịp điệu tiếng Nhật trước khi tăng tốc độ.
-    </p>
+<!-- ================================================================
+     STATS BAR
+     ================================================================ -->
+<section class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 py-10 relative overflow-hidden">
+  <!-- Decorative orb -->
+  <div class="absolute top-0 right-1/4 w-64 h-64 rounded-full blur-3xl" style="background: rgba(249, 115, 22, 0.1)"></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div class="p-4">
+        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">50+</div>
+        <div class="text-sm text-indigo-200">Đề thi TOEIC chuẩn ETS</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">10,000+</div>
+        <div class="text-sm text-indigo-200">Câu hỏi luyện tập</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">5,000+</div>
+        <div class="text-sm text-indigo-200">Từ vựng TOEIC</div>
+      </div>
+      <div class="p-4">
+        <div class="text-3xl sm:text-4xl font-extrabold text-orange-400 mb-1">+200</div>
+        <div class="text-sm text-indigo-200">Điểm trung bình tăng</div>
+      </div>
+    </div>
   </div>
 </section>
-</div>
+
+
+<!-- ================================================================
+     PAIN POINTS — Bento Grid
+     ================================================================ -->
+<section id="features" class="py-28 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700 mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        Bạn đang gặp vấn đề này?
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-4">
+        Những rào cản khi tự học TOEIC
+      </h2>
+      <p class="text-slate-500 max-w-lg mx-auto">
+        DailyFluent giải quyết từng vấn đề với công nghệ và phương pháp đã được chứng minh
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Card 1: Spaced Repetition -->
+      <div class="lp-card p-8 group">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-300">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <p class="text-sm font-semibold text-rose-500 mb-2">"Học trước quên sau?"</p>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Spaced Repetition</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Thuật toán SRS tự động nhắc bạn ôn bài đúng thời điểm "sắp quên",
+          giúp ghi nhớ lâu gấp <strong class="text-indigo-600">3 lần</strong> so với học truyền thống.
+        </p>
+      </div>
+
+      <!-- Card 2: Phân tích từng Part -->
+      <div class="lp-card p-8 group">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20 group-hover:shadow-xl group-hover:shadow-violet-500/30 transition-all duration-300">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <p class="text-sm font-semibold text-rose-500 mb-2">"Sợ Part 7 dài dòng?"</p>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Phân tích từng Part</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Thống kê chi tiết điểm số từng Part. Biết chính xác điểm yếu để
+          <strong class="text-violet-600">tập trung luyện đúng chỗ</strong> thay vì học lan man.
+        </p>
+      </div>
+
+      <!-- Card 3: Lộ trình cấp tốc -->
+      <div class="lp-card p-8 group">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20 group-hover:shadow-xl group-hover:shadow-orange-500/30 transition-all duration-300">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <p class="text-sm font-semibold text-rose-500 mb-2">"Cần bằng gấp?"</p>
+        <h3 class="text-lg font-bold text-slate-800 mb-3">Lộ trình cấp tốc 30 ngày</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Hệ thống tự động tạo lộ trình cá nhân hóa dựa trên trình độ hiện tại,
+          giúp bạn <strong class="text-orange-600">đạt mục tiêu nhanh nhất</strong>.
+        </p>
+      </div>
+    </div>
+
+    <div class="text-center mt-12">
+      <a href="{% url 'account_signup' %}" class="lp-btn-accent inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-bold">
+        Bắt đầu lộ trình cá nhân
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+      <p class="text-sm text-slate-500 mt-3">Đăng ký trong 30 giây &middot; Không cần thẻ ngân hàng</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     HOW IT WORKS — 3 Steps
+     ================================================================ -->
+<section id="how-it-works" class="py-28 bg-white relative">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-xs font-semibold text-violet-700 mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Đơn giản &amp; Hiệu quả
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-4">
+        3 bước đạt mục tiêu TOEIC
+      </h2>
+      <p class="text-slate-500 max-w-lg mx-auto">
+        Chỉ cần 15 phút mỗi ngày, hệ thống sẽ lo phần còn lại
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-12 relative">
+      <!-- Connecting line -->
+      <div class="hidden md:block absolute top-14 left-[17%] right-[17%] h-0.5 bg-gradient-to-r from-indigo-200 via-violet-300 to-orange-200 rounded-full"></div>
+
+      <!-- Step 1 -->
+      <div class="text-center relative">
+        <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold mb-3">1</span>
+          <h3 class="text-lg font-bold text-slate-800 mb-2">Làm bài test trình độ</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Hệ thống đánh giá trình độ hiện tại qua bài test nhanh 5 phút
+            và xác định điểm mạnh/yếu từng Part.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="text-center relative">
+        <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-500/30">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-sm font-bold mb-3">2</span>
+          <h3 class="text-lg font-bold text-slate-800 mb-2">Học theo lộ trình</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Nhận lộ trình cá nhân hóa: học từ vựng với SRS, luyện đề thi,
+            và ôn tập hàng ngày chỉ 15 phút.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="text-center relative">
+        <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </div>
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 text-sm font-bold mb-3">3</span>
+          <h3 class="text-lg font-bold text-slate-800 mb-2">Đạt mục tiêu điểm số</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Theo dõi tiến trình, điều chỉnh lộ trình tự động, và đạt được
+            điểm TOEIC mục tiêu của bạn.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     INTERACTIVE DEMO — Mini Quiz
+     ================================================================ -->
+<section id="demo" class="py-28 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+      <div class="text-center lg:text-left">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-xs font-semibold text-orange-700 mb-4">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Thử ngay không cần đăng ký
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-4">
+          Cảm giác học trên <span class="text-indigo-600">DailyFluent</span>
+        </h2>
+        <p class="text-slate-600 mb-8 leading-relaxed">
+          Đây là một câu hỏi mẫu Part 5. Trên DailyFluent, mỗi câu đều có
+          giải thích chi tiết bằng tiếng Việt giúp bạn hiểu sâu, không chỉ biết đáp án.
+        </p>
+        <a href="{% url 'account_signup' %}" class="lp-btn-accent inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-bold">
+          Luyện thêm 10,000+ câu hỏi
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+      </div>
+
+      <div x-data="{
+        selected: null, correct: 'A', showExp: false, pts: false,
+        choose(o) { if(this.selected) return; this.selected=o; this.showExp=true; if(o===this.correct){this.pts=true; setTimeout(()=>this.pts=false,1500);} },
+        reset() { this.selected=null; this.showExp=false; this.pts=false; }
+      }" class="relative">
+        <div x-show="pts" x-transition class="absolute -top-3 right-8 z-30">
+          <span class="lp-points-pop inline-block px-3 py-1 rounded-full bg-emerald-400 text-slate-900 text-sm font-bold">+5 Points!</span>
+        </div>
+
+        <div class="lp-card p-8">
+          <div class="flex items-center justify-between mb-6">
+            <span class="px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 text-xs font-semibold border border-cyan-200">Part 5 &middot; Grammar</span>
+            <span class="text-slate-400 text-xs">Câu 23 / 40</span>
+          </div>
+
+          <p class="text-slate-800 text-lg font-medium mb-8 leading-relaxed">
+            The board of directors ______ the proposal at yesterday's meeting.
+          </p>
+
+          <div class="space-y-3 mb-6">
+            <template x-for="opt in [{key:'A',text:'approved'},{key:'B',text:'approves'},{key:'C',text:'approval'},{key:'D',text:'approving'}]">
+              <button @click="choose(opt.key)"
+                :class="{
+                  'border-emerald-400 bg-emerald-50 text-emerald-800': selected===opt.key && opt.key===correct,
+                  'border-red-300 bg-red-50 text-red-700': selected===opt.key && opt.key!==correct,
+                  'border-slate-200 text-slate-700': selected!==opt.key,
+                  'opacity-40': selected && selected!==opt.key && opt.key!==correct
+                }"
+                class="lp-quiz-opt w-full text-left px-5 py-3.5 rounded-2xl border flex items-center gap-3 text-sm">
+                <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  :class="{
+                    'border-emerald-500 bg-emerald-500 text-white': selected===opt.key && opt.key===correct,
+                    'border-red-400 bg-red-400 text-white': selected===opt.key && opt.key!==correct,
+                    'border-slate-300 text-slate-500': selected!==opt.key
+                  }" x-text="opt.key"></span>
+                <span x-text="opt.text" class="font-medium"></span>
+                <template x-if="selected===opt.key && opt.key===correct">
+                  <svg class="w-5 h-5 ml-auto text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                </template>
+                <template x-if="selected===opt.key && opt.key!==correct">
+                  <svg class="w-5 h-5 ml-auto text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                </template>
+              </button>
+            </template>
+          </div>
+
+          <div x-show="showExp" x-transition class="rounded-2xl p-6 bg-cyan-50 border border-cyan-200">
+            <p class="text-xs text-cyan-700 font-semibold mb-2 uppercase tracking-wider">Giải thích</p>
+            <p class="text-sm text-slate-700 leading-relaxed">
+              <strong class="text-emerald-700">"approved"</strong> là quá khứ của "approve" (chấp thuận).
+              Dấu hiệu nhận biết: <strong class="text-cyan-700">"yesterday"</strong> chỉ thời điểm trong quá khứ,
+              nên động từ phải chia ở <strong class="text-cyan-700">thì quá khứ đơn (past simple)</strong>.
+            </p>
+            <button @click="reset()" class="mt-3 text-sm text-cyan-700 hover:text-cyan-900 font-medium underline">Thử lại</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     SOCIAL PROOF — Testimonials
+     ================================================================ -->
+<section id="testimonials" class="py-28 bg-gradient-to-b from-slate-50 to-white overflow-hidden relative">
+  <!-- Decorative background patterns -->
+  <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(199, 210, 254, 0.4)"></div>
+  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(255, 237, 213, 0.3)"></div>
+  
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-16">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-700 mb-4 shadow-sm">
+        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Câu chuyện thành công
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 mb-4">
+        Học viên đã tăng điểm như thế nào
+      </h2>
+      <p class="text-slate-500 max-w-lg mx-auto">
+        Hàng nghìn học viên đã đạt mục tiêu điểm TOEIC với DailyFluent
+      </p>
+    </div>
+  </div>
+
+  <div class="relative">
+    <div class="overflow-hidden">
+      <div class="lp-scroll-track" style="width:max-content">
+        {% for _ in "12" %}
+        <div class="flex-shrink-0 w-[380px]">
+          <div class="lp-card p-6 h-full" style="transform:none">
+            <div class="flex items-center gap-0.5 mb-3"><span class="text-amber-400 text-sm">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6 italic">
+              "Mình đã luyện đề trên DailyFluent mỗi ngày trong 3 tháng.
+              Phần giải thích chi tiết giúp mình hiểu tại sao sai và không lặp lại lỗi."
+            </p>
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">TL</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Nguyễn Thị Lan</p>
+                <p class="text-xs text-slate-500">Nhân viên văn phòng</p>
+              </div>
+              <span class="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">450 &rarr; 850</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 w-[380px]">
+          <div class="lp-card p-6 h-full" style="transform:none">
+            <div class="flex items-center gap-0.5 mb-3"><span class="text-amber-400 text-sm">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6 italic">
+              "Flashcard với SRS thực sự hiệu quả! Mình học 50 từ/ngày mà vẫn nhớ được hết.
+              Kết hợp với luyện đề, mình đã đạt 900 điểm đúng mục tiêu."
+            </p>
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white font-bold text-sm">VĐ</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Trần Văn Đức</p>
+                <p class="text-xs text-slate-500">Sinh viên năm 4, ĐH Bách Khoa</p>
+              </div>
+              <span class="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">550 &rarr; 900</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 w-[380px]">
+          <div class="lp-card p-6 h-full" style="transform:none">
+            <div class="flex items-center gap-0.5 mb-3"><span class="text-amber-400 text-sm">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6 italic">
+              "Thống kê theo Part giúp mình biết Part 5, 6 đang yếu.
+              Tập trung luyện 2 phần đó trong 1 tháng và tổng điểm tăng 150 điểm!"
+            </p>
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold text-sm">TM</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Lê Thị Mai</p>
+                <p class="text-xs text-slate-500">Kế toán, Công ty ABC</p>
+              </div>
+              <span class="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">600 &rarr; 950</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 w-[380px]">
+          <div class="lp-card p-6 h-full" style="transform:none">
+            <div class="flex items-center gap-0.5 mb-3"><span class="text-amber-400 text-sm">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6 italic">
+              "Mình cần 700 điểm để tốt nghiệp. Sau 2 tháng học trên DailyFluent,
+              mình đã đạt 780. Giao diện đẹp, dễ sử dụng và hoàn toàn miễn phí!"
+            </p>
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-sm">MH</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Phạm Minh Hoàng</p>
+                <p class="text-xs text-slate-500">Sinh viên, ĐH Ngoại Thương</p>
+              </div>
+              <span class="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">520 &rarr; 780</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 w-[380px]">
+          <div class="lp-card p-6 h-full" style="transform:none">
+            <div class="flex items-center gap-0.5 mb-3"><span class="text-amber-400 text-sm">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6 italic">
+              "Phương pháp Spaced Repetition thay đổi hoàn toàn cách mình học từ vựng.
+              Bộ 600 Essential Words này mình nhớ được 90% sau 1 tháng!"
+            </p>
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+              <div class="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center text-white font-bold text-sm">NA</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Minh Anh</p>
+                <p class="text-xs text-slate-500">Marketing Manager</p>
+              </div>
+              <span class="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">680 &rarr; 920</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-12">
+    <a href="{% url 'account_signup' %}" class="lp-btn-accent inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-bold">
+      Tham gia cùng 5,000+ học viên
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+    </a>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     FAQ
+     ================================================================ -->
+<section id="faq" class="py-28 bg-slate-50">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700 mb-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Câu hỏi thường gặp
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800">FAQ</h2>
+    </div>
+
+    <div class="space-y-3" x-data="{ open: null }">
+      {% with faqs="DailyFluent có hoàn toàn miễn phí không?|Có! Tất cả tính năng hiện tại đều miễn phí 100%, bao gồm: luyện đề thi, học từ vựng với SRS, phân tích điểm Part, và lộ trình cá nhân. Không cần nhập thẻ ngân hàng." %}
+      {% endwith %}
+
+      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <button @click="open = open===1 ? null : 1" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="text-sm font-semibold text-slate-800">DailyFluent có hoàn toàn miễn phí không?</span>
+          <svg :class="{'rotate-180': open===1}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open===1" x-transition x-cloak class="px-6 pb-5">
+          <p class="text-sm text-slate-600 leading-relaxed">Có! Tất cả tính năng hiện tại đều miễn phí 100%, bao gồm: luyện đề thi, học từ vựng với SRS, phân tích điểm Part, và lộ trình cá nhân. Không cần nhập thẻ ngân hàng.</p>
+        </div>
+      </div>
+
+      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <button @click="open = open===2 ? null : 2" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="text-sm font-semibold text-slate-800">Đề thi có giống đề thi thật không?</span>
+          <svg :class="{'rotate-180': open===2}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open===2" x-transition x-cloak class="px-6 pb-5">
+          <p class="text-sm text-slate-600 leading-relaxed">Đề thi được biên soạn theo chuẩn format ETS mới nhất, với đủ 7 Part, độ khó tương đương đề thi thật. Mỗi câu hỏi đều có giải thích chi tiết bằng tiếng Việt.</p>
+        </div>
+      </div>
+
+      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <button @click="open = open===3 ? null : 3" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="text-sm font-semibold text-slate-800">Mỗi ngày cần học bao nhiêu lâu?</span>
+          <svg :class="{'rotate-180': open===3}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open===3" x-transition x-cloak class="px-6 pb-5">
+          <p class="text-sm text-slate-600 leading-relaxed">Chỉ cần 15-30 phút mỗi ngày là đủ. Hệ thống sẽ tự động phân bổ bài học và bài ôn phù hợp với thời gian của bạn. Học ít nhưng đều sẽ hiệu quả hơn học nhiều một lúc.</p>
+        </div>
+      </div>
+
+      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <button @click="open = open===4 ? null : 4" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="text-sm font-semibold text-slate-800">Spaced Repetition (SRS) là gì?</span>
+          <svg :class="{'rotate-180': open===4}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open===4" x-transition x-cloak class="px-6 pb-5">
+          <p class="text-sm text-slate-600 leading-relaxed">Spaced Repetition là phương pháp ôn tập với khoảng cách tăng dần. Thay vì học 100 từ 1 lúc rồi quên, hệ thống sẽ nhắc bạn ôn lại đúng lúc "sắp quên", giúp chuyển kiến thức vào bộ nhớ dài hạn hiệu quả gấp 3 lần.</p>
+        </div>
+      </div>
+
+      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <button @click="open = open===5 ? null : 5" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
+          <span class="text-sm font-semibold text-slate-800">Trình độ hiện tại của tôi yếu lắm, có dùng được không?</span>
+          <svg :class="{'rotate-180': open===5}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div x-show="open===5" x-transition x-cloak class="px-6 pb-5">
+          <p class="text-sm text-slate-600 leading-relaxed">Hoàn toàn được! DailyFluent phù hợp với mọi trình độ từ 300-900+ điểm. Hệ thống sẽ tự động đánh giá và tạo lộ trình phù hợp với trình độ hiện tại của bạn.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Transition from light to dark -->
+<div class="h-24 bg-gradient-to-b from-slate-50 via-slate-300 to-slate-800"></div>
+
+<!-- ================================================================
+     FINAL CTA (dark bookend)
+     ================================================================ -->
+<section class="bg-gradient-to-b from-slate-800 via-indigo-900 to-slate-900 py-24 lg:py-32 relative overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(129, 140, 248, 0.15)"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(251, 146, 60, 0.1); animation-delay: 1s"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl" style="background: linear-gradient(to right, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05))"></div>
+
+  <div class="relative z-10 max-w-3xl mx-auto px-6 text-center">
+    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-6 leading-tight">
+      Sẵn sàng nâng trình <span class="lp-gradient-text">TOEIC</span>?
+    </h2>
+    <p class="text-lg text-slate-300 mb-12 max-w-lg mx-auto leading-relaxed">
+      Tham gia cùng hàng nghìn học viên đang sử dụng DailyFluent
+      để đạt mục tiêu điểm TOEIC của họ.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+      <a href="{% url 'account_signup' %}" class="lp-btn-accent w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 rounded-full text-lg font-extrabold">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Bắt đầu miễn phí ngay
+      </a>
+      <a href="{% url 'account_login' %}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-colors">
+        Đã có tài khoản? Đăng nhập
+      </a>
+    </div>
+
+    <p class="text-sm text-slate-400">
+      Không cần thẻ ngân hàng &middot; Đăng ký trong 30 giây &middot; Hủy bất kỳ lúc nào
+    </p>
+
+    <div class="flex items-center justify-center gap-8 mt-12 text-white/50">
+      <div class="flex items-center gap-2 text-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Bảo mật SSL
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Dữ liệu được bảo vệ
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        100% miễn phí
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+(function() {
+  var header = document.getElementById('landing-header');
+  if (!header) return;
+
+  window.addEventListener('scroll', function() {
+    header.classList.toggle('lp-header-scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  document.querySelectorAll('#lp-mobile-menu a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function() {
+      document.getElementById('lp-mobile-menu').classList.add('hidden');
+    });
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var id = this.getAttribute('href');
+      if (id === '#') return;
+      var el = document.querySelector(id);
+      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+})();
+</script>
+
 {% endblock %}

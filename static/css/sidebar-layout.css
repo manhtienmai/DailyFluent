@@ -36,8 +36,8 @@
 
 .df-content-area {
   flex: 1;
-  padding: 24px;
-  padding-top: calc(var(--topbar-height) + 24px);
+  padding: 0;
+  padding-top: var(--topbar-height);
 }
 
 /* ========================================
@@ -970,8 +970,8 @@
   }
 
   .df-content-area {
-    padding: 12px;
-    padding-top: calc(var(--topbar-height) + 12px);
+    padding: 0;
+    padding-top: var(--topbar-height);
   }
 
   .df-user-modal {

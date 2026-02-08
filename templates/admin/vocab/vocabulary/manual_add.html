@@ -4,61 +4,348 @@
 {% block extrahead %}
     {{ block.super }}
     <style>
-        .form-row {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+        /* Theme-aware variables */
+        :root {
+            --qa-primary: #4f46e5;
+            --qa-primary-light: #6366f1;
+            --qa-success: #10b981;
+            --qa-error: #ef4444;
+            --qa-warning: #f59e0b;
+
+            /* Default (Light Mode) */
+            --qa-bg: #ffffff;
+            --qa-bg-alt: #f9fafb;
+            --qa-border: #e5e7eb;
+            --qa-text: #374151;
+            --qa-text-muted: #6b7280;
+            --qa-input-bg: #ffffff;
+            --qa-input-border: #d1d5db;
         }
-        .form-row label {
+
+        /* Dark Mode Override */
+        [data-theme="dark"] {
+            --qa-bg: #1e293b;
+            --qa-bg-alt: #334155;
+            --qa-border: #475569;
+            --qa-text: #e2e8f0;
+            --qa-text-muted: #94a3b8;
+            --qa-input-bg: #1e293b;
+            --qa-input-border: #475569;
+        }
+
+        .quick-add-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background: var(--qa-bg);
+            border-radius: 12px;
+            border: 1px solid var(--qa-border);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qa-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--qa-primary);
             display: inline-block;
-            width: 150px;
-            font-weight: bold;
         }
-        .form-row input[type="text"], .form-row select {
-            width: 400px;
-            padding: 5px;
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
         }
-        .section-header {
-            background: #f8f8f8;
-            padding: 10px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            border: 1px solid #ddd;
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
+
+        .form-row label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--qa-text);
+        }
+
+        .form-row label.required::after {
+            content: " *";
+            color: var(--qa-error);
+        }
+
+        .form-row input[type="text"],
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--qa-input-border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--qa-input-bg);
+            color: var(--qa-text);
+        }
+
+        .form-row input::placeholder,
+        .form-row textarea::placeholder {
+            color: var(--qa-text-muted);
+        }
+
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--qa-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-btn input {
+            flex: 1;
+        }
+
         .fetch-btn {
-            background: #447e9b;
-            color: #fff;
-            padding: 5px 10px;
+            background: linear-gradient(135deg, var(--qa-primary) 0%, var(--qa-primary-light) 100%);
+            color: white;
+            padding: 10px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-left: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .fetch-btn:hover { background: #335e75; }
-        
+
+        .fetch-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .fetch-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         #fetch-results {
-            margin: 10px 0;
-            padding: 10px;
-            background: #eef;
-            border: 1px solid #ccd;
+            margin-top: 12px;
+            padding: 16px;
+            background: var(--qa-bg-alt);
+            border: 1px solid var(--qa-border);
+            border-radius: 8px;
             display: none;
         }
-        .result-item {
-            padding: 8px;
-            border-bottom: 1px solid #fff;
-            cursor: pointer;
+
+        #fetch-results p {
+            color: var(--qa-text);
         }
-        .result-item:hover { background: #dde; }
-        .result-item:last-child { border-bottom: none; }
+
+        .result-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            background: var(--qa-bg);
+            border: 1px solid var(--qa-border);
+            transition: all 0.2s;
+            color: var(--qa-text);
+        }
+
+        .result-item:hover {
+            border-color: var(--qa-primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .result-item:last-child { margin-bottom: 0; }
+
+        .result-item small {
+            color: var(--qa-text-muted) !important;
+        }
+
         .result-badge {
             display: inline-block;
-            padding: 2px 6px;
-            background: #666;
-            color: #fff;
-            border-radius: 3px;
-            font-size: 0.8em;
-            margin-right: 5px;
+            padding: 3px 8px;
+            background: var(--qa-primary);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 8px;
         }
+
+        /* Image Upload Zone */
+        .image-upload-zone {
+            border: 2px dashed var(--qa-border);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--qa-bg-alt);
+            position: relative;
+        }
+
+        .image-upload-zone:hover {
+            border-color: var(--qa-primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .image-upload-zone.dragover {
+            border-color: var(--qa-primary);
+            background: rgba(79, 70, 229, 0.15);
+            transform: scale(1.01);
+        }
+
+        .image-upload-zone.has-image {
+            border-style: solid;
+            border-color: var(--qa-success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 16px;
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            color: var(--qa-text-muted);
+        }
+
+        .upload-text {
+            color: var(--qa-text);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: var(--qa-text-muted);
+            font-size: 12px;
+        }
+
+        .image-preview-container {
+            display: none;
+            position: relative;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--qa-error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .remove-image-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--qa-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--qa-primary), var(--qa-primary-light));
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .upload-status {
+            font-size: 12px;
+            color: var(--qa-text-muted);
+            margin-top: 8px;
+        }
+
+        /* Submit Buttons */
+        .submit-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .submit-row input[type="submit"] {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-row input[type="submit"].default {
+            background: linear-gradient(135deg, var(--qa-primary) 0%, var(--qa-primary-light) 100%);
+            color: white;
+        }
+
+        .submit-row input[type="submit"].default:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .submit-row input[name="save_add_another"] {
+            background: var(--qa-bg-alt);
+            color: var(--qa-text);
+            border: 1px solid var(--qa-border);
+        }
+
+        .submit-row input[name="save_add_another"]:hover {
+            background: var(--qa-border);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-section {
+                padding: 16px;
+            }
+            .input-with-btn {
+                flex-direction: column;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -72,65 +359,109 @@
 
 {% block content %}
 <div id="content-main">
-    <div class="module">
-        <h2>Quick Add Vocabulary</h2>
-        
-        <form method="post">
+    <div class="quick-add-form">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <div class="section-header">Core Vocabulary</div>
-            
-            <div class="form-row">
-                <label for="word" class="required">Word:</label>
-                <input type="text" name="word" id="word" required>
-                <button type="button" id="btn-fetch" class="fetch-btn">Fetch Info (Cambridge)</button>
+            <!-- Core Vocabulary Section -->
+            <div class="form-section">
+                <span class="section-title">📝 Core Vocabulary</span>
+                
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="word" class="required">Word</label>
+                        <div class="input-with-btn">
+                            <input type="text" name="word" id="word" placeholder="Enter word..." required>
+                            <button type="button" id="btn-fetch" class="fetch-btn">
+                                🔍 Fetch from Cambridge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fetch-results"></div>
+                    
+                    <div class="form-row">
+                        <label for="ipa">IPA Pronunciation</label>
+                        <input type="text" name="ipa" id="ipa" placeholder="/ɪɡˈzæm.pəl/">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="audio_url">Audio URL (US)</label>
+                        <input type="text" name="audio_url" id="audio_url" placeholder="https://...mp3">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="language">Language</label>
+                        <select name="language" id="language">
+                            <option value="en" selected>🇺🇸 English</option>
+                            <option value="jp">🇯🇵 Japanese</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             
-            <div id="fetch-results"></div>
-            
-            <div class="form-row">
-                <label for="ipa">IPA:</label>
-                <input type="text" name="ipa" id="ipa">
+            <!-- Definition Section -->
+            <div class="form-section">
+                <span class="section-title">📖 Definition</span>
+                
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="meaning" class="required">Meaning (Vietnamese)</label>
+                        <input type="text" name="meaning" id="meaning" placeholder="Nghĩa tiếng Việt..." required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="pos">Part of Speech</label>
+                        <input type="text" name="pos" id="pos" placeholder="n, v, adj, adv...">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="example">Example Sentence (English)</label>
+                        <textarea name="example" id="example" placeholder="Write an example sentence..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="example_trans">Example Translation (Vietnamese)</label>
+                        <textarea name="example_trans" id="example_trans" placeholder="Dịch câu ví dụ..."></textarea>
+                    </div>
+                </div>
             </div>
             
-            <div class="form-row">
-                <label for="audio_url">Audio URL:</label>
-                <input type="text" name="audio_url" id="audio_url">
+            <!-- Image Section -->
+            <div class="form-section">
+                <span class="section-title">🖼️ Illustration Image</span>
+                
+                <input type="hidden" name="image_url" id="image_url" value="">
+                
+                <div class="image-upload-zone" id="image-drop-zone">
+                    <div class="upload-placeholder">
+                        <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="upload-text"><strong>Drop image here</strong> or <span style="color: var(--primary);">click to browse</span></p>
+                        <p class="upload-hint">Supports: JPG, PNG, GIF, WebP (max 5MB). You can also paste from clipboard!</p>
+                    </div>
+                    
+                    <div class="image-preview-container" id="preview-container">
+                        <img src="" alt="Preview" class="image-preview" id="image-preview">
+                        <button type="button" class="remove-image-btn" id="remove-image">×</button>
+                    </div>
+                    
+                    <div class="upload-progress" id="upload-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <p class="upload-status" id="upload-status">Uploading...</p>
+                    </div>
+                </div>
+                
+                <input type="file" id="image-input" accept="image/*" style="display: none;">
             </div>
             
-             <div class="form-row">
-                <label for="language">Language:</label>
-                <select name="language" id="language">
-                    <option value="en" selected>English</option>
-                    <option value="jp">Japanese</option>
-                </select>
-            </div>
-
-            <div class="section-header">Primary Definition</div>
-
-            <div class="form-row">
-                <label for="meaning" class="required">Meaning (VI):</label>
-                <input type="text" name="meaning" id="meaning" required>
-            </div>
-            
-            <div class="form-row">
-                <label for="pos">Part of Speech:</label>
-                <input type="text" name="pos" id="pos" placeholder="n, v, adj...">
-            </div>
-            
-            <div class="form-row">
-                <label for="example">Example (EN):</label>
-                <input type="text" name="example" id="example">
-            </div>
-            
-            <div class="form-row">
-                <label for="example_trans">Example (VI):</label>
-                <input type="text" name="example_trans" id="example_trans">
-            </div>
-
+            <!-- Submit Buttons -->
             <div class="submit-row">
-                <input type="submit" value="Save" class="default" />
-                 <input type="submit" name="save_add_another" value="Save and Add Another" />
+                <input type="submit" value="💾 Save" class="default">
+                <input type="submit" name="save_add_another" value="💾 Save & Add Another">
             </div>
         </form>
     </div>
@@ -141,18 +472,22 @@
 {{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Elements
     const btnFetch = document.getElementById('btn-fetch');
     const inputWord = document.getElementById('word');
     const resultBox = document.getElementById('fetch-results');
-    
-    // Fields to populate
-    const fIpa = document.getElementById('ipa');
-    const fAudioUs = document.getElementById('audio_url'); // using US as default
-    const fAudioUk = document.getElementById('audio_uk'); // if you add hidden field for UK later
-    const fMeaning = document.getElementById('meaning');
-    const fPos = document.getElementById('pos');
-    const fExample = document.getElementById('example');
+    const dropZone = document.getElementById('image-drop-zone');
+    const imageInput = document.getElementById('image-input');
+    const imageUrlField = document.getElementById('image_url');
+    const previewContainer = document.getElementById('preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const removeBtn = document.getElementById('remove-image');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const uploadStatus = document.getElementById('upload-status');
+    const uploadPlaceholder = dropZone.querySelector('.upload-placeholder');
 
+    // ==================== FETCH FROM CAMBRIDGE ====================
     btnFetch.addEventListener('click', function() {
         const word = inputWord.value.trim();
         if (!word) {
@@ -160,73 +495,207 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        btnFetch.textContent = 'Fetching...';
+        btnFetch.textContent = '⏳ Fetching...';
         btnFetch.disabled = true;
-        resultBox.innerHTML = 'Loading...';
+        resultBox.innerHTML = '<p style="color: var(--gray-500);">🔍 Searching Cambridge Dictionary...</p>';
         resultBox.style.display = 'block';
         
         fetch(`{% url 'admin:vocab_vocabulary_scrape' %}?word=${encodeURIComponent(word)}`)
             .then(res => res.json())
             .then(data => {
-                btnFetch.textContent = 'Fetch Info (Cambridge)';
+                btnFetch.textContent = '🔍 Fetch from Cambridge';
                 btnFetch.disabled = false;
                 
                 if (data.error) {
-                    resultBox.innerHTML = `<div style="color:red">Error: ${data.error}</div>`;
+                    resultBox.innerHTML = `<p style="color: var(--error);">❌ Error: ${data.error}</p>`;
                     return;
                 }
                 
                 const results = data.results || [];
                 if (results.length === 0) {
-                    resultBox.innerHTML = '<div style="color:orange">No results found.</div>';
+                    resultBox.innerHTML = '<p style="color: var(--warning);">⚠️ No results found.</p>';
                     return;
                 }
                 
-                let html = '<strong>Select a definition to fill:</strong>';
+                let html = '<p style="font-weight: 600; margin-bottom: 12px;">📚 Select a definition to fill:</p>';
                 results.forEach((item, idx) => {
-                    const safeDef = item.definition.replace(/"/g, '&quot;');
-                    const safeEx = item.example.replace(/"/g, '&quot;');
-                    
                     html += `
                     <div class="result-item" onclick="selectResult(${idx})">
                         <span class="result-badge">${item.type || '?'}</span>
                         <strong>${item.definition}</strong>
                         <br>
-                        <small style="color:#666">${item.ipa} | ${item.example}</small>
+                        <small style="color: var(--gray-500);">${item.ipa || ''} ${item.example ? '• ' + item.example : ''}</small>
                     </div>
                     `;
                 });
                 resultBox.innerHTML = html;
-                
-                // Expose results to global scope for click handler
                 window.searchedResults = results;
             })
             .catch(err => {
-                btnFetch.textContent = 'Fetch Info';
+                btnFetch.textContent = '🔍 Fetch from Cambridge';
                 btnFetch.disabled = false;
-                resultBox.innerHTML = `<div style="color:red">Network Error: ${err}</div>`;
+                resultBox.innerHTML = `<p style="color: var(--error);">❌ Network Error: ${err}</p>`;
             });
     });
+
+    // ==================== IMAGE UPLOAD ====================
+    
+    // Click to upload
+    dropZone.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-image-btn')) return;
+        if (!previewContainer.style.display || previewContainer.style.display === 'none') {
+            imageInput.click();
+        }
+    });
+
+    // File input change
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleImageUpload(this.files[0]);
+        }
+    });
+
+    // Drag & Drop
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleImageUpload(e.dataTransfer.files[0]);
+        }
+    });
+
+    // Paste from clipboard
+    document.addEventListener('paste', function(e) {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        
+        for (let item of items) {
+            if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                if (file) handleImageUpload(file);
+                break;
+            }
+        }
+    });
+
+    // Remove image
+    removeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        resetImageUpload();
+    });
+
+    function handleImageUpload(file) {
+        // Validate
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Invalid file type. Allowed: JPEG, PNG, GIF, WebP');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File too large. Maximum size is 5MB');
+            return;
+        }
+
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            uploadPlaceholder.style.display = 'none';
+            previewContainer.style.display = 'block';
+            dropZone.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to server
+        uploadToServer(file);
+    }
+
+    function uploadToServer(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        uploadProgress.style.display = 'block';
+        progressFill.style.width = '0%';
+        uploadStatus.textContent = 'Uploading...';
+
+        // Simulate progress
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                progressFill.style.width = progress + '%';
+            }
+        }, 100);
+
+        fetch('{% url "admin:vocab_vocabulary_upload_image" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            
+            if (data.success && data.url) {
+                progressFill.style.width = '100%';
+                uploadStatus.textContent = '✅ Uploaded successfully!';
+                imageUrlField.value = data.url;
+                
+                setTimeout(() => {
+                    uploadProgress.style.display = 'none';
+                }, 1500);
+            } else {
+                throw new Error(data.error || 'Upload failed');
+            }
+        })
+        .catch(err => {
+            clearInterval(progressInterval);
+            uploadStatus.textContent = '❌ ' + err.message;
+            progressFill.style.width = '0%';
+            progressFill.style.background = 'var(--error)';
+            
+            setTimeout(() => {
+                resetImageUpload();
+            }, 2000);
+        });
+    }
+
+    function resetImageUpload() {
+        imageUrlField.value = '';
+        imagePreview.src = '';
+        imageInput.value = '';
+        uploadPlaceholder.style.display = 'block';
+        previewContainer.style.display = 'none';
+        uploadProgress.style.display = 'none';
+        dropZone.classList.remove('has-image');
+        progressFill.style.width = '0%';
+        progressFill.style.background = 'linear-gradient(90deg, var(--primary), var(--primary-light))';
+    }
 });
 
+// Global function for result selection
 function selectResult(index) {
     const item = window.searchedResults[index];
     if (!item) return;
     
     if(confirm(`Fill form with: [${item.type}] ${item.definition}?`)) {
         document.getElementById('ipa').value = item.ipa || '';
-        
-        // Prioritize US audio, fallback to UK, or empty
-        const audio = item.audio_us || item.audio_uk || '';
-        document.getElementById('audio_url').value = audio;
-        
-        // If you had a separate field for UK, you could fill it too.
-        // document.getElementById('audio_uk').value = item.audio_uk || '';
-        
+        document.getElementById('audio_url').value = item.audio_us || item.audio_uk || '';
         document.getElementById('pos').value = item.type || '';
         document.getElementById('example').value = item.example || '';
-        
-        // Fill Meaning with the definition (which is now Vietnamese or English fallback)
         document.getElementById('meaning').value = item.definition || '';
     }
 }

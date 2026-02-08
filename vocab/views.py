@@ -398,27 +398,7 @@ class GamesView(LoginRequiredMixin, TemplateView):
         context['ready_count'] = WordDefinition.objects.filter(entry__vocab__language=Vocabulary.Language.ENGLISH).count() 
         return context
 
-class FlashcardsEnglishView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/english_flashcards.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        
-        # Use FsrsService for proper FSRS integration
-        from vocab.services import FsrsService
-        
-        cards, stats = FsrsService.get_flashcard_session(
-            user=user,
-            new_limit=20,
-            review_limit=100,
-            language='english'
-        )
-        
-        context['cards_data_json'] = json.dumps(cards)
-        context['states'] = cards  # For template check (if empty, show empty state)
-        context['stats'] = stats
-        return context
 
 class VocabularyDetailView(LoginRequiredMixin, DetailView):
     model = Vocabulary

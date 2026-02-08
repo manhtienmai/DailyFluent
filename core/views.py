@@ -428,11 +428,15 @@ def home(request):
     """
     Dashboard chính.
     - Nếu user đăng nhập: hiện dashboard với streak và đề thi mới nhất.
-    - Nếu chưa đăng nhập: hiện landing page với đề thi mới nhất.
+    - Nếu chưa đăng nhập: hiện landing page.
     """
+    # Landing page for unauthenticated users
+    if not request.user.is_authenticated:
+        return render(request, "landingpage.html")
+
     from exam.models import ExamTemplate, ExamAttempt
     from django.db.models import Count, Q
-    
+
     streak = None
     minutes_today = 0
     cards_today = 0

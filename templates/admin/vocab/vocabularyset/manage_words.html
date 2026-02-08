@@ -1,0 +1,487 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        /* Theme-aware variables */
+        :root {
+            --qa-primary: #4f46e5;
+            --qa-primary-light: #6366f1;
+            --qa-success: #10b981;
+            --qa-error: #ef4444;
+            --qa-warning: #f59e0b;
+
+            /* Default (Light Mode) */
+            --qa-bg: #ffffff;
+            --qa-bg-alt: #f9fafb;
+            --qa-border: #e5e7eb;
+            --qa-text: #374151;
+            --qa-text-muted: #6b7280;
+            --qa-input-bg: #ffffff;
+            --qa-input-border: #d1d5db;
+        }
+
+        /* Dark Mode Override */
+        [data-theme="dark"] {
+            --qa-bg: #1e293b;
+            --qa-bg-alt: #334155;
+            --qa-border: #475569;
+            --qa-text: #e2e8f0;
+            --qa-text-muted: #94a3b8;
+            --qa-input-bg: #1e293b;
+            --qa-input-border: #475569;
+        }
+
+        .manage-words {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .set-header {
+            background: var(--qa-bg);
+            border-radius: 12px;
+            border: 1px solid var(--qa-border);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .set-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--qa-text);
+        }
+
+        .set-meta {
+            color: var(--qa-text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .columns { grid-template-columns: 1fr; }
+        }
+
+        .column-section {
+            background: var(--qa-bg);
+            border-radius: 12px;
+            border: 1px solid var(--qa-border);
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qa-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--qa-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .count {
+            background: var(--qa-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid var(--qa-input-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--qa-input-bg);
+            color: var(--qa-text);
+            box-sizing: border-box;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--qa-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        /* Word Lists */
+        .word-list {
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .word-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: var(--qa-bg-alt);
+            border: 1px solid var(--qa-border);
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .word-item:hover {
+            border-color: var(--qa-primary);
+        }
+
+        .word-item.selected {
+            border-color: var(--qa-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .word-item .word-text {
+            font-weight: 600;
+            color: var(--qa-text);
+            flex: 1;
+        }
+
+        .word-item .word-meaning {
+            color: var(--qa-text-muted);
+            font-size: 12px;
+            flex: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .word-item .pos-badge {
+            background: var(--qa-primary);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .word-item .action-btn {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .word-item .add-btn {
+            background: var(--qa-success);
+            color: white;
+        }
+
+        .word-item .remove-btn {
+            background: var(--qa-error);
+            color: white;
+        }
+
+        .word-item .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--qa-text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--qa-text-muted);
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--qa-bg-alt);
+            color: var(--qa-text);
+            border: 1px solid var(--qa-border);
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            border-color: var(--qa-primary);
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabularyset_changelist' %}">Vocabulary Sets</a>
+&rsaquo; Manage Words
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="manage-words">
+        
+        <!-- Set Header -->
+        <div class="set-header">
+            <div>
+                <div class="set-title">{{ vocab_set.title }}</div>
+                <div class="set-meta">
+                    {% if vocab_set.toeic_level %}TOEIC {{ vocab_set.toeic_level }} • Set {{ vocab_set.set_number }}{% endif %}
+                    {% if vocab_set.chapter_name %} • {{ vocab_set.chapter_name }}{% endif %}
+                </div>
+            </div>
+            <a href="{% url 'admin:vocab_vocabularyset_changelist' %}" class="back-link">← Back to List</a>
+        </div>
+
+        <!-- Two Columns -->
+        <div class="columns">
+            <!-- LEFT: Search & Add Words -->
+            <div class="column-section">
+                <div class="section-title">
+                    🔍 Search & Add Words
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="word-search" placeholder="Search words or meanings...">
+                </div>
+                
+                <div id="search-results" class="word-list">
+                    <div class="empty-state">
+                        <div class="icon">📚</div>
+                        <div>Type to search existing vocabulary</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Current Words in Set -->
+            <div class="column-section">
+                <div class="section-title">
+                    📝 Words in Set
+                    <span class="count" id="word-count">{{ set_items|length }}</span>
+                </div>
+                
+                <div id="current-words" class="word-list">
+                    {% if set_items %}
+                        {% for item in set_items %}
+                        <div class="word-item" data-id="{{ item.definition.id }}">
+                            <span class="word-text">{{ item.definition.entry.vocab.word }}</span>
+                            {% if item.definition.entry.part_of_speech %}
+                            <span class="pos-badge">{{ item.definition.entry.part_of_speech }}</span>
+                            {% endif %}
+                            <span class="word-meaning">{{ item.definition.meaning|truncatechars:50 }}</span>
+                            <button type="button" class="action-btn remove-btn" onclick="removeWord({{ item.definition.id }})">✕</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state" id="empty-words">
+                            <div class="icon">📭</div>
+                            <div>No words yet. Search and add!</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+const setId = {{ vocab_set.id }};
+const csrfToken = '{{ csrf_token }}';
+let currentWordsInSet = new Set([{% for item in set_items %}{{ item.definition.id }},{% endfor %}]);
+let searchTimeout;
+
+// Search functionality
+document.getElementById('word-search').addEventListener('input', function() {
+    const query = this.value.trim();
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 2) {
+        document.getElementById('search-results').innerHTML = `
+            <div class="empty-state">
+                <div class="icon">📚</div>
+                <div>Type at least 2 characters to search</div>
+            </div>
+        `;
+        return;
+    }
+    
+    document.getElementById('search-results').innerHTML = `<div class="loading">🔄 Searching...</div>`;
+    
+    searchTimeout = setTimeout(() => {
+        fetch(`{% url 'admin:vocab_vocabularyset_search_words' %}?q=` + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                if (data.results.length === 0) {
+                    document.getElementById('search-results').innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">😕</div>
+                            <div>No words found for "${query}"</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                data.results.forEach(word => {
+                    const isInSet = currentWordsInSet.has(word.id);
+                    html += `
+                        <div class="word-item ${isInSet ? 'selected' : ''}" data-id="${word.id}">
+                            <span class="word-text">${word.word}</span>
+                            ${word.pos ? `<span class="pos-badge">${word.pos}</span>` : ''}
+                            <span class="word-meaning">${word.meaning}</span>
+                            ${isInSet ? 
+                                `<span style="color: var(--qa-success); font-size: 12px;">✓ Added</span>` :
+                                `<button type="button" class="action-btn add-btn" onclick="addWord(${word.id}, '${word.word.replace(/'/g, "\\'")}', '${word.meaning.replace(/'/g, "\\'")}', '${word.pos}')">+ Add</button>`
+                            }
+                        </div>
+                    `;
+                });
+                document.getElementById('search-results').innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById('search-results').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">❌</div>
+                        <div>Error: ${err}</div>
+                    </div>
+                `;
+            });
+    }, 300);
+});
+
+// Add word to set
+function addWord(wordId, wordText, meaning, pos) {
+    fetch(`/admin/vocab/vocabularyset/${setId}/add-words/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ word_ids: [wordId] })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            currentWordsInSet.add(wordId);
+            
+            // Update search results UI
+            const searchItem = document.querySelector(`#search-results .word-item[data-id="${wordId}"]`);
+            if (searchItem) {
+                searchItem.classList.add('selected');
+                const btn = searchItem.querySelector('.add-btn');
+                if (btn) {
+                    btn.outerHTML = `<span style="color: var(--qa-success); font-size: 12px;">✓ Added</span>`;
+                }
+            }
+            
+            // Add to current words list
+            const currentWords = document.getElementById('current-words');
+            const emptyState = document.getElementById('empty-words');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'word-item';
+            newItem.dataset.id = wordId;
+            newItem.innerHTML = `
+                <span class="word-text">${wordText}</span>
+                ${pos ? `<span class="pos-badge">${pos}</span>` : ''}
+                <span class="word-meaning">${meaning}</span>
+                <button type="button" class="action-btn remove-btn" onclick="removeWord(${wordId})">✕</button>
+            `;
+            currentWords.appendChild(newItem);
+            
+            // Update count
+            document.getElementById('word-count').textContent = currentWordsInSet.size;
+        }
+    });
+}
+
+// Remove word from set
+function removeWord(wordId) {
+    fetch(`/admin/vocab/vocabularyset/${setId}/remove-word/${wordId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            currentWordsInSet.delete(wordId);
+            
+            // Remove from current words list
+            const item = document.querySelector(`#current-words .word-item[data-id="${wordId}"]`);
+            if (item) {
+                item.remove();
+            }
+            
+            // Update search results UI
+            const searchItem = document.querySelector(`#search-results .word-item[data-id="${wordId}"]`);
+            if (searchItem) {
+                searchItem.classList.remove('selected');
+                const addedSpan = searchItem.querySelector('span[style*="success"]');
+                if (addedSpan) {
+                    addedSpan.outerHTML = `<button type="button" class="action-btn add-btn" onclick="addWord(${wordId}, '', '', '')">+ Add</button>`;
+                }
+            }
+            
+            // Update count
+            document.getElementById('word-count').textContent = currentWordsInSet.size;
+            
+            // Show empty state if no words left
+            if (currentWordsInSet.size === 0) {
+                document.getElementById('current-words').innerHTML = `
+                    <div class="empty-state" id="empty-words">
+                        <div class="icon">📭</div>
+                        <div>No words yet. Search and add!</div>
+                    </div>
+                `;
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
