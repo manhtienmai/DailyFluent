@@ -3,18 +3,24 @@
 
 {% block title %}{{ game_title }} | DailyFluent{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260210">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 600px; margin: 4rem auto; text-align: center;">
-  <div style="font-size: 4rem; margin-bottom: 1rem;">🚧</div>
-  <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
-    {{ game_title }}
-  </h1>
-  <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-    {{ message|default:"Tính năng này đang được phát triển. Vui lòng quay lại sau!" }}
-  </p>
-  <a href="{% url 'vocab:games' %}" 
-     style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--action-primary, #0D9488); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500;">
-    Quay lại
-  </a>
+<div class="df-game-container">
+  <div class="df-game-empty">
+    <div class="df-game-empty-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.1-5.1m0 0L11.42 4.97m-5.1 5.1h12.76"/></svg>
+    </div>
+    <h2 class="df-game-empty-title">{{ game_title }}</h2>
+    <p class="df-game-empty-text">{{ message|default:"Tính năng này đang được phát triển. Vui lòng quay lại sau!" }}</p>
+    <div style="margin-top: 1.5rem;">
+      <a href="{% url 'vocab:games' %}" class="df-game-complete-btn df-game-complete-btn--primary" style="text-decoration: none;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại
+      </a>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -4,7 +4,7 @@
 {% block title %}Trắc nghiệm từ vựng | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260115">
+<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260210">
 {% endblock %}
 
 {% block content %}
@@ -12,15 +12,15 @@
   <!-- Header -->
   <div class="df-game-header">
     <div>
-      <h1 class="df-game-title">✓ Trắc nghiệm từ vựng</h1>
+      <h1 class="df-game-title">Trắc nghiệm từ vựng</h1>
       <p class="df-game-subtitle">Chọn từ đúng với nghĩa được cho</p>
     </div>
     <div class="df-game-stats">
-      <div class="df-game-stat">
+      <div class="df-game-stat df-game-stat--correct">
         <span class="df-game-stat-value" id="correct-count">0</span>
         <span class="df-game-stat-label">Đúng</span>
       </div>
-      <div class="df-game-stat">
+      <div class="df-game-stat df-game-stat--wrong">
         <span class="df-game-stat-value" id="wrong-count">0</span>
         <span class="df-game-stat-label">Sai</span>
       </div>
@@ -31,6 +31,14 @@
   <script id="questions-data" type="application/json">{{ questions_json|safe }}</script>
 
   <div id="game-container">
+    <!-- Streak -->
+    <div style="text-align: center; margin-bottom: 0.5rem;">
+      <div id="streak-badge" class="df-game-streak">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 23a7.5 7.5 0 01-5.138-12.963C8.204 8.774 11.5 6.5 11 1.5c6 4 9 8 3 14 1 0 2.5 0 5-2.47.27.68.5 1.43.5 2.47a7.5 7.5 0 01-7.5 7.5z"/></svg>
+        <span id="streak-text">0</span>
+      </div>
+    </div>
+
     <!-- Progress -->
     <div class="df-game-progress">
       <div class="df-game-progress-bar">
@@ -43,9 +51,7 @@
     <div class="df-game-card" id="question-card">
       <div class="df-game-question-label">Chọn từ có nghĩa:</div>
       <div id="question-text" class="df-game-question"></div>
-      
       <div id="hint-box" class="df-game-hint hidden"></div>
-
       <div id="options" class="df-game-options"></div>
     </div>
 
@@ -63,33 +69,64 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
+
+    <!-- Keyboard Hints -->
+    <div class="df-game-kbd-hints">
+      <span class="df-game-kbd-hint"><span class="df-game-kbd">1-4</span> chọn đáp án</span>
+      <span class="df-game-kbd-hint"><span class="df-game-kbd">Enter</span> câu tiếp</span>
+    </div>
   </div>
 
   <!-- Complete Screen -->
   <div id="complete-screen" class="df-game-complete hidden">
-    <div class="df-game-complete-icon">🎉</div>
-    <h2 class="df-game-complete-title">Hoàn thành!</h2>
+    <div class="df-game-complete-icon">
+      <span id="complete-emoji"></span>
+    </div>
+    <h2 class="df-game-complete-title" id="complete-title"></h2>
+    <p class="df-game-complete-subtitle" id="complete-subtitle"></p>
+
+    <div class="df-game-score-ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="df-game-score-ring-bg" cx="60" cy="60" r="50"/>
+        <circle id="score-ring" class="df-game-score-ring-fill" cx="60" cy="60" r="50"/>
+      </svg>
+      <div class="df-game-score-ring-text">
+        <span id="score-ring-value" class="df-game-score-ring-value">0%</span>
+        <span class="df-game-score-ring-label">Chính xác</span>
+      </div>
+    </div>
+
     <div class="df-game-complete-stats">
       <div class="df-game-complete-stat">
         <div id="final-correct" class="df-game-complete-stat-value">0</div>
         <div class="df-game-complete-stat-label">Đúng</div>
       </div>
       <div class="df-game-complete-stat">
+        <div id="final-wrong" class="df-game-complete-stat-value">0</div>
+        <div class="df-game-complete-stat-label">Sai</div>
+      </div>
+      <div class="df-game-complete-stat">
         <div id="final-total" class="df-game-complete-stat-value">0</div>
         <div class="df-game-complete-stat-label">Tổng</div>
       </div>
-      <div class="df-game-complete-stat">
-        <div id="final-percent" class="df-game-complete-stat-value">0%</div>
-        <div class="df-game-complete-stat-label">Tỷ lệ</div>
-      </div>
     </div>
-    <a href="{% url 'vocab:games' %}" class="df-game-complete-btn">Quay lại</a>
+
+    <div class="df-game-complete-actions">
+      <button type="button" onclick="location.reload()" class="df-game-complete-btn df-game-complete-btn--primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        Chơi lại
+      </button>
+      <a href="{% url 'vocab:games' %}" class="df-game-complete-btn df-game-complete-btn--secondary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Trò chơi khác
+      </a>
+    </div>
   </div>
 
   {% else %}
   <div class="df-game-empty">
     <div class="df-game-empty-icon">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
     </div>
     <h2 class="df-game-empty-title">Chưa có từ vựng</h2>
     <p class="df-game-empty-text">Hãy thêm từ vựng vào hệ thống để bắt đầu chơi.</p>
@@ -102,12 +139,13 @@
 (function() {
   const dataEl = document.getElementById('questions-data');
   const questions = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
-  
+
   let idx = 0;
   let correctCount = 0;
   let wrongCount = 0;
+  let streak = 0;
   let answered = new Array(questions.length).fill(null);
-  
+
   const questionText = document.getElementById('question-text');
   const hintBox = document.getElementById('hint-box');
   const optionsDiv = document.getElementById('options');
@@ -118,119 +156,174 @@
   const btnNext = document.getElementById('btn-next');
   const correctEl = document.getElementById('correct-count');
   const wrongEl = document.getElementById('wrong-count');
+  const streakBadge = document.getElementById('streak-badge');
+  const streakText = document.getElementById('streak-text');
   const gameContainer = document.getElementById('game-container');
   const completeScreen = document.getElementById('complete-screen');
-  
+
   function updateStats() {
-    if (correctEl) correctEl.textContent = correctCount;
-    if (wrongEl) wrongEl.textContent = wrongCount;
+    if (correctEl) { correctEl.textContent = correctCount; bumpEl(correctEl); }
+    if (wrongEl) { wrongEl.textContent = wrongCount; bumpEl(wrongEl); }
   }
-  
+
+  function bumpEl(el) {
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 200);
+  }
+
+  function updateStreak() {
+    streakText.textContent = streak;
+    if (streak >= 2) {
+      streakBadge.classList.add('visible');
+    } else {
+      streakBadge.classList.remove('visible');
+    }
+  }
+
   function render() {
     const q = questions[idx];
     if (!q) return;
-    
+
     questionText.textContent = q.question;
-    
+
     if (q.hint) {
       hintBox.textContent = q.hint;
       hintBox.classList.remove('hidden');
     } else {
       hintBox.classList.add('hidden');
     }
-    
-    // Options
+
     optionsDiv.innerHTML = '';
     const keys = ['A', 'B', 'C', 'D'];
     q.options.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'df-game-option';
-      btn.innerHTML = `<span class="df-game-option-key">${keys[i]}</span><span>${opt}</span>`;
-      
+      btn.innerHTML = '<span class="df-game-option-key">' + keys[i] + '</span><span>' + opt + '</span>';
+
       const isCorrect = opt.toLowerCase() === q.answer.toLowerCase();
       const wasAnswered = answered[idx];
-      
+
       if (wasAnswered !== null) {
         btn.disabled = true;
-        if (isCorrect) {
-          btn.classList.add('df-game-option--correct');
-        } else if (wasAnswered === opt) {
-          btn.classList.add('df-game-option--wrong');
-        }
+        if (isCorrect) btn.classList.add('df-game-option--correct');
+        else if (wasAnswered === opt) btn.classList.add('df-game-option--wrong');
       } else {
         btn.addEventListener('click', () => handleAnswer(opt, isCorrect));
       }
-      
+
       optionsDiv.appendChild(btn);
     });
-    
-    // Progress
+
     const pct = ((idx + 1) / questions.length) * 100;
     progressFill.style.width = pct + '%';
-    progressText.textContent = `${idx + 1} / ${questions.length}`;
-    
-    // Nav buttons
+    progressText.textContent = (idx + 1) + ' / ' + questions.length;
+
     btnPrev.disabled = idx === 0;
     btnNext.textContent = idx >= questions.length - 1 ? 'Hoàn thành' : 'Câu sau';
-    
-    // Hide feedback
+
     feedbackDiv.classList.add('hidden');
-    
-    // Show feedback if already answered
+
     if (answered[idx] !== null) {
       showFeedback(answered[idx] === q.answer);
     }
   }
-  
+
   function handleAnswer(selected, isCorrect) {
     if (answered[idx] !== null) return;
-    
+
     answered[idx] = selected;
-    
+
     if (isCorrect) {
       correctCount++;
+      streak++;
     } else {
       wrongCount++;
+      streak = 0;
     }
-    
+
     updateStats();
+    updateStreak();
     render();
     showFeedback(isCorrect);
   }
-  
+
   function showFeedback(isCorrect) {
     const q = questions[idx];
     feedbackDiv.className = 'df-game-feedback ' + (isCorrect ? 'df-game-feedback--correct' : 'df-game-feedback--wrong');
-    feedbackDiv.innerHTML = isCorrect 
-      ? `<div class="df-game-feedback-title">✓ Chính xác!</div>`
-      : `<div class="df-game-feedback-title">✗ Sai rồi</div><div class="df-game-feedback-text">Đáp án đúng: <strong>${q.answer}</strong></div>`;
+    feedbackDiv.innerHTML = isCorrect
+      ? '<div class="df-game-feedback-title">Chính xác!</div>'
+      : '<div class="df-game-feedback-title">Sai rồi</div><div class="df-game-feedback-text">Đáp án đúng: <strong>' + q.answer + '</strong></div>';
     feedbackDiv.classList.remove('hidden');
   }
-  
+
   function showComplete() {
     gameContainer.classList.add('hidden');
     completeScreen.classList.remove('hidden');
-    document.getElementById('final-correct').textContent = correctCount;
-    document.getElementById('final-total').textContent = questions.length;
+
     const pct = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-    document.getElementById('final-percent').textContent = pct + '%';
+
+    document.getElementById('final-correct').textContent = correctCount;
+    document.getElementById('final-wrong').textContent = wrongCount;
+    document.getElementById('final-total').textContent = questions.length;
+    document.getElementById('score-ring-value').textContent = pct + '%';
+
+    // Score ring animation
+    const ring = document.getElementById('score-ring');
+    const circumference = 2 * Math.PI * 50; // r=50
+    const offset = circumference - (pct / 100) * circumference;
+
+    if (pct >= 80) {
+      ring.classList.add('excellent');
+      document.getElementById('complete-emoji').textContent = '🎉';
+      document.getElementById('complete-title').textContent = 'Xuất sắc!';
+      document.getElementById('complete-subtitle').textContent = 'Bạn nắm rất vững từ vựng';
+    } else if (pct >= 50) {
+      ring.classList.add('good');
+      document.getElementById('complete-emoji').textContent = '👍';
+      document.getElementById('complete-title').textContent = 'Tốt lắm!';
+      document.getElementById('complete-subtitle').textContent = 'Tiếp tục luyện tập nhé';
+    } else {
+      ring.classList.add('needs-work');
+      document.getElementById('complete-emoji').textContent = '💪';
+      document.getElementById('complete-title').textContent = 'Cố gắng thêm!';
+      document.getElementById('complete-subtitle').textContent = 'Hãy ôn lại và thử lại nhé';
+    }
+
+    requestAnimationFrame(() => {
+      ring.style.strokeDashoffset = offset;
+    });
+
+    // Confetti for good scores
+    if (pct >= 70) showConfetti();
   }
-  
+
+  function showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'df-confetti';
+    document.body.appendChild(container);
+    const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6', '#F97316'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'df-confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * 0.8 + 's';
+      piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      container.appendChild(piece);
+    }
+    setTimeout(() => container.remove(), 4000);
+  }
+
   btnPrev.addEventListener('click', () => {
     if (idx > 0) { idx--; render(); }
   });
-  
+
   btnNext.addEventListener('click', () => {
-    if (idx < questions.length - 1) {
-      idx++;
-      render();
-    } else {
-      showComplete();
-    }
+    if (idx < questions.length - 1) { idx++; render(); }
+    else showComplete();
   });
-  
-  // Keyboard shortcuts
+
   document.addEventListener('keydown', (e) => {
     if (answered[idx] !== null) {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -239,7 +332,7 @@
       }
       return;
     }
-    
+
     const keyMap = {'1': 0, '2': 1, '3': 2, '4': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3};
     const optIdx = keyMap[e.key.toLowerCase()];
     if (optIdx !== undefined && questions[idx] && questions[idx].options[optIdx]) {
@@ -248,7 +341,7 @@
       if (btns[optIdx]) btns[optIdx].click();
     }
   });
-  
+
   render();
 })();
 </script>

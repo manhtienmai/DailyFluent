@@ -1,9 +1,13 @@
+from functools import wraps
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
+from django.db import transaction
 from django.db.models import Q, Case, When, Value, IntegerField, F
 from django.contrib import messages
+from django.core.cache import cache
 from django.http import JsonResponse, Http404
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
@@ -13,7 +17,36 @@ import random
 from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress, Course
 from .toeic_config import TOEIC_LEVELS, TOEIC_LEVEL_ORDER
 from . import toeic_utils
-from .fsrs_bridge import create_new_card_state, review_card, preview_intervals
+from .fsrs_bridge import create_new_card_state, review_card, preview_intervals, card_data_to_dict
+
+
+# ---------------------------------------------------------------------------
+# Rate-limit decorator (uses Django cache, no extra dependencies)
+# ---------------------------------------------------------------------------
+
+def rate_limit(key_prefix, max_calls=60, period=60):
+    """
+    Simple per-user rate limiter.
+    Allows *max_calls* requests per *period* seconds.
+    Falls back to IP when user is anonymous.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            uid = request.user.pk if request.user.is_authenticated else None
+            ident = uid or request.META.get('REMOTE_ADDR', '0')
+            cache_key = f"rl:{key_prefix}:{ident}"
+
+            calls = cache.get(cache_key, 0)
+            if calls >= max_calls:
+                return JsonResponse(
+                    {'error': 'Too many requests. Please slow down.'},
+                    status=429,
+                )
+            cache.set(cache_key, calls + 1, period)
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
 
 class SetListView(ListView):
     """
@@ -982,6 +1015,7 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
 
 @require_POST
 @login_required
+@rate_limit('learn', max_calls=30, period=60)
 def api_toeic_learn_result(request):
     """POST: receives set_id, known_ids[], unknown_ids[]. Creates/updates FSRS cards and progress."""
     try:
@@ -996,96 +1030,90 @@ def api_toeic_learn_result(request):
 
     vocab_set = get_object_or_404(VocabularySet, id=set_id)
 
-    # Create/update FSRS cards for each word
-    all_ids = known_ids + unknown_ids
-    for vocab_id in all_ids:
-        card_state, created = FsrsCardStateEn.objects.get_or_create(
-            user=user, vocab_id=vocab_id,
-            defaults={'card_data': create_new_card_state().to_json()}
-        )
-        if created or card_state.state == 0:  # New card
-            rating = 'easy' if vocab_id in known_ids else 'again'
-            new_card_json, _, due_dt = review_card(card_state.card_data, rating)
-            if isinstance(new_card_json, str):
-                import json as _json
-                new_card_json = _json.loads(new_card_json)
-            card_state.card_data = new_card_json
-            card_state.due = due_dt
-            card_state.state = new_card_json.get('state', 0)
-            card_state.last_review = timezone.now()
-            card_state.total_reviews += 1
-            if vocab_id in known_ids:
-                card_state.successful_reviews += 1
-            card_state.save()
-
-    # Update UserSetProgress by counting ACTUAL learned cards in DB
-    # This prevents overwrite issues with partial/incremental updates
-    vocab_ids_in_set = vocab_set.items.values_list('definition__entry__vocab_id', flat=True)
-    learned_count = FsrsCardStateEn.objects.filter(
-        user=user,
-        vocab_id__in=vocab_ids_in_set,
-        state__gt=0  # 0=New, >0 = Learned/Learning
-    ).count()
-
-    total_items = vocab_set.items.count()
-    progress, _ = UserSetProgress.objects.get_or_create(
-        user=user, vocabulary_set=vocab_set,
-        defaults={'words_total': total_items}
+    # --- FIX #2: Validate vocab_ids belong to this set ---
+    valid_vocab_ids = set(
+        vocab_set.items.values_list('definition__entry__vocab_id', flat=True)
     )
-    progress.words_learned = learned_count
-    progress.words_total = total_items
+    known_ids = [vid for vid in known_ids if vid in valid_vocab_ids]
+    unknown_ids = [vid for vid in unknown_ids if vid in valid_vocab_ids]
 
-    if not progress.started_at:
-        progress.started_at = timezone.now()
+    known_id_set = set(known_ids)
+    all_ids = known_ids + unknown_ids
 
-    # Count mastered cards (State = 2, Review). 
-    # State 1 (Learning) and 3 (Relearning) do not count as Mastered for set completion.
-    mastered_count = FsrsCardStateEn.objects.filter(
-        user=user,
-        vocab_id__in=vocab_ids_in_set,
-        state=2  # Strictly Review
-    ).count()
+    # --- FIX #5: Wrap all writes in a transaction ---
+    with transaction.atomic():
+        for vocab_id in all_ids:
+            card_state, created = FsrsCardStateEn.objects.get_or_create(
+                user=user, vocab_id=vocab_id,
+                # FIX #6: card_data_to_dict ensures dict, not JSON string
+                defaults={'card_data': card_data_to_dict(create_new_card_state())}
+            )
+            if created or card_state.state == 0:  # New card
+                rating = 'easy' if vocab_id in known_id_set else 'again'
+                # review_card now returns dict (not string) — FIX #6
+                new_card_data, _, due_dt = review_card(card_state.card_data, rating)
+                card_state.card_data = new_card_data
+                card_state.due = due_dt
+                card_state.state = new_card_data.get('state', 0)
+                card_state.last_review = timezone.now()
+                card_state.total_reviews = F('total_reviews') + 1
+                if vocab_id in known_id_set:
+                    card_state.successful_reviews = F('successful_reviews') + 1
+                card_state.save()
 
-    # NOTE: Relearning (3) implies they forgot. We treat only Review (2) as "Mastered/Completed".
-    # Or should Relearning count? Usually Relearning means "learning again". 
-    # For a stricter "Completed" status, we require Review state.
-    
-    if mastered_count >= total_items and total_items > 0:
-        progress.status = UserSetProgress.ProgressStatus.COMPLETED
-        if not progress.completed_at:
-            progress.completed_at = timezone.now()
-    else:
-        progress.status = UserSetProgress.ProgressStatus.IN_PROGRESS
-        progress.completed_at = None
+        # Update UserSetProgress by counting ACTUAL learned cards in DB
+        learned_count = FsrsCardStateEn.objects.filter(
+            user=user,
+            vocab_id__in=valid_vocab_ids,
+            state__gt=0
+        ).count()
 
-    progress.save()
+        total_items = vocab_set.items.count()
+        progress, _ = UserSetProgress.objects.get_or_create(
+            user=user, vocabulary_set=vocab_set,
+            defaults={'words_total': total_items}
+        )
+        progress.words_learned = learned_count
+        progress.words_total = total_items
 
-    # Check for badges
+        if not progress.started_at:
+            progress.started_at = timezone.now()
+
+        mastered_count = FsrsCardStateEn.objects.filter(
+            user=user,
+            vocab_id__in=valid_vocab_ids,
+            state=2  # Strictly Review
+        ).count()
+
+        if mastered_count >= total_items and total_items > 0:
+            progress.status = UserSetProgress.ProgressStatus.COMPLETED
+            if not progress.completed_at:
+                progress.completed_at = timezone.now()
+        else:
+            progress.status = UserSetProgress.ProgressStatus.IN_PROGRESS
+            progress.completed_at = None
+
+        progress.save()
+
+    # Check for badges (outside transaction — OK if badge insert fails independently)
     from core.badge_service import check_and_award_badges
     new_badges = check_and_award_badges(request.user)
-    
-    badges_data = []
-    for gb in new_badges:
-        badges_data.append({
-            "name": gb.name,
-            "description": gb.description,
-            "icon": gb.icon
-        })
+
+    badges_data = [
+        {"name": gb.name, "description": gb.description, "icon": gb.icon}
+        for gb in new_badges
+    ]
 
     # Determine redirect
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
-    
-    # Lookup proper slug
+
     try:
         course_slug = Course.objects.get(toeic_level=level).slug
     except Course.DoesNotExist:
-        # Fallback or error, but let's assume it exists as migrated
-        course_slug = f"toeic-{level}" 
+        course_slug = f"toeic-{level}"
 
     if progress.status == UserSetProgress.ProgressStatus.COMPLETED:
-        # If completed, maybe go back to detail? Or maybe next set?
-        # For now, back to detail
         next_url = reverse('vocab:course_detail', kwargs={'slug': course_slug})
     else:
         next_url = reverse('vocab:course_quiz', kwargs={'slug': course_slug, 'set_number': set_number})
@@ -1104,6 +1132,7 @@ def api_toeic_learn_result(request):
 
 @require_POST
 @login_required
+@rate_limit('quiz', max_calls=30, period=60)
 def api_toeic_quiz_result(request):
     """POST: receives set_id, score, total, wrong_word_ids[]."""
     try:
@@ -1112,46 +1141,50 @@ def api_toeic_quiz_result(request):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     set_id = data.get('set_id')
-    score = data.get('score', 0)
-    total = data.get('total', 0)
+    score = int(data.get('score', 0))
+    total = int(data.get('total', 0))
     user = request.user
 
     vocab_set = get_object_or_404(VocabularySet, id=set_id)
 
-    progress, _ = UserSetProgress.objects.get_or_create(
-        user=user, vocabulary_set=vocab_set,
-        defaults={'words_total': vocab_set.items.count()}
-    )
+    # --- FIX #1: Server-side score validation ---
+    # Clamp score to [0, total] so client cannot fake arbitrary scores
+    actual_total = vocab_set.items.count()
+    total = min(total, actual_total)  # Cannot claim more questions than exist
+    score = max(0, min(score, total))  # Score bounded by [0, total]
 
-    # Update best score (as percentage)
-    score_pct = round(score / total * 100) if total > 0 else 0
-    if score_pct > progress.quiz_best_score:
-        progress.quiz_best_score = score_pct
+    with transaction.atomic():
+        progress, _ = UserSetProgress.objects.get_or_create(
+            user=user, vocabulary_set=vocab_set,
+            defaults={'words_total': actual_total}
+        )
 
-    # If scored >= 80% and was in_progress, mark completed
-    if score >= 8 and total >= 10 and progress.status == UserSetProgress.ProgressStatus.IN_PROGRESS:
-        progress.status = UserSetProgress.ProgressStatus.COMPLETED
-        progress.completed_at = timezone.now()
-        progress.words_learned = progress.words_total
+        # Update best score (as percentage)
+        score_pct = round(score / total * 100) if total > 0 else 0
+        if score_pct > progress.quiz_best_score:
+            progress.quiz_best_score = score_pct
 
-    progress.save()
-    
+        # FIX #1: Use percentage threshold, not absolute numbers
+        if (total > 0 and score_pct >= 80
+                and progress.status == UserSetProgress.ProgressStatus.IN_PROGRESS):
+            progress.status = UserSetProgress.ProgressStatus.COMPLETED
+            progress.completed_at = timezone.now()
+            progress.words_learned = progress.words_total
+
+        progress.save()
+
     # Check for badges
     from core.badge_service import check_and_award_badges
     new_badges = check_and_award_badges(request.user)
-    
-    badges_data = []
-    for gb in new_badges:
-        badges_data.append({
-            "name": gb.name,
-            "description": gb.description,
-            "icon": gb.icon
-        })
+
+    badges_data = [
+        {"name": gb.name, "description": gb.description, "icon": gb.icon}
+        for gb in new_badges
+    ]
 
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
-    
-    # Lookup proper slug
+
     try:
         course_slug = Course.objects.get(toeic_level=level).slug
     except Course.DoesNotExist:
@@ -1173,6 +1206,7 @@ def api_toeic_quiz_result(request):
 
 @require_POST
 @login_required
+@rate_limit('grade', max_calls=120, period=60)
 def api_toeic_review_grade(request):
     """POST: receives vocab_id, rating (again/hard/good/easy). Calls FSRS review via FsrsService."""
     from vocab.services import FsrsService
@@ -1203,16 +1237,17 @@ def api_toeic_review_grade(request):
 
 @require_POST
 @login_required
+@rate_limit('grade', max_calls=120, period=60)
 def api_flashcard_grade_english(request):
     """
     POST: Grade an English flashcard.
-    
+
     Accepts form data or JSON:
     - state_id: ID of FsrsCardStateEn (optional, for existing cards)
     - vocab_id: ID of Vocabulary (alternative to state_id)
     - rating: 'again', 'hard', 'good', 'easy'
     - is_new: 'true'/'false' (optional hint)
-    
+
     Returns JSON with success, intervals, requeue, requeue_delay_ms
     """
     from vocab.services import FsrsService
@@ -1241,14 +1276,19 @@ def api_flashcard_grade_english(request):
     
     if not vocab_id:
         return JsonResponse({'error': 'vocab_id or state_id required'}, status=400)
-    
+
+    try:
+        vocab_id = int(vocab_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid vocab_id'}, status=400)
+
     result = FsrsService.grade_card(
         user=request.user,
-        vocab_id=int(vocab_id),
+        vocab_id=vocab_id,
         rating=rating,
         create_if_missing=True
     )
-    
+
     if not result.get('success'):
         return JsonResponse({'error': result.get('error', 'Unknown error')}, status=400)
 
@@ -1430,7 +1470,8 @@ class GameFillView(LoginRequiredMixin, TemplateView):
         for item in selection:
             questions.append({
                 'question': item['meaning'],
-                'answer': item['entry__vocab__word'],
+                'answer': item['entry__vocab__word'].lower(),
+                'display_answer': item['entry__vocab__word'],
                 'hint': f"Từ có {len(item['entry__vocab__word'])} chữ cái"
             })
             
@@ -1445,28 +1486,42 @@ class GameDictationView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # 5. Fetch entries with audio for dictation
+        # 5. Fetch entries with audio for dictation (include meaning for richer feedback)
         entries = list(WordEntry.objects.filter(
             Q(audio_us__startswith='http') | Q(audio_uk__startswith='http')
         ).select_related('vocab').values(
-            'vocab__word', 'audio_us', 'audio_uk'
+            'vocab__word', 'audio_us', 'audio_uk', 'ipa'
         ))
-        
+
         if not entries:
             context['questions'] = []
             context['questions_json'] = '[]'
             context['total_count'] = 0
             return context
-            
+
         random.shuffle(entries)
         selection = entries[:10]
-        
+
+        # Fetch meanings for selected words
+        word_list = [item['vocab__word'] for item in selection]
+        meanings_map = {}
+        defs = WordDefinition.objects.filter(
+            entry__vocab__word__in=word_list
+        ).select_related('entry__vocab').values('entry__vocab__word', 'meaning')
+        for d in defs:
+            if d['entry__vocab__word'] not in meanings_map:
+                meanings_map[d['entry__vocab__word']] = d['meaning']
+
         questions = []
         for item in selection:
             audio = item['audio_us'] if item['audio_us'] else item['audio_uk']
+            word = item['vocab__word']
             questions.append({
                 'audio': audio,
-                'answer': item['vocab__word']
+                'answer': word.lower(),
+                'display_answer': word,
+                'phonetic': item.get('ipa', ''),
+                'meaning': meanings_map.get(word, ''),
             })
             
         context['questions'] = questions

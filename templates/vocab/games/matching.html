@@ -4,95 +4,7 @@
 {% block title %}Nối từ với nghĩa | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260130">
-<style>
-  /* Lives/Hearts UI */
-  .df-game-lives {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(239, 68, 68, 0.1);
-    border-radius: 9999px;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-  }
-  
-  .df-game-lives-icon {
-    font-size: 1.25rem;
-  }
-  
-  .df-game-lives-count {
-    font-weight: 700;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-  }
-  
-  .df-game-lives-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-  }
-  
-  /* Game Over Screen */
-  .df-game-over {
-    text-align: center;
-    padding: 3rem 1.5rem;
-  }
-  
-  .df-game-over-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-  
-  .df-game-over-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #EF4444;
-    margin-bottom: 0.5rem;
-  }
-  
-  .df-game-over-text {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-  }
-  
-  .df-game-buy-life-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #F59E0B, #D97706);
-    color: #fff;
-    border: none;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 1rem;
-  }
-  
-  .df-game-buy-life-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-  }
-  
-  .df-game-buy-life-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  .df-game-buy-life-info {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-  }
-  
-  .df-game-actions-row {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/vocab-games.css' %}?v=20260210">
 {% endblock %}
 
 {% block content %}
@@ -100,23 +12,17 @@
   <!-- Header -->
   <div class="df-game-header">
     <div>
-      <h1 class="df-game-title">⇄ Nối từ với nghĩa</h1>
+      <h1 class="df-game-title">Nối từ với nghĩa</h1>
       <p class="df-game-subtitle">Chọn các cặp từ - nghĩa đúng</p>
     </div>
     <div class="df-game-stats">
-      <!-- Lives -->
-      <div class="df-game-lives">
-        <span class="df-game-lives-icon">❤️</span>
-        <span class="df-game-lives-count" id="lives-count">5</span>
-        <span class="df-game-lives-label">mạng</span>
+      <div class="df-game-stat" id="lives-stat" style="background: var(--status-error-subtle); border-color: var(--status-error-border);">
+        <span class="df-game-stat-value" id="lives-count" style="color: var(--status-error-text);">5</span>
+        <span class="df-game-stat-label" style="color: var(--status-error-text);">Mạng</span>
       </div>
-      <div class="df-game-stat">
+      <div class="df-game-stat df-game-stat--correct">
         <span class="df-game-stat-value" id="matched-count">0</span>
-        <span class="df-game-stat-label">Đã ghép</span>
-      </div>
-      <div class="df-game-stat">
-        <span class="df-game-stat-value">{{ total_pairs }}</span>
-        <span class="df-game-stat-label">Tổng</span>
+        <span class="df-game-stat-label">Cặp</span>
       </div>
     </div>
   </div>
@@ -125,6 +31,12 @@
   <script id="tiles-data" type="application/json">{{ tiles_json|safe }}</script>
 
   <div id="game-container">
+    <!-- Timer -->
+    <div id="timer-display" class="df-game-timer">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="timer-text">0:00</span>
+    </div>
+
     <!-- Progress -->
     <div class="df-game-progress">
       <div class="df-game-progress-bar">
@@ -134,51 +46,78 @@
     </div>
 
     <!-- Matching Grid -->
-    <div class="df-game-card">
+    <div class="df-game-card" style="padding: 1.25rem;">
       <div id="match-grid" class="df-game-match-grid"></div>
-    </div>
-
-    <!-- Reset Button -->
-    <div style="text-align: center; margin-top: 1rem;">
-      <button type="button" id="btn-reset" class="df-game-nav-btn df-game-nav-btn--secondary">
-        Chơi lại
-      </button>
     </div>
   </div>
 
   <!-- Complete Screen -->
   <div id="complete-screen" class="df-game-complete hidden">
-    <div class="df-game-complete-icon">🎉</div>
-    <h2 class="df-game-complete-title">Hoàn thành!</h2>
-    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Bạn đã ghép đúng tất cả các cặp từ!</p>
-    <div style="display: flex; justify-content: center; gap: 1rem;">
-      <button type="button" id="btn-play-again" class="df-game-nav-btn df-game-nav-btn--secondary">Chơi lại</button>
-      <a href="{% url 'vocab:my_words' %}" class="df-game-complete-btn">Quay lại</a>
+    <div class="df-game-complete-icon">
+      <span id="complete-emoji"></span>
+    </div>
+    <h2 class="df-game-complete-title" id="complete-title"></h2>
+    <p class="df-game-complete-subtitle" id="complete-subtitle"></p>
+
+    <div class="df-game-complete-stats">
+      <div class="df-game-complete-stat">
+        <div id="final-pairs" class="df-game-complete-stat-value">0</div>
+        <div class="df-game-complete-stat-label">Cặp đã nối</div>
+      </div>
+      <div class="df-game-complete-stat">
+        <div id="final-time" class="df-game-complete-stat-value">0:00</div>
+        <div class="df-game-complete-stat-label">Thời gian</div>
+      </div>
+      <div class="df-game-complete-stat">
+        <div id="final-lives" class="df-game-complete-stat-value">0</div>
+        <div class="df-game-complete-stat-label">Mạng còn</div>
+      </div>
+    </div>
+
+    <div class="df-game-complete-actions">
+      <button type="button" id="btn-play-again" class="df-game-complete-btn df-game-complete-btn--primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        Chơi lại
+      </button>
+      <a href="{% url 'vocab:games' %}" class="df-game-complete-btn df-game-complete-btn--secondary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Trò chơi khác
+      </a>
     </div>
   </div>
 
   <!-- Game Over Screen -->
-  <div id="gameover-screen" class="df-game-over hidden">
-    <div class="df-game-over-icon">💔</div>
-    <h2 class="df-game-over-title">Hết mạng!</h2>
-    <p class="df-game-over-text">Bạn đã hết lượt chơi. Mua thêm mạng để tiếp tục!</p>
-    
-    <button type="button" id="btn-buy-life" class="df-game-buy-life-btn">
-      <span>💰</span>
-      <span>Mua 1 mạng (10 coin)</span>
-    </button>
-    <div class="df-game-buy-life-info" id="buy-life-info"></div>
-    
-    <div class="df-game-actions-row">
-      <button type="button" id="btn-restart" class="df-game-nav-btn df-game-nav-btn--secondary">Chơi lại từ đầu</button>
-      <a href="{% url 'vocab:my_words' %}" class="df-game-nav-btn df-game-nav-btn--primary">Thoát</a>
+  <div id="gameover-screen" class="df-game-complete hidden">
+    <div class="df-game-complete-icon" style="background: var(--status-error-subtle); border-color: var(--status-error-border);">
+      <span>💔</span>
+    </div>
+    <h2 class="df-game-complete-title" style="color: var(--status-error-text);">Hết mạng!</h2>
+    <p class="df-game-complete-subtitle">Bạn đã hết lượt chơi. Mua thêm mạng hoặc chơi lại!</p>
+
+    <div style="margin: 1.5rem 0;">
+      <button type="button" id="btn-buy-life" class="df-game-complete-btn df-game-complete-btn--primary" style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+        Mua 1 mạng (10 coin)
+      </button>
+      <div id="buy-life-info" style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.5rem;"></div>
+    </div>
+
+    <div class="df-game-complete-actions">
+      <button type="button" id="btn-restart" class="df-game-complete-btn df-game-complete-btn--primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        Chơi lại từ đầu
+      </button>
+      <a href="{% url 'vocab:games' %}" class="df-game-complete-btn df-game-complete-btn--secondary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Thoát
+      </a>
     </div>
   </div>
 
   {% else %}
   <div class="df-game-empty">
     <div class="df-game-empty-icon">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
     </div>
     <h2 class="df-game-empty-title">Chưa có từ vựng</h2>
     <p class="df-game-empty-text">Hãy thêm từ vựng vào hệ thống để bắt đầu chơi.</p>
@@ -193,26 +132,48 @@
   const totalPairs = {{ total_pairs }};
   const BUY_LIFE_URL = "{% url 'vocab:api_buy_game_life' %}";
   const CSRF_TOKEN = "{{ csrf_token }}";
-  
+
   const MAX_LIVES = 5;
-  
+
   let tiles = [...tilesData];
   let selected = null;
   let matchedPairs = new Set();
   let locked = false;
   let lives = MAX_LIVES;
-  
+  let timerSeconds = 0;
+  let timerInterval = null;
+
   const grid = document.getElementById('match-grid');
   const progressFill = document.getElementById('progress-fill');
   const progressText = document.getElementById('progress-text');
   const matchedEl = document.getElementById('matched-count');
   const livesEl = document.getElementById('lives-count');
+  const timerText = document.getElementById('timer-text');
+  const timerDisplay = document.getElementById('timer-display');
   const gameContainer = document.getElementById('game-container');
   const completeScreen = document.getElementById('complete-screen');
   const gameoverScreen = document.getElementById('gameover-screen');
   const buyLifeBtn = document.getElementById('btn-buy-life');
   const buyLifeInfo = document.getElementById('buy-life-info');
-  
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      timerText.textContent = formatTime(timerSeconds);
+      if (timerSeconds >= 60) timerDisplay.classList.add('warning');
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
   function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -220,15 +181,16 @@
     }
     return arr;
   }
-  
-  function updateLivesUI() {
-    livesEl.textContent = lives;
+
+  function bumpEl(el) {
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 200);
   }
-  
+
   function render() {
     grid.innerHTML = '';
-    updateLivesUI();
-    
+    livesEl.textContent = lives;
+
     tiles.forEach((tile, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -236,72 +198,68 @@
       btn.className += tile.type === 'word' ? ' df-game-match-tile--word' : ' df-game-match-tile--meaning';
       btn.textContent = tile.text;
       btn.dataset.index = i;
-      btn.dataset.pairId = tile.pair_id;
-      btn.dataset.type = tile.type;
-      
+
       if (matchedPairs.has(tile.pair_id)) {
         btn.classList.add('df-game-match-tile--matched');
         btn.disabled = true;
       }
-      
+
       if (selected && selected.index === i) {
         btn.classList.add('df-game-match-tile--selected');
       }
-      
+
       btn.addEventListener('click', () => handleClick(i, tile));
       grid.appendChild(btn);
     });
-    
-    // Update progress
+
     const pct = (matchedPairs.size / totalPairs) * 100;
     progressFill.style.width = pct + '%';
-    progressText.textContent = `${matchedPairs.size} / ${totalPairs}`;
+    progressText.textContent = matchedPairs.size + ' / ' + totalPairs;
     matchedEl.textContent = matchedPairs.size;
   }
-  
+
   function handleClick(index, tile) {
-    if (locked) return;
-    if (matchedPairs.has(tile.pair_id)) return;
-    
+    if (locked || matchedPairs.has(tile.pair_id)) return;
+
     if (!selected) {
       selected = { index, ...tile };
       render();
       return;
     }
-    
+
     if (selected.index === index) {
       selected = null;
       render();
       return;
     }
-    
-    // Check match
+
     const isMatch = selected.pair_id === tile.pair_id && selected.type !== tile.type;
-    
+
     if (isMatch) {
       matchedPairs.add(tile.pair_id);
+      bumpEl(matchedEl);
       selected = null;
       render();
-      
-      // Check complete
+
       if (matchedPairs.size >= totalPairs) {
+        stopTimer();
         setTimeout(showComplete, 500);
       }
     } else {
-      // Wrong match - lose a life
       lives--;
-      updateLivesUI();
-      
+      livesEl.textContent = lives;
+
       locked = true;
       const btns = grid.querySelectorAll('button');
-      btns[selected.index].classList.add('df-game-option--wrong');
-      btns[index].classList.add('df-game-option--wrong');
-      
+      if (btns[selected.index]) btns[selected.index].classList.add('df-game-match-tile--wrong');
+      if (btns[index]) btns[index].classList.add('df-game-match-tile--wrong');
+
       setTimeout(() => {
         selected = null;
         locked = false;
-        
+
         if (lives <= 0) {
+          stopTimer();
           showGameOver();
         } else {
           render();
@@ -309,41 +267,63 @@
       }, 600);
     }
   }
-  
+
   function showComplete() {
     gameContainer.classList.add('hidden');
-    completeScreen.classList.remove('hidden');
     gameoverScreen.classList.add('hidden');
+    completeScreen.classList.remove('hidden');
+
+    document.getElementById('final-pairs').textContent = matchedPairs.size;
+    document.getElementById('final-time').textContent = formatTime(timerSeconds);
+    document.getElementById('final-lives').textContent = lives;
+
+    if (lives >= 4) {
+      document.getElementById('complete-emoji').textContent = '🎉';
+      document.getElementById('complete-title').textContent = 'Xuất sắc!';
+      document.getElementById('complete-subtitle').textContent = 'Hoàn thành trong ' + formatTime(timerSeconds) + ' với ' + lives + ' mạng!';
+    } else if (lives >= 2) {
+      document.getElementById('complete-emoji').textContent = '👍';
+      document.getElementById('complete-title').textContent = 'Tốt lắm!';
+      document.getElementById('complete-subtitle').textContent = 'Bạn đã ghép đúng tất cả các cặp từ!';
+    } else {
+      document.getElementById('complete-emoji').textContent = '😅';
+      document.getElementById('complete-title').textContent = 'Sát nút!';
+      document.getElementById('complete-subtitle').textContent = 'Suýt hết mạng! Thử lại để làm tốt hơn nhé';
+    }
+
+    showConfetti();
   }
-  
+
   function showGameOver() {
     gameContainer.classList.add('hidden');
     completeScreen.classList.add('hidden');
     gameoverScreen.classList.remove('hidden');
+    buyLifeBtn.disabled = false;
     buyLifeInfo.textContent = '';
   }
-  
-  function hideGameOver() {
-    gameoverScreen.classList.add('hidden');
-    gameContainer.classList.remove('hidden');
-  }
-  
+
   function resetGame() {
     tiles = shuffleArray([...tilesData]);
     selected = null;
     matchedPairs = new Set();
     locked = false;
     lives = MAX_LIVES;
+    timerSeconds = 0;
+    timerText.textContent = '0:00';
+    timerDisplay.classList.remove('warning');
+    stopTimer();
+
     gameContainer.classList.remove('hidden');
     completeScreen.classList.add('hidden');
     gameoverScreen.classList.add('hidden');
     render();
+    startTimer();
   }
-  
+
   async function buyLife() {
     buyLifeBtn.disabled = true;
     buyLifeInfo.textContent = 'Đang xử lý...';
-    
+
     try {
       const res = await fetch(BUY_LIFE_URL, {
         method: 'POST',
@@ -352,34 +332,51 @@
           'Content-Type': 'application/json'
         }
       });
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
-        lives = 1; // Give 1 life
-        buyLifeInfo.textContent = `✓ ${data.message} Số dư: ${data.new_balance} coin`;
-        
-        // Resume game after short delay
+        lives = 1;
+        buyLifeInfo.textContent = data.message + ' Số dư: ' + data.new_balance + ' coin';
+
         setTimeout(() => {
-          hideGameOver();
+          gameoverScreen.classList.add('hidden');
+          gameContainer.classList.remove('hidden');
           render();
         }, 1000);
       } else {
-        buyLifeInfo.textContent = `✗ ${data.message}`;
+        buyLifeInfo.textContent = data.message;
         buyLifeBtn.disabled = false;
       }
     } catch (err) {
-      buyLifeInfo.textContent = '✗ Lỗi kết nối. Vui lòng thử lại.';
+      buyLifeInfo.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
       buyLifeBtn.disabled = false;
     }
   }
-  
-  document.getElementById('btn-reset').addEventListener('click', resetGame);
+
+  function showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'df-confetti';
+    document.body.appendChild(container);
+    const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6', '#F97316'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'df-confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * 0.8 + 's';
+      piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      container.appendChild(piece);
+    }
+    setTimeout(() => container.remove(), 4000);
+  }
+
   document.getElementById('btn-play-again').addEventListener('click', resetGame);
   document.getElementById('btn-restart').addEventListener('click', resetGame);
   buyLifeBtn.addEventListener('click', buyLife);
-  
+
   render();
+  startTimer();
 })();
 </script>
 {% endif %}
