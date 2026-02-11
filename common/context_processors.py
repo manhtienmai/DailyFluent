@@ -78,7 +78,7 @@ def navigation_items(request):
         },
         {
             'name': 'Từ vựng EN',
-            'url_name': 'vocab:english_list',
+            'url_name': 'vocab:set_list',
             'icon': None,
         },
         {

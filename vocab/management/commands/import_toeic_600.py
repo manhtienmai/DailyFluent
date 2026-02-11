@@ -2,7 +2,7 @@ import json
 import os
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from vocab.models import VocabularySet, Vocabulary, WordEntry, WordDefinition, SetItem
+from vocab.models import VocabularySet, Vocabulary, WordEntry, WordDefinition, ExampleSentence, SetItem
 from vocab.utils_scraper import scrape_cambridge
 
 class Command(BaseCommand):
@@ -95,11 +95,17 @@ class Command(BaseCommand):
                                 )
                                 def_text = item.get('definition', '')
                                 if def_text and not entry.definitions.filter(meaning=def_text).exists():
-                                    WordDefinition.objects.create(
+                                    defn = WordDefinition.objects.create(
                                         entry=entry,
                                         meaning=def_text,
-                                        example_sentence=item.get('example', '')
                                     )
+                                    example_text = item.get('example', '')
+                                    if example_text:
+                                        ExampleSentence.objects.create(
+                                            definition=defn,
+                                            sentence=example_text,
+                                            source='toeic_600',
+                                        )
 
                     # Link to Set
                     # We need a definition to link SetItem. 

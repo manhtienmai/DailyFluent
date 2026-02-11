@@ -117,6 +117,10 @@ class AnalyticsDashboard:
         users_week = User.objects.filter(date_joined__date__gte=last_7_days).count()
         users_month = User.objects.filter(date_joined__date__gte=last_30_days).count()
         
+        # Calculate user growth
+        user_growth = users_today - users_yesterday
+        user_growth_str = f"+{user_growth}" if user_growth > 0 else str(user_growth) if user_growth < 0 else "0"
+        
         # User registration chart (last 7 days)
         user_reg_data = (
             User.objects
@@ -199,9 +203,15 @@ class AnalyticsDashboard:
         
         # Try to get vocab stats
         try:
-            from vocab.models import VocabWord, EnVocabulary
-            additional_stats['total_vocab_en'] = EnVocabulary.objects.count()
-        except:
+            from vocab.models import Vocabulary, VocabularySet, SetItem
+            additional_stats['total_vocab'] = Vocabulary.objects.count()
+            additional_stats['total_vocab_sets'] = VocabularySet.objects.count()
+            additional_stats['total_set_items'] = SetItem.objects.count()
+            
+            # Vocab added recently
+            additional_stats['vocab_today'] = Vocabulary.objects.filter(created_at__date=today).count()
+            additional_stats['vocab_week'] = Vocabulary.objects.filter(created_at__date__gte=last_7_days).count()
+        except Exception:
             pass
         
         # Try to get feedback stats
@@ -229,6 +239,8 @@ class AnalyticsDashboard:
             'users_yesterday': users_yesterday,
             'users_week': users_week,
             'users_month': users_month,
+            'user_growth_str': user_growth_str,
+            'user_growth': user_growth,
             'user_chart_labels': user_chart_labels,
             'user_chart_data': user_chart_data,
             'recent_users': recent_users,

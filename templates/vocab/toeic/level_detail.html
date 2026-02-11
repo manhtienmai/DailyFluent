@@ -56,6 +56,15 @@
     --accent-glow: rgba(245, 158, 11, 0.5);
   }
 
+  .course-page--jp {
+    --accent: #dc2626;
+    --accent-end: #b91c1c;
+    --accent-light: rgba(220, 38, 38, 0.08);
+    --accent-border: rgba(220, 38, 38, 0.2);
+    --accent-shadow: rgba(220, 38, 38, 0.15);
+    --accent-glow: rgba(220, 38, 38, 0.5);
+  }
+
   /* Pastel Gradient Mesh Background */
   .course-page {
     min-height: 100vh;
@@ -1080,7 +1089,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="course-page course-page--{{ config.level }}">
+<div class="course-page {% if config.level %}course-page--{{ config.level }}{% elif config.language == 'jp' %}course-page--jp{% endif %}">
   <div class="course-container">
 
     <!-- ========== BACK NAV ========== -->
@@ -1097,7 +1106,7 @@
         <div class="course-hero-icon">{{ config.icon }}</div>
         <div class="course-hero-content">
           <div class="course-hero-badge">
-            TOEIC {{ config.level }}
+            {% if config.level %}TOEIC {{ config.level }}{% elif config.language == 'jp' %}JLPT N2{% else %}Course{% endif %}
           </div>
           <h1 class="course-hero-title">{{ config.label }}</h1>
           <p class="course-hero-desc">{{ config.description }}</p>

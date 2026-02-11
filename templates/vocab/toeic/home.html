@@ -2,7 +2,7 @@
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
-{% block title %}TOEIC Vocabulary | DailyFluent{% endblock %}
+{% block title %}Vocabulary Courses | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -527,6 +527,16 @@
     --card-accent-border: rgba(245, 158, 11, 0.2);
   }
 
+  .course-card--red {
+    --card-orb-color: rgba(220, 38, 38, 0.15);
+    --card-orb-color-2: rgba(220, 38, 38, 0.08);
+    --card-shadow-color: rgba(220, 38, 38, 0.2);
+    --card-accent: #dc2626;
+    --card-accent-end: #b91c1c;
+    --card-accent-bg: rgba(220, 38, 38, 0.08);
+    --card-accent-border: rgba(220, 38, 38, 0.2);
+  }
+
   /* Card header */
   .course-card-header {
     display: flex;
@@ -832,7 +842,7 @@
       <div class="courses-header-left">
         <div class="courses-header-icon">📚</div>
         <div>
-          <h1 class="courses-title">TOEIC Vocabulary</h1>
+          <h1 class="courses-title">Vocabulary Courses</h1>
           <p class="courses-subtitle">Master vocabulary from beginner to advanced</p>
         </div>
       </div>
@@ -904,7 +914,7 @@
     {% if levels %}
     <div class="courses-grid">
       {% for item in levels %}
-      <article class="glass-panel course-card {% if item.config.level == 600 %}course-card--green{% elif item.config.level == 730 %}course-card--blue{% elif item.config.level == 860 %}course-card--purple{% elif item.config.level == 990 %}course-card--amber{% else %}course-card--blue{% endif %}"
+      <article class="glass-panel course-card {% if item.config.level == 600 %}course-card--green{% elif item.config.level == 730 %}course-card--blue{% elif item.config.level == 860 %}course-card--purple{% elif item.config.level == 990 %}course-card--amber{% elif item.config.language == 'jp' %}course-card--red{% else %}course-card--blue{% endif %}"
                onclick="window.location.href='{% url 'vocab:course_detail' slug=item.slug %}'">
 
         <!-- Header: Icon + Badge -->

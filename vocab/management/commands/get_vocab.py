@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from bs4 import BeautifulSoup
 from django.conf import settings
-from vocab.models import Vocabulary, WordEntry, WordDefinition
+from vocab.models import Vocabulary, WordEntry, WordDefinition, ExampleSentence
 from vocab.utils_scraper import scrape_cambridge
 
 
@@ -177,11 +177,16 @@ class Command(BaseCommand):
                         
                         # 4. Tạo WordDefinition
                         if not entry.definitions.filter(meaning=item['definition']).exists():
-                            WordDefinition.objects.create(
+                            defn = WordDefinition.objects.create(
                                 entry=entry,
                                 meaning=item['definition'],
-                                example_sentence=item['example']
                             )
+                            if item.get('example'):
+                                ExampleSentence.objects.create(
+                                    definition=defn,
+                                    sentence=item['example'],
+                                    source='cambridge',
+                                )
                             def_count += 1
                     
                     if entry_count > 0:

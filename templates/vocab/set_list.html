@@ -718,43 +718,48 @@
     <!-- Filters -->
     <section class="glass-panel-light sets-filters">
       <!-- Tabs -->
-      <nav class="sets-tabs" aria-label="Set type">
-        <a href="?tab=public&lang={{ current_lang }}"
+      <nav class="sets-tabs" aria-label="Set type" id="setsTabNav">
+        <button type="button" data-tab="public"
            class="sets-tab {% if tab != 'my' %}sets-tab--active{% endif %}">
           Public Sets
-        </a>
+        </button>
         {% if user.is_authenticated %}
-        <a href="?tab=my&lang={{ current_lang }}"
+        <button type="button" data-tab="my"
            class="sets-tab {% if tab == 'my' %}sets-tab--active{% endif %}">
           My Sets
-        </a>
+        </button>
         {% endif %}
       </nav>
 
       <!-- Language Filter -->
-      <div class="sets-lang-group">
+      <div class="sets-lang-group" id="setsLangNav">
         <span class="sets-lang-label">Language</span>
         <div class="sets-lang-pills">
-          <a href="?tab={{ tab }}&lang=all"
+          <button type="button" data-lang="all"
              class="sets-lang-pill {% if current_lang == 'all' %}sets-lang-pill--active{% else %}sets-lang-pill--default{% endif %}">
             All
-          </a>
-          <a href="?tab={{ tab }}&lang=en"
+          </button>
+          <button type="button" data-lang="en"
              class="sets-lang-pill {% if current_lang == 'en' %}sets-lang-pill--en{% else %}sets-lang-pill--default{% endif %}">
             EN
-          </a>
-          <a href="?tab={{ tab }}&lang=jp"
+          </button>
+          <button type="button" data-lang="jp"
              class="sets-lang-pill {% if current_lang == 'jp' %}sets-lang-pill--jp{% else %}sets-lang-pill--default{% endif %}">
             JP
-          </a>
+          </button>
         </div>
       </div>
     </section>
 
+    <!-- Loading Spinner (hidden by default) -->
+    <div id="setsLoadingSpinner" class="sets-loading" style="display: none;">
+      <div class="sets-loading-spinner"></div>
+    </div>
+
     <!-- Sets Grid -->
-    <section class="sets-grid" aria-label="Vocabulary sets">
+    <section class="sets-grid" aria-label="Vocabulary sets" id="setsGrid">
       {% for set in sets %}
-      <article class="glass-panel-light set-card">
+      <article class="glass-panel-light set-card" data-owner="{{ set.owner.id|default:'' }}" data-lang="{{ set.language }}">
         <a href="{% url 'vocab:set_detail' set.pk %}" class="absolute inset-0 z-10" aria-hidden="true"></a>
 
         <!-- Card Header -->
@@ -821,7 +826,7 @@
 
       {% empty %}
       <!-- Empty State -->
-      <div class="glass-panel sets-empty">
+      <div class="glass-panel sets-empty" id="setsEmptyState">
         <div class="sets-empty-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -868,4 +873,107 @@
 
   </div>
 </div>
+
+<script>
+(function() {
+  const CURRENT_USER_ID = '{{ user.id|default:"" }}';
+  let currentTab = '{{ tab|default:"public" }}';
+  let currentLang = '{{ current_lang|default:"all" }}';
+
+  // Cache all set cards for client-side filtering
+  const allSetCards = Array.from(document.querySelectorAll('.set-card'));
+  const setsGrid = document.getElementById('setsGrid');
+  const emptyState = document.getElementById('setsEmptyState');
+
+  function updateTabUI(activeTab) {
+    document.querySelectorAll('#setsTabNav .sets-tab').forEach(btn => {
+      btn.classList.toggle('sets-tab--active', btn.dataset.tab === activeTab);
+    });
+  }
+
+  function updateLangUI(activeLang) {
+    document.querySelectorAll('#setsLangNav .sets-lang-pill').forEach(btn => {
+      const lang = btn.dataset.lang;
+      btn.classList.remove('sets-lang-pill--active', 'sets-lang-pill--en', 'sets-lang-pill--jp', 'sets-lang-pill--default');
+      
+      if (lang === activeLang) {
+        if (lang === 'en') btn.classList.add('sets-lang-pill--en');
+        else if (lang === 'jp') btn.classList.add('sets-lang-pill--jp');
+        else btn.classList.add('sets-lang-pill--active');
+      } else {
+        btn.classList.add('sets-lang-pill--default');
+      }
+    });
+  }
+
+  function filterSets() {
+    let visibleCount = 0;
+
+    allSetCards.forEach(card => {
+      const ownerId = card.dataset.owner;
+      const lang = card.dataset.lang;
+      
+      // Tab filter
+      let tabMatch = true;
+      if (currentTab === 'my') {
+        tabMatch = ownerId === CURRENT_USER_ID;
+      }
+      // 'public' tab shows all (already filtered by backend to show public + user's)
+
+      // Language filter
+      let langMatch = true;
+      if (currentLang !== 'all') {
+        langMatch = lang === currentLang;
+      }
+
+      const show = tabMatch && langMatch;
+      card.style.display = show ? '' : 'none';
+      
+      // Animate entry
+      if (show) {
+        visibleCount++;
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        requestAnimationFrame(() => {
+          card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+      }
+    });
+
+    // Show/hide empty state
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? '' : 'none';
+    }
+
+    // Update URL without reload
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('tab', currentTab);
+    newUrl.searchParams.set('lang', currentLang);
+    history.replaceState(null, '', newUrl);
+  }
+
+  // Tab click handlers
+  document.querySelectorAll('#setsTabNav .sets-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentTab = btn.dataset.tab;
+      updateTabUI(currentTab);
+      filterSets();
+    });
+  });
+
+  // Language click handlers
+  document.querySelectorAll('#setsLangNav .sets-lang-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentLang = btn.dataset.lang;
+      updateLangUI(currentLang);
+      filterSets();
+    });
+  });
+
+  // Initialize filter state on load
+  filterSets();
+})();
+</script>
 {% endblock %}

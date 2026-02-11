@@ -1,465 +1,981 @@
 {% extends "layouts/sidebar_layout.html" %}
-{% block title %}Đề luyện thi TOEIC & JLPT | DailyFluent{% endblock %}
+
+{% block title %}Kho đề luyện thi TOEIC & JLPT | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <style>
-  /* Exam List Page - Fixed 4 Column Grid */
-  .df-exam-container {
-    width: 100%;
+  /* =============================================
+     Exam List - Frosted Crystal Design
+     ============================================= */
+
+  /* Pastel Gradient Mesh Background */
+  .exam-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 25%, rgba(199, 210, 254, 0.45) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 80% 65%, rgba(251, 207, 232, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 55% 8%, rgba(254, 240, 199, 0.3) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 40% at 85% 90%, rgba(167, 243, 208, 0.2) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+    padding: 1.25rem;
+  }
+
+  [data-theme="dark"] .exam-page {
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 80% 65%, rgba(236, 72, 153, 0.07) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 55% 8%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
+  }
+
+  .exam-container {
     max-width: 1200px;
     margin: 0 auto;
   }
 
-  /* Stats Summary */
-  .df-exam-stats {
+  /* ========== GLASS PANELS ========== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow:
+      0 4px 24px -4px rgba(0, 0, 0, 0.35),
+      0 8px 48px -8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-light {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    box-shadow:
+      0 2px 12px -2px rgba(99, 102, 241, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  [data-theme="dark"] .glass-panel-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+    box-shadow:
+      0 2px 12px -2px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* ========== HEADER SECTION ========== */
+  .exam-header {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
   }
 
-  .df-exam-stat {
-    text-align: center;
-  }
-
-  .df-exam-stat-value {
+  .exam-title-group h1 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--action-primary);
+    color: #1e293b;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.125rem;
   }
 
-  .df-exam-stat-label {
+  [data-theme="dark"] .exam-title-group h1 {
+    color: #f1f5f9;
+  }
+
+  .exam-title-group p {
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  [data-theme="dark"] .exam-title-group p {
+    color: #94a3b8;
+  }
+
+  /* Stats Capsules */
+  .exam-stats {
+    display: flex;
+    gap: 0.625rem;
+  }
+
+  .exam-stat-capsule {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
+  }
+
+  [data-theme="dark"] .exam-stat-capsule {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+  }
+
+  .exam-stat-capsule svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .exam-stat-capsule .stat-val {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  [data-theme="dark"] .exam-stat-capsule .stat-val {
+    color: #f1f5f9;
+  }
+
+  .exam-stat-capsule .stat-lbl {
+    font-size: 0.6875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .exam-stat-capsule .stat-lbl {
+    color: #94a3b8;
+  }
+
+  /* ========== FILTERS BAR ========== */
+  .exam-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .exam-filter-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .exam-level-pills {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  .exam-level-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
   }
 
-  /* Exam Grid - Fixed 4 columns max */
-  .df-exam-grid {
+  .exam-level-pill--default {
+    background: rgba(255, 255, 255, 0.6);
+    color: #64748b;
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+
+  [data-theme="dark"] .exam-level-pill--default {
+    background: rgba(51, 65, 85, 0.5);
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.1);
+  }
+
+  .exam-level-pill--default:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .exam-level-pill--default:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  /* Active level colors */
+  .exam-level-pill--active-all {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5);
+  }
+
+  .exam-level-pill--active-toeic {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    color: #78350f;
+    box-shadow: 0 2px 8px -2px rgba(245, 158, 11, 0.5);
+  }
+
+  .exam-level-pill--active-n5 {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.5);
+  }
+
+  .exam-level-pill--active-n4 {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.5);
+  }
+
+  .exam-level-pill--active-n3 {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(249, 115, 22, 0.5);
+  }
+
+  .exam-level-pill--active-n2 {
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(236, 72, 153, 0.5);
+  }
+
+  .exam-level-pill--active-n1 {
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(139, 92, 246, 0.5);
+  }
+
+  /* ========== EXAM GRID ========== */
+  .exam-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.875rem;
   }
 
-  /* Exam Card */
-  .df-exam-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 0.75rem;
-    padding: 1rem;
-    min-height: 180px;
+  @media (min-width: 480px) {
+    .exam-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .exam-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .exam-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ========== EXAM CARD ========== */
+  .exam-card {
     display: flex;
     flex-direction: column;
-    transition: all 0.2s ease;
+    padding: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
     position: relative;
     overflow: hidden;
+    min-height: 190px;
   }
 
-  .df-exam-card::before {
+  .exam-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--action-primary) 0%, var(--action-accent) 100%);
+    border-radius: 14px 14px 0 0;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.25s ease;
   }
 
-  .df-exam-card:hover {
-    border-color: var(--card-hover-border);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+  .exam-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.88);
+    border-color: rgba(99, 102, 241, 0.25);
+    box-shadow:
+      0 8px 32px -8px rgba(99, 102, 241, 0.18),
+      0 16px 48px -16px rgba(99, 102, 241, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
-  .df-exam-card:hover::before {
+  [data-theme="dark"] .exam-card:hover {
+    background: rgba(51, 65, 85, 0.7);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow:
+      0 8px 32px -8px rgba(0, 0, 0, 0.35),
+      0 16px 48px -16px rgba(0, 0, 0, 0.25);
+  }
+
+  .exam-card:hover::before {
     opacity: 1;
   }
 
-  .df-exam-card-title {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+  /* Card level accent lines */
+  .exam-card--toeic::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .exam-card--n5::before     { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .exam-card--n4::before     { background: linear-gradient(90deg, #10b981, #34d399); }
+  .exam-card--n3::before     { background: linear-gradient(90deg, #f97316, #fb923c); }
+  .exam-card--n2::before     { background: linear-gradient(90deg, #ec4899, #f472b6); }
+  .exam-card--n1::before     { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 
-  .df-exam-card-header {
+  /* Card Header */
+  .exam-card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    margin-bottom: 0.625rem;
   }
 
-  .df-exam-card-level {
+  .exam-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .exam-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.125rem 0.375rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 6px;
     font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    border-radius: 0.25rem;
-  }
-
-  .df-exam-card-users {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.125rem;
-    font-size: 0.625rem;
-    color: var(--text-tertiary);
-  }
-
-  .df-exam-card-users svg {
-    width: 10px;
-    height: 10px;
   }
 
   /* Level badges */
-  .df-exam-card-level--toeic {
-    background: rgba(245, 158, 11, 0.15);
-    color: #D97706;
+  .exam-badge--toeic {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(251, 191, 36, 0.18) 100%);
+    color: #d97706;
     border: 1px solid rgba(245, 158, 11, 0.3);
   }
-
-  .df-exam-card-level--n5 {
-    background: rgba(59, 130, 246, 0.15);
-    color: #2563EB;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+  [data-theme="dark"] .exam-badge--toeic {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.25);
   }
 
-  .df-exam-card-level--n4 {
-    background: rgba(16, 185, 129, 0.15);
+  .exam-badge--n5 {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.15) 100%);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+  [data-theme="dark"] .exam-badge--n5 {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.25);
+  }
+
+  .exam-badge--n4 {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%);
     color: #059669;
     border: 1px solid rgba(16, 185, 129, 0.3);
   }
+  [data-theme="dark"] .exam-badge--n4 {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.25);
+  }
 
-  .df-exam-card-level--n3 {
-    background: rgba(249, 115, 22, 0.15);
-    color: #EA580C;
+  .exam-badge--n3 {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(251, 146, 60, 0.15) 100%);
+    color: #ea580c;
     border: 1px solid rgba(249, 115, 22, 0.3);
   }
+  [data-theme="dark"] .exam-badge--n3 {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+    border-color: rgba(249, 115, 22, 0.25);
+  }
 
-  .df-exam-card-level--n2 {
-    background: rgba(236, 72, 153, 0.15);
-    color: #DB2777;
+  .exam-badge--n2 {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(244, 114, 182, 0.15) 100%);
+    color: #db2777;
     border: 1px solid rgba(236, 72, 153, 0.3);
   }
+  [data-theme="dark"] .exam-badge--n2 {
+    background: rgba(236, 72, 153, 0.15);
+    color: #f472b6;
+    border-color: rgba(236, 72, 153, 0.25);
+  }
 
-  .df-exam-card-level--n1 {
-    background: rgba(139, 92, 246, 0.15);
-    color: #7C3AED;
+  .exam-badge--n1 {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
+    color: #7c3aed;
     border: 1px solid rgba(139, 92, 246, 0.3);
   }
-
-  .df-exam-card-meta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    font-size: 0.6875rem;
-    color: var(--text-secondary);
+  [data-theme="dark"] .exam-badge--n1 {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-color: rgba(139, 92, 246, 0.25);
   }
 
-  .df-exam-card-meta-item {
+  /* Category badge */
+  .exam-badge--category {
+    background: rgba(148, 163, 184, 0.12);
+    color: #64748b;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    text-transform: none;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .exam-badge--category {
+    background: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.15);
+  }
+
+  /* Attempt count indicator */
+  .exam-card-attempts {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    padding: 0.1875rem 0.4375rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #059669;
+    flex-shrink: 0;
   }
 
-  .df-exam-card-meta-item svg {
+  [data-theme="dark"] .exam-card-attempts {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+
+  .exam-card-attempts svg {
     width: 11px;
     height: 11px;
-    opacity: 0.7;
   }
 
-  .df-exam-card-footer {
+  /* Card Body */
+  .exam-card-body {
+    flex: 1;
+  }
+
+  .exam-card-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+    margin-bottom: 0.375rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease;
+  }
+
+  [data-theme="dark"] .exam-card-title {
+    color: #f1f5f9;
+  }
+
+  .exam-card:hover .exam-card-title {
+    color: #6366f1;
+  }
+
+  [data-theme="dark"] .exam-card:hover .exam-card-title {
+    color: #a5b4fc;
+  }
+
+  /* Card Meta Row */
+  .exam-card-meta {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding-top: 0.5rem;
-    margin-top: auto;
-    border-top: 1px solid var(--border-subtle);
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
+    flex-wrap: wrap;
   }
 
-  .df-exam-card-btn {
+  .exam-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .exam-meta-item {
+    color: #94a3b8;
+  }
+
+  .exam-meta-item svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  /* Card Footer */
+  .exam-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.625rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    margin-top: auto;
+  }
+
+  [data-theme="dark"] .exam-card-footer {
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .exam-card-cta {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    padding: 0.4rem 0.75rem;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--action-primary-text);
-    background: var(--action-primary);
-    border-radius: 0.375rem;
+    color: white;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 8px;
     text-decoration: none;
-    transition: all 0.2s;
-    width: 100%;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px -2px rgba(99, 102, 241, 0.4);
   }
 
-  .df-exam-card-btn:hover {
-    background: var(--action-primary-hover);
+  .exam-card-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.5);
   }
 
-  .df-exam-card-btn svg {
+  .exam-card-cta svg {
     width: 12px;
     height: 12px;
   }
 
-  /* Pagination - Simple & Clean */
-  .df-pagination {
+  .exam-card-arrow {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+  }
+
+  .exam-card:hover .exam-card-arrow {
+    color: #6366f1;
+    transform: translateX(3px);
+  }
+
+  [data-theme="dark"] .exam-card:hover .exam-card-arrow {
+    color: #a5b4fc;
+  }
+
+  /* ========== PAGINATION ========== */
+  .exam-pagination {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     gap: 0.375rem;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
+    padding: 1rem;
   }
 
-  .df-pagination-item {
-    display: inline-flex;
+  .exam-page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.625rem;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 32px;
-    padding: 0 0.5rem;
+    border-radius: 10px;
     font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: var(--card-bg);
-    border: 1px solid var(--border-default);
-    border-radius: 0.375rem;
+    font-weight: 600;
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
   }
 
-  .df-pagination-item:hover {
-    color: var(--text-primary);
-    border-color: var(--action-primary);
-    background: var(--bg-hover);
+  .exam-page-btn--nav {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    color: #64748b;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
   }
 
-  .df-pagination-item.active {
-    color: #fff;
-    background: var(--action-primary);
-    border-color: var(--action-primary);
+  [data-theme="dark"] .exam-page-btn--nav {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
   }
 
-  .df-pagination-item.disabled {
-    opacity: 0.4;
+  .exam-page-btn--nav:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .exam-page-btn--nav:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  .exam-page-btn--nav.disabled {
+    opacity: 0.35;
     pointer-events: none;
   }
 
-  .df-pagination-item svg {
-    width: 14px;
-    height: 14px;
+  .exam-page-btn--nav svg {
+    width: 18px;
+    height: 18px;
   }
 
-  .df-pagination-ellipsis {
+  .exam-page-btn--num {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: #64748b;
+    box-shadow: 0 1px 3px rgba(99, 102, 241, 0.04);
+  }
+
+  [data-theme="dark"] .exam-page-btn--num {
+    background: rgba(51, 65, 85, 0.4);
+    border-color: rgba(148, 163, 184, 0.08);
+    color: #94a3b8;
+  }
+
+  .exam-page-btn--num:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+  }
+
+  [data-theme="dark"] .exam-page-btn--num:hover {
+    background: rgba(99, 102, 241, 0.12);
+    color: #a5b4fc;
+  }
+
+  .exam-page-btn--active {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5);
+  }
+
+  .exam-page-ellipsis {
     font-size: 0.875rem;
-    color: var(--text-tertiary);
+    color: #94a3b8;
     padding: 0 0.25rem;
+    user-select: none;
   }
 
-  /* Empty State */
-  .df-exam-empty {
+  .exam-page-info {
+    padding: 0.4rem 0.875rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.05);
+    margin: 0 0.25rem;
+  }
+
+  [data-theme="dark"] .exam-page-info {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+  }
+
+  /* ========== EMPTY STATE ========== */
+  .exam-empty {
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 3rem 1rem;
-    background: var(--bg-surface);
-    border-radius: 0.75rem;
-    border: 2px dashed var(--border-default);
+    padding: 3rem 1.5rem;
   }
 
-  .df-exam-empty-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 0.75rem;
-    color: var(--text-tertiary);
+  .exam-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .df-exam-empty-text {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+  .exam-empty-icon svg {
+    width: 28px;
+    height: 28px;
+    color: #6366f1;
   }
 
-  /* Responsive Breakpoints */
-  @media (max-width: 1024px) {
-    .df-exam-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  [data-theme="dark"] .exam-empty-icon svg {
+    color: #a5b4fc;
   }
 
-  @media (max-width: 768px) {
-    .df-exam-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
+  .exam-empty h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
 
-    .df-exam-stats {
-      padding: 0.5rem 1rem;
-      gap: 1.5rem;
-    }
+  [data-theme="dark"] .exam-empty h3 {
+    color: #f1f5f9;
+  }
 
-    .df-exam-card {
-      min-height: 160px;
+  .exam-empty p {
+    font-size: 0.8125rem;
+    color: #64748b;
+    max-width: 320px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  [data-theme="dark"] .exam-empty p {
+    color: #94a3b8;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 640px) {
+    .exam-page {
       padding: 0.875rem;
     }
-  }
 
-  @media (max-width: 480px) {
-    .df-exam-container {
-      padding: 0 0.5rem;
+    .exam-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
     }
 
-    .df-exam-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
+    .exam-stats {
+      width: 100%;
     }
 
-    .df-exam-card {
-      min-height: 150px;
+    .exam-stat-capsule {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .exam-filters {
       padding: 0.75rem;
+      gap: 0.625rem;
     }
 
-    .df-exam-card-title {
-      font-size: 0.75rem;
+    .exam-level-pills {
+      width: 100%;
     }
 
-    .df-pagination-item {
-      min-width: 28px;
-      height: 28px;
-      font-size: 0.75rem;
+    .exam-level-pill {
+      padding: 0.4375rem 0.625rem;
+      font-size: 0.6875rem;
+      min-height: 36px;
+    }
+
+    .exam-card {
+      padding: 0.875rem;
+      min-height: 170px;
+    }
+
+    .exam-card-title {
+      font-size: 0.8125rem;
+    }
+
+    .exam-page-btn {
+      min-width: 32px;
+      height: 32px;
     }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-exam-container">
-  <!-- Header -->
-  <!-- <div class="df-exam-header">
-    <h1 class="df-exam-title">📚 Kho đề luyện thi</h1>
-  </div> -->
+<div class="exam-page">
+  <div class="exam-container">
 
-  <!-- Stats Summary -->
-  <div class="df-exam-stats">
-    <div class="df-exam-stat">
-      <div class="df-exam-stat-value">{{ total_exams|default:templates|length }}</div>
-      <div class="df-exam-stat-label">Đề thi</div>
-    </div>
-    <div class="df-exam-stat">
-      <div class="df-exam-stat-value">{{ total_questions|default:"500+" }}</div>
-      <div class="df-exam-stat-label">Câu hỏi</div>
-    </div>
-  </div>
-
-  <!-- Exam Grid -->
-  {% if templates %}
-  <div class="df-exam-grid">
-    {% for exam in templates %}
-    <div class="df-exam-card">
-      <h2 class="df-exam-card-title">{{ exam.title }}</h2>
-
-      <div class="df-exam-card-header">
-        <span class="df-exam-card-level df-exam-card-level--{{ exam.level|lower }}">
-          {{ exam.level }}
-        </span>
-        <span class="df-exam-card-users">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          {{ exam.attempt_count|default:0 }}
-        </span>
+    <!-- Header -->
+    <header class="glass-panel exam-header">
+      <div class="exam-title-group">
+        <h1>Kho đề luyện thi</h1>
+        <p>TOEIC & JLPT practice tests</p>
       </div>
-
-      <div class="df-exam-card-meta">
-        <span class="df-exam-card-meta-item">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div class="exam-stats">
+        <div class="exam-stat-capsule">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          {{ exam.questions.count }} câu
-        </span>
+          <span class="stat-val">{{ total_exams }}</span>
+          <span class="stat-lbl">đề thi</span>
+        </div>
       </div>
+    </header>
 
-      <div class="df-exam-card-footer">
-        <a href="{% url 'exam:exam_detail' exam.slug %}" class="df-exam-card-btn">
-          Chi tiết
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+    <!-- Level Filter -->
+    <section class="glass-panel-light exam-filters">
+      <span class="exam-filter-label">Level</span>
+      <nav class="exam-level-pills" aria-label="Filter by level">
+        <a href="{% url 'exam:exam_list' %}"
+           class="exam-level-pill {% if not selected_level %}exam-level-pill--active-all{% else %}exam-level-pill--default{% endif %}">
+          All
         </a>
+        {% for lvl in levels %}
+        <a href="?level={{ lvl }}"
+           class="exam-level-pill {% if selected_level == lvl %}exam-level-pill--active-{{ lvl|lower }}{% else %}exam-level-pill--default{% endif %}">
+          {{ lvl }}
+        </a>
+        {% endfor %}
+      </nav>
+    </section>
+
+    <!-- Exam Grid -->
+    <section class="exam-grid" aria-label="Exam list">
+      {% for exam in templates %}
+      <article class="glass-panel-light exam-card exam-card--{{ exam.level|lower }}">
+        <!-- Invisible link overlay -->
+        <a href="{% url 'exam:exam_detail' exam.slug %}" class="absolute inset-0 z-10" aria-label="{{ exam.title }}"></a>
+
+        <!-- Card Header: Badges + Attempt Count -->
+        <div class="exam-card-header">
+          <div class="exam-card-badges">
+            <span class="exam-badge exam-badge--{{ exam.level|lower }}">{{ exam.level }}</span>
+            {% if exam.category %}
+            <span class="exam-badge exam-badge--category">
+              {% if exam.category == 'MOJI' %}文字
+              {% elif exam.category == 'BUN' %}文法
+              {% elif exam.category == 'DOKKAI' %}読解
+              {% elif exam.category == 'CHOUKAI' %}聴解
+              {% elif exam.category == 'MIX' %}総合
+              {% elif exam.category == 'LISTENING' %}Listening
+              {% elif exam.category == 'READING' %}Reading
+              {% elif exam.category == 'TOEIC_FULL' %}Full Test
+              {% else %}{{ exam.category }}{% endif %}
+            </span>
+            {% endif %}
+          </div>
+          {% if exam.attempt_count %}
+          <div class="exam-card-attempts">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+            </svg>
+            {{ exam.attempt_count }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Card Body: Title + Meta -->
+        <div class="exam-card-body">
+          <h2 class="exam-card-title">{{ exam.title }}</h2>
+          <div class="exam-card-meta">
+            <span class="exam-meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {{ exam.questions.count }} câu
+            </span>
+            {% if exam.time_limit_minutes %}
+            <span class="exam-meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {{ exam.time_limit_minutes }} phút
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="exam-card-footer">
+          <span class="exam-card-cta">
+            Xem đề
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </span>
+          <svg class="exam-card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </article>
+
+      {% empty %}
+      <!-- Empty State -->
+      <div class="glass-panel exam-empty">
+        <div class="exam-empty-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <h3>Chưa có đề thi nào</h3>
+        <p>Chưa có đề thi nào trong danh mục này. Hãy thử chọn level khác.</p>
       </div>
-    </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </section>
 
-  <!-- Pagination -->
-  {% if page_obj.has_other_pages %}
-  <nav class="df-pagination">
-    <!-- Prev -->
-    {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
-       class="df-pagination-item" title="Trang trước">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </a>
-    {% else %}
-    <span class="df-pagination-item disabled">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </span>
-    {% endif %}
-
-    <!-- Page Numbers -->
-    {% for num in page_obj.paginator.page_range %}
-      {% if num == page_obj.number %}
-        <span class="df-pagination-item active">{{ num }}</span>
-      {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
-        <a href="?page={{ num }}{% if selected_level %}&level={{ selected_level }}{% endif %}" class="df-pagination-item">{{ num }}</a>
-      {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
-        <span class="df-pagination-ellipsis">...</span>
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="glass-panel-light exam-pagination" aria-label="Pagination">
+      <!-- Previous -->
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}"
+         class="exam-page-btn exam-page-btn--nav" aria-label="Trang trước">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      {% else %}
+      <span class="exam-page-btn exam-page-btn--nav disabled">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </span>
       {% endif %}
-    {% endfor %}
 
-    <!-- Next -->
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}" 
-       class="df-pagination-item" title="Trang sau">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </a>
-    {% else %}
-    <span class="df-pagination-item disabled">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
+      <!-- Page Numbers -->
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+          <span class="exam-page-btn exam-page-btn--num exam-page-btn--active">{{ num }}</span>
+        {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+          <a href="?page={{ num }}{% if selected_level %}&level={{ selected_level }}{% endif %}"
+             class="exam-page-btn exam-page-btn--num">{{ num }}</a>
+        {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+          <span class="exam-page-ellipsis">...</span>
+        {% endif %}
+      {% endfor %}
+
+      <!-- Next -->
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}"
+         class="exam-page-btn exam-page-btn--nav" aria-label="Trang sau">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+      {% else %}
+      <span class="exam-page-btn exam-page-btn--nav disabled">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </span>
+      {% endif %}
+    </nav>
     {% endif %}
-  </nav>
-  {% endif %}
 
-  {% else %}
-  <div class="df-exam-empty">
-    <svg class="df-exam-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-    <p class="df-exam-empty-text">Chưa có đề thi nào trong danh mục này</p>
   </div>
-  {% endif %}
 </div>
 {% endblock %}

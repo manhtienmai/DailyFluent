@@ -7,6 +7,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # Analytics dashboard must come before admin to avoid catch-all
+    path("", include("analytics.urls", namespace="analytics")),
     path('admin/', admin.site.urls),
     path('_nested_admin/', include('nested_admin.urls')),
     path('', home, name='home'),
@@ -25,7 +27,6 @@ urlpatterns = [
     path("shop/", include("shop.urls", namespace="shop")),
     path("placement/", include("placement.urls", namespace="placement")),
     path("health", health),
-    path("", include("analytics.urls", namespace="analytics")),
 ]
 
 if settings.DEBUG:

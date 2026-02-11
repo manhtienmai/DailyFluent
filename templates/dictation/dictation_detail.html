@@ -4,442 +4,703 @@
 {% block title %}{{ exercise.title }} | Nghe chép chính tả{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260115">
+<link rel="stylesheet" href="{% static 'css/dictation.css' %}?v=20260209">
 <style>
   /* =============================================
-     DICTATION PAGE - MODERN UI/UX
-     Theme-aware using CSS variables
+     Dictation Detail - Frosted Crystal Design
      ============================================= */
 
-  .df-dictation-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+  /* Pastel Gradient Mesh Background */
+  .dict-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 20%, rgba(165, 180, 252, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 55% 45% at 85% 70%, rgba(196, 181, 253, 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 50% 5%, rgba(186, 230, 253, 0.35) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 40% at 90% 15%, rgba(254, 215, 170, 0.18) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-attachment: fixed;
+    padding: 1.25rem;
   }
 
-  /* Header */
-  .df-dictation-header {
+  [data-theme="dark"] .dict-page {
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 55% 45% at 85% 70%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 50% 5%, rgba(14, 165, 233, 0.06) 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
+  }
+
+  .dict-container {
+    max-width: 840px;
+    margin: 0 auto;
+  }
+
+  /* ========== GLASS PANELS ========== */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  [data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow:
+      0 4px 24px -4px rgba(0, 0, 0, 0.35),
+      0 8px 48px -8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-light {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    box-shadow:
+      0 2px 12px -2px rgba(99, 102, 241, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  [data-theme="dark"] .glass-panel-light {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(148, 163, 184, 0.08);
+    box-shadow:
+      0 2px 12px -2px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* ========== HEADER ========== */
+  .dict-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
     gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1rem;
   }
 
-  .df-dictation-header-left {
+  .dict-header-left {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
   }
 
-  .df-dictation-back {
+  .dict-back {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: 0.5rem;
-    background: var(--bg-interactive);
-    color: var(--text-secondary);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: #64748b;
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
   }
 
-  .df-dictation-back:hover {
-    background: var(--bg-interactive-hover);
-    color: var(--action-primary);
+  [data-theme="dark"] .dict-back {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
   }
 
-  .df-dictation-back svg {
-    width: 20px;
-    height: 20px;
+  .dict-back:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.12);
   }
 
-  .df-dictation-title {
-    font-size: 1.25rem;
+  [data-theme="dark"] .dict-back:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  .dict-back svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dict-title {
+    font-size: 1.125rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
+    color: #1e293b;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* Tabs */
-  .df-dictation-tabs {
+  [data-theme="dark"] .dict-title {
+    color: #f1f5f9;
+  }
+
+  /* ========== TABS ========== */
+  .dict-tabs {
     display: flex;
-    gap: 0.25rem;
     padding: 0.25rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-default);
-    border-radius: 0.625rem;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
-  .df-dictation-tab {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+  [data-theme="dark"] .dict-tabs {
+    background: rgba(51, 65, 85, 0.5);
+  }
+
+  .dict-tab {
+    padding: 0.4375rem 0.875rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #64748b;
     background: transparent;
     border: none;
-    border-radius: 0.5rem;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    white-space: nowrap;
   }
 
-  .df-dictation-tab:hover {
-    color: var(--text-primary);
-    background: var(--bg-interactive);
+  [data-theme="dark"] .dict-tab {
+    color: #94a3b8;
   }
 
-  .df-dictation-tab.active {
-    color: var(--action-primary);
-    background: var(--action-primary-subtle);
-    font-weight: 700;
+  .dict-tab:hover {
+    color: #475569;
   }
 
-  /* Main Card */
-  .df-dictation-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
-    box-shadow: var(--shadow-md);
+  [data-theme="dark"] .dict-tab:hover {
+    color: #cbd5e1;
+  }
+
+  .dict-tab.active {
+    background: rgba(255, 255, 255, 0.85);
+    color: #1e293b;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="dark"] .dict-tab.active {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+  }
+
+  /* ========== MAIN CARD (EXERCISE) ========== */
+  .dict-exercise-card {
+    position: relative;
     overflow: hidden;
   }
 
-  /* Progress Section */
-  .df-dictation-progress {
+  /* Progress Bar Section */
+  .dict-progress-section {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-subtle);
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   }
 
-  .df-dictation-progress-info {
+  [data-theme="dark"] .dict-progress-section {
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .dict-progress-info {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.875rem;
+    flex: 1;
   }
 
-  .df-dictation-progress-text {
-    font-size: 0.875rem;
+  .dict-progress-text {
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #475569;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
-  .df-dictation-progress-bar {
-    width: 180px;
+  [data-theme="dark"] .dict-progress-text {
+    color: #94a3b8;
+  }
+
+  .dict-progress-track {
+    flex: 1;
+    max-width: 200px;
     height: 6px;
-    background: var(--border-default);
+    background: rgba(148, 163, 184, 0.15);
     border-radius: 3px;
     overflow: hidden;
   }
 
-  .df-dictation-progress-fill {
+  [data-theme="dark"] .dict-progress-track {
+    background: rgba(148, 163, 184, 0.1);
+  }
+
+  .dict-progress-fill {
     height: 100%;
-    background: var(--action-primary);
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
     border-radius: 3px;
     transition: width 0.3s ease;
   }
 
-  .df-dictation-settings-btn {
+  .dict-settings-trigger {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 0.5rem;
-    background: var(--bg-interactive);
-    border: 1px solid var(--border-default);
-    color: var(--text-secondary);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #64748b;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
   }
 
-  .df-dictation-settings-btn:hover {
-    background: var(--bg-interactive-hover);
-    color: var(--text-primary);
-    border-color: var(--border-interactive);
+  [data-theme="dark"] .dict-settings-trigger {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
   }
 
-  .df-dictation-settings-btn svg {
-    width: 18px;
-    height: 18px;
+  .dict-settings-trigger:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: #6366f1;
+    border-color: rgba(99, 102, 241, 0.3);
   }
 
-  /* Audio Player Section */
-  .df-dictation-player {
-    padding: 1.5rem;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-default);
+  [data-theme="dark"] .dict-settings-trigger:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
   }
 
-  .df-dictation-visualizer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    height: 40px;
-    margin-bottom: 1.25rem;
+  .dict-settings-trigger svg {
+    width: 16px;
+    height: 16px;
   }
 
-  .df-dictation-visualizer .bar {
-    width: 4px;
-    height: 20px;
-    background: var(--action-primary);
-    border-radius: 2px;
-    opacity: 0.4;
-    transition: height 0.1s ease;
-  }
-
-  .df-dictation-visualizer.playing .bar {
-    opacity: 1;
-    animation: visualizer-bounce 0.5s ease-in-out infinite alternate;
-  }
-
-  .df-dictation-visualizer.playing .bar:nth-child(1) { animation-delay: 0s; }
-  .df-dictation-visualizer.playing .bar:nth-child(2) { animation-delay: 0.1s; }
-  .df-dictation-visualizer.playing .bar:nth-child(3) { animation-delay: 0.2s; }
-  .df-dictation-visualizer.playing .bar:nth-child(4) { animation-delay: 0.1s; }
-  .df-dictation-visualizer.playing .bar:nth-child(5) { animation-delay: 0s; }
-
-  @keyframes visualizer-bounce {
-    0% { height: 12px; }
-    100% { height: 36px; }
-  }
-
-  .df-dictation-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .df-dictation-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border: none;
-  }
-
-  .df-dictation-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .df-dictation-btn-primary {
-    background: var(--action-primary);
-    color: var(--action-primary-text);
-    min-width: 100px;
-  }
-
-  .df-dictation-btn-primary:hover {
-    background: var(--action-primary-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-primary);
-  }
-
-  .df-dictation-btn-secondary {
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-default);
-  }
-
-  .df-dictation-btn-secondary:hover {
-    background: var(--bg-interactive);
-    color: var(--action-primary);
-    border-color: var(--action-primary);
-  }
-
-  .df-dictation-speed {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-  }
-
-  .df-dictation-speed:hover {
-    border-color: var(--border-interactive);
-  }
-
-  .df-dictation-hint {
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    font-size: 0.8125rem;
-    color: var(--text-tertiary);
-    background: transparent;
-    border: 1px dashed var(--border-default);
-    border-radius: 0.5rem;
-    text-align: center;
-  }
-
-  /* Input Section */
-  .df-dictation-input-section {
-    padding: 1.25rem;
-  }
-
-  .df-dictation-textarea {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--text-primary);
-    background: var(--input-bg);
-    border: 2px solid var(--border-default);
-    border-radius: 0.75rem;
-    resize: vertical;
-    min-height: 80px;
-    transition: all 0.15s ease;
-  }
-
-  .df-dictation-textarea:hover {
-    border-color: var(--border-strong);
-  }
-
-  .df-dictation-textarea:focus {
-    outline: none;
-    border-color: var(--action-primary);
-    box-shadow: 0 0 0 3px var(--action-primary-subtle);
-  }
-
-  .df-dictation-textarea::placeholder {
-    color: var(--text-tertiary);
-  }
-
-  .df-dictation-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-
-  .df-dictation-btn-success {
-    background: var(--status-success);
-    color: white;
-    flex: 1;
-    max-width: 200px;
-  }
-
-  .df-dictation-btn-success:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-  }
-
-  /* Feedback Section */
-  .df-dictation-feedback {
-    padding: 1.25rem;
-    border-top: 1px solid var(--border-default);
-    background: var(--bg-interactive);
-  }
-
-  .df-dictation-feedback-content {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: var(--text-primary);
-  }
-
-  .df-dictation-feedback .correct {
-    color: var(--status-success-text);
-    background: var(--status-success-subtle);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-
-  .df-dictation-feedback .incorrect {
-    color: var(--status-error-text);
-    background: var(--status-error-subtle);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    text-decoration: line-through;
-  }
-
-  .df-dictation-feedback .missing {
-    color: var(--status-warning-text);
-    background: var(--status-warning-subtle);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-
-  /* Settings Panel */
-  .df-dictation-settings-panel {
+  /* ========== SETTINGS PANEL (DROPDOWN) ========== */
+  .dict-settings-dropdown {
     position: absolute;
-    top: 3.5rem;
+    top: 3.75rem;
     right: 1rem;
-    width: 280px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-default);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-lg);
+    width: 290px;
     z-index: 100;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    box-shadow:
+      0 8px 32px -4px rgba(99, 102, 241, 0.15),
+      0 16px 48px -8px rgba(99, 102, 241, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
-  .df-dictation-settings-header {
-    padding: 0.875rem 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border-default);
+  [data-theme="dark"] .dict-settings-dropdown {
+    background: rgba(30, 41, 59, 0.92);
+    border-color: rgba(148, 163, 184, 0.12);
+    box-shadow:
+      0 8px 32px -4px rgba(0, 0, 0, 0.4),
+      0 16px 48px -8px rgba(0, 0, 0, 0.3);
   }
 
-  .df-dictation-settings-body {
-    padding: 0.75rem;
+  .dict-settings-head {
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #1e293b;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   }
 
-  .df-dictation-setting-row {
+  [data-theme="dark"] .dict-settings-head {
+    color: #f1f5f9;
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .dict-settings-list {
+    padding: 0.5rem;
+  }
+
+  .dict-setting-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem;
-    border-radius: 0.375rem;
+    border-radius: 8px;
+    transition: background 0.15s ease;
   }
 
-  .df-dictation-setting-row:hover {
-    background: var(--bg-interactive);
+  .dict-setting-item:hover {
+    background: rgba(99, 102, 241, 0.05);
   }
 
-  .df-dictation-setting-label {
+  [data-theme="dark"] .dict-setting-item:hover {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  .dict-setting-name {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
+    color: #475569;
+    font-weight: 500;
   }
 
-  .df-dictation-setting-input {
-    padding: 0.375rem 0.5rem;
+  [data-theme="dark"] .dict-setting-name {
+    color: #94a3b8;
+  }
+
+  .dict-setting-select {
+    padding: 0.3125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 6px;
+    min-width: 100px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  [data-theme="dark"] .dict-setting-select {
+    background: rgba(51, 65, 85, 0.6);
+    border-color: rgba(148, 163, 184, 0.15);
+    color: #e2e8f0;
+  }
+
+  .dict-setting-select:focus {
+    outline: none;
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+
+  /* ========== AUDIO PLAYER SECTION ========== */
+  .dict-player {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  [data-theme="dark"] .dict-player {
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  /* Visualizer */
+  .dict-visualizer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 44px;
+    margin-bottom: 1.25rem;
+  }
+
+  .dict-visualizer .bar {
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to top, #6366f1, #a5b4fc);
+    opacity: 0.3;
+    transition: height 0.1s ease, opacity 0.2s ease;
+  }
+
+  .dict-visualizer .bar:nth-child(1) { height: 18px; }
+  .dict-visualizer .bar:nth-child(2) { height: 26px; }
+  .dict-visualizer .bar:nth-child(3) { height: 34px; }
+  .dict-visualizer .bar:nth-child(4) { height: 26px; }
+  .dict-visualizer .bar:nth-child(5) { height: 18px; }
+
+  /* Default: animated. JS adds .paused to stop */
+  .dict-visualizer .bar {
+    animation: viz-pulse 0.6s ease-in-out infinite alternate;
+  }
+
+  .dict-visualizer .bar:nth-child(1) { animation-delay: 0s; }
+  .dict-visualizer .bar:nth-child(2) { animation-delay: 0.12s; }
+  .dict-visualizer .bar:nth-child(3) { animation-delay: 0.24s; }
+  .dict-visualizer .bar:nth-child(4) { animation-delay: 0.12s; }
+  .dict-visualizer .bar:nth-child(5) { animation-delay: 0s; }
+
+  .dict-visualizer.paused .bar {
+    animation: none;
+    opacity: 0.25;
+    transform: scaleY(0.5);
+  }
+
+  @keyframes viz-pulse {
+    0% { height: 10px; opacity: 0.5; }
+    100% { height: 40px; opacity: 1; }
+  }
+
+  /* Controls Row */
+  .dict-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  .dict-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
     font-size: 0.8125rem;
-    color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--border-default);
-    border-radius: 0.375rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    min-height: 40px;
+  }
+
+  .dict-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dict-btn--play {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5);
     min-width: 100px;
   }
 
-  /* Summary Screen */
-  .df-dictation-summary {
+  .dict-btn--play:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.6);
+  }
+
+  .dict-btn--replay {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: #475569;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
+  }
+
+  [data-theme="dark"] .dict-btn--replay {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+  }
+
+  .dict-btn--replay:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .dict-btn--replay:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  .dict-speed {
+    padding: 0.4375rem 1.75rem 0.4375rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    cursor: pointer;
+    appearance: none;
+    min-height: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
+  }
+
+  [data-theme="dark"] .dict-speed {
+    background-color: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #e2e8f0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+
+  .dict-speed:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .dict-speed:focus {
+    outline: none;
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+
+  /* Hint */
+  .dict-hint {
+    margin-top: 1rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+    color: #64748b;
+    background: rgba(254, 243, 199, 0.4);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    border-left: 3px solid rgba(245, 158, 11, 0.5);
+    border-radius: 0 8px 8px 0;
+    text-align: center;
+  }
+
+  [data-theme="dark"] .dict-hint {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.12);
+    border-left-color: rgba(245, 158, 11, 0.4);
+    color: #cbd5e1;
+  }
+
+  /* ========== INPUT SECTION ========== */
+  .dict-input-section {
+    padding: 1.25rem;
+  }
+
+  .dict-textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    resize: vertical;
+    min-height: 80px;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme="dark"] .dict-textarea {
+    background: rgba(15, 23, 42, 0.4);
+    border-color: rgba(148, 163, 184, 0.12);
+    color: #e2e8f0;
+  }
+
+  .dict-textarea:hover {
+    border-color: rgba(148, 163, 184, 0.35);
+  }
+
+  .dict-textarea:focus {
+    outline: none;
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.1),
+      inset 0 1px 3px rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+  [data-theme="dark"] .dict-textarea:focus {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+    background: rgba(15, 23, 42, 0.6);
+  }
+
+  .dict-textarea::placeholder {
+    color: #94a3b8;
+  }
+
+  /* Action Buttons */
+  .dict-actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 0.875rem;
+  }
+
+  .dict-btn--check {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.5);
+    flex: 1;
+    max-width: 180px;
+  }
+
+  .dict-btn--check:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px -4px rgba(16, 185, 129, 0.6);
+  }
+
+  .dict-btn--next {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.5);
+  }
+
+  .dict-btn--next:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.6);
+  }
+
+  /* ========== FEEDBACK SECTION ========== */
+  .dict-feedback {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    background: rgba(248, 250, 252, 0.4);
+  }
+
+  [data-theme="dark"] .dict-feedback {
+    border-color: rgba(148, 163, 184, 0.08);
+    background: rgba(15, 23, 42, 0.3);
+  }
+
+  .dict-feedback-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1e293b;
+  }
+
+  [data-theme="dark"] .dict-feedback-content {
+    color: #e2e8f0;
+  }
+
+  .dict-feedback .correct {
+    color: #059669;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 0.125rem 0.25rem;
+    border-radius: 4px;
+  }
+
+  .dict-feedback .incorrect {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 4px;
+    text-decoration: line-through;
+  }
+
+  .dict-feedback .missing {
+    color: #2563eb;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* ========== SUMMARY SCREEN ========== */
+  .dict-summary {
     padding: 3rem 2rem;
     text-align: center;
   }
 
-  .df-dictation-summary-icon {
+  .dict-summary-icon {
     width: 80px;
     height: 80px;
     margin: 0 auto 1.5rem;
-    background: var(--status-success-subtle);
-    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.15) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -452,588 +713,856 @@
     100% { transform: scale(1); opacity: 1; }
   }
 
-  .df-dictation-summary-icon svg {
+  .dict-summary-icon svg {
     width: 40px;
     height: 40px;
-    color: var(--status-success);
+    color: #10b981;
   }
 
-  .df-dictation-summary-title {
+  [data-theme="dark"] .dict-summary-icon svg {
+    color: #34d399;
+  }
+
+  .dict-summary-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #1e293b;
     margin: 0 0 0.5rem;
   }
 
-  .df-dictation-summary-desc {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin: 0 0 1rem;
+  [data-theme="dark"] .dict-summary-title {
+    color: #f1f5f9;
   }
 
-  .df-dictation-summary-score {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--action-primary);
+  .dict-summary-desc {
+    font-size: 0.9375rem;
+    color: #64748b;
+    margin: 0 0 0.75rem;
+  }
+
+  [data-theme="dark"] .dict-summary-desc {
+    color: #94a3b8;
+  }
+
+  .dict-summary-score {
+    font-size: 2.25rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0 0 1.5rem;
   }
 
-  .df-dictation-summary-actions {
+  .dict-summary-actions {
     display: flex;
     justify-content: center;
     gap: 0.75rem;
   }
 
-  /* Transcript Tab */
-  .df-transcript-layout {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    min-height: 500px;
+  .dict-btn--outline {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #475569;
+    text-decoration: none;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
   }
 
-  @media (max-width: 900px) {
-    .df-transcript-layout {
-      grid-template-columns: 1fr;
+  [data-theme="dark"] .dict-btn--outline {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+  }
+
+  .dict-btn--outline:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .dict-btn--outline:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  /* ========== TRANSCRIPT TAB ========== */
+  .dict-transcript-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow: hidden;
+  }
+
+  @media (min-width: 900px) {
+    .dict-transcript-grid {
+      grid-template-columns: 340px 1fr;
     }
   }
 
-  .df-transcript-player {
-    background: var(--card-bg);
-    border-right: 1px solid var(--border-default);
-    padding: 1.5rem;
+  /* Transcript Player Column */
+  .dict-trans-player {
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   }
 
-  .df-transcript-active-text {
+  @media (min-width: 900px) {
+    .dict-trans-player {
+      border-bottom: none;
+      border-right: 1px solid rgba(148, 163, 184, 0.12);
+    }
+  }
+
+  [data-theme="dark"] .dict-trans-player {
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .dict-trans-text-display {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 600;
     line-height: 1.6;
-    padding: 1rem;
-    color: var(--text-primary);
-    background: var(--bg-interactive);
-    border-radius: 0.75rem;
+    padding: 1.25rem;
+    color: #1e293b;
+    background: rgba(248, 250, 252, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
     margin-bottom: 1.25rem;
+    min-height: 120px;
   }
 
-  .df-transcript-controls {
-    border-top: 1px solid var(--border-default);
-    padding-top: 1.25rem;
+  [data-theme="dark"] .dict-trans-text-display {
+    background: rgba(15, 23, 42, 0.3);
+    border-color: rgba(148, 163, 184, 0.08);
+    color: #f1f5f9;
   }
 
-  .df-transcript-progress {
+  /* Transport Controls */
+  .dict-trans-controls {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    padding-top: 1rem;
+  }
+
+  [data-theme="dark"] .dict-trans-controls {
+    border-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .dict-trans-scrubber {
     height: 6px;
-    background: var(--border-default);
+    background: rgba(148, 163, 184, 0.15);
     border-radius: 3px;
-    margin-bottom: 1rem;
     cursor: pointer;
     overflow: hidden;
+    margin-bottom: 0.75rem;
   }
 
-  .df-transcript-progress-fill {
+  [data-theme="dark"] .dict-trans-scrubber {
+    background: rgba(148, 163, 184, 0.1);
+  }
+
+  .dict-trans-scrubber-fill {
     height: 100%;
-    background: var(--action-primary);
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
     border-radius: 3px;
     transition: width 0.1s linear;
   }
 
-  .df-transcript-time-row {
+  .dict-trans-time-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  .df-transcript-time {
+  .dict-trans-time {
     font-size: 0.75rem;
-    color: var(--text-tertiary);
+    color: #94a3b8;
     font-variant-numeric: tabular-nums;
     width: 3.5rem;
   }
 
-  .df-transcript-nav {
+  .dict-trans-nav {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.625rem;
   }
 
-  .df-transcript-nav-btn {
-    width: 40px;
-    height: 40px;
+  .dict-trans-nav-btn {
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-interactive);
-    border: 1px solid var(--border-default);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 50%;
-    color: var(--text-secondary);
+    color: #64748b;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.06);
   }
 
-  .df-transcript-nav-btn:hover {
-    background: var(--bg-interactive-hover);
-    color: var(--action-primary);
-    border-color: var(--action-primary);
+  [data-theme="dark"] .dict-trans-nav-btn {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
   }
 
-  .df-transcript-nav-btn svg {
-    width: 18px;
-    height: 18px;
+  .dict-trans-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: #6366f1;
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-1px);
   }
 
-  .df-transcript-play-btn {
-    width: 56px;
-    height: 56px;
+  [data-theme="dark"] .dict-trans-nav-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  .dict-trans-nav-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dict-trans-play-main {
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--action-primary);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     border: none;
     border-radius: 50%;
     color: white;
     cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: var(--shadow-primary);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.5);
   }
 
-  .df-transcript-play-btn:hover {
-    transform: scale(1.05);
-    background: var(--action-primary-hover);
+  .dict-trans-play-main:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 24px -4px rgba(99, 102, 241, 0.6);
   }
 
-  .df-transcript-play-btn svg {
-    width: 24px;
-    height: 24px;
+  .dict-trans-play-main.playing {
+    animation: play-glow 1.5s ease-in-out infinite;
   }
 
-  /* Transcript List */
-  .df-transcript-list-container {
+  @keyframes play-glow {
+    0%, 100% { box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.5); }
+    50% { box-shadow: 0 4px 28px -4px rgba(99, 102, 241, 0.7); }
+  }
+
+  .dict-trans-play-main svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Transcript List Column */
+  .dict-trans-list-col {
     display: flex;
     flex-direction: column;
-    background: var(--card-bg);
   }
 
-  .df-transcript-list-header {
+  .dict-trans-list-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-default);
-    background: var(--card-bg);
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   }
 
-  .df-transcript-list-title {
-    font-weight: 600;
-    color: var(--text-primary);
+  [data-theme="dark"] .dict-trans-list-header {
+    border-color: rgba(148, 163, 184, 0.08);
   }
 
-  .df-transcript-list-badge {
+  .dict-trans-list-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  [data-theme="dark"] .dict-trans-list-title {
+    color: #f1f5f9;
+  }
+
+  .dict-trans-list-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 24px;
-    height: 24px;
+    height: 22px;
     padding: 0 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--action-primary);
-    background: var(--action-primary-subtle);
-    border-radius: 12px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 6px;
     margin-left: 0.5rem;
   }
 
-  .df-transcript-autoscroll {
+  [data-theme="dark"] .dict-trans-list-badge {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+  }
+
+  .dict-trans-autoscroll {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  [data-theme="dark"] .dict-trans-autoscroll {
+    color: #94a3b8;
+  }
+
+  .dict-trans-autoscroll input {
+    width: 0.875rem;
+    height: 0.875rem;
+    accent-color: #6366f1;
     cursor: pointer;
   }
 
-  .df-transcript-autoscroll input {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--action-primary);
-    cursor: pointer;
-  }
-
-  .df-transcript-list {
+  .dict-trans-list {
     flex: 1;
     overflow-y: auto;
-    padding: 0.75rem;
-    max-height: 420px;
+    padding: 0.5rem;
+    max-height: 380px;
   }
 
-  .df-transcript-item {
+  /* Custom scrollbar */
+  .dict-trans-list::-webkit-scrollbar { width: 5px; }
+  .dict-trans-list::-webkit-scrollbar-track { background: transparent; }
+  .dict-trans-list::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 3px;
+  }
+  .dict-trans-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.35);
+  }
+
+  .dict-trans-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.15s ease;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem;
   }
 
-  .df-transcript-item:hover {
-    background: var(--bg-interactive);
+  .dict-trans-item:hover {
+    background: rgba(99, 102, 241, 0.05);
   }
 
-  .df-transcript-item.active {
-    background: var(--action-primary-subtle);
+  [data-theme="dark"] .dict-trans-item:hover {
+    background: rgba(99, 102, 241, 0.08);
   }
 
-  .df-transcript-item-play {
-    width: 32px;
-    height: 32px;
+  .dict-trans-item.active {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  [data-theme="dark"] .dict-trans-item.active {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .dict-trans-item-play {
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-interactive);
+    background: rgba(148, 163, 184, 0.1);
     border: none;
     border-radius: 50%;
-    color: var(--text-tertiary);
+    color: #94a3b8;
     cursor: pointer;
     flex-shrink: 0;
     transition: all 0.15s ease;
   }
 
-  .df-transcript-item:hover .df-transcript-item-play,
-  .df-transcript-item.active .df-transcript-item-play {
-    background: var(--action-primary);
+  .dict-trans-item:hover .dict-trans-item-play,
+  .dict-trans-item.active .dict-trans-item-play {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
   }
 
-  .df-transcript-item-play svg {
-    width: 14px;
-    height: 14px;
+  .dict-trans-item-play svg {
+    width: 12px;
+    height: 12px;
   }
 
-  .df-transcript-item-content {
-    flex: 1;
-    min-width: 0;
-  }
+  .dict-trans-item-content { flex: 1; min-width: 0; }
 
-  .df-transcript-item-text {
-    font-size: 0.9375rem;
+  .dict-trans-item-text {
+    font-size: 0.875rem;
     line-height: 1.5;
-    color: var(--text-primary);
+    color: #475569;
   }
 
-  .df-transcript-item.active .df-transcript-item-text {
-    color: var(--action-primary);
-    font-weight: 500;
+  [data-theme="dark"] .dict-trans-item-text {
+    color: #cbd5e1;
   }
 
-  .df-transcript-item-time {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    margin-top: 0.25rem;
+  .dict-trans-item.active .dict-trans-item-text {
+    color: #6366f1;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .dict-trans-item.active .dict-trans-item-text {
+    color: #a5b4fc;
+  }
+
+  .dict-trans-item-time {
+    font-size: 0.6875rem;
+    color: #94a3b8;
+    margin-top: 0.125rem;
     font-variant-numeric: tabular-nums;
   }
 
-  .df-transcript-hint {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    border-top: 1px solid var(--border-default);
-    background: var(--bg-interactive);
+  .dict-trans-footer {
+    padding: 0.625rem 1rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #94a3b8;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    background: rgba(248, 250, 252, 0.3);
+    text-align: center;
   }
 
-  /* Animations */
+  [data-theme="dark"] .dict-trans-footer {
+    border-color: rgba(148, 163, 184, 0.08);
+    background: rgba(15, 23, 42, 0.2);
+  }
+
+  /* ========== ANIMATIONS ========== */
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .animate-fade-in-up {
-    animation: fade-in-up 0.4s ease-out forwards;
+    animation: fade-in-up 0.35s ease-out forwards;
   }
 
-  /* Responsive */
+  /* ========== JS-GENERATED TRANSCRIPT ITEMS ========== */
+  /* The JS (dictation.js) dynamically creates these elements */
+  .transcript-item {
+    display: flex;
+    align-items: flex-start;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 0.125rem;
+  }
+
+  .transcript-item:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  [data-theme="dark"] .transcript-item:hover {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  .transcript-item.active {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  [data-theme="dark"] .transcript-item.active {
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .transcript-item-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    width: 100%;
+  }
+
+  .transcript-play-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(148, 163, 184, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #94a3b8;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .transcript-item:hover .transcript-play-btn,
+  .transcript-item.active .transcript-play-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+  }
+
+  .transcript-play-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .transcript-text {
+    flex: 1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #475569;
+    min-width: 0;
+  }
+
+  [data-theme="dark"] .transcript-text {
+    color: #cbd5e1;
+  }
+
+  .transcript-item.active .transcript-text {
+    color: #6366f1;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .transcript-item.active .transcript-text {
+    color: #a5b4fc;
+  }
+
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 640px) {
-    .df-dictation-header {
-      flex-direction: column;
-      align-items: flex-start;
+    .dict-page {
+      padding: 0.75rem;
     }
 
-    .df-dictation-tabs {
+    .dict-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+    }
+
+    .dict-tabs {
       width: 100%;
     }
 
-    .df-dictation-tab {
+    .dict-tab {
       flex: 1;
       text-align: center;
+      padding: 0.5rem 0.5rem;
     }
 
-    .df-dictation-progress {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
+    .dict-progress-section {
+      flex-wrap: wrap;
+      gap: 0.625rem;
     }
 
-    .df-dictation-progress-bar {
+    .dict-progress-track {
+      max-width: none;
+      order: 3;
       width: 100%;
     }
+
+    .dict-player {
+      padding: 1rem;
+    }
+
+    .dict-controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .dict-btn {
+      width: 100%;
+    }
+
+    .dict-speed {
+      width: 100%;
+    }
+
+    .dict-input-section {
+      padding: 1rem;
+    }
+
+    .dict-actions {
+      flex-direction: column;
+    }
+
+    .dict-btn--check {
+      max-width: none;
+    }
+
+    .dict-summary {
+      padding: 2rem 1rem;
+    }
+
+    .dict-summary-actions {
+      flex-direction: column;
+    }
   }
 
-  /* Hidden utility */
-  .hidden {
-    display: none !important;
-  }
+  /* ========== UTILITY ========== */
+  .hidden { display: none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="df-dictation-page">
-  <!-- Header -->
-  <div class="df-dictation-header">
-    <div class="df-dictation-header-left">
-      <a href="{% url 'core:dictation_list' %}" class="df-dictation-back">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </a>
-      <h1 class="df-dictation-title">{{ exercise.title }}</h1>
-    </div>
+<div class="dict-page">
+  <div class="dict-container">
 
-    <div class="df-dictation-tabs">
-      <button onclick="switchTab('dictation')" id="tab-btn-dictation" class="df-dictation-tab active">
-        Dictation
-      </button>
-      <button onclick="switchTab('transcript')" id="tab-btn-transcript" class="df-dictation-tab">
-        Full Transcript
-      </button>
-    </div>
-  </div>
-
-  <!-- TAB: DICTATION -->
-  <div id="view-dictation" class="tab-pane animate-fade-in-up">
-    <div id="exercise-app" class="df-dictation-card" style="position: relative;">
-
-      <!-- Progress -->
-      <div class="df-dictation-progress">
-        <div class="df-dictation-progress-info">
-          <span id="progress-text" class="df-dictation-progress-text">1 / {{ segments.count }}</span>
-          <div class="df-dictation-progress-bar">
-            <div id="progress-bar" class="df-dictation-progress-fill" style="width: 0%;"></div>
-          </div>
-        </div>
-        <button id="dict-settings-btn" type="button" class="df-dictation-settings-btn" title="Cài đặt">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <!-- Header -->
+    <header class="glass-panel dict-header">
+      <div class="dict-header-left">
+        <a href="{% url 'core:dictation_list' %}" class="dict-back" title="Quay lại">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
           </svg>
+        </a>
+        <h1 class="dict-title">{{ exercise.title }}</h1>
+      </div>
+
+      <div class="dict-tabs">
+        <button onclick="switchTab('dictation')" id="tab-btn-dictation" class="dict-tab tab-btn active">
+          Dictation
+        </button>
+        <button onclick="switchTab('transcript')" id="tab-btn-transcript" class="dict-tab tab-btn">
+          Transcript
         </button>
       </div>
+    </header>
 
-      <!-- Settings Panel -->
-      <div id="dict-settings-panel" class="df-dictation-settings-panel hidden">
-        <div class="df-dictation-settings-header">Cài đặt nhanh</div>
-        <div class="df-dictation-settings-body">
-          <div class="df-dictation-setting-row">
-            <span class="df-dictation-setting-label">Phím phát lại</span>
-            <select id="dict-replay-key" class="df-dictation-setting-input">
-              <option value="Ctrl">Ctrl</option>
-              <option value="Alt">Alt</option>
-              <option value="Shift">Shift</option>
+    <!-- ===================== TAB: DICTATION ===================== -->
+    <div id="view-dictation" class="tab-pane animate-fade-in-up">
+      <div id="exercise-app" class="glass-panel dict-exercise-card">
+
+        <!-- Progress -->
+        <div class="dict-progress-section">
+          <div class="dict-progress-info">
+            <span id="progress-text" class="dict-progress-text">1 / {{ segments.count }}</span>
+            <div class="dict-progress-track">
+              <div id="progress-bar" class="dict-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+          <button id="dict-settings-btn" type="button" class="dict-settings-trigger" title="Cài đặt">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Settings Dropdown -->
+        <div id="dict-settings-panel" class="dict-settings-dropdown hidden">
+          <div class="dict-settings-head">Cài đặt nhanh</div>
+          <div class="dict-settings-list">
+            <div class="dict-setting-item">
+              <span class="dict-setting-name">Phím phát lại</span>
+              <select id="dict-replay-key" class="dict-setting-select">
+                <option value="Ctrl">Ctrl</option>
+                <option value="Alt">Alt</option>
+                <option value="Shift">Shift</option>
+              </select>
+            </div>
+            <div class="dict-setting-item">
+              <span class="dict-setting-name">Phím Play/Pause</span>
+              <select id="dict-play-key" class="dict-setting-select">
+                <option value="Backtick">` (backtick)</option>
+                <option value="Space">Space</option>
+                <option value="Enter">Enter</option>
+              </select>
+            </div>
+            <div class="dict-setting-item">
+              <span class="dict-setting-name">Tự động phát lại</span>
+              <select id="dict-auto-replay" class="dict-setting-select">
+                <option value="No">Không</option>
+                <option value="Yes">Có</option>
+              </select>
+            </div>
+            <div class="dict-setting-item">
+              <span class="dict-setting-name">Khoảng cách (s)</span>
+              <select id="dict-replay-gap" class="dict-setting-select">
+                <option value="0.5">0.5</option>
+                <option value="1" selected>1</option>
+                <option value="1.5">1.5</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+            <div class="dict-setting-item">
+              <span class="dict-setting-name">Mẹo phím tắt</span>
+              <select id="dict-show-tips" class="dict-setting-select">
+                <option value="Show">Hiện</option>
+                <option value="Hide">Ẩn</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Player -->
+        <section class="dict-player">
+          <div id="dictation-viz" class="dict-visualizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+
+          <div class="dict-controls">
+            <button id="dict-btn-play" class="dict-btn dict-btn--play">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Phát
+            </button>
+            <button id="dict-btn-replay" class="dict-btn dict-btn--replay">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Nghe lại
+            </button>
+            <select id="dict-speed-select" class="dict-speed">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1.0" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
             </select>
           </div>
-          <div class="df-dictation-setting-row">
-            <span class="df-dictation-setting-label">Phím Play/Pause</span>
-            <select id="dict-play-key" class="df-dictation-setting-input">
-              <option value="Backtick">` (backtick)</option>
-              <option value="Space">Space</option>
-              <option value="Enter">Enter</option>
-            </select>
+
+          <p id="hint-text" class="dict-hint hidden"></p>
+        </section>
+
+        <!-- Input Section -->
+        <section class="dict-input-section">
+          <textarea id="user-input" class="dict-textarea" rows="3"
+            placeholder="Nhập nội dung bạn nghe được..."></textarea>
+          <div class="dict-actions">
+            <button id="btn-check" type="button" class="dict-btn dict-btn--check">
+              Kiểm tra
+            </button>
+            <button id="btn-next" type="button" class="dict-btn dict-btn--next hidden">
+              Tiếp theo
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
           </div>
-          <div class="df-dictation-setting-row">
-            <span class="df-dictation-setting-label">Tự động phát lại</span>
-            <select id="dict-auto-replay" class="df-dictation-setting-input">
-              <option value="No">Không</option>
-              <option value="Yes">Có</option>
-            </select>
-          </div>
-          <div class="df-dictation-setting-row">
-            <span class="df-dictation-setting-label">Khoảng cách phát (s)</span>
-            <select id="dict-replay-gap" class="df-dictation-setting-input">
-              <option value="0.5">0.5</option>
-              <option value="1" selected>1</option>
-              <option value="1.5">1.5</option>
-              <option value="2">2</option>
-            </select>
-          </div>
-          <div class="df-dictation-setting-row">
-            <span class="df-dictation-setting-label">Hiện mẹo phím tắt</span>
-            <select id="dict-show-tips" class="df-dictation-setting-input">
-              <option value="Show">Hiện</option>
-              <option value="Hide">Ẩn</option>
-            </select>
-          </div>
+        </section>
+
+        <!-- Feedback -->
+        <div id="feedback" class="dict-feedback hidden">
+          <div id="feedback-content" class="dict-feedback-content"></div>
         </div>
       </div>
 
-      <!-- Audio Player -->
-      <div class="df-dictation-player">
-        <div id="dictation-viz" class="df-dictation-visualizer">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
+      <!-- Summary Screen -->
+      <div id="summary-screen" class="glass-panel dict-summary hidden">
+        <div class="dict-summary-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
         </div>
-
-        <div class="df-dictation-controls">
-          <button id="dict-btn-play" class="df-dictation-btn df-dictation-btn-primary">
-            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            Phát
-          </button>
-          <button id="dict-btn-replay" class="df-dictation-btn df-dictation-btn-secondary">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <h2 class="dict-summary-title">Hoàn thành!</h2>
+        <p class="dict-summary-desc">Bạn đã hoàn thành bài tập với kết quả:</p>
+        <p id="final-score" class="dict-summary-score"></p>
+        <div class="dict-summary-actions">
+          <button onclick="window.location.reload()" class="dict-btn dict-btn--play">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            Nghe lại
+            Làm lại
           </button>
-          <select id="dict-speed-select" class="df-dictation-speed">
-            <option value="0.5">0.5x</option>
-            <option value="0.75">0.75x</option>
-            <option value="1.0" selected>1x</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
-          </select>
+          <a href="{% url 'core:dictation_list' %}" class="dict-btn dict-btn--outline">
+            Danh sách bài
+          </a>
         </div>
-
-        <p id="hint-text" class="df-dictation-hint hidden"></p>
-      </div>
-
-      <!-- Input Section -->
-      <div class="df-dictation-input-section">
-        <textarea id="user-input" class="df-dictation-textarea" rows="3"
-          placeholder="Nhập nội dung bạn nghe được..."></textarea>
-        <div class="df-dictation-actions">
-          <button id="btn-check" type="button" class="df-dictation-btn df-dictation-btn-success">
-            Kiểm tra
-          </button>
-          <button id="btn-next" type="button" class="df-dictation-btn df-dictation-btn-primary hidden">
-            Tiếp theo
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Feedback Section -->
-      <div id="feedback" class="df-dictation-feedback hidden">
-        <div id="feedback-content" class="df-dictation-feedback-content"></div>
       </div>
     </div>
 
-    <!-- Summary Screen -->
-    <div id="summary-screen" class="df-dictation-card df-dictation-summary hidden">
-      <div class="df-dictation-summary-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <h2 class="df-dictation-summary-title">Hoàn thành!</h2>
-      <p class="df-dictation-summary-desc">Bạn đã hoàn thành bài tập với kết quả:</p>
-      <p id="final-score" class="df-dictation-summary-score"></p>
-      <div class="df-dictation-summary-actions">
-        <button onclick="window.location.reload()" class="df-dictation-btn df-dictation-btn-primary">
-          Làm lại
-        </button>
-        <a href="{% url 'core:dictation_list' %}" class="df-dictation-btn df-dictation-btn-secondary" style="text-decoration:none;">
-          Danh sách bài
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: FULL TRANSCRIPT -->
-  <div id="view-transcript" class="tab-pane hidden animate-fade-in-up">
-    <div class="df-dictation-card" style="overflow:hidden;">
-      <div class="df-transcript-layout">
+    <!-- ===================== TAB: FULL TRANSCRIPT ===================== -->
+    <div id="view-transcript" class="tab-pane hidden animate-fade-in-up">
+      <div class="glass-panel dict-transcript-grid" style="overflow:hidden;">
         <!-- Left: Player -->
-        <div class="df-transcript-player">
-          <div id="trans-active-text" class="df-transcript-active-text">
-            Bấm ▶ để bắt đầu nghe
+        <div class="dict-trans-player">
+          <div id="trans-active-text" class="dict-trans-text-display">
+            Bấm &#9654; để bắt đầu nghe
           </div>
 
-          <div class="df-transcript-controls">
-            <div class="df-transcript-progress" id="trans-progress-container">
-              <div id="trans-progress-bar" class="df-transcript-progress-fill" style="width:0%;"></div>
+          <div class="dict-trans-controls">
+            <div class="dict-trans-scrubber" id="trans-progress-container">
+              <div id="trans-progress-bar" class="dict-trans-scrubber-fill" style="width:0%;"></div>
             </div>
 
-            <div class="df-transcript-time-row">
-              <span id="trans-current-time" class="df-transcript-time">00:00</span>
+            <div class="dict-trans-time-row">
+              <span id="trans-current-time" class="dict-trans-time">00:00</span>
 
-              <div class="df-transcript-nav">
-                <button id="trans-btn-prev" class="df-transcript-nav-btn" title="Câu trước">
-                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              <div class="dict-trans-nav">
+                <button id="trans-btn-prev" class="dict-trans-nav-btn" title="Câu trước">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
                   </svg>
                 </button>
 
-                <button id="trans-btn-play" class="df-transcript-play-btn">
+                <button id="trans-btn-play" class="dict-trans-play-main">
                   <svg fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
+                    <path d="M8 5v14l11-7z"/>
                   </svg>
                 </button>
 
-                <button id="trans-btn-replay" class="df-transcript-nav-btn" title="Nghe lại">
+                <button id="trans-btn-replay" class="dict-trans-nav-btn" title="Nghe lại">
                   <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                   </svg>
                 </button>
 
-                <button id="trans-btn-next" class="df-transcript-nav-btn" title="Câu sau">
-                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                <button id="trans-btn-next" class="dict-trans-nav-btn" title="Câu sau">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                   </svg>
                 </button>
               </div>
 
-              <span id="trans-total-time" class="df-transcript-time" style="text-align:right;">00:00</span>
+              <span id="trans-total-time" class="dict-trans-time" style="text-align:right;">00:00</span>
             </div>
           </div>
         </div>
 
         <!-- Right: List -->
-        <div class="df-transcript-list-container">
-          <div class="df-transcript-list-header">
+        <div class="dict-trans-list-col">
+          <div class="dict-trans-list-header">
             <div>
-              <span class="df-transcript-list-title">Danh sách câu</span>
-              <span class="df-transcript-list-badge">{{ segments.count }}</span>
+              <span class="dict-trans-list-title">Danh sách câu</span>
+              <span class="dict-trans-list-badge">{{ segments.count }}</span>
             </div>
-            <label class="df-transcript-autoscroll">
+            <label class="dict-trans-autoscroll">
               <input type="checkbox" id="chk-autoscroll" checked>
-              <span>Tự động cuộn</span>
+              <span>Tự cuộn</span>
             </label>
           </div>
 
-          <div id="transcript-list" class="df-transcript-list">
+          <div id="transcript-list" class="dict-trans-list">
             <!-- Items injected by JS -->
           </div>
 
-          <div class="df-transcript-hint">
-            Space: Play/Pause • ← → : Chuyển câu
+          <div class="dict-trans-footer">
+            Space: Play/Pause &bull; &#8592; &#8594; : Chuyển câu
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Hidden Audio -->
-  <audio id="main-audio" preload="auto" crossorigin="anonymous">
-    <source src="{{ exercise.audio_file.url }}" type="audio/mpeg">
-  </audio>
+    <!-- Hidden Audio -->
+    <audio id="main-audio" preload="auto" crossorigin="anonymous">
+      <source src="{{ exercise.audio_file.url }}" type="audio/mpeg">
+    </audio>
+  </div>
 </div>
 
 <script id="dict-segments-json" type="application/json">{{ segments_json|safe }}</script>
@@ -1043,5 +1572,5 @@
   data-exercise-id="{{ exercise.id }}"
   data-user-auth="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
   class="hidden"></div>
-<script src="{% static 'js/dictation.js' %}?v=20260127"></script>
+<script src="{% static 'js/dictation.js' %}?v=20260209"></script>
 {% endblock %}

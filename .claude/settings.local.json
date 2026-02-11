@@ -21,7 +21,16 @@
       "Bash(python:*)",
       "Bash(set:*)",
       "Bash(copy:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\static\\\\css\"\" | grep -E \"flashcard)",
+      "Bash(toeic)",
+      "Bash(review \")",
+      "Bash(chcp:*)",
+      "Bash(E:)",
+      "Bash(E:DailyFluentvenvScriptspython.exe -c \"import os; os.environ[''DJANGO_SETTINGS_MODULE'']=''config.settings''; import django; django.setup\\(\\); from django.template.loader import get_template; t1 = get_template\\(''vocab/toeic/set_detail.html''\\); print\\(''set_detail.html OK''\\); t2 = get_template\\(''vocab/vocabulary_detail.html''\\); print\\(''vocabulary_detail.html OK''\\)\")",
+      "Bash(DJANGO_SETTINGS_MODULE=config.settings PYTHONPATH=E:/DailyFluent E:/DailyFluent/venv/Scripts/python.exe:*)"
     ]
   }
 }

@@ -10,6 +10,7 @@
             --qa-primary-light: #6366f1;
             --qa-success: #10b981;
             --qa-error: #ef4444;
+            --qa-warning: #f59e0b;
             
             /* Default (Light Mode) values */
             --qa-bg: #ffffff;
@@ -21,7 +22,7 @@
             --qa-input-border: #d1d5db;
         }
 
-        /* Dark Mode Override - strictly using Django's data-theme attribute */
+        /* Dark Mode Override */
         [data-theme="dark"] {
             --qa-bg: #1e293b;
             --qa-bg-alt: #334155;
@@ -32,9 +33,16 @@
             --qa-input-border: #475569;
         }
 
-        .quick-add-form {
-            max-width: 700px;
+        .quick-add-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
             margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .quick-add-container { grid-template-columns: 1fr; }
         }
 
         .form-section {
@@ -119,7 +127,8 @@
             margin-top: 24px;
         }
 
-        .submit-row input[type="submit"] {
+        .submit-row input[type="submit"],
+        .submit-row button {
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
@@ -148,8 +157,162 @@
             opacity: 0.9;
         }
 
+        /* === Course card selector === */
+        .course-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .course-card {
+            background: var(--qa-bg-alt);
+            border: 2px solid var(--qa-border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .course-card:hover {
+            border-color: var(--qa-primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .course-card.selected {
+            border-color: var(--qa-primary);
+            background: rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .course-card-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .course-card-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--qa-text);
+        }
+
+        .course-card-meta {
+            font-size: 12px;
+            color: var(--qa-text-muted);
+            margin-top: 4px;
+        }
+
+        /* === Existing sets panel === */
+        .sets-panel {
+            background: var(--qa-bg);
+            border-radius: 12px;
+            border: 1px solid var(--qa-border);
+            padding: 24px;
+        }
+
+        .sets-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .set-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border: 1px solid var(--qa-border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--qa-bg-alt);
+            transition: all 0.15s;
+        }
+
+        .set-item:hover {
+            border-color: var(--qa-primary-light);
+        }
+
+        .set-item-info {
+            flex: 1;
+        }
+
+        .set-item-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--qa-text);
+        }
+
+        .set-item-meta {
+            font-size: 12px;
+            color: var(--qa-text-muted);
+            margin-top: 2px;
+        }
+
+        .set-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: all 0.15s;
+        }
+
+        .btn-manage { background: var(--qa-primary); }
+        .btn-manage:hover { background: var(--qa-primary-light); color: white; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--qa-text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--qa-success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--qa-warning); }
+        .badge-muted { background: var(--qa-bg-alt); color: var(--qa-text-muted); }
+
+        .chapter-group-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--qa-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 0 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--qa-border);
+        }
+
+        .chapter-group-title:first-child { margin-top: 0; }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: var(--qa-text-muted);
+        }
+
         @media (max-width: 600px) {
             .form-grid-2 { grid-template-columns: 1fr; }
+            .course-cards { grid-template-columns: 1fr 1fr; }
         }
     </style>
 {% endblock %}
@@ -165,89 +328,219 @@
 
 {% block content %}
 <div id="content-main">
-    <div class="quick-add-form">
-        <form method="post">
-            {% csrf_token %}
-            
-            <!-- Basic Info Section -->
-            <div class="form-section">
-                <span class="section-title">📚 Set Information</span>
+    <div class="quick-add-container">
+        <!-- Left Column: Create New Set Form -->
+        <div>
+            <form method="post">
+                {% csrf_token %}
                 
-                <div class="form-grid">
-                    <div class="form-row">
-                        <label for="title" class="required">Title</label>
-                        <input type="text" name="title" id="title" placeholder="e.g., TOEIC 600 - Set 1" required>
-                    </div>
+                <!-- Step 1: Select Course -->
+                <div class="form-section">
+                    <span class="section-title">1️⃣ Chọn Bộ Từ (Course)</span>
                     
-                    <div class="form-row">
-                        <label for="description">Description</label>
-                        <textarea name="description" id="description" placeholder="Mô tả bộ từ vựng..."></textarea>
-                    </div>
-                    
-                    <div class="form-grid-2">
-                        <div class="form-row">
-                            <label for="language">Language</label>
-                            <select name="language" id="language">
-                                {% for value, label in languages %}
-                                <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
+                    <div class="course-cards" id="courseCards">
+                        {% for course in courses %}
+                        <div class="course-card" 
+                             data-toeic-level="{{ course.toeic_level }}" 
+                             data-course-id="{{ course.id }}"
+                             onclick="selectCourse(this)">
+                            <div class="course-card-icon">{{ course.icon|default:"📘" }}</div>
+                            <div class="course-card-title">{{ course.title }}</div>
+                            <div class="course-card-meta">Level {{ course.toeic_level }}</div>
                         </div>
-                        
+                        {% empty %}
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <div class="empty-state-icon">📭</div>
+                            <p>Chưa có Course nào. <a href="{% url 'admin:vocab_course_init_defaults' %}">Tạo Course mặc định</a></p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Hidden field for toeic_level -->
+                    <input type="hidden" name="toeic_level" id="toeic_level" value="">
+                </div>
+
+                <!-- Step 2: Set Info -->
+                <div class="form-section">
+                    <span class="section-title">2️⃣ Thông tin Set mới</span>
+                    
+                    <div class="form-grid">
                         <div class="form-row">
-                            <label for="status">Status</label>
-                            <select name="status" id="status">
-                                {% for value, label in statuses %}
-                                <option value="{{ value }}" {% if value == 'draft' %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
+                            <label for="title" class="required">Tên Set</label>
+                            <input type="text" name="title" id="title" placeholder="VD: TOEIC 600 - Set 1" required>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-row">
+                                <label for="set_number">Số thứ tự Set</label>
+                                <input type="number" name="set_number" id="set_number" min="1" placeholder="1, 2, 3...">
+                            </div>
+                            <div class="form-row">
+                                <label for="chapter">Chương</label>
+                                <input type="number" name="chapter" id="chapter" min="1" placeholder="1, 2, 3, 4...">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-row">
+                                <label for="chapter_name">Tên chương</label>
+                                <input type="text" name="chapter_name" id="chapter_name" placeholder="VD: Nền tảng cốt lõi">
+                            </div>
+                            <div class="form-row">
+                                <label for="status">Trạng thái</label>
+                                <select name="status" id="status">
+                                    {% for value, label in statuses %}
+                                    <option value="{{ value }}" {% if value == 'draft' %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-row">
+                                <label for="language">Ngôn ngữ</label>
+                                <select name="language" id="language">
+                                    {% for value, label in languages %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label for="description">Mô tả</label>
+                                <input type="text" name="description" id="description" placeholder="Mô tả bộ từ vựng...">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- TOEIC Organization (Optional) -->
-            <div class="form-section">
-                <span class="section-title">🎯 TOEIC Organization (Optional)</span>
-                
-                <div class="form-grid">
-                    <div class="form-grid-2">
-                        <div class="form-row">
-                            <label for="toeic_level">TOEIC Level</label>
-                            <select name="toeic_level" id="toeic_level">
-                                <option value="">-- None --</option>
-                                {% for value, label in toeic_levels %}
-                                <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="set_number">Set Number</label>
-                            <input type="number" name="set_number" id="set_number" min="1" placeholder="1, 2, 3...">
-                        </div>
-                    </div>
-                    
-                    <div class="form-grid-2">
-                        <div class="form-row">
-                            <label for="chapter">Chapter</label>
-                            <input type="number" name="chapter" id="chapter" min="1" placeholder="1, 2, 3, 4...">
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="chapter_name">Chapter Name</label>
-                            <input type="text" name="chapter_name" id="chapter_name" placeholder="e.g., Nền tảng cốt lõi">
-                        </div>
+                <!-- Submit Buttons -->
+                <div class="submit-row">
+                    <input type="submit" value="💾 Tạo Set" class="default">
+                    <input type="submit" name="save_and_add_words" value="💾 Tạo & Thêm từ →">
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Existing Sets for Selected Course -->
+        <div>
+            <div class="sets-panel">
+                <span class="section-title">📋 Sets hiện có</span>
+                <p style="font-size: 13px; color: var(--qa-text-muted); margin-bottom: 16px;">
+                    Chọn Course bên trái để xem danh sách set. Click "Quản lý từ" để thêm từ vào set có sẵn.
+                </p>
+                <div id="setsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👈</div>
+                        <p>Chọn một Course để xem các Set</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Submit Buttons -->
-            <div class="submit-row">
-                <input type="submit" value="💾 Create Set" class="default">
-                <input type="submit" name="save_and_add_words" value="💾 Create & Add Words →">
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSetsUrl = '{% url "admin:vocab_vocabularyset_course_sets" %}';
+    const manageWordsBaseUrl = '/admin/vocab/vocabularyset/';
+
+    window.selectCourse = function(el) {
+        // Update visual selection
+        document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+
+        // Update hidden field
+        const level = el.dataset.toeicLevel;
+        document.getElementById('toeic_level').value = level;
+
+        // Auto-suggest title
+        const titleInput = document.getElementById('title');
+        if (!titleInput.value) {
+            const setNumInput = document.getElementById('set_number');
+            const num = setNumInput.value || '?';
+            titleInput.value = `TOEIC ${level} - Set ${num}`;
+        }
+
+        // Load existing sets
+        loadSetsForCourse(level);
+    };
+
+    function loadSetsForCourse(toeicLevel) {
+        const container = document.getElementById('setsContainer');
+        container.innerHTML = '<div class="loading-spinner">⏳ Đang tải...</div>';
+
+        fetch(`${courseSetsUrl}?toeic_level=${toeicLevel}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.sets || data.sets.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>Chưa có set nào cho level này</p>
+                            <p style="font-size:13px; color: var(--qa-text-muted);">Tạo set mới bằng form bên trái!</p>
+                        </div>`;
+                    // Suggest set_number = 1
+                    document.getElementById('set_number').value = 1;
+                    return;
+                }
+
+                // Group by chapter
+                const chapters = {};
+                let maxSetNum = 0;
+                data.sets.forEach(s => {
+                    const ch = s.chapter || 0;
+                    if (!chapters[ch]) chapters[ch] = { name: s.chapter_name || `Chương ${ch}`, sets: [] };
+                    chapters[ch].sets.push(s);
+                    if (s.set_number > maxSetNum) maxSetNum = s.set_number;
+                });
+
+                // Suggest next set number
+                document.getElementById('set_number').value = maxSetNum + 1;
+
+                let html = '';
+                for (const [ch, group] of Object.entries(chapters)) {
+                    html += `<div class="chapter-group-title">📖 ${group.name}</div>`;
+                    group.sets.forEach(s => {
+                        const statusBadge = s.status === 'published' 
+                            ? '<span class="badge badge-success">Published</span>'
+                            : s.status === 'draft'
+                            ? '<span class="badge badge-warning">Draft</span>'
+                            : '<span class="badge badge-muted">' + s.status + '</span>';
+
+                        html += `
+                        <div class="set-item">
+                            <div class="set-item-info">
+                                <div class="set-item-title">Set ${s.set_number}: ${s.title}</div>
+                                <div class="set-item-meta">
+                                    ${statusBadge}
+                                    <span class="badge badge-muted">📝 ${s.word_count} từ</span>
+                                    ${s.milestone ? '<span class="badge badge-muted">🎯 ' + s.milestone + '</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="set-item-actions">
+                                <a href="${manageWordsBaseUrl}${s.id}/manage-words/" class="btn-sm btn-manage">📝 Quản lý từ</a>
+                            </div>
+                        </div>`;
+                    });
+                }
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <p>Lỗi khi tải: ${err.message}</p>
+                    </div>`;
+            });
+    }
+
+    // Auto-update title when set_number changes
+    document.getElementById('set_number').addEventListener('input', function() {
+        const level = document.getElementById('toeic_level').value;
+        if (level) {
+            document.getElementById('title').value = `TOEIC ${level} - Set ${this.value}`;
+        }
+    });
+});
+</script>
 {% endblock %}

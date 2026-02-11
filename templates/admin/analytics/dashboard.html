@@ -373,6 +373,11 @@
     <div class="stat-card stat-card--success">
       <div class="stat-value">{{ total_users|default:0 }}</div>
       <div class="stat-label">Tổng người dùng</div>
+      {% if user_growth %}
+      <div class="stat-change {% if user_growth > 0 %}stat-change--up{% elif user_growth < 0 %}stat-change--down{% endif %}">
+        {{ user_growth_str }} so với hôm qua
+      </div>
+      {% endif %}
     </div>
     <div class="stat-card stat-card--primary">
       <div class="stat-value">{{ users_today|default:0 }}</div>
@@ -471,15 +476,36 @@
     <canvas id="viewsChart" height="80"></canvas>
   </div>
   
-  {% if total_exams or total_vocab_en or total_feedback %}
+  {% if total_exams or total_vocab or total_feedback %}
   <!-- Additional Stats -->
   <div class="section-header">
     <h2>📚 Thống kê nội dung</h2>
   </div>
   
   <div class="stats-grid">
-    {% if total_exams %}
+    {% if total_vocab %}
+    <div class="stat-card stat-card--primary">
+      <div class="stat-value">{{ total_vocab }}</div>
+      <div class="stat-label">Tổng từ vựng</div>
+      {% if vocab_today %}
+      <div class="stat-change stat-change--up">+{{ vocab_today }} hôm nay</div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if total_vocab_sets %}
     <div class="stat-card">
+      <div class="stat-value">{{ total_vocab_sets }}</div>
+      <div class="stat-label">Bộ từ vựng</div>
+    </div>
+    {% endif %}
+    {% if vocab_week %}
+    <div class="stat-card">
+      <div class="stat-value">{{ vocab_week }}</div>
+      <div class="stat-label">Từ mới tuần này</div>
+    </div>
+    {% endif %}
+    {% if total_exams %}
+    <div class="stat-card stat-card--success">
       <div class="stat-value">{{ total_exams }}</div>
       <div class="stat-label">Đề thi</div>
     </div>
@@ -494,12 +520,6 @@
     <div class="stat-card">
       <div class="stat-value">{{ attempts_week }}</div>
       <div class="stat-label">Làm bài tuần này</div>
-    </div>
-    {% endif %}
-    {% if total_vocab_en %}
-    <div class="stat-card">
-      <div class="stat-value">{{ total_vocab_en }}</div>
-      <div class="stat-label">Từ vựng EN</div>
     </div>
     {% endif %}
     {% if total_feedback %}

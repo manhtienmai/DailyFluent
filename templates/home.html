@@ -75,46 +75,43 @@
     border-color: rgba(148, 163, 184, 0.08);
   }
 
-  /* ========== HERO STATS HUB ========== */
-  .stats-hub {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  @media (max-width: 640px) {
-    .stats-hub {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Vocabulary Stats Card */
-  .vocab-stats-card {
+  /* ========== UNIFIED DASHBOARD HEADER ========== */
+  .dash-header {
     padding: 1.25rem;
+    margin-bottom: 1rem;
     position: relative;
     overflow: hidden;
   }
 
-  .vocab-stats-card::before {
+  .dash-header::before {
     content: '';
     position: absolute;
-    top: -30%;
-    right: -20%;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    top: -40%;
+    right: -15%;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 65%);
     pointer-events: none;
   }
 
-  .vocab-header {
+  /* Top row: Greeting + Streak */
+  .dash-top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-greeting {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1rem;
   }
 
-  .vocab-wave {
+  .dash-wave {
     width: 44px;
     height: 44px;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -124,105 +121,208 @@
     justify-content: center;
     font-size: 1.375rem;
     box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.5);
+    flex-shrink: 0;
   }
 
-  .vocab-greeting {
-    flex: 1;
-  }
-
-  .vocab-greeting-title {
-    font-size: 1rem;
+  .dash-greeting-text h1 {
+    font-size: 1.125rem;
     font-weight: 700;
     color: #1e293b;
+    letter-spacing: -0.01em;
+    margin: 0;
   }
 
-  [data-theme="dark"] .vocab-greeting-title {
+  [data-theme="dark"] .dash-greeting-text h1 {
     color: #f1f5f9;
   }
 
-  .vocab-greeting-sub {
+  .dash-greeting-sub {
     font-size: 0.75rem;
     color: #64748b;
+    margin-top: 0.125rem;
   }
 
-  [data-theme="dark"] .vocab-greeting-sub {
+  [data-theme="dark"] .dash-greeting-sub {
     color: #94a3b8;
   }
 
-  .vocab-stats-grid {
+  /* Streak Capsule */
+  .dash-streak {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.625rem 1rem;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);
+    border: 1px solid rgba(249, 115, 22, 0.18);
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  [data-theme="dark"] .dash-streak {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border-color: rgba(249, 115, 22, 0.2);
+  }
+
+  .dash-streak-num {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .dash-streak-fire {
+    font-size: 1.25rem;
+    animation: fireGlow 1.5s ease-in-out infinite;
+  }
+
+  @keyframes fireGlow {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 180, 80, 0.5)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 10px rgba(255, 180, 80, 0.8)); transform: scale(1.1); }
+  }
+
+  .dash-streak-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .dash-streak-unit {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #c2410c;
+    margin-left: -0.125rem;
+  }
+
+  [data-theme="dark"] .dash-streak-unit {
+    color: #fb923c;
+  }
+
+  .dash-streak-days {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .dash-streak-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+
+  .dash-streak-dot--off {
+    background: rgba(249, 115, 22, 0.1);
+    color: #c2410c;
+    opacity: 0.5;
+  }
+
+  [data-theme="dark"] .dash-streak-dot--off {
+    background: rgba(249, 115, 22, 0.1);
+    color: #fb923c;
+  }
+
+  .dash-streak-dot--on {
+    background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+    color: white;
+    box-shadow: 0 2px 6px -2px rgba(249, 115, 22, 0.5);
+  }
+
+  .dash-streak-dot--today {
+    background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+    color: white;
+    box-shadow: 0 0 0 2.5px rgba(249, 115, 22, 0.25), 0 2px 6px -2px rgba(249, 115, 22, 0.5);
+  }
+
+  /* Divider */
+  .dash-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.2), transparent);
+    margin-bottom: 1rem;
+  }
+
+  [data-theme="dark"] .dash-divider {
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.1), transparent);
+  }
+
+  /* Stats Row */
+  .dash-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
+    position: relative;
+    z-index: 1;
   }
 
-  @media (max-width: 480px) {
-    .vocab-stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  .vocab-stat {
+  .dash-stat {
     text-align: center;
     padding: 0.75rem 0.5rem;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 12px;
     transition: all 0.2s ease;
     text-decoration: none;
     display: block;
   }
 
-  [data-theme="dark"] .vocab-stat {
-    background: rgba(51, 65, 85, 0.5);
-    border-color: rgba(148, 163, 184, 0.1);
+  [data-theme="dark"] .dash-stat {
+    background: rgba(51, 65, 85, 0.45);
+    border-color: rgba(148, 163, 184, 0.08);
   }
 
-  .vocab-stat:hover {
+  .dash-stat:hover {
     transform: translateY(-2px);
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.15);
   }
 
-  [data-theme="dark"] .vocab-stat:hover {
-    background: rgba(99, 102, 241, 0.15);
+  [data-theme="dark"] .dash-stat:hover {
+    background: rgba(99, 102, 241, 0.12);
   }
 
-  .vocab-stat-value {
+  .dash-stat-value {
     font-size: 1.5rem;
     font-weight: 800;
     line-height: 1.2;
     letter-spacing: -0.03em;
   }
 
-  .vocab-stat-value--green {
+  .dash-stat-value--green {
     background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .vocab-stat-value--amber {
+  .dash-stat-value--amber {
     background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .vocab-stat-value--indigo {
+  .dash-stat-value--indigo {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .vocab-stat-value--rose {
+  .dash-stat-value--rose {
     background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .vocab-stat-label {
+  .dash-stat-label {
     font-size: 0.625rem;
     font-weight: 600;
     color: #64748b;
@@ -231,127 +331,8 @@
     margin-top: 0.25rem;
   }
 
-  [data-theme="dark"] .vocab-stat-label {
+  [data-theme="dark"] .dash-stat-label {
     color: #94a3b8;
-  }
-
-  /* Streak Card - Warm Gradient Glass */
-  .streak-card {
-    padding: 1.25rem;
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.9) 0%, rgba(234, 88, 12, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .streak-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -30%;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .streak-card::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -20%;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .streak-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .streak-label {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .streak-fire {
-    font-size: 1.5rem;
-    animation: fireGlow 1.5s ease-in-out infinite;
-  }
-
-  @keyframes fireGlow {
-    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 200, 100, 0.6)); transform: scale(1); }
-    50% { filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.9)); transform: scale(1.1); }
-  }
-
-  .streak-count {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .streak-number {
-    font-size: 3rem;
-    font-weight: 800;
-    color: white;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .streak-unit {
-    font-size: 1rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .streak-days {
-    display: flex;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 1;
-  }
-
-  .streak-day {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    transition: all 0.2s ease;
-  }
-
-  .streak-day--inactive {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .streak-day--active {
-    background: white;
-    color: #ea580c;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .streak-day--today {
-    background: white;
-    color: #ea580c;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   /* ========== TODAY'S MISSION ========== */
@@ -958,27 +939,43 @@
   }
 
   /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .dash-top-row {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .dash-streak {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
   @media (max-width: 640px) {
     .crystal-dashboard {
       padding: 1rem;
     }
 
-    .vocab-stats-card {
+    .dash-header {
       padding: 1rem;
     }
 
-    .vocab-stat-value {
+    .dash-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dash-stat-value {
       font-size: 1.25rem;
     }
 
-    .streak-number {
-      font-size: 2.5rem;
+    .dash-streak-dot {
+      width: 26px;
+      height: 26px;
+      font-size: 0.5rem;
     }
 
-    .streak-day {
-      width: 32px;
-      height: 32px;
-      font-size: 0.625rem;
+    .dash-streak-value {
+      font-size: 1.25rem;
     }
 
     .quick-btn {
@@ -994,6 +991,17 @@
       font-size: 0.6875rem;
     }
   }
+
+  @media (max-width: 400px) {
+    .dash-streak-days {
+      gap: 0.1875rem;
+    }
+
+    .dash-streak-dot {
+      width: 24px;
+      height: 24px;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -1003,64 +1011,65 @@
 
     {% if user.is_authenticated %}
 
-    <!-- ========== STATS HUB ========== -->
-    <section class="stats-hub">
-      <!-- Vocabulary Stats Card -->
-      <article class="glass-panel vocab-stats-card">
-        <div class="vocab-header">
-          <div class="vocab-wave">👋</div>
-          <div class="vocab-greeting">
-            <div class="vocab-greeting-title">Xin chào, {{ user.first_name|default:user.username }}!</div>
-            <div class="vocab-greeting-sub">Tiếp tục học tập hôm nay</div>
+    <!-- ========== DASHBOARD HEADER ========== -->
+    <header class="glass-panel dash-header">
+      <!-- Top: Greeting + Streak -->
+      <div class="dash-top-row">
+        <div class="dash-greeting">
+          <div class="dash-wave">👋</div>
+          <div class="dash-greeting-text">
+            <h1>Xin chào, {{ user.first_name|default:user.username }}!</h1>
+            <div class="dash-greeting-sub">Tiếp tục học tập hôm nay</div>
           </div>
         </div>
-        <div class="vocab-stats-grid">
-          <a href="{% url 'vocab:my_words' %}?filter=mastered" class="vocab-stat">
-            <div class="vocab-stat-value vocab-stat-value--green">{{ vocab_stats.mastered|default:0 }}</div>
-            <div class="vocab-stat-label">Đã thuộc</div>
-          </a>
-          <a href="{% url 'vocab:my_words' %}?filter=learning" class="vocab-stat">
-            <div class="vocab-stat-value vocab-stat-value--amber">{{ vocab_stats.learning|default:0 }}</div>
-            <div class="vocab-stat-label">Đang học</div>
-          </a>
-          <a href="{% url 'vocab:my_words' %}?filter=all" class="vocab-stat">
-            <div class="vocab-stat-value vocab-stat-value--indigo">{{ vocab_stats.total|default:0 }}</div>
-            <div class="vocab-stat-label">Tổng từ</div>
-          </a>
-          <div class="vocab-stat">
-            <div class="vocab-stat-value vocab-stat-value--rose">{{ vocab_stats.progress|default:"0%" }}</div>
-            <div class="vocab-stat-label">Tiến độ</div>
-          </div>
-        </div>
-      </article>
 
-      <!-- Streak Card -->
-      <article class="glass-panel streak-card">
-        <div class="streak-header">
-          <span class="streak-label">Chuỗi ngày học</span>
-          <span class="streak-fire">🔥</span>
-        </div>
-        <div class="streak-count">
-          <span class="streak-number" id="streak-number" data-streak="{{ streak.current_streak|default:0 }}">{{ streak.current_streak|default:0 }}</span>
-          <span class="streak-unit">ngày</span>
-        </div>
-        <div class="streak-days">
-          {% for day in week_days %}
-          <div class="streak-day {% if day.is_today %}streak-day--today{% elif day.studied %}streak-day--active{% else %}streak-day--inactive{% endif %}">
-            {{ day.label }}
+        <div class="dash-streak">
+          <div class="dash-streak-num">
+            <span class="dash-streak-fire">🔥</span>
+            <span class="dash-streak-value" id="streak-number" data-streak="{{ streak.current_streak|default:0 }}">{{ streak.current_streak|default:0 }}</span>
+            <span class="dash-streak-unit">ngày</span>
           </div>
-          {% empty %}
-          <div class="streak-day streak-day--inactive">T2</div>
-          <div class="streak-day streak-day--inactive">T3</div>
-          <div class="streak-day streak-day--today">T4</div>
-          <div class="streak-day streak-day--inactive">T5</div>
-          <div class="streak-day streak-day--inactive">T6</div>
-          <div class="streak-day streak-day--inactive">T7</div>
-          <div class="streak-day streak-day--inactive">CN</div>
-          {% endfor %}
+          <div class="dash-streak-days">
+            {% for day in week_days %}
+            <div class="dash-streak-dot {% if day.is_today %}dash-streak-dot--today{% elif day.studied %}dash-streak-dot--on{% else %}dash-streak-dot--off{% endif %}">
+              {{ day.label }}
+            </div>
+            {% empty %}
+            <div class="dash-streak-dot dash-streak-dot--off">T2</div>
+            <div class="dash-streak-dot dash-streak-dot--off">T3</div>
+            <div class="dash-streak-dot dash-streak-dot--today">T4</div>
+            <div class="dash-streak-dot dash-streak-dot--off">T5</div>
+            <div class="dash-streak-dot dash-streak-dot--off">T6</div>
+            <div class="dash-streak-dot dash-streak-dot--off">T7</div>
+            <div class="dash-streak-dot dash-streak-dot--off">CN</div>
+            {% endfor %}
+          </div>
         </div>
-      </article>
-    </section>
+      </div>
+
+      <!-- Divider -->
+      <div class="dash-divider"></div>
+
+      <!-- Stats Row -->
+      <div class="dash-stats">
+        <a href="{% url 'vocab:my_words' %}?filter=mastered" class="dash-stat">
+          <div class="dash-stat-value dash-stat-value--green">{{ vocab_stats.mastered|default:0 }}</div>
+          <div class="dash-stat-label">Đã thuộc</div>
+        </a>
+        <a href="{% url 'vocab:my_words' %}?filter=learning" class="dash-stat">
+          <div class="dash-stat-value dash-stat-value--amber">{{ vocab_stats.learning|default:0 }}</div>
+          <div class="dash-stat-label">Đang học</div>
+        </a>
+        <a href="{% url 'vocab:my_words' %}?filter=all" class="dash-stat">
+          <div class="dash-stat-value dash-stat-value--indigo">{{ vocab_stats.total|default:0 }}</div>
+          <div class="dash-stat-label">Tổng từ</div>
+        </a>
+        <div class="dash-stat">
+          <div class="dash-stat-value dash-stat-value--rose">{{ vocab_stats.progress|default:"0%" }}</div>
+          <div class="dash-stat-label">Tiến độ</div>
+        </div>
+      </div>
+    </header>
 
     <!-- ========== TODAY'S MISSION ========== -->
     {% if lesson and lesson.recommended_activities %}
@@ -1105,11 +1114,11 @@
         Quick Actions
       </div>
       <div class="quick-grid">
-        <a href="{% url 'vocab:english_list' %}" class="glass-panel-light quick-btn">
+        <a href="{% url 'vocab:set_list' %}" class="glass-panel-light quick-btn">
           <div class="quick-icon quick-icon--blue">➕</div>
           <span class="quick-label">Thêm từ mới</span>
         </a>
-        <a href="{% url 'vocab:games' %}" class="glass-panel-light quick-btn">
+        <a href="{% url 'vocab:my_words' %}" class="glass-panel-light quick-btn">
           <div class="quick-icon quick-icon--amber">⚡</div>
           <span class="quick-label">Luyện tập</span>
         </a>

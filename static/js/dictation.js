@@ -15,39 +15,140 @@ function formatTime(s) {
 }
 
 /**
- * Normalize text for comparison: lowercase, remove punctuation
+ * Normalize a single word: lowercase, strip punctuation
  */
-function normalizeForCompare(s) {
-  return (s || '').toLowerCase().replace(/[.,?!;:'"…()[\]{}]/g, '').trim();
+function normalizeWord(w) {
+  return (w || '').toLowerCase().replace(/[.,?!;:'"…()[\]{}\-–—]/g, '').trim();
 }
 
 /**
- * Generate diff HTML between user input and correct text
- * - Green: correct words
- * - Red with strikethrough: wrong words user typed
- * - Blue: correct word that should have been typed
+ * Normalize full text for comparison: lowercase, strip punctuation, collapse whitespace
  */
+function normalizeForCompare(s) {
+  return (s || '').toLowerCase().replace(/[.,?!;:'"…()[\]{}\-–—]/g, '').replace(/\s+/g, ' ').trim();
+}
+
 /**
- * Generate masked diff HTML between user input and correct text
- * - Matches: replace with ******
- * - Mismatches/Missing: show expected word (highlighted)
+ * Levenshtein edit distance between two strings
+ */
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/**
+ * Check match quality between two words
+ * Returns: 'exact' | 'near' | 'wrong'
+ *   1-3 chars: exact only (short words must match perfectly)
+ *   4-5 chars: edit distance <= 1
+ *   6+ chars:  edit distance <= 2
+ */
+function wordMatchType(userWord, correctWord) {
+  const u = normalizeWord(userWord);
+  const c = normalizeWord(correctWord);
+  if (!u || !c) return 'wrong';
+  if (u === c) return 'exact';
+  const threshold = c.length <= 3 ? 0 : c.length <= 5 ? 1 : 2;
+  if (threshold === 0) return 'wrong';
+  return levenshtein(u, c) <= threshold ? 'near' : 'wrong';
+}
+
+/**
+ * LCS-based word alignment between user input and correct text.
+ * Uses fuzzy matching so small typos still align properly.
+ * Returns array of { type, userWord, correctWord }
+ *   type: 'exact' | 'near' | 'missing' | 'extra'
+ */
+function lcsAlign(userWords, correctWords) {
+  const m = userWords.length;
+  const n = correctWords.length;
+
+  // Precompute match types between all word pairs
+  const mt = Array.from({ length: m }, () => Array(n).fill('wrong'));
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      mt[i][j] = wordMatchType(userWords[i], correctWords[j]);
+    }
+  }
+
+  // LCS DP table
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (mt[i - 1][j - 1] !== 'wrong') {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+
+  // Backtrack to produce alignment
+  const result = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && mt[i - 1][j - 1] !== 'wrong' && dp[i][j] === dp[i - 1][j - 1] + 1) {
+      result.unshift({ type: mt[i - 1][j - 1], userWord: userWords[i - 1], correctWord: correctWords[j - 1] });
+      i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      result.unshift({ type: 'missing', userWord: null, correctWord: correctWords[j - 1] });
+      j--;
+    } else {
+      result.unshift({ type: 'extra', userWord: userWords[i - 1], correctWord: null });
+      i--;
+    }
+  }
+  return result;
+}
+
+/**
+ * Generate a hint for a missing/wrong word: first letter + underscores
+ */
+function hintWord(word) {
+  const clean = word.replace(/[.,?!;:'"…()[\]{}\-–—]/g, '');
+  if (clean.length <= 1) return '_';
+  return clean[0] + '\u2009'.repeat(0) + '·'.repeat(clean.length - 1);
+}
+
+/**
+ * Generate diff HTML using LCS alignment with fuzzy matching.
+ * - Green: exact match
+ * - Amber with wavy underline: near match (small typo, shows correct spelling)
+ * - Red hint: missing word (first letter + dots)
+ * - Gray strikethrough: extra word user added
  */
 function diffString(userText, correctText) {
-  const normalize = w => w.toLowerCase().replace(/[.,?!;:'"…()[\]{}]/g, '');
-  const u = userText.trim().split(/\s+/).filter(w => w);
-  const c = correctText.trim().split(/\s+/).filter(w => w);
-  let html = '';
-  const len = Math.max(u.length, c.length);
+  const uWords = userText.trim().split(/\s+/).filter(w => w);
+  const cWords = correctText.trim().split(/\s+/).filter(w => w);
+  const alignment = lcsAlign(uWords, cWords);
 
-  for (let i = 0; i < len; i++) {
-    const uw = u[i] || '';
-    const cw = c[i] || '';
-    if (normalize(uw) === normalize(cw)) {
-      // Correct - Show it normally
-      html += `<span class="diff-correct text-green-600 dark:text-green-400 font-medium">${cw}</span> `;
-    } else {
-      // Wrong - Mask it with stars
-      html += `<span class="diff-masked-error text-red-500 font-mono">******</span> `;
+  let html = '';
+  for (const item of alignment) {
+    switch (item.type) {
+      case 'exact':
+        html += `<span class="text-green-600 dark:text-green-400 font-medium">${item.correctWord}</span> `;
+        break;
+      case 'near':
+        html += `<span class="text-amber-600 dark:text-amber-400 font-medium underline decoration-wavy decoration-amber-400" title="Bạn viết: ${item.userWord}">${item.correctWord}</span> `;
+        break;
+      case 'missing':
+        html += `<span class="text-red-500 font-mono tracking-wide" title="Từ bị thiếu">${hintWord(item.correctWord)}</span> `;
+        break;
+      case 'extra':
+        html += `<span class="text-gray-400 line-through" title="Từ thừa">${item.userWord}</span> `;
+        break;
     }
   }
   return html.trim();
@@ -426,58 +527,94 @@ class DictationMode {
   }
 
   checkAnswer() {
-    if (this.isChecked) return; // Prevent if already correct
-
-    // Reset play button if audio was playing (optional, mostly it stops by itself)
+    if (this.isChecked) return;
     this.updatePlayButton(false);
 
     const seg = this.segments[this.currentIndex];
     const userText = this.elements.userInput.value.trim();
-    const isCorrect = normalizeForCompare(userText) === normalizeForCompare(seg.correct_text);
 
-    this.elements.feedback.classList.remove('hidden');
-
-    if (isCorrect) {
-      // CORRECT CASE
-      this.isChecked = true;
-      this.correctCount++;
-      
-      this.elements.feedbackContent.innerHTML = `
-        <div class="diff-result diff-result--correct">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          Chính xác!
-        </div>
-        <div class="diff-answer">${seg.correct_text}</div>
-      `;
-      
-      this.elements.userInput.disabled = true;
-      this.elements.btnCheck.classList.add('hidden');
-      if (this.elements.btnReveal) this.elements.btnReveal.classList.add('hidden');
-      
-      this.elements.btnNext.classList.remove('hidden');
-      this.elements.btnNext.focus();
-      
-    } else {
-      // INCORRECT CASE - RETRY LOOP
-      this.attempts++;
-      
+    // Empty input guard
+    if (!userText) {
+      this.elements.feedback.classList.remove('hidden');
       this.elements.feedbackContent.innerHTML = `
         <div class="diff-result diff-result--wrong">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
-          Chưa đúng, thử lại lần nữa (${this.attempts})
+          Hãy nhập câu trả lời
+        </div>
+      `;
+      return;
+    }
+
+    // Align words using LCS with fuzzy matching
+    const uWords = userText.split(/\s+/).filter(w => w);
+    const cWords = seg.correct_text.trim().split(/\s+/).filter(w => w);
+    const alignment = lcsAlign(uWords, cWords);
+
+    const exactCount = alignment.filter(a => a.type === 'exact').length;
+    const nearCount = alignment.filter(a => a.type === 'near').length;
+    const missingCount = alignment.filter(a => a.type === 'missing').length;
+    const extraCount = alignment.filter(a => a.type === 'extra').length;
+
+    const isExactCorrect = normalizeForCompare(userText) === normalizeForCompare(seg.correct_text);
+    const isNearCorrect = missingCount === 0 && extraCount === 0 && nearCount > 0;
+
+    this.elements.feedback.classList.remove('hidden');
+
+    if (isExactCorrect || isNearCorrect) {
+      // CORRECT — exact or all words matched with minor typos
+      this.isChecked = true;
+      this.correctCount++;
+
+      if (isExactCorrect) {
+        this.elements.feedbackContent.innerHTML = `
+          <div class="diff-result diff-result--correct">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Chính xác!
+          </div>
+          <div class="diff-answer">${seg.correct_text}</div>
+        `;
+      } else {
+        // Near-correct: accepted but show typos for learning
+        this.elements.feedbackContent.innerHTML = `
+          <div class="diff-result diff-result--correct" style="background:#fefce8;border-color:#facc15;color:#a16207;">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Đúng rồi! Có ${nearCount} lỗi chính tả nhỏ
+          </div>
+          <div class="diff-box">${diffString(userText, seg.correct_text)}</div>
+        `;
+      }
+
+      this.elements.userInput.disabled = true;
+      this.elements.btnCheck.classList.add('hidden');
+      if (this.elements.btnReveal) this.elements.btnReveal.classList.add('hidden');
+      this.elements.btnNext.classList.remove('hidden');
+      this.elements.btnNext.focus();
+
+    } else {
+      // INCORRECT — show partial score and LCS diff
+      this.attempts++;
+      const matchedWords = exactCount + nearCount;
+      const scoreText = `${matchedWords}/${cWords.length} từ đúng`;
+
+      this.elements.feedbackContent.innerHTML = `
+        <div class="diff-result diff-result--wrong">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Chưa đúng — ${scoreText}
         </div>
         <div class="diff-box">${diffString(userText, seg.correct_text)}</div>
       `;
-      
-      // User can still edit
+
       this.elements.userInput.disabled = false;
       this.elements.userInput.focus();
-      
-      // Show Reveal button if attempts >= 3
+
       if (this.attempts >= this.MAX_ATTEMPTS && this.elements.btnReveal) {
         this.elements.btnReveal.classList.remove('hidden');
       }
