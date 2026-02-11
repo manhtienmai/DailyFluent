@@ -1153,17 +1153,17 @@
               <span class="set-hero-badge set-hero-badge--status set-hero-badge--{{ set_status }}">
                 {% if set_status == 'completed' %}
                   <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                  Complete
+                  Hoan thanh
                 {% elif set_status == 'in_progress' %}
-                  In Progress
+                  Dang hoc
                 {% else %}
-                  Not Started
+                  Chua bat dau
                 {% endif %}
               </span>
             </div>
             <h1 class="set-hero-title">{% if is_jp %}{{ vocab_set.title }}{% else %}Set {{ set_number }}{% if vocab_set.priority_range %} &middot; Priority {{ vocab_set.priority_range }}{% endif %}{% endif %}</h1>
             <div class="set-hero-meta">
-              <span>{{ total_count }} words</span>
+              <span>{{ total_count }} tu</span>
               {% if vocab_set.chapter_name %}
               <span class="set-hero-meta-dot"></span>
               <span>{{ vocab_set.chapter_name }}</span>
@@ -1176,13 +1176,13 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/>
             </svg>
-            Learn
+            Hoc
           </a>
           <a href="{% url 'vocab:course_quiz' slug=course.slug set_number=set_number %}" class="set-action-btn set-action-btn--quiz">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            Quiz
+            Kiem tra
           </a>
         </div>
       </div>
@@ -1192,15 +1192,15 @@
     <section class="set-stats-bar">
       <article class="glass-panel-light set-stat-chip">
         <div class="set-stat-value set-stat-value--green">{{ known_count }}</div>
-        <div class="set-stat-label">Known</div>
+        <div class="set-stat-label">Da thuoc</div>
       </article>
       <article class="glass-panel-light set-stat-chip">
         <div class="set-stat-value set-stat-value--blue">{{ new_count }}</div>
-        <div class="set-stat-label">New</div>
+        <div class="set-stat-label">Chua hoc</div>
       </article>
       <article class="glass-panel-light set-stat-chip">
         <div class="set-stat-value set-stat-value--amber">{% if quiz_best > 0 %}{{ quiz_best }}%{% else %}&mdash;{% endif %}</div>
-        <div class="set-stat-label">Best Quiz</div>
+        <div class="set-stat-label">Diem cao</div>
       </article>
       <div class="glass-panel-light set-progress-chip">
         <div class="set-progress-header">
@@ -1208,7 +1208,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
-            Progress
+            Tien do
           </span>
           <span class="set-progress-pct">{{ progress_pct }}%</span>
         </div>
@@ -1223,7 +1223,7 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
       </svg>
-      Vocabulary &middot; {{ total_count }} words
+      Tu vung &middot; {{ total_count }} tu
     </div>
 
     {% if is_jp %}
@@ -1237,7 +1237,7 @@
           <div class="jp-main">
             <div class="jp-word-row">
               <span class="jp-kanji">{% if item.html_display %}{{ item.html_display|safe }}{% else %}{{ item.word }}{% endif %}</span>
-              {% if item.reading %}<span class="jp-reading">{{ item.reading }}</span>{% endif %}
+              {% if not item.html_display and item.reading %}<span class="jp-reading">{{ item.reading }}</span>{% endif %}
               {% if item.han_viet %}<span class="jp-hanviet">{{ item.han_viet }}</span>{% endif %}
             </div>
             <div class="jp-meaning">{{ item.meaning }}</div>
@@ -1280,7 +1280,7 @@
       </article>
       {% empty %}
       <div class="jp-card empty-state">
-        <p>No words in this set yet.</p>
+        <p>Chua co tu vung trong bo nay.</p>
       </div>
       {% endfor %}
     </div>
@@ -1315,7 +1315,7 @@
       </article>
       {% empty %}
       <div class="empty-state">
-        <p>No words in this set yet.</p>
+        <p>Chua co tu vung trong bo nay.</p>
       </div>
       {% endfor %}
     </div>
@@ -1335,20 +1335,20 @@
           </svg>
           <span class="bottom-ring-pct">{{ progress_pct }}%</span>
         </div>
-        <span class="bottom-text"><span>{{ known_count }}</span>/{{ total_count }} words mastered</span>
+        <span class="bottom-text"><span>{{ known_count }}</span>/{{ total_count }} tu da thuoc</span>
       </div>
       <div class="bottom-btns">
         <a href="{% url 'vocab:course_quiz' slug=course.slug set_number=set_number %}" class="bottom-btn bottom-btn--quiz">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
-          Quiz
+          Kiem tra
         </a>
         <a href="{% url 'vocab:course_learn' slug=course.slug set_number=set_number %}" class="bottom-btn bottom-btn--learn">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/>
           </svg>
-          Learn
+          Hoc
         </a>
       </div>
     </div>
