@@ -135,14 +135,32 @@ class WordDefinition(models.Model):
     """
     entry = models.ForeignKey(WordEntry, on_delete=models.CASCADE, related_name='definitions')
     meaning = models.TextField(help_text="Nghĩa tiếng Việt")
-    example_sentence = models.TextField(blank=True, help_text="Câu ví dụ tiếng Anh")
-    example_trans = models.TextField(blank=True, help_text="Dịch câu ví dụ")
     image_url = models.CharField(max_length=500, blank=True, null=True, help_text="Ảnh minh họa")
     extra_data = models.JSONField(
-        default=dict, 
-        blank=True, 
+        default=dict,
+        blank=True,
         help_text="Dữ liệu bổ sung (VD: Furigana cho ví dụ)"
     )
+
+    @property
+    def primary_example(self):
+        """Get the first ExampleSentence, prefetch-aware."""
+        if 'examples' in getattr(self, '_prefetched_objects_cache', {}):
+            examples = self.examples.all()
+            return examples[0] if examples else None
+        return self.examples.first()
+
+    @property
+    def example_sentence(self):
+        """Backward-compatible: returns primary example sentence text."""
+        ex = self.primary_example
+        return ex.sentence if ex else ''
+
+    @property
+    def example_trans(self):
+        """Backward-compatible: returns primary example translation."""
+        ex = self.primary_example
+        return ex.translation if ex else ''
 
     def __str__(self):
         return f"{self.entry.vocab.word} ({self.entry.part_of_speech}): {self.meaning}"
@@ -150,6 +168,42 @@ class WordDefinition(models.Model):
     class Meta:
         verbose_name = "Word Definition"
         verbose_name_plural = "Word Definitions"
+
+
+class ExampleSentence(models.Model):
+    """
+    Câu ví dụ cho một nghĩa (WordDefinition).
+    Hỗ trợ nhiều câu ví dụ từ nhiều nguồn khác nhau.
+    """
+    class Source(models.TextChoices):
+        CAMBRIDGE = 'cambridge', 'Cambridge'
+        TOEIC_600 = 'toeic_600', 'TOEIC 600'
+        TOEIC_730 = 'toeic_730', 'TOEIC 730'
+        TOEIC_860 = 'toeic_860', 'TOEIC 860'
+        TOEIC_990 = 'toeic_990', 'TOEIC 990'
+        MIMIKARA_N2 = 'mimikara_n2', 'Mimikara N2'
+        OXFORD = 'oxford', 'Oxford'
+        USER = 'user', 'User'
+        OTHER = 'other', 'Other'
+
+    definition = models.ForeignKey(
+        WordDefinition, on_delete=models.CASCADE, related_name='examples'
+    )
+    sentence = models.TextField(help_text="Câu ví dụ tiếng Anh")
+    translation = models.TextField(blank=True, help_text="Dịch câu ví dụ")
+    source = models.CharField(
+        max_length=20, choices=Source.choices, default=Source.CAMBRIDGE, db_index=True
+    )
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Example Sentence"
+        verbose_name_plural = "Example Sentences"
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"{self.definition} - {self.sentence[:50]}"
 
 
 class Course(models.Model):
@@ -160,7 +214,13 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
     description = models.TextField(blank=True)
-    
+
+    language = models.CharField(
+        max_length=10,
+        choices=Vocabulary.Language.choices,
+        default=Vocabulary.Language.ENGLISH,
+    )
+
     # Link to legacy integer level for compatibility with VocabularySet
     toeic_level = models.IntegerField(unique=True, null=True, blank=True)
     
@@ -279,6 +339,27 @@ class SetItem(models.Model):
         verbose_name = "Set Item"
         verbose_name_plural = "Set Items"
         ordering = ['display_order', 'created_at']
+
+
+class SetItemExample(models.Model):
+    """
+    Liên kết ExampleSentence với SetItem cụ thể.
+    Cho phép mỗi bộ từ vựng chọn riêng ví dụ nào hiển thị cho từng từ.
+    - Khi có set context: dùng set_item.set_examples
+    - Khi không có set context: fallback về definition.examples
+    """
+    set_item = models.ForeignKey(SetItem, on_delete=models.CASCADE, related_name='set_examples')
+    example = models.ForeignKey(ExampleSentence, on_delete=models.CASCADE, related_name='set_item_links')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Set Item Example"
+        verbose_name_plural = "Set Item Examples"
+        unique_together = ('set_item', 'example')
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.set_item} → {self.example.sentence[:40]}"
 
 
 class FsrsCardStateEn(models.Model):

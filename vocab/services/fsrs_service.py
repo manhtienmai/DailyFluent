@@ -17,14 +17,15 @@ from datetime import timedelta
 from typing import Optional, Dict, Any, List, Tuple
 
 from django.utils import timezone
-from django.db import models
-from django.db.models import Q
+from django.db import models, transaction
+from django.db.models import Q, F
 
 from vocab.models import Vocabulary, FsrsCardStateEn, WordDefinition
 from vocab.fsrs_bridge import (
     review_card,
     preview_intervals,
     create_new_card_state,
+    card_data_to_dict,
     should_requeue_in_session,
     get_card_state,
     CARD_STATE_NEW,
@@ -51,7 +52,7 @@ class FsrsService:
     def get_or_create_card_state(user, vocab: Vocabulary) -> Tuple[FsrsCardStateEn, bool]:
         """
         Get existing card state or create a new one.
-        
+
         Returns:
             Tuple of (card_state, created)
         """
@@ -59,7 +60,7 @@ class FsrsService:
             user=user,
             vocab=vocab,
             defaults={
-                'card_data': json.loads(create_new_card_state().to_json()),
+                'card_data': card_data_to_dict(create_new_card_state()),
                 'state': CARD_STATE_NEW,
                 'due': timezone.now(),
             }
@@ -162,71 +163,80 @@ class FsrsService:
     
     @staticmethod
     def grade_card(
-        user, 
-        vocab_id: int, 
+        user,
+        vocab_id: int,
         rating: str,
         create_if_missing: bool = True
     ) -> Dict[str, Any]:
         """
         Grade a card and update its FSRS state.
-        
+
+        Uses select_for_update to prevent race conditions from double-clicks,
+        and F() expressions for atomic counter increments.
+
         Args:
             user: The user
             vocab_id: ID of the Vocabulary
             rating: 'again', 'hard', 'good', or 'easy'
             create_if_missing: If True, create card state for new cards
-            
+
         Returns:
             Dict with 'success', 'intervals', 'requeue', 'requeue_delay_ms', 'new_state'
         """
         if rating not in ('again', 'hard', 'good', 'easy'):
             return {'success': False, 'error': 'Invalid rating'}
-        
+
         try:
             vocab = Vocabulary.objects.get(id=vocab_id)
         except Vocabulary.DoesNotExist:
             return {'success': False, 'error': 'Vocabulary not found'}
-        
-        # Get or create card state
-        if create_if_missing:
-            card_state, created = FsrsService.get_or_create_card_state(user, vocab)
-        else:
-            try:
-                card_state = FsrsCardStateEn.objects.get(user=user, vocab=vocab)
-                created = False
-            except FsrsCardStateEn.DoesNotExist:
-                return {'success': False, 'error': 'Card state not found'}
-        
-        # Perform FSRS review
-        new_card_json, review_log_json, due_dt = review_card(
-            card_state.card_data, 
-            rating
-        )
-        
-        # Parse JSON if needed
-        if isinstance(new_card_json, str):
-            new_card_json = json.loads(new_card_json)
-        
-        # Update card state
-        card_state.card_data = new_card_json
-        card_state.due = due_dt
-        card_state.state = new_card_json.get('state', 0)
-        card_state.last_review = timezone.now()
-        card_state.total_reviews += 1
-        if rating in ('good', 'easy'):
-            card_state.successful_reviews += 1
-        card_state.save()
-        
-        # Calculate requeue info
-        requeue = should_requeue_in_session(new_card_json, due_dt)
+
+        with transaction.atomic():
+            # Get or create card state with row-level lock
+            if create_if_missing:
+                card_state, created = FsrsService.get_or_create_card_state(user, vocab)
+                if not created:
+                    # Re-fetch with lock to prevent concurrent updates
+                    card_state = FsrsCardStateEn.objects.select_for_update().get(pk=card_state.pk)
+            else:
+                try:
+                    card_state = FsrsCardStateEn.objects.select_for_update().get(
+                        user=user, vocab=vocab
+                    )
+                except FsrsCardStateEn.DoesNotExist:
+                    return {'success': False, 'error': 'Card state not found'}
+
+            # Perform FSRS review (returns dict now, not string)
+            new_card_data, review_log_data, due_dt = review_card(
+                card_state.card_data,
+                rating
+            )
+
+            # Update card state fields
+            card_state.card_data = new_card_data
+            card_state.due = due_dt
+            card_state.state = new_card_data.get('state', 0)
+            card_state.last_review = timezone.now()
+
+            # Atomic counter increments via F() to prevent race conditions
+            card_state.total_reviews = F('total_reviews') + 1
+            if rating in ('good', 'easy'):
+                card_state.successful_reviews = F('successful_reviews') + 1
+            card_state.save()
+
+            # Refresh to get actual counter values after F() expression
+            card_state.refresh_from_db()
+
+        # Calculate requeue info (outside transaction — read-only)
+        requeue = should_requeue_in_session(new_card_data, due_dt)
         requeue_delay_ms = 0
         if requeue:
             delta = (due_dt - timezone.now()).total_seconds() * 1000
             requeue_delay_ms = max(0, int(delta))
-        
+
         # Get new intervals for UI
-        new_intervals = preview_intervals(new_card_json)
-        
+        new_intervals = preview_intervals(new_card_data)
+
         return {
             'success': True,
             'intervals': new_intervals,

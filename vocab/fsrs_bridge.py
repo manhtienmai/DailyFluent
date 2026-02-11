@@ -5,6 +5,7 @@ Bridge giữa Django và thư viện py-fsrs.
 - Anki-like session management với learning queue
 """
 
+import json
 from datetime import timedelta
 from django.utils import timezone
 
@@ -42,16 +43,14 @@ def create_new_card_state() -> Card:
     return Card()
 
 
+from .utils import card_data_to_dict
+
 def get_card_state(card_json) -> int:
     """
     Lấy state hiện tại của card.
     Returns: 0=New, 1=Learning, 2=Review, 3=Relearning
     """
-    if isinstance(card_json, str):
-        import json
-        card_data = json.loads(card_json)
-    else:
-        card_data = card_json
+    card_data = card_data_to_dict(card_json)
     return card_data.get('state', CARD_STATE_NEW)
 
 
@@ -113,25 +112,28 @@ def get_interval_display(card_json, due_dt) -> str:
             return f"{days / 365:.1f}y"
 
 
+def _deserialize_card(card_json) -> Card:
+    """Deserialize card_data (dict or str) into an FSRS Card object."""
+    if isinstance(card_json, Card):
+        return card_json
+    if isinstance(card_json, str):
+        return Card.from_json(card_json)
+    return Card.from_json(json.dumps(card_json))
+
+
 def review_card(card_json, rating_key: str):
     """
     Chấm điểm 1 card với FSRS.
 
     Args:
-        card_json: object JSON từ DB (dict hoặc string) của Card
+        card_json: card data (dict, JSON string, or Card object)
         rating_key: "again" | "hard" | "good" | "easy"
 
     Returns:
-        tuple: (new_card_json, review_log_json, due_datetime)
+        tuple: (new_card_data: dict, review_log_data: dict, due_datetime)
     """
-    # 1. Deserialize Card từ JSON (accepts dict or str)
-    if isinstance(card_json, str):
-        card = Card.from_json(card_json)
-    else:
-        import json as _json
-        card = Card.from_json(_json.dumps(card_json))
+    card = _deserialize_card(card_json)
 
-    # 2. Map rating key -> Rating enum
     rating_map = {
         "again": Rating.Again,
         "hard": Rating.Hard,
@@ -140,33 +142,26 @@ def review_card(card_json, rating_key: str):
     }
     rating = rating_map.get(rating_key, Rating.Good)
 
-    # 3. Review card với FSRS
     updated_card, review_log = scheduler.review_card(card, rating)
 
-    # 4. Serialize lại thành JSON (đây là JSON-serializable object, hợp với JSONField)
-    new_card_json = updated_card.to_json()
-    review_log_json = review_log.to_json()
-
-    # 5. FSRS dùng UTC-only, updated_card.due là timezone-aware UTC datetime
+    # Always return dict (compatible with Django JSONField)
+    new_card_data = json.loads(updated_card.to_json())
+    review_log_data = json.loads(review_log.to_json())
     due_dt = updated_card.due
 
-    return new_card_json, review_log_json, due_dt
+    return new_card_data, review_log_data, due_dt
 
 
 def preview_intervals(card_json) -> dict:
     """
     Preview các interval cho mỗi rating option.
     Dùng để hiển thị trên nút grade giống Anki: "Again (1m)" "Good (10m)" "Easy (4d)"
-    
+
     Returns:
         dict: {"again": "1m", "hard": "6m", "good": "10m", "easy": "4d"}
     """
-    if isinstance(card_json, str):
-        card = Card.from_json(card_json)
-    else:
-        import json as _json
-        card = Card.from_json(_json.dumps(card_json))
-    
+    card = _deserialize_card(card_json)
+
     result = {}
     for rating_key, rating_enum in [
         ("again", Rating.Again),
@@ -174,8 +169,7 @@ def preview_intervals(card_json) -> dict:
         ("good", Rating.Good),
         ("easy", Rating.Easy),
     ]:
-        # Preview what would happen with this rating
         preview_card, _ = scheduler.review_card(card, rating_enum)
         result[rating_key] = get_interval_display(None, preview_card.due)
-    
+
     return result

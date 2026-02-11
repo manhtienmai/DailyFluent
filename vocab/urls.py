@@ -20,9 +20,7 @@ urlpatterns = [
 
     # Lists
     path('', views.EnglishListView.as_view(), name='list'),
-    path('english/', views.EnglishListView.as_view(), name='english_list'),
     path('english/<str:word>/', views.VocabularyDetailView.as_view(), name='vocabulary_detail'),
-    path('games/', views.GamesView.as_view(), name='games'),
 
     path('progress/', views.ProgressView.as_view(), name='progress'),
     path('study-status/', views.StudyStatusView.as_view(), name='study_status'),
@@ -43,7 +41,8 @@ urlpatterns = [
     
     path('toeic/review/', views.ToeicReviewView.as_view(), name='toeic_review'),
 
-    # Games (Placeholders)
+    # Games
+    path('games/', views.GamesView.as_view(), name='games'),
     path('games/mcq/', views.GameMCQView.as_view(), name='game_mcq'),
     path('games/matching/', views.GameMatchingView.as_view(), name='game_matching'),
     path('games/listening/', views.GameListeningView.as_view(), name='game_listening'),

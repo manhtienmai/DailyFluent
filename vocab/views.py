@@ -14,10 +14,11 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.decorators import login_required
 import json
 import random
-from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress, Course
+from .models import VocabularySet, SetItem, WordDefinition, WordEntry, Vocabulary, FsrsCardStateEn, UserSetProgress, Course, ExampleSentence
 from .toeic_config import TOEIC_LEVELS, TOEIC_LEVEL_ORDER
 from . import toeic_utils
-from .fsrs_bridge import create_new_card_state, review_card, preview_intervals, card_data_to_dict
+from .fsrs_bridge import create_new_card_state, review_card, preview_intervals
+from .utils import card_data_to_dict
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +98,9 @@ class SetDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Get items for this set
-        items = self.object.items.select_related('definition__entry__vocab').order_by('display_order', 'created_at')
+        items = self.object.items.select_related(
+            'definition__entry__vocab'
+        ).prefetch_related('definition__examples').order_by('display_order', 'created_at')
         context['items'] = items
         return context
 
@@ -120,8 +123,10 @@ class SetStudyView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Get items for this set
-        items = self.object.items.select_related('definition__entry__vocab').order_by('display_order', 'created_at')
-        
+        items = self.object.items.select_related(
+            'definition__entry__vocab'
+        ).prefetch_related('definition__examples').order_by('display_order', 'created_at')
+
         items_data = []
         for item in items:
             d = item.definition
@@ -349,11 +354,18 @@ def import_json_view(request, pk):
                 entry=entry_obj,
                 meaning=meaning,
                 defaults={
-                    'example_sentence': word_data.get('example', ''),
-                    'example_trans': word_data.get('example_trans', ''),
                     'extra_data': def_extra,
                 }
             )
+            # Create ExampleSentence if provided
+            example_text = word_data.get('example', '')
+            if created and example_text:
+                ExampleSentence.objects.create(
+                    definition=definition_obj,
+                    sentence=example_text,
+                    translation=word_data.get('example_trans', ''),
+                    source='user',
+                )
             
             # Check if already in set
             if SetItem.objects.filter(vocabulary_set=vocab_set, definition=definition_obj).exists():
@@ -446,7 +458,7 @@ class VocabularyDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Prefetch entries and definitions
-        context['entries'] = self.object.entries.prefetch_related('definitions').order_by('part_of_speech')
+        context['entries'] = self.object.entries.prefetch_related('definitions__examples').order_by('part_of_speech')
         return context
 
 
@@ -480,48 +492,67 @@ class CourseListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         
-        # Get active courses
-        courses = Course.objects.filter(is_active=True).order_by('toeic_level')
-        
+        # Get active courses - TOEIC first (by level), then non-TOEIC
+        courses = Course.objects.filter(is_active=True).order_by(
+            F('toeic_level').asc(nulls_last=True), 'title'
+        )
+
         # Calculate stats for each course
         courses_data = []
         for course in courses:
             level = course.toeic_level
-            if not level: continue
-            
-            completion = toeic_utils.get_level_completion_percent(user, level)
-            learned_count = toeic_utils.get_level_words_learned_count(user, level)
-            
-            # Count sets (published)
-            total_sets = VocabularySet.objects.filter(toeic_level=level, status='published').count()
-            
-            # Count total words (published)
-            total_words = SetItem.objects.filter(
-                vocabulary_set__toeic_level=level, 
-                vocabulary_set__status='published'
-            ).count()
 
-            completed_sets = UserSetProgress.objects.filter(
-                user=user, 
-                vocabulary_set__toeic_level=level, 
-                status=UserSetProgress.ProgressStatus.COMPLETED
-            ).count()
+            if level:
+                # TOEIC course - use existing toeic_utils
+                completion = toeic_utils.get_level_completion_percent(user, level)
+                learned_count = toeic_utils.get_level_words_learned_count(user, level)
+                total_sets = VocabularySet.objects.filter(toeic_level=level, status='published').count()
+                total_words = SetItem.objects.filter(
+                    vocabulary_set__toeic_level=level,
+                    vocabulary_set__status='published'
+                ).count()
+                completed_sets = UserSetProgress.objects.filter(
+                    user=user,
+                    vocabulary_set__toeic_level=level,
+                    status=UserSetProgress.ProgressStatus.COMPLETED
+                ).count()
+            else:
+                # Non-TOEIC course (e.g. JP) - calculate stats from language
+                lang = course.language
+                jp_sets_qs = VocabularySet.objects.filter(language=lang, toeic_level__isnull=True, status='published')
+                total_sets = jp_sets_qs.count()
+                total_words = SetItem.objects.filter(
+                    vocabulary_set__in=jp_sets_qs
+                ).count()
+                completed_sets = UserSetProgress.objects.filter(
+                    user=user,
+                    vocabulary_set__in=jp_sets_qs,
+                    status=UserSetProgress.ProgressStatus.COMPLETED
+                ).count()
+                # Learned words via FSRS
+                jp_vocab_ids = SetItem.objects.filter(
+                    vocabulary_set__in=jp_sets_qs
+                ).values_list('definition__entry__vocab_id', flat=True)
+                learned_count = FsrsCardStateEn.objects.filter(
+                    user=user, vocab_id__in=jp_vocab_ids, state__gt=0
+                ).count()
+                completion = round(learned_count / total_words * 100) if total_words > 0 else 0
 
             courses_data.append({
                 'object': course,
-                'slug': course.slug, 
+                'slug': course.slug,
                 'completion': completion,
                 'words_learned': learned_count,
                 'total_sets': total_sets,
                 'total_words': total_words,
                 'completed_sets': completed_sets,
-                # For compatibility with template that expects 'config' dict
                 'config': {
                     'label': course.title,
                     'description': course.description,
                     'icon': course.icon,
                     'gradient': course.gradient,
-                    'level': level
+                    'level': level,
+                    'language': course.language,
                 }
             })
 
@@ -598,15 +629,17 @@ class MyWordsView(LoginRequiredMixin, ListView):
             status='in_progress'
         ).select_related('vocabulary_set').order_by('-started_at')[:5])
         
-        # Attach course slugs by level
-        # This is a quick fix. Ideally VocabularySet should have a FK to Course.
+        # Attach course slugs by level or language
         courses = Course.objects.all()
-        level_slug_map = {c.toeic_level: c.slug for c in courses}
-        
+        level_slug_map = {c.toeic_level: c.slug for c in courses if c.toeic_level is not None}
+        lang_slug_map = {c.language: c.slug for c in courses if c.toeic_level is None}
+
         for progress in learning_sets:
             lvl = progress.vocabulary_set.toeic_level
-            # Default fallback if map missing (e.g. custom sets) -> assume 'toeic-600-essential' or just string
-            progress.course_slug = level_slug_map.get(lvl, 'toeic-600-essential')
+            if lvl is not None:
+                progress.course_slug = level_slug_map.get(lvl, 'toeic-600-essential')
+            else:
+                progress.course_slug = lang_slug_map.get(progress.vocabulary_set.language, 'mimikara-n2')
 
         context['learning_sets'] = learning_sets
         
@@ -619,12 +652,10 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs['slug']
         user = self.request.user
-        
+
         course = get_object_or_404(Course, slug=slug)
         level = course.toeic_level
-        
-        if not level:
-             raise Http404("Course has no associated TOEIC level")
+        is_toeic = level is not None
 
         # Config dict for template compatibility
         config = {
@@ -632,19 +663,25 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             'description': course.description,
             'icon': course.icon,
             'gradient': course.gradient,
-            'level': level
+            'level': level,
+            'language': course.language,
         }
-        
-        sets = VocabularySet.objects.filter(
-            toeic_level=level, status='published'
-        ).order_by('chapter', 'set_number')
 
-        # Group by chapter -> sets (no milestones)
+        if is_toeic:
+            sets = VocabularySet.objects.filter(
+                toeic_level=level, status='published'
+            ).order_by('chapter', 'set_number')
+        else:
+            sets = VocabularySet.objects.filter(
+                language=course.language, toeic_level__isnull=True, status='published'
+            ).order_by('chapter', 'set_number')
+
+        # Group by chapter -> sets
         chapters = {}
         for s in sets:
             chapter_num = s.chapter or 1
             chapter_name = s.chapter_name or f"Chapter {chapter_num}"
-            
+
             if chapter_num not in chapters:
                 chapters[chapter_num] = {
                     'number': chapter_num,
@@ -653,12 +690,23 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
                     'words_total': 0,
                     'words_learned': 0,
                 }
-            
-            state = toeic_utils.get_set_state(user, level, s.set_number)
+
+            if is_toeic:
+                state = toeic_utils.get_set_state(user, level, s.set_number)
+            else:
+                # Compute state directly from UserSetProgress
+                prog = UserSetProgress.objects.filter(user=user, vocabulary_set=s).first()
+                if not prog or prog.status == UserSetProgress.ProgressStatus.NOT_STARTED:
+                    state = 'available'
+                elif prog.status == UserSetProgress.ProgressStatus.IN_PROGRESS:
+                    state = 'in_progress'
+                else:
+                    state = 'completed'
+
             progress = UserSetProgress.objects.filter(user=user, vocabulary_set=s).first()
             words_total = s.items.count()
             words_learned = progress.words_learned if progress else 0
-            
+
             set_data = {
                 'set': s,
                 'state': state,
@@ -666,7 +714,7 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
                 'words_total': words_total,
                 'quiz_score': progress.quiz_best_score if progress else 0,
             }
-            
+
             chapters[chapter_num]['sets'].append(set_data)
             chapters[chapter_num]['words_total'] += words_total
             chapters[chapter_num]['words_learned'] += words_learned
@@ -677,10 +725,25 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             ch['completion'] = round((ch['words_learned'] / ch['words_total'] * 100) if ch['words_total'] > 0 else 0)
 
         total_words = sum(ch['words_total'] for ch in chapters_list)
-        learned_words = toeic_utils.get_level_words_learned_count(user, level)
-        completion = toeic_utils.get_level_completion_percent(user, level)
 
-        # Aggregate set stats for the level
+        if is_toeic:
+            learned_words = toeic_utils.get_level_words_learned_count(user, level)
+            completion = toeic_utils.get_level_completion_percent(user, level)
+            review_count = toeic_utils.get_level_review_count(user, level)
+        else:
+            set_ids = [s.id for s in sets]
+            jp_vocab_ids = SetItem.objects.filter(
+                vocabulary_set_id__in=set_ids
+            ).values_list('definition__entry__vocab_id', flat=True)
+            learned_words = FsrsCardStateEn.objects.filter(
+                user=user, vocab_id__in=jp_vocab_ids, state__gt=0
+            ).count()
+            completion = round(learned_words / total_words * 100) if total_words > 0 else 0
+            review_count = FsrsCardStateEn.objects.filter(
+                user=user, vocab_id__in=jp_vocab_ids, due__lte=timezone.now()
+            ).count()
+
+        # Aggregate set stats
         all_sets_flat = [sd for ch in chapters_list for sd in ch['sets']]
         total_sets = len(all_sets_flat)
         completed_sets = sum(1 for sd in all_sets_flat if sd['state'] == 'completed')
@@ -694,7 +757,7 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             'total_words': total_words,
             'learned_words': learned_words,
             'completion': completion,
-            'review_count': toeic_utils.get_level_review_count(user, level),
+            'review_count': review_count,
             'total_sets': total_sets,
             'completed_sets': completed_sets,
             'in_progress_sets': in_progress_sets,
@@ -711,59 +774,84 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
         slug = self.kwargs['slug']
         set_number = self.kwargs['set_number']
         user = self.request.user
-        
+
         course = get_object_or_404(Course, slug=slug)
         level = course.toeic_level
 
-        vocab_set = get_object_or_404(
-            VocabularySet, toeic_level=level, set_number=set_number, status='published'
-        )
+        if level is not None:
+            vocab_set = get_object_or_404(
+                VocabularySet, toeic_level=level, set_number=set_number, status='published'
+            )
+        else:
+            vocab_set = get_object_or_404(
+                VocabularySet, language=course.language, toeic_level__isnull=True,
+                set_number=set_number, status='published'
+            )
         
-        # Get items
+        is_jp = course.language == 'jp'
+
+        # Get items with related data
         items = vocab_set.items.select_related(
             'definition__entry__vocab'
-        ).order_by('display_order', 'created_at')
+        ).prefetch_related('definition__examples', 'set_examples__example').order_by('display_order', 'created_at')
 
         # Get user progress for each item
         from .models import FsrsCardStateEn
-        
+
         vocab_status_map = {}
         if user.is_authenticated:
             vocab_ids = [item.definition.entry.vocab_id for item in items]
-            
+
             states = FsrsCardStateEn.objects.filter(
-                user=user, 
+                user=user,
                 vocab_id__in=vocab_ids
             ).values('vocab_id', 'state')
-            
+
             for s in states:
                 status = 'known' if s['state'] > 0 else 'new'
                 vocab_status_map[s['vocab_id']] = status
 
         items_data = []
         voice_pref = 'us'
-        
+
         for item in items:
             d = item.definition
             e = d.entry
             v = e.vocab
             status = vocab_status_map.get(v.id, 'new')
-            
-            items_data.append({
+
+            item_dict = {
                 'word': v.word,
                 'ipa': e.ipa,
                 'meaning': d.meaning,
                 'audio_url': e.get_audio_url(voice_pref),
                 'status': status,
                 'part_of_speech': e.part_of_speech,
-            })
+            }
+
+            if is_jp:
+                extra = v.extra_data or {}
+                item_dict.update({
+                    'reading': extra.get('reading', ''),
+                    'html_display': extra.get('html_display', ''),
+                    'han_viet': extra.get('han_viet', ''),
+                    'audio': extra.get('audio', ''),
+                    'relations': (d.extra_data or {}).get('relations', []),
+                    'examples': [
+                        {'sentence': ex.sentence, 'translation': ex.translation}
+                        for ex in d.examples.all()
+                    ],
+                })
+
+            items_data.append(item_dict)
         
         config = {
             'label': course.title,
             'description': course.description,
             'icon': course.icon,
             'gradient': course.gradient,
-            'level': level
+            'level': level,
+            'language': course.language,
         }
 
         # Computed stats
@@ -779,10 +867,15 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
         quiz_best = user_progress.quiz_best_score if user_progress else 0
         set_status = user_progress.status if user_progress else 'not_started'
 
-        # Navigation: prev/next sets within the same level
-        level_sets = VocabularySet.objects.filter(
-            toeic_level=level, status='published'
-        ).order_by('set_number').values_list('set_number', flat=True)
+        # Navigation: prev/next sets within the same course
+        if level is not None:
+            level_sets = VocabularySet.objects.filter(
+                toeic_level=level, status='published'
+            ).order_by('set_number').values_list('set_number', flat=True)
+        else:
+            level_sets = VocabularySet.objects.filter(
+                language=course.language, toeic_level__isnull=True, status='published'
+            ).order_by('set_number').values_list('set_number', flat=True)
         set_numbers = list(level_sets)
         current_idx = set_numbers.index(set_number) if set_number in set_numbers else -1
         prev_set = set_numbers[current_idx - 1] if current_idx > 0 else None
@@ -795,6 +888,7 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
             'config': config,
             'vocab_set': vocab_set,
             'items': items_data,
+            'is_jp': is_jp,
             'known_count': known_count,
             'new_count': new_count,
             'total_count': total_count,
@@ -814,20 +908,25 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
         slug = self.kwargs['slug']
         set_number = self.kwargs['set_number']
         user = self.request.user
-        
+
         course = get_object_or_404(Course, slug=slug)
         level = course.toeic_level
 
-        if not toeic_utils.is_set_accessible(user, level, set_number):
-            # For backward compatibility with utilization
+        if level is not None and not toeic_utils.is_set_accessible(user, level, set_number):
             raise Http404("Set is locked")
 
-        vocab_set = get_object_or_404(
-            VocabularySet, toeic_level=level, set_number=set_number, status='published'
-        )
+        if level is not None:
+            vocab_set = get_object_or_404(
+                VocabularySet, toeic_level=level, set_number=set_number, status='published'
+            )
+        else:
+            vocab_set = get_object_or_404(
+                VocabularySet, language=course.language, toeic_level__isnull=True,
+                set_number=set_number, status='published'
+            )
         items = vocab_set.items.select_related(
             'definition__entry__vocab'
-        ).order_by('display_order', 'created_at')
+        ).prefetch_related('definition__examples').order_by('display_order', 'created_at')
 
         # Get user's voice preference
         voice_pref = 'us'
@@ -861,15 +960,8 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
             'description': course.description,
             'icon': course.icon,
             'gradient': course.gradient,
-            'level': level
-        }
-
-        config = {
-            'label': course.title,
-            'description': course.description,
-            'icon': course.icon,
-            'gradient': course.gradient,
-            'level': level
+            'level': level,
+            'language': course.language,
         }
 
         context.update({
@@ -895,21 +987,35 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
         set_number = self.kwargs['set_number']
         user = self.request.user
 
-        if not toeic_utils.is_set_accessible(user, level, set_number):
+        if level is not None and not toeic_utils.is_set_accessible(user, level, set_number):
             raise Http404("Set is locked")
 
-        vocab_set = get_object_or_404(
-            VocabularySet, toeic_level=level, set_number=set_number, status='published'
-        )
+        if level is not None:
+            vocab_set = get_object_or_404(
+                VocabularySet, toeic_level=level, set_number=set_number, status='published'
+            )
+        else:
+            vocab_set = get_object_or_404(
+                VocabularySet, language=course.language, toeic_level__isnull=True,
+                set_number=set_number, status='published'
+            )
+
         items = vocab_set.items.select_related(
             'definition__entry__vocab'
         ).order_by('display_order', 'created_at')
 
-        # Get all meanings from same level for distractors
+        # Get all meanings from same course for distractors
+        if level is not None:
+            distractor_filter = {'included_in_sets__vocabulary_set__toeic_level': level}
+        else:
+            distractor_filter = {
+                'included_in_sets__vocabulary_set__language': course.language,
+                'included_in_sets__vocabulary_set__toeic_level__isnull': True,
+            }
         level_definitions = list(
             WordDefinition.objects.filter(
-                included_in_sets__vocabulary_set__toeic_level=level,
                 included_in_sets__vocabulary_set__status='published',
+                **distractor_filter,
             ).exclude(
                 id__in=[item.definition_id for item in items]
             ).values_list('meaning', flat=True).distinct()
@@ -940,11 +1046,12 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
             'description': course.description,
             'icon': course.icon,
             'gradient': course.gradient,
-            'level': level
+            'level': level,
+            'language': course.language,
         }
 
         context.update({
-            'course': course, # Make sure course is passed
+            'course': course,
             'level': level,
             'set_number': set_number,
             'config': config,
@@ -978,14 +1085,27 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
             due__lte=now,
         ).select_related('vocab')[:50]
 
+        # Prefetch entries, definitions, and examples for all due vocabs
+        from django.db.models import Prefetch
+        vocab_ids = [cs.vocab_id for cs in due_cards]
+        vocab_map = {}
+        if vocab_ids:
+            vocabs_qs = Vocabulary.objects.filter(id__in=vocab_ids).prefetch_related(
+                Prefetch('entries', queryset=WordEntry.objects.all()),
+                Prefetch('entries__definitions', queryset=WordDefinition.objects.prefetch_related('examples')),
+            )
+            vocab_map = {v.id: v for v in vocabs_qs}
+
         cards_data = []
         for card_state in due_cards:
-            vocab = card_state.vocab
+            vocab = vocab_map.get(card_state.vocab_id) or card_state.vocab
             # Get first entry + definition for display
-            entry = vocab.entries.first()
+            entries = list(vocab.entries.all())
+            entry = entries[0] if entries else None
             if not entry:
                 continue
-            definition = entry.definitions.first()
+            definitions = list(entry.definitions.all())
+            definition = definitions[0] if definitions else None
             if not definition:
                 continue
 
@@ -1108,10 +1228,17 @@ def api_toeic_learn_result(request):
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
 
-    try:
-        course_slug = Course.objects.get(toeic_level=level).slug
-    except Course.DoesNotExist:
-        course_slug = f"toeic-{level}"
+    if level is not None:
+        try:
+            course_slug = Course.objects.get(toeic_level=level).slug
+        except Course.DoesNotExist:
+            course_slug = f"toeic-{level}"
+    else:
+        # Non-TOEIC set - find course by language
+        try:
+            course_slug = Course.objects.get(language=vocab_set.language, toeic_level__isnull=True).slug
+        except Course.DoesNotExist:
+            course_slug = 'mimikara-n2'
 
     if progress.status == UserSetProgress.ProgressStatus.COMPLETED:
         next_url = reverse('vocab:course_detail', kwargs={'slug': course_slug})
@@ -1185,10 +1312,16 @@ def api_toeic_quiz_result(request):
     level = vocab_set.toeic_level
     set_number = vocab_set.set_number
 
-    try:
-        course_slug = Course.objects.get(toeic_level=level).slug
-    except Course.DoesNotExist:
-        course_slug = f"toeic-{level}"
+    if level is not None:
+        try:
+            course_slug = Course.objects.get(toeic_level=level).slug
+        except Course.DoesNotExist:
+            course_slug = f"toeic-{level}"
+    else:
+        try:
+            course_slug = Course.objects.get(language=vocab_set.language, toeic_level__isnull=True).slug
+        except Course.DoesNotExist:
+            course_slug = 'mimikara-n2'
 
     return JsonResponse({
         'success': True,

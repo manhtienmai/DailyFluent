@@ -11,15 +11,23 @@ from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.core.files.storage import default_storage
-from .models import Vocabulary, WordEntry, WordDefinition, VocabularySet, SetItem, UserSetProgress, Course
+from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, VocabularySet, SetItem, SetItemExample, UserSetProgress, Course
 from .utils_scraper import scrape_cambridge
+from .services.jp_import import import_jp_vocab_data, distribute_jp_vocab
 import nested_admin
+
+
+class ExampleSentenceInline(nested_admin.NestedTabularInline):
+    """Inline examples under WordDefinition"""
+    model = ExampleSentence
+    extra = 1
 
 
 class WordDefinitionInline(nested_admin.NestedStackedInline):
     """Inline definitions under WordEntry"""
     model = WordDefinition
     extra = 1
+    inlines = [ExampleSentenceInline]
 
 
 class WordEntryInline(nested_admin.NestedStackedInline):
@@ -59,6 +67,8 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             path('chapter-import/', self.admin_site.admin_view(self.chapter_import_view), name='vocab_vocabulary_chapter_import'),
             path('chapter-import/create-set/', self.admin_site.admin_view(self.chapter_import_create_set), name='vocab_vocabulary_chapter_import_create_set'),
             path('upload-image/', self.admin_site.admin_view(self.upload_image_api), name='vocab_vocabulary_upload_image'),
+            path('import-jp/', self.admin_site.admin_view(self.import_jp_view), name='vocab_vocabulary_import_jp'),
+            path('distribute-jp/', self.admin_site.admin_view(self.distribute_jp_view), name='vocab_vocabulary_distribute_jp'),
         ]
         return custom_urls + urls
 
@@ -134,11 +144,17 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                         definition_text = item.get('definition', '')
                         if definition_text:
                             if not entry.definitions.filter(meaning=definition_text).exists():
-                                WordDefinition.objects.create(
+                                defn = WordDefinition.objects.create(
                                     entry=entry,
                                     meaning=definition_text,
-                                    example_sentence=item.get('example', '')
                                 )
+                                example_text = item.get('example', '')
+                                if example_text:
+                                    ExampleSentence.objects.create(
+                                        definition=defn,
+                                        sentence=example_text,
+                                        source='cambridge',
+                                    )
                                 created_entries += 1
             
             # Optionally add to a VocabularySet
@@ -300,13 +316,19 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                                     }
                                 )
                                 # Create Definition
-                                WordDefinition.objects.create(
+                                defn = WordDefinition.objects.create(
                                     entry=entry,
                                     meaning=m.get("meaning", ""),
-                                    example_sentence=m.get("example", ""),
-                                    example_trans=m.get("example_trans", ""),
                                     image_url=m.get("image", "")
                                 )
+                                example_text = m.get("example", "")
+                                if example_text:
+                                    ExampleSentence.objects.create(
+                                        definition=defn,
+                                        sentence=example_text,
+                                        translation=m.get("example_trans", ""),
+                                        source='other',
+                                    )
                         created_count += 1
                 
                 messages.success(request, f"Successfully imported {created_count} vocabulary items.")
@@ -361,13 +383,18 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                     )
 
                     # Create Definition with image_url
-                    WordDefinition.objects.create(
+                    defn = WordDefinition.objects.create(
                         entry=entry,
                         meaning=meaning,
-                        example_sentence=example or "",
-                        example_trans=example_trans or "",
                         image_url=image_url or None
                     )
+                    if example:
+                        ExampleSentence.objects.create(
+                            definition=defn,
+                            sentence=example,
+                            translation=example_trans or "",
+                            source='user',
+                        )
                 
                 messages.success(request, f"Successfully added '{word}'.")
                 if "save_add_another" in request.POST:
@@ -433,6 +460,121 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             }, status=500)
 
 
+    def import_jp_view(self, request):
+        """Admin view to import Japanese vocabulary from Mimikara-format JSON."""
+        json_data = ''
+        if request.method == "POST":
+            json_data = request.POST.get("json_data", "")
+            if not json_data:
+                messages.error(request, "Please enter JSON data.")
+                return redirect("admin:vocab_vocabulary_import_jp")
+
+            try:
+                data = json.loads(json_data)
+                if not isinstance(data, list):
+                    messages.error(request, "JSON must be a list of objects.")
+                    return redirect("admin:vocab_vocabulary_import_jp")
+
+                # Resolve optional VocabularySet
+                vocab_set = None
+                set_id = request.POST.get("vocab_set")
+                if set_id:
+                    try:
+                        vocab_set = VocabularySet.objects.get(pk=int(set_id))
+                    except (VocabularySet.DoesNotExist, ValueError):
+                        messages.warning(request, "VocabularySet not found, importing without set.")
+
+                source = request.POST.get("source", "other")
+                default_pos = request.POST.get("default_pos", "noun")
+
+                stats = import_jp_vocab_data(
+                    items=data,
+                    vocab_set=vocab_set,
+                    source=source,
+                    default_pos=default_pos,
+                )
+
+                messages.success(
+                    request,
+                    f"Imported! Vocabs: {stats['created_vocabs']}, "
+                    f"Definitions: {stats['created_definitions']}, "
+                    f"Examples: {stats['created_examples']}, "
+                    f"Skipped: {stats['skipped']}"
+                )
+                return redirect("admin:vocab_vocabulary_changelist")
+
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid JSON format.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        vocab_sets = VocabularySet.objects.filter(
+            language=Vocabulary.Language.JAPANESE
+        ).order_by('-created_at')
+        # Also include sets without language filter if none found
+        if not vocab_sets.exists():
+            vocab_sets = VocabularySet.objects.all().order_by('-created_at')[:50]
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Import Japanese Vocabulary",
+            vocab_sets=vocab_sets,
+            sources=ExampleSentence.Source.choices,
+            json_data=json_data,
+        )
+        return render(request, "admin/vocab/vocabulary/import_jp.html", context)
+
+    def distribute_jp_view(self, request):
+        """Auto-distribute JP words into VocabularySets by lesson."""
+        if request.method == "POST":
+            try:
+                stats = distribute_jp_vocab(
+                    source='mimikara_n2',
+                    only_unassigned=True,
+                )
+                messages.success(
+                    request,
+                    f"Distributed! Sets created: {stats['sets_created']}, "
+                    f"Sets reused: {stats['sets_reused']}, "
+                    f"Words assigned: {stats['words_assigned']}, "
+                    f"Already assigned: {stats['already_assigned']}"
+                )
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+            return redirect("admin:vocab_vocabulary_changelist")
+
+        # GET: show confirmation page
+        # Count unassigned JP words with lesson
+        from django.db.models import Q, Exists, OuterRef
+        jp_with_lesson = Vocabulary.objects.filter(
+            language=Vocabulary.Language.JAPANESE,
+        ).exclude(extra_data__lesson='').exclude(extra_data__lesson__isnull=True)
+
+        assigned_vocab_ids = SetItem.objects.filter(
+            definition__entry__vocab__in=jp_with_lesson
+        ).values_list('definition__entry__vocab_id', flat=True).distinct()
+
+        total_jp = jp_with_lesson.count()
+        assigned = assigned_vocab_ids.count()
+        unassigned = total_jp - assigned
+
+        # Distinct lessons
+        lessons = set()
+        for ed in jp_with_lesson.values_list('extra_data', flat=True):
+            if ed and ed.get('lesson'):
+                lessons.add(ed['lesson'].split('|')[0].strip())
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Auto-distribute JP Vocabulary",
+            total_jp=total_jp,
+            assigned=assigned,
+            unassigned=unassigned,
+            lesson_count=len(lessons),
+        )
+        return render(request, "admin/vocab/vocabulary/distribute_jp.html", context)
+
+
 @admin.register(WordEntry)
 class WordEntryAdmin(admin.ModelAdmin):
     list_display = ('vocab', 'part_of_speech', 'ipa', 'definition_count')
@@ -463,6 +605,23 @@ class WordDefinitionAdmin(admin.ModelAdmin):
     get_pos.short_description = "POS"
 
 
+@admin.register(ExampleSentence)
+class ExampleSentenceAdmin(admin.ModelAdmin):
+    list_display = ('get_word', 'sentence_preview', 'source', 'order', 'created_at')
+    list_filter = ('source',)
+    search_fields = ('sentence', 'translation', 'definition__entry__vocab__word')
+    autocomplete_fields = ['definition']
+
+    def get_word(self, obj):
+        return obj.definition.entry.vocab.word
+    get_word.short_description = "Word"
+    get_word.admin_order_field = 'definition__entry__vocab__word'
+
+    def sentence_preview(self, obj):
+        return obj.sentence[:80] + ('...' if len(obj.sentence) > 80 else '')
+    sentence_preview.short_description = "Sentence"
+
+
 @admin.register(VocabularySet)
 class VocabularySetAdmin(admin.ModelAdmin):
     list_display = ('title', 'get_course', 'owner', 'status', 'is_public', 'toeic_level', 'set_number', 'created_at')
@@ -477,6 +636,7 @@ class VocabularySetAdmin(admin.ModelAdmin):
             path('import-json/', self.admin_site.admin_view(self.import_json_view), name='vocab_vocabularyset_import_json'),
             path('quick-add/', self.admin_site.admin_view(self.quick_add_set_view), name='vocab_vocabularyset_quick_add'),
             path('search-words/', self.admin_site.admin_view(self.search_words_api), name='vocab_vocabularyset_search_words'),
+            path('course-sets/', self.admin_site.admin_view(self.course_sets_api), name='vocab_vocabularyset_course_sets'),
             path('<int:set_id>/add-words/', self.admin_site.admin_view(self.add_words_to_set_api), name='vocab_vocabularyset_add_words'),
             path('<int:set_id>/manage-words/', self.admin_site.admin_view(self.manage_words_view), name='vocab_vocabularyset_manage_words'),
             path('<int:set_id>/remove-word/<int:word_id>/', self.admin_site.admin_view(self.remove_word_from_set_api), name='vocab_vocabularyset_remove_word'),
@@ -528,14 +688,58 @@ class VocabularySetAdmin(admin.ModelAdmin):
             except Exception as e:
                 messages.error(request, f"Error: {str(e)}")
 
+        # Get all courses for dropdown
+        courses = Course.objects.filter(is_active=True).order_by('toeic_level')
+        courses_data = []
+        for c in courses:
+            sets = VocabularySet.objects.filter(toeic_level=c.toeic_level).order_by('set_number')
+            courses_data.append({
+                'id': c.id,
+                'title': c.title,
+                'toeic_level': c.toeic_level,
+                'set_count': sets.count(),
+            })
+
         context = dict(
             self.admin_site.each_context(request),
             title="Quick Add Vocabulary Set",
             toeic_levels=VocabularySet.ToeicLevel.choices,
             languages=Vocabulary.Language.choices,
             statuses=VocabularySet.Status.choices,
+            courses=courses,
+            courses_json=json.dumps(courses_data),
         )
         return render(request, "admin/vocab/vocabularyset/quick_add.html", context)
+
+    def course_sets_api(self, request):
+        """API endpoint to get sets for a given course/toeic_level."""
+        toeic_level = request.GET.get('toeic_level')
+        if not toeic_level:
+            return JsonResponse({'sets': []})
+
+        try:
+            toeic_level = int(toeic_level)
+        except ValueError:
+            return JsonResponse({'sets': []})
+
+        sets = VocabularySet.objects.filter(
+            toeic_level=toeic_level
+        ).order_by('chapter', 'set_number')
+
+        results = []
+        for s in sets:
+            results.append({
+                'id': s.id,
+                'title': s.title,
+                'set_number': s.set_number,
+                'chapter': s.chapter,
+                'chapter_name': s.chapter_name,
+                'milestone': s.milestone,
+                'word_count': s.items.count(),
+                'status': s.status,
+            })
+
+        return JsonResponse({'sets': results})
 
     def manage_words_view(self, request, set_id):
         """View for managing words in a set."""
@@ -548,7 +752,7 @@ class VocabularySetAdmin(admin.ModelAdmin):
         # Get current words in set
         set_items = SetItem.objects.filter(vocabulary_set=vocab_set).select_related(
             'definition__entry__vocab'
-        ).order_by('order', 'id')
+        ).order_by('display_order', 'id')
 
         context = dict(
             self.admin_site.each_context(request),
@@ -726,11 +930,17 @@ class VocabularySetAdmin(admin.ModelAdmin):
                                             'audio_uk': entry_data.get('audio_uk', ''),
                                         }
                                     )
-                                    WordDefinition.objects.create(
+                                    defn = WordDefinition.objects.create(
                                         entry=word_entry,
                                         meaning=entry_data.get('definition', ''),
-                                        example_sentence=entry_data.get('example', ''),
                                     )
+                                    example_text = entry_data.get('example', '')
+                                    if example_text:
+                                        ExampleSentence.objects.create(
+                                            definition=defn,
+                                            sentence=example_text,
+                                            source='cambridge',
+                                        )
                                     created_words += 1
                             
                             # Link to Set
@@ -766,11 +976,22 @@ class VocabularySetAdmin(admin.ModelAdmin):
     get_course.admin_order_field = 'toeic_level'
 
 
+class SetItemExampleInline(admin.TabularInline):
+    model = SetItemExample
+    extra = 1
+    autocomplete_fields = ['example']
+
+
 @admin.register(SetItem)
 class SetItemAdmin(admin.ModelAdmin):
-    list_display = ('vocabulary_set', 'definition', 'display_order')
+    list_display = ('vocabulary_set', 'definition', 'display_order', 'example_count')
     list_filter = ('vocabulary_set',)
     search_fields = ('vocabulary_set__title', 'definition__entry__vocab__word')
+    inlines = [SetItemExampleInline]
+
+    def example_count(self, obj):
+        return obj.set_examples.count()
+    example_count.short_description = "Set Examples"
 
 
 @admin.register(UserSetProgress)
