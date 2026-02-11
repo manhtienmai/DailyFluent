@@ -42,6 +42,83 @@
             background: #f2dede;
             border-color: #ebccd1;
         }
+
+        /* ===== Drop Zone ===== */
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            background: #fafbfc;
+            position: relative;
+        }
+        .drop-zone:hover {
+            border-color: #79aec8;
+            background: #f0f7fb;
+        }
+        .drop-zone.drag-over {
+            border-color: #417690;
+            background: #e4f0f7;
+            box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.15);
+        }
+        .drop-zone.has-file {
+            border-color: #4caf50;
+            background: #f1f8e9;
+            border-style: solid;
+        }
+        .drop-zone-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+        .drop-zone-text {
+            color: #666;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+        .drop-zone-text strong {
+            color: #417690;
+        }
+        .drop-zone-file {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9375rem;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        .drop-zone.has-file .drop-zone-prompt { display: none; }
+        .drop-zone.has-file .drop-zone-file { display: flex; }
+        .drop-zone-remove {
+            background: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: #999;
+            margin-left: 0.5rem;
+        }
+        .drop-zone-remove:hover {
+            border-color: #e53935;
+            color: #e53935;
+        }
+        .drop-zone input[type="file"] {
+            display: none;
+        }
+        .input-separator {
+            text-align: center;
+            color: #999;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -58,7 +135,7 @@
 <div id="content-main">
     <div class="module">
         <h2>Import Japanese Vocabulary (Mimikara Format)</h2>
-        <p>Paste JSON data. Each item should have <code>word_info</code> (kanji, reading), <code>meanings</code> (vietnamese), and <code>examples</code>.</p>
+        <p>Drag &amp; drop a JSON file or paste JSON data below. Each item should have <code>word_info</code> (kanji, reading), <code>meanings</code> (vietnamese), and <code>examples</code>.</p>
 
         <form method="post" id="import-form">
             {% csrf_token %}
@@ -93,6 +170,25 @@
                 </div>
             </div>
 
+            <!-- Drop Zone -->
+            <div class="form-row">
+                <label>JSON File:</label>
+                <div class="drop-zone" id="drop-zone">
+                    <input type="file" id="file-input" accept=".json,application/json" />
+                    <div class="drop-zone-prompt">
+                        <div class="drop-zone-icon">&#128196;</div>
+                        <div class="drop-zone-text">
+                            Keo tha file JSON vao day hoac <strong>nhan de chon file</strong>
+                        </div>
+                    </div>
+                    <div class="drop-zone-file">
+                        <span id="file-name"></span>
+                        <button type="button" class="drop-zone-remove" id="file-remove">&times; Xoa</button>
+                    </div>
+                </div>
+                <div class="input-separator">hoac nhap truc tiep</div>
+            </div>
+
             <div class="form-row">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                     <label for="json_data" class="required">JSON Data:</label>
@@ -112,6 +208,100 @@
 </div>
 
 <script>
+(function() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileNameEl = document.getElementById('file-name');
+    const fileRemove = document.getElementById('file-remove');
+    const textarea = document.getElementById('json_data');
+
+    // Click to select file
+    dropZone.addEventListener('click', function(e) {
+        if (e.target === fileRemove || e.target.closest('.drop-zone-remove')) return;
+        fileInput.click();
+    });
+
+    // File selected via input
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    // Drag events
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    // Remove file
+    fileRemove.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropZone.classList.remove('has-file');
+        fileInput.value = '';
+        fileNameEl.textContent = '';
+        textarea.value = '';
+        textarea.removeAttribute('readonly');
+    });
+
+    function handleFile(file) {
+        if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+            alert('Vui long chon file JSON.');
+            return;
+        }
+
+        fileNameEl.textContent = file.name + ' (' + formatSize(file.size) + ')';
+        dropZone.classList.add('has-file');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                // Validate JSON
+                const parsed = JSON.parse(e.target.result);
+                // Pretty-print into textarea
+                textarea.value = JSON.stringify(parsed, null, 2);
+                textarea.setAttribute('readonly', 'readonly');
+            } catch (err) {
+                alert('File JSON khong hop le: ' + err.message);
+                dropZone.classList.remove('has-file');
+                fileInput.value = '';
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // Also support dropping file anywhere on the page
+    document.addEventListener('dragover', function(e) { e.preventDefault(); });
+    document.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && (files[0].name.endsWith('.json') || files[0].type === 'application/json')) {
+            handleFile(files[0]);
+        }
+    });
+})();
+
+// Load sample button
 document.getElementById('load-sample').addEventListener('click', function() {
     const sample = [
         {
@@ -146,6 +336,8 @@ document.getElementById('load-sample').addEventListener('click', function() {
         }
     ];
     document.getElementById('json_data').value = JSON.stringify(sample, null, 4);
+    document.getElementById('json_data').removeAttribute('readonly');
+    document.getElementById('drop-zone').classList.remove('has-file');
 });
 </script>
 {% endblock %}
