@@ -2,104 +2,320 @@
 
 {% block title %}{{ vocab.word }} | DailyFluent{% endblock %}
 
+{% block extra_css %}
+<style>
+  .vd-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0.5rem 0;
+  }
+
+  .vd-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+    transition: color 0.15s;
+  }
+  .vd-back:hover { color: #3b82f6; }
+  .vd-back svg { width: 15px; height: 15px; }
+  [data-theme="dark"] .vd-back { color: #64748b; }
+  [data-theme="dark"] .vd-back:hover { color: #60a5fa; }
+
+  /* ===== Single Card ===== */
+  .vd-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  [data-theme="dark"] .vd-card {
+    background: #1e293b;
+    border-color: rgba(148,163,184,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Card header */
+  .vd-header {
+    padding: 1.75rem 1.75rem 0;
+  }
+
+  .vd-word-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.25rem;
+  }
+
+  .vd-word {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  [data-theme="dark"] .vd-word { color: #f1f5f9; }
+
+  .vd-lang-tag {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: #64748b;
+  }
+  [data-theme="dark"] .vd-lang-tag {
+    background: rgba(148,163,184,0.1);
+    color: #94a3b8;
+  }
+
+  /* ===== Entry sections ===== */
+  .vd-entry {
+    padding: 1.25rem 1.75rem;
+  }
+
+  .vd-entry + .vd-entry {
+    border-top: 1px solid #f1f5f9;
+  }
+  [data-theme="dark"] .vd-entry + .vd-entry {
+    border-top-color: rgba(148,163,184,0.08);
+  }
+
+  .vd-entry-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .vd-pos {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-style: italic;
+    color: #3b82f6;
+  }
+  [data-theme="dark"] .vd-pos { color: #60a5fa; }
+
+  .vd-ipa {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    font-family: monospace;
+    letter-spacing: 0.01em;
+  }
+  [data-theme="dark"] .vd-ipa { color: #64748b; }
+
+  /* Audio buttons */
+  .vd-audio-group {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-left: auto;
+  }
+
+  .vd-audio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #fafbfc;
+    color: #64748b;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vd-audio-btn:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: rgba(59,130,246,0.04);
+  }
+  .vd-audio-btn svg { width: 13px; height: 13px; }
+
+  [data-theme="dark"] .vd-audio-btn {
+    background: rgba(51,65,85,0.4);
+    border-color: rgba(148,163,184,0.1);
+    color: #94a3b8;
+  }
+  [data-theme="dark"] .vd-audio-btn:hover {
+    border-color: #60a5fa;
+    color: #60a5fa;
+  }
+
+  /* ===== Definitions list ===== */
+  .vd-defs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .vd-def-item {
+    display: flex;
+    gap: 0.625rem;
+    align-items: flex-start;
+  }
+
+  .vd-def-bullet {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    margin-top: 0.5rem;
+  }
+  [data-theme="dark"] .vd-def-bullet { background: #475569; }
+
+  .vd-def-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .vd-def-meaning {
+    font-size: 0.9375rem;
+    color: #1e293b;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+  [data-theme="dark"] .vd-def-meaning { color: #e2e8f0; }
+
+  .vd-def-example {
+    margin-top: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid #e2e8f0;
+  }
+  [data-theme="dark"] .vd-def-example {
+    border-left-color: rgba(148,163,184,0.12);
+  }
+
+  .vd-def-example-en {
+    font-size: 0.8125rem;
+    color: #475569;
+    font-style: italic;
+    line-height: 1.55;
+  }
+  [data-theme="dark"] .vd-def-example-en { color: #94a3b8; }
+
+  .vd-def-example-vi {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.1875rem;
+    line-height: 1.45;
+  }
+  [data-theme="dark"] .vd-def-example-vi { color: #64748b; }
+
+  /* ===== Empty state ===== */
+  .vd-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #94a3b8;
+  }
+  .vd-empty svg { margin-bottom: 0.75rem; opacity: 0.4; }
+  [data-theme="dark"] .vd-empty { color: #64748b; }
+
+  @media (max-width: 640px) {
+    .vd-header { padding: 1.25rem 1.25rem 0; }
+    .vd-entry { padding: 1rem 1.25rem; }
+    .vd-word { font-size: 1.625rem; }
+    .vd-entry-head { flex-wrap: wrap; gap: 0.5rem; }
+    .vd-audio-group { margin-left: 0; width: 100%; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto">
+<div class="vd-page">
   <!-- Back Link -->
-  <a href="{% url 'vocab:english_list' %}" class="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-blue-600 mb-4 transition-colors">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="m15 18-6-6 6-6"/>
+  <a href="{% url 'vocab:set_list' %}" class="vd-back">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
     </svg>
-    Quay lại danh sách
+    Quay lai danh sach
   </a>
 
-  <!-- Header -->
-  <div class="mb-6">
-    <div class="flex items-baseline gap-3 mb-1">
-      <h1 class="text-5xl font-bold text-slate-900">{{ vocab.word }}</h1>
-      <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium uppercase tracking-wide">
-        {{ vocab.get_language_display }}
-      </span>
+  {% if entries %}
+  <div class="vd-card">
+    <!-- Card header: the word -->
+    <div class="vd-header">
+      <div class="vd-word-row">
+        <span class="vd-word">{{ vocab.word }}</span>
+        <span class="vd-lang-tag">{{ vocab.get_language_display }}</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Entries -->
-  <div class="space-y-4">
+    <!-- Entry sections -->
     {% for entry in entries %}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow">
-      <!-- Entry Header -->
-      <div class="bg-gradient-to-r from-slate-50 to-white px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-        <div class="flex items-center gap-4 flex-wrap">
-          <span class="text-base font-bold text-blue-600 italic">{{ entry.part_of_speech }}</span>
-          <span class="text-slate-600 font-mono tracking-wide">{{ entry.ipa }}</span>
-        </div>
-        
-        <!-- Audio Icons -->
-        <div class="flex items-center gap-2">
+    <section class="vd-entry">
+      <div class="vd-entry-head">
+        <span class="vd-pos">{{ entry.part_of_speech }}</span>
+        {% if entry.ipa %}<span class="vd-ipa">{{ entry.ipa }}</span>{% endif %}
+        <div class="vd-audio-group">
           {% if entry.audio_us %}
-          <button onclick="playAudio('{{ entry.audio_us }}')" 
-                  class="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all hover:scale-105 active:scale-95"
-                  title="Play US pronunciation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+          <button class="vd-audio-btn" onclick="playAudio('{{ entry.audio_us }}')" title="US pronunciation">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
-            <span class="text-xs font-semibold uppercase">US</span>
+            US
           </button>
           {% endif %}
-          
           {% if entry.audio_uk %}
-          <button onclick="playAudio('{{ entry.audio_uk }}')" 
-                  class="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 transition-all hover:scale-105 active:scale-95"
-                  title="Play UK pronunciation">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+          <button class="vd-audio-btn" onclick="playAudio('{{ entry.audio_uk }}')" title="UK pronunciation">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
-            <span class="text-xs font-semibold uppercase">UK</span>
+            UK
           </button>
           {% endif %}
         </div>
       </div>
 
       <!-- Definitions -->
-      <div class="p-5">
-        <div class="space-y-4">
-          {% for definition in entry.definitions.all %}
-          <div class="flex gap-3">
-            <div class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold mt-0.5">
-              {{ forloop.counter }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-base text-slate-800 font-medium mb-2 leading-relaxed">{{ definition.meaning }}</p>
-              
-              {% if definition.example_sentence %}
-              <div class="bg-slate-50/80 rounded-lg px-4 py-3 border-l-4 border-slate-200">
-                <p class="text-slate-700 text-sm mb-1 italic">"{{ definition.example_sentence }}"</p>
-                {% if definition.example_trans %}
-                <p class="text-slate-500 text-xs">{{ definition.example_trans }}</p>
-                {% endif %}
-              </div>
+      <ul class="vd-defs">
+        {% for definition in entry.definitions.all %}
+        <li class="vd-def-item">
+          <span class="vd-def-bullet"></span>
+          <div class="vd-def-content">
+            <div class="vd-def-meaning">{{ definition.meaning }}</div>
+            {% if definition.example_sentence %}
+            <div class="vd-def-example">
+              <p class="vd-def-example-en">"{{ definition.example_sentence }}"</p>
+              {% if definition.example_trans %}
+              <p class="vd-def-example-vi">{{ definition.example_trans }}</p>
               {% endif %}
             </div>
+            {% endif %}
           </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-    {% empty %}
-    <div class="text-center py-16 text-slate-400 bg-white/50 rounded-xl border border-dashed border-slate-200">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 opacity-50">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      <p class="font-medium">Chưa có thông tin chi tiết cho từ này.</p>
-    </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
     {% endfor %}
   </div>
 
+  {% else %}
+  <div class="vd-card vd-empty">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <p>Chua co thong tin chi tiet cho tu nay.</p>
+  </div>
+  {% endif %}
 </div>
 
 <!-- Hidden Audio Element -->

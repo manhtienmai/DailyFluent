@@ -9,6 +9,7 @@
   /* =============================================
      Set Detail - Frosted Crystal Design
      ============================================= */
+  [x-cloak] { display: none !important; }
 
   /* --- Color Accent System --- */
   .set-page {
@@ -39,6 +40,11 @@
     --accent: #f59e0b; --accent-end: #d97706;
     --accent-light: rgba(245, 158, 11, 0.08); --accent-border: rgba(245, 158, 11, 0.2);
     --accent-shadow: rgba(245, 158, 11, 0.12); --accent-glow: rgba(245, 158, 11, 0.5);
+  }
+  .set-page--jp {
+    --accent: #dc2626; --accent-end: #b91c1c;
+    --accent-light: rgba(220, 38, 38, 0.08); --accent-border: rgba(220, 38, 38, 0.2);
+    --accent-shadow: rgba(220, 38, 38, 0.12); --accent-glow: rgba(220, 38, 38, 0.5);
   }
 
   /* Pastel Gradient Mesh Background */
@@ -572,103 +578,94 @@
 
   .section-label svg { width: 14px; height: 14px; }
 
-  /* ========== WORD LIST ========== */
-  .word-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  /* ========== MINIMALIST WORD CARD ========== */
+  .min-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  [data-theme="dark"] .min-card {
+    background: #1e293b;
+    border-color: rgba(148,163,184,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
 
-  .word-item {
+  .min-item {
     display: flex;
     align-items: center;
-    gap: 0.875rem;
-    padding: 0.875rem 1rem;
-    transition: all 0.2s ease;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    transition: background 0.15s;
     cursor: default;
   }
-
-  .word-item:hover {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.85);
-    box-shadow:
-      0 6px 20px -6px var(--accent-shadow),
-      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  .min-item:not(:last-child) {
+    border-bottom: 1px solid #f8fafc;
+  }
+  [data-theme="dark"] .min-item:not(:last-child) {
+    border-bottom-color: rgba(148,163,184,0.06);
+  }
+  .min-item:hover {
+    background: #fafbfc;
+  }
+  [data-theme="dark"] .min-item:hover {
+    background: rgba(51,65,85,0.3);
   }
 
-  [data-theme="dark"] .word-item:hover {
-    background: rgba(30, 41, 59, 0.85);
-    box-shadow:
-      0 6px 20px -6px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-
-  /* Word number */
-  .word-index {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: var(--accent-light);
-    border: 1px solid var(--accent-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Small index number */
+  .min-idx {
     font-size: 0.6875rem;
-    font-weight: 800;
-    color: var(--accent);
+    font-weight: 600;
+    color: #cbd5e1;
+    width: 1.25rem;
+    text-align: right;
     flex-shrink: 0;
   }
+  [data-theme="dark"] .min-idx { color: #475569; }
 
   /* Audio button */
-  .word-audio {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+  .min-audio {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fafbfc;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
-    transition: all 0.2s ease;
+    transition: all 0.15s;
+    color: #94a3b8;
+  }
+  .min-audio:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .min-audio svg { width: 15px; height: 15px; }
+  .min-audio--playing {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+  [data-theme="dark"] .min-audio {
+    background: rgba(51,65,85,0.4);
+    border-color: rgba(148,163,184,0.1);
+    color: #64748b;
+  }
+  [data-theme="dark"] .min-audio:hover {
+    border-color: var(--accent);
     color: var(--accent);
   }
 
-  [data-theme="dark"] .word-audio {
-    background: rgba(51, 65, 85, 0.5);
-    border-color: rgba(148, 163, 184, 0.12);
-  }
-
-  .word-audio:hover {
-    background: linear-gradient(135deg, var(--accent), var(--accent-end));
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 12px -4px var(--accent-glow);
-    transform: scale(1.05);
-  }
-
-  .word-audio svg { width: 18px; height: 18px; }
-
-  .word-audio--playing {
-    background: linear-gradient(135deg, var(--accent), var(--accent-end));
-    color: white;
-    border-color: transparent;
-    animation: audio-pulse 1s ease-in-out infinite;
-  }
-
-  @keyframes audio-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 var(--accent-shadow); }
-    50% { box-shadow: 0 0 0 6px transparent; }
-  }
-
   /* Word content */
-  .word-body {
+  .min-body {
     flex: 1;
     min-width: 0;
   }
 
-  .word-top {
+  .min-top {
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
@@ -676,76 +673,52 @@
     margin-bottom: 0.125rem;
   }
 
-  .word-text {
-    font-size: 1.0625rem;
+  .min-word {
+    font-size: 1rem;
     font-weight: 700;
     color: #1e293b;
   }
+  [data-theme="dark"] .min-word { color: #f1f5f9; }
 
-  [data-theme="dark"] .word-text {
-    color: #f1f5f9;
-  }
-
-  .word-ipa {
+  .min-ipa {
     font-size: 0.8125rem;
     color: #94a3b8;
-    font-weight: 500;
+    font-family: monospace;
   }
+  [data-theme="dark"] .min-ipa { color: #64748b; }
 
-  [data-theme="dark"] .word-ipa {
+  .min-pos {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #94a3b8;
+    font-style: italic;
+  }
+  [data-theme="dark"] .min-pos { color: #64748b; }
+
+  .min-meaning {
+    font-size: 0.8125rem;
     color: #64748b;
-  }
-
-  .word-pos {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    padding: 0.125rem 0.4375rem;
-    border-radius: 5px;
-    background: var(--accent-light);
-    color: var(--accent);
-    border: 1px solid var(--accent-border);
-  }
-
-  .word-meaning {
-    font-size: 0.875rem;
-    color: #475569;
     line-height: 1.45;
   }
+  [data-theme="dark"] .min-meaning { color: #94a3b8; }
 
-  [data-theme="dark"] .word-meaning {
-    color: #cbd5e1;
-  }
-
-  /* Status indicator */
-  .word-status {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Status dot */
+  .min-status {
     flex-shrink: 0;
   }
-
-  .word-status--known {
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    color: #10b981;
+  .min-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
   }
-
-  .word-status--new {
-    background: rgba(148, 163, 184, 0.08);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    color: #cbd5e1;
+  .min-dot--known {
+    background: #10b981;
+    box-shadow: 0 0 0 2px rgba(16,185,129,0.15);
   }
-
-  [data-theme="dark"] .word-status--new {
-    background: rgba(51, 65, 85, 0.3);
-    border-color: rgba(148, 163, 184, 0.08);
-    color: #475569;
+  .min-dot--new {
+    background: #e2e8f0;
   }
-
-  .word-status svg { width: 14px; height: 14px; }
+  [data-theme="dark"] .min-dot--new { background: #334155; }
 
   /* ========== BOTTOM ACTION BAR ========== */
   .bottom-actions {
@@ -896,79 +869,228 @@
   .empty-state {
     text-align: center;
     padding: 3rem 1.5rem;
-    color: #64748b;
-  }
-
-  [data-theme="dark"] .empty-state {
     color: #94a3b8;
   }
+  [data-theme="dark"] .empty-state { color: #64748b; }
+
+  /* ========== JP MINIMALIST ITEMS ========== */
+  .jp-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .jp-item:not(:last-child) {
+    border-bottom: 1px solid #f8fafc;
+  }
+  [data-theme="dark"] .jp-item:not(:last-child) {
+    border-bottom-color: rgba(148,163,184,0.06);
+  }
+  .jp-item:hover {
+    background: #fafbfc;
+  }
+  [data-theme="dark"] .jp-item:hover {
+    background: rgba(51,65,85,0.3);
+  }
+
+  .jp-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .jp-word-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.1875rem;
+  }
+
+  .jp-kanji {
+    font-size: 1.1875rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+  .jp-kanji ruby rt {
+    font-size: 0.55em;
+    color: #64748b;
+    font-weight: 700;
+  }
+  [data-theme="dark"] .jp-kanji { color: #f1f5f9; }
+  [data-theme="dark"] .jp-kanji ruby rt { color: #94a3b8; }
+
+  .jp-reading {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  [data-theme="dark"] .jp-reading { color: #64748b; }
+
+  .jp-pos {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #94a3b8;
+    font-style: italic;
+  }
+  [data-theme="dark"] .jp-pos { color: #64748b; }
+
+  .jp-hanviet {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #d97706;
+  }
+  [data-theme="dark"] .jp-hanviet { color: #fbbf24; }
+
+  .jp-meaning {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.45;
+  }
+  [data-theme="dark"] .jp-meaning { color: #94a3b8; }
+
+  .jp-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+
+  .jp-chevron {
+    width: 14px;
+    height: 14px;
+    color: #cbd5e1;
+    transition: transform 0.2s ease;
+  }
+  [data-theme="dark"] .jp-chevron { color: #475569; }
+  .jp-item[data-open="true"] .jp-chevron { transform: rotate(180deg); }
+
+  /* Expanded section */
+  .jp-expand {
+    padding: 0 1.25rem 1rem 2.75rem;
+  }
+
+  .jp-ex-item {
+    padding-left: 0.75rem;
+    border-left: 2px solid #e2e8f0;
+    margin-bottom: 0.5rem;
+  }
+  [data-theme="dark"] .jp-ex-item {
+    border-left-color: rgba(148,163,184,0.12);
+  }
+
+  .jp-ex-jp {
+    font-size: 0.875rem;
+    color: #1e293b;
+    line-height: 1.6;
+    margin-bottom: 0.125rem;
+  }
+  .jp-ex-jp ruby rt {
+    font-size: 0.55em;
+    color: #64748b;
+    font-weight: 700;
+  }
+  [data-theme="dark"] .jp-ex-jp { color: #e2e8f0; }
+  [data-theme="dark"] .jp-ex-jp ruby rt { color: #94a3b8; }
+
+  .jp-ex-vi {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-style: italic;
+    line-height: 1.45;
+  }
+  [data-theme="dark"] .jp-ex-vi { color: #64748b; }
+
+  /* Relations inline */
+  .jp-rels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .jp-rel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .jp-rel-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+    margin-top: 0.1875rem;
+    padding: 0.0625rem 0.3125rem;
+    border-radius: 3px;
+  }
+  .jp-rel-label--compound { color: #8b5cf6; background: rgba(139,92,246,0.08); }
+  .jp-rel-label--synonym { color: #10b981; background: rgba(16,185,129,0.08); }
+  .jp-rel-label--collocation { color: #3b82f6; background: rgba(59,130,246,0.08); }
+  .jp-rel-label--related { color: #ec4899; background: rgba(236,72,153,0.08); }
+  .jp-rel-label--idiom { color: #f59e0b; background: rgba(245,158,11,0.08); }
+  .jp-rel-label--antonym { color: #ef4444; background: rgba(239,68,68,0.08); }
+
+  .jp-rel-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .jp-rel-jp {
+    font-size: 0.8125rem;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+  .jp-rel-jp ruby rt {
+    font-size: 0.55em;
+    color: #64748b;
+    font-weight: 700;
+  }
+  [data-theme="dark"] .jp-rel-jp { color: #e2e8f0; }
+  [data-theme="dark"] .jp-rel-jp ruby rt { color: #94a3b8; }
+  .jp-rel-vi {
+    font-size: 0.6875rem;
+    color: #94a3b8;
+    line-height: 1.4;
+  }
+  [data-theme="dark"] .jp-rel-vi { color: #64748b; }
 
   /* ========== RESPONSIVE ========== */
   @media (max-width: 640px) {
     .set-page { padding: 1rem; }
-
     .set-hero { padding: 1.125rem; }
-
-    .set-hero-top {
-      flex-direction: column;
-      gap: 0.875rem;
-    }
-
-    .set-hero-icon {
-      width: 44px; height: 44px;
-      font-size: 1rem;
-      border-radius: 14px;
-    }
-
+    .set-hero-top { flex-direction: column; gap: 0.875rem; }
+    .set-hero-icon { width: 44px; height: 44px; font-size: 1rem; border-radius: 14px; }
     .set-hero-title { font-size: 1.125rem; }
-
     .set-actions { width: 100%; }
     .set-action-btn { flex: 1; justify-content: center; }
+    .set-stats-bar { flex-wrap: wrap; }
+    .set-stat-chip { flex: 1 1 calc(33.33% - 0.5rem); min-width: 80px; }
+    .set-progress-chip { flex: 1 1 100%; order: -1; }
 
-    .set-stats-bar {
-      flex-wrap: wrap;
-    }
+    .min-item { padding: 0.75rem 1rem; gap: 0.625rem; }
+    .min-idx { display: none; }
+    .min-audio { width: 30px; height: 30px; }
+    .min-word { font-size: 0.9375rem; }
 
-    .set-stat-chip {
-      flex: 1 1 calc(33.33% - 0.5rem);
-      min-width: 80px;
-    }
+    .jp-item { padding: 0.75rem 1rem; gap: 0.625rem; }
+    .jp-kanji { font-size: 1.0625rem; }
+    .jp-expand { padding-left: 1.75rem; }
+    .jp-ex-jp { font-size: 0.8125rem; }
 
-    .set-progress-chip {
-      flex: 1 1 100%;
-      order: -1;
-    }
-
-    .word-item {
-      padding: 0.75rem;
-      gap: 0.625rem;
-    }
-
-    .word-index { display: none; }
-
-    .word-audio {
-      width: 36px; height: 36px;
-    }
-
-    .word-text { font-size: 1rem; }
-
-    .bottom-actions {
-      padding: 0.625rem 1rem;
-      bottom: 0.75rem;
-    }
-
+    .bottom-actions { padding: 0.625rem 1rem; bottom: 0.75rem; }
     .bottom-text { display: none; }
-
-    .bottom-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.75rem;
-    }
+    .bottom-btn { padding: 0.5rem 1rem; font-size: 0.75rem; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="set-page set-page--{{ config.level }}" x-data="wordAudio()">
+<div class="set-page {% if config.level %}set-page--{{ config.level }}{% elif config.language == 'jp' %}set-page--jp{% endif %}" x-data="wordAudio()">
   <div class="set-container">
 
     <!-- ========== NAV BAR ========== -->
@@ -1018,7 +1140,7 @@
           <div class="set-hero-icon">{{ set_number }}</div>
           <div class="set-hero-info">
             <div class="set-hero-badges">
-              <span class="set-hero-badge set-hero-badge--level">TOEIC {{ config.level }}</span>
+              <span class="set-hero-badge set-hero-badge--level">{% if config.level %}TOEIC {{ config.level }}{% elif config.language == 'jp' %}JLPT N2{% else %}Course{% endif %}</span>
               <span class="set-hero-badge set-hero-badge--status set-hero-badge--{{ set_status }}">
                 {% if set_status == 'completed' %}
                   <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -1030,7 +1152,7 @@
                 {% endif %}
               </span>
             </div>
-            <h1 class="set-hero-title">Set {{ set_number }}{% if vocab_set.priority_range %} &middot; Priority {{ vocab_set.priority_range }}{% endif %}</h1>
+            <h1 class="set-hero-title">{% if is_jp %}{{ vocab_set.title }}{% else %}Set {{ set_number }}{% if vocab_set.priority_range %} &middot; Priority {{ vocab_set.priority_range }}{% endif %}{% endif %}</h1>
             <div class="set-hero-meta">
               <span>{{ total_count }} words</span>
               {% if vocab_set.chapter_name %}
@@ -1095,51 +1217,102 @@
       Vocabulary &middot; {{ total_count }} words
     </div>
 
-    <div class="word-list">
+    {% if is_jp %}
+    {# ===== JP VOCABULARY - MINIMALIST SINGLE CARD ===== #}
+    <div class="min-card" x-data="jpToggle()">
       {% for item in items %}
-      <article class="glass-panel-light word-item">
-        <!-- Index -->
-        <div class="word-index">{{ forloop.counter }}</div>
-
-        <!-- Audio -->
-        <button class="word-audio"
-                :class="{ 'word-audio--playing': playingUrl === '{{ item.audio_url }}' }"
-                @click="play('{{ item.audio_url }}')"
-                title="Play pronunciation">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 6.253v11.494m0-11.494L8 9.75H4v4.5h4l4 3.497V6.253z"/>
-          </svg>
-        </button>
-
-        <!-- Content -->
-        <div class="word-body">
-          <div class="word-top">
-            <span class="word-text">{{ item.word }}</span>
-            {% if item.ipa %}<span class="word-ipa">{{ item.ipa }}</span>{% endif %}
-            {% if item.part_of_speech %}<span class="word-pos">{{ item.part_of_speech }}</span>{% endif %}
+      <!-- JP Item row -->
+      <div class="jp-item" data-idx="{{ forloop.counter0 }}"
+           :data-open="openIdx === {{ forloop.counter0 }}"
+           @click="toggle({{ forloop.counter0 }})">
+        <span class="min-idx">{{ forloop.counter }}</span>
+        <div class="jp-main">
+          <div class="jp-word-row">
+            <span class="jp-kanji">{% if item.html_display %}{{ item.html_display|safe }}{% else %}{{ item.word }}{% endif %}</span>
+            {% if item.reading %}<span class="jp-reading">{{ item.reading }}</span>{% endif %}
+            {% if item.part_of_speech %}<span class="jp-pos">{{ item.part_of_speech }}</span>{% endif %}
+            {% if item.han_viet %}<span class="jp-hanviet">{{ item.han_viet }}</span>{% endif %}
           </div>
-          <div class="word-meaning">{{ item.meaning }}</div>
+          <div class="jp-meaning">{{ item.meaning }}</div>
         </div>
-
-        <!-- Status -->
-        <div class="word-status word-status--{{ item.status }}" title="{% if item.status == 'known' %}Known{% else %}New{% endif %}">
-          {% if item.status == 'known' %}
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-          {% else %}
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
+        <div class="jp-right">
+          <div class="min-status"><span class="min-dot min-dot--{{ item.status }}"></span></div>
+          {% if item.examples or item.relations %}
+          <svg class="jp-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
           </svg>
           {% endif %}
         </div>
-      </article>
+      </div>
+      <!-- Expandable details -->
+      {% if item.examples or item.relations %}
+      <div class="jp-expand" x-show="openIdx === {{ forloop.counter0 }}" x-transition.opacity.duration.200ms>
+        {% if item.examples %}
+        {% for ex in item.examples %}
+        <div class="jp-ex-item">
+          <div class="jp-ex-jp">{{ ex.sentence|safe }}</div>
+          {% if ex.translation %}<div class="jp-ex-vi">{{ ex.translation }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if item.relations %}
+        <div class="jp-rels">
+          {% for rel in item.relations %}
+          <div class="jp-rel-item">
+            <span class="jp-rel-label jp-rel-label--{{ rel.type }}">{{ rel.label }}</span>
+            <div class="jp-rel-text">
+              <div class="jp-rel-jp">{{ rel.jp_html|safe }}</div>
+              {% if rel.vn_text %}<div class="jp-rel-vi">{{ rel.vn_text }}</div>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
       {% empty %}
-      <div class="glass-panel empty-state">
+      <div class="empty-state">
         <p>No words in this set yet.</p>
       </div>
       {% endfor %}
     </div>
+
+    {% else %}
+    {# ===== EN VOCABULARY - MINIMALIST SINGLE CARD ===== #}
+    <div class="min-card">
+      {% for item in items %}
+      <article class="min-item">
+        <span class="min-idx">{{ forloop.counter }}</span>
+
+        <button class="min-audio"
+                :class="{ 'min-audio--playing': playingUrl === '{{ item.audio_url }}' }"
+                @click.stop="play('{{ item.audio_url }}')"
+                title="Play pronunciation">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        </button>
+
+        <div class="min-body">
+          <div class="min-top">
+            <span class="min-word">{{ item.word }}</span>
+            {% if item.ipa %}<span class="min-ipa">{{ item.ipa }}</span>{% endif %}
+            {% if item.part_of_speech %}<span class="min-pos">{{ item.part_of_speech }}</span>{% endif %}
+          </div>
+          <div class="min-meaning">{{ item.meaning }}</div>
+        </div>
+
+        <div class="min-status"><span class="min-dot min-dot--{{ item.status }}"></span></div>
+      </article>
+      {% empty %}
+      <div class="empty-state">
+        <p>No words in this set yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- ========== STICKY BOTTOM BAR ========== -->
     {% if items %}
@@ -1202,6 +1375,15 @@ function wordAudio() {
         this.playingUrl = null;
         this.audio = null;
       };
+    }
+  };
+}
+
+function jpToggle() {
+  return {
+    openIdx: null,
+    toggle(idx) {
+      this.openIdx = this.openIdx === idx ? null : idx;
     }
   };
 }
