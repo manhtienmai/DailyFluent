@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #417690;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .submit-row { margin-top: 20px; }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+&rsaquo; Auto-distribute JP
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Auto-distribute Japanese Vocabulary by Lesson</h2>
+        <p>Group all imported JP words by <code>extra_data.lesson</code> and create VocabularySets automatically.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">{{ total_jp }}</div>
+                <div class="label">Total JP words</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ unassigned }}</div>
+                <div class="label">Unassigned</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ assigned }}</div>
+                <div class="label">Already in sets</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">{{ lesson_count }}</div>
+                <div class="label">Distinct lessons</div>
+            </div>
+        </div>
+
+        {% if unassigned > 0 %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="submit-row">
+                <input type="submit" value="Distribute {{ unassigned }} words into {{ lesson_count }} sets" class="default" />
+            </div>
+        </form>
+        {% else %}
+        <p style="color: #666; margin-top: 20px;">All JP words are already assigned to sets. Nothing to distribute.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .submit-row {
+            margin-top: 20px;
+        }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        .form-row label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-row select {
+            padding: 6px 10px;
+            min-width: 200px;
+        }
+        .inline-fields {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .result-box {
+            background: #dff0d8;
+            border: 1px solid #d0e9c6;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .result-box.error {
+            background: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+&rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+&rsaquo; Import Japanese
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Import Japanese Vocabulary (Mimikara Format)</h2>
+        <p>Paste JSON data. Each item should have <code>word_info</code> (kanji, reading), <code>meanings</code> (vietnamese), and <code>examples</code>.</p>
+
+        <form method="post" id="import-form">
+            {% csrf_token %}
+
+            <div class="inline-fields">
+                <div class="form-row">
+                    <label for="vocab_set">Vocabulary Set (optional):</label>
+                    <select name="vocab_set" id="vocab_set">
+                        <option value="">-- None --</option>
+                        {% for vs in vocab_sets %}
+                        <option value="{{ vs.id }}">{{ vs.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="source">Source:</label>
+                    <select name="source" id="source">
+                        {% for value, label in sources %}
+                        <option value="{{ value }}" {% if value == "mimikara_n2" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="default_pos">Default POS:</label>
+                    <select name="default_pos" id="default_pos">
+                        <option value="noun" selected>noun</option>
+                        <option value="verb">verb</option>
+                        <option value="adj">adj</option>
+                        <option value="adv">adv</option>
+                        <option value="expression">expression</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <label for="json_data" class="required">JSON Data:</label>
+                    <button type="button" id="load-sample" class="button" style="padding: 5px 10px; cursor: pointer;">Load Sample</button>
+                </div>
+                <textarea name="json_data" id="json_data" required>{{ json_data }}</textarea>
+                <div class="help" style="margin-top: 5px; color: #666;">
+                    JSON array of items with <code>word_info.kanji</code>, <code>meanings.vietnamese</code>, <code>examples[]</code>.
+                </div>
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="Import Japanese Vocabulary" class="default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('load-sample').addEventListener('click', function() {
+    const sample = [
+        {
+            "word_info": {
+                "kanji": "経験",
+                "reading": "けいけん",
+                "html_display": "<ruby>経験<rt>けいけん</rt></ruby>"
+            },
+            "meanings": {
+                "vietnamese": "kinh nghiệm, trải nghiệm",
+                "han_viet": "KINH NGHIỆM"
+            },
+            "metadata": {
+                "lesson": "Bài 1"
+            },
+            "part_of_speech": "noun",
+            "examples": [
+                {
+                    "type": "sentence",
+                    "jp_html": "<ruby>海外<rt>かいがい</rt></ruby>で<ruby>働<rt>はたら</rt></ruby>いた<ruby>経験<rt>けいけん</rt></ruby>がある。",
+                    "jp_text": "海外で働いた経験がある。",
+                    "vn_text": "Tôi có kinh nghiệm làm việc ở nước ngoài."
+                },
+                {
+                    "type": "compound",
+                    "label": "Từ ghép",
+                    "jp_html": "<ruby>経験者<rt>けいけんしゃ</rt></ruby>",
+                    "jp_text": "経験者",
+                    "vn_text": "người có kinh nghiệm"
+                }
+            ]
+        }
+    ];
+    document.getElementById('json_data').value = JSON.stringify(sample, null, 4);
+});
+</script>
+{% endblock %}
