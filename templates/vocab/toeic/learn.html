@@ -4,7 +4,7 @@
 {% block title %}Learn Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260211">
 {% endblock %}
 
 {% block content %}
@@ -42,8 +42,18 @@
     <div class="df-toeic-learn-card" :class="{'df-toeic-learn-card--flipped': isFlipped}" @click="flip()">
       <!-- Front -->
       <div class="df-toeic-learn-card-front">
-        <div class="df-toeic-learn-word" x-text="currentItem?.word"></div>
-        <div class="df-toeic-learn-ipa" x-text="currentItem?.ipa"></div>
+        <template x-if="isJP && currentItem?.html_display">
+          <div class="df-toeic-learn-word df-toeic-learn-word--jp" x-html="currentItem.html_display"></div>
+        </template>
+        <template x-if="!isJP || !currentItem?.html_display">
+          <div class="df-toeic-learn-word" x-text="currentItem?.word" :style="isJP ? 'font-size: 2.8em' : ''"></div>
+        </template>
+        <template x-if="isJP && currentItem?.reading && !currentItem?.html_display">
+          <div class="df-toeic-learn-ipa" x-text="currentItem.reading"></div>
+        </template>
+        <template x-if="!isJP">
+          <div class="df-toeic-learn-ipa" x-text="currentItem?.ipa"></div>
+        </template>
         <button type="button" class="df-toeic-learn-audio-btn"
                 @click.stop="playAudio()" x-show="currentItem?.audio_url">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,10 +66,54 @@
 
       <!-- Back -->
       <div class="df-toeic-learn-card-back">
-        <div class="df-toeic-learn-back-word" x-text="currentItem?.word"></div>
-        <div class="df-toeic-learn-back-pos" x-text="currentItem?.part_of_speech"></div>
+        <template x-if="isJP && currentItem?.html_display">
+          <div class="df-toeic-learn-back-word df-toeic-learn-back-word--jp" x-html="currentItem.html_display"></div>
+        </template>
+        <template x-if="!isJP || !currentItem?.html_display">
+          <div class="df-toeic-learn-back-word" x-text="currentItem?.word"></div>
+        </template>
+        <template x-if="isJP && currentItem?.reading && !currentItem?.html_display">
+          <div class="df-toeic-learn-back-reading" x-text="currentItem.reading"></div>
+        </template>
+        <template x-if="isJP && currentItem?.han_viet">
+          <div class="df-toeic-learn-back-hanviet" x-text="currentItem.han_viet"></div>
+        </template>
+        <template x-if="!isJP">
+          <div class="df-toeic-learn-back-pos" x-text="currentItem?.part_of_speech"></div>
+        </template>
         <div class="df-toeic-learn-meaning" x-text="currentItem?.meaning"></div>
-        <template x-if="currentItem?.example">
+
+        <!-- JP: Render all examples with HTML support -->
+        <template x-if="isJP && currentItem?.examples?.length">
+          <div class="df-toeic-learn-examples" style="width: 100%;">
+            <template x-for="(ex, ei) in currentItem.examples" :key="ei">
+              <div class="df-toeic-learn-example df-toeic-learn-example--jp">
+                <div class="df-toeic-learn-example-text df-toeic-learn-example-text--jp" x-html="ex.sentence"></div>
+                <template x-if="ex.translation">
+                  <div class="df-toeic-learn-example-trans" x-text="ex.translation"></div>
+                </template>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- JP: Relations (compounds, synonyms, etc.) -->
+        <template x-if="isJP && currentItem?.relations?.length">
+          <div class="df-toeic-learn-relations">
+            <template x-for="(rel, ri) in currentItem.relations" :key="ri">
+              <div class="df-toeic-learn-rel-item">
+                <span class="df-toeic-learn-rel-label" x-text="rel.label || rel.type"></span>
+                <span class="df-toeic-learn-rel-jp" x-html="rel.jp_html"></span>
+                <template x-if="rel.vn_text">
+                  <span class="df-toeic-learn-rel-vi" x-text="'– ' + rel.vn_text"></span>
+                </template>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- EN: Original example rendering -->
+        <template x-if="!isJP && currentItem?.example">
           <div class="df-toeic-learn-example">
             <div class="df-toeic-learn-example-text" x-text="currentItem?.example"></div>
             <div class="df-toeic-learn-example-trans" x-text="currentItem?.example_trans"></div>
@@ -129,6 +183,7 @@ function toeicLearn() {
     quizUrl: '',
     levelUrl: '',
     audioEl: null,
+    isJP: '{{ config.language }}' === 'JP',
 
     get currentItem() {
       return this.items[this.currentIndex] || null;
