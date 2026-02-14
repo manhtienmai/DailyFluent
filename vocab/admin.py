@@ -11,9 +11,9 @@ from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.core.files.storage import default_storage
-from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, VocabularySet, SetItem, SetItemExample, UserSetProgress, Course
+from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, VocabularySet, SetItem, SetItemExample, UserSetProgress, Course, VocabSource
 from .utils_scraper import scrape_cambridge
-from .services.jp_import import import_jp_vocab_data, distribute_jp_vocab
+from .services.jp_import import import_jp_vocab_data, import_jp_vocab_grouped, distribute_jp_vocab
 import nested_admin
 
 
@@ -95,6 +95,14 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             path('upload-image/', self.admin_site.admin_view(self.upload_image_api), name='vocab_vocabulary_upload_image'),
             path('import-jp/', self.admin_site.admin_view(self.import_jp_view), name='vocab_vocabulary_import_jp'),
             path('distribute-jp/', self.admin_site.admin_view(self.distribute_jp_view), name='vocab_vocabulary_distribute_jp'),
+            # Quick create VocabularySet API (used by import page)
+            path('quick-create-set/', self.admin_site.admin_view(self.quick_create_set_api), name='vocab_vocabulary_quick_create_set'),
+            # Manual Distribution 3-Panel
+            path('manual-distribute/', self.admin_site.admin_view(self.manual_distribute_view), name='vocab_vocabulary_manual_distribute'),
+            path('manual-distribute/api/', self.admin_site.admin_view(self.manual_distribute_api), name='vocab_vocabulary_manual_distribute_api'),
+            path('manual-distribute/move/', self.admin_site.admin_view(self.move_to_set_api), name='vocab_vocabulary_move_to_set_api'),
+            path('manual-distribute/create-set/', self.admin_site.admin_view(self.create_set_api), name='vocab_vocabulary_create_set_api'),
+            path('manual-distribute/set-counts/', self.admin_site.admin_view(self.set_counts_api), name='vocab_vocabulary_set_counts_api'),
         ]
         return custom_urls + urls
 
@@ -498,23 +506,119 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                 return redirect("admin:vocab_vocabulary_import_jp")
 
             try:
-                # Resolve optional VocabularySet
+                # Resolve collection (bộ từ vựng)
+                collection = None
+                collection_id = request.POST.get("collection")
+                if collection_id:
+                    try:
+                        collection = VocabSource.objects.get(pk=int(collection_id))
+                    except (VocabSource.DoesNotExist, ValueError):
+                        messages.warning(request, "Bộ từ vựng not found.")
+
+                # Resolve optional VocabularySet within the collection
                 vocab_set = None
                 set_id = request.POST.get("vocab_set")
                 if set_id:
                     try:
                         vocab_set = VocabularySet.objects.get(pk=int(set_id))
                     except (VocabularySet.DoesNotExist, ValueError):
-                        messages.warning(request, "VocabularySet not found, importing without set.")
+                        pass
+
+                # Check auto-group mode
+                auto_group = request.POST.get("auto_group") == "on"
 
                 source = request.POST.get("source", "other")
                 default_pos = request.POST.get("default_pos", "noun")
-                
+
+                # -----------------------------------------------------------
+                # MODE 1: Auto-group by lesson → 1 set per lesson/section
+                # Requires: collection chosen + no specific set selected + auto_group on
+                # -----------------------------------------------------------
+                if collection and not vocab_set and auto_group:
+                    # Collect all (filename, items) pairs
+                    file_items_list = []
+
+                    if json_files:
+                        for f in json_files:
+                            data = json.load(f)
+                            if not isinstance(data, list):
+                                messages.warning(request, f"Skipped {f.name}: JSON must be a list.")
+                                continue
+                            file_items_list.append((f.name, data))
+
+                    if json_data:
+                        data = json.loads(json_data)
+                        if isinstance(data, list):
+                            file_items_list.append((None, data))
+
+                    if not file_items_list:
+                        messages.error(request, "Không có dữ liệu hợp lệ để import.")
+                        return redirect("admin:vocab_vocabulary_import_jp")
+
+                    total_stats = import_jp_vocab_grouped(
+                        file_items_list=file_items_list,
+                        collection=collection,
+                        source=source,
+                        default_pos=default_pos,
+                    )
+
+                    s = total_stats
+                    msg_parts = [f"Import thành công!"]
+                    msg_parts.append(f"Từ mới: {s['created_vocabs']}")
+                    if s['existing_vocabs']:
+                        msg_parts.append(f"Từ đã có: {s['existing_vocabs']}")
+                    msg_parts.append(f"Nghĩa: {s['created_definitions']}")
+                    if s['created_examples']:
+                        msg_parts.append(f"Ví dụ: {s['created_examples']}")
+                    msg_parts.append(f"Sets tạo: {s['sets_created']}")
+                    msg_parts.append(f"Từ vào set: {s['added_to_set']}")
+                    if s['skipped']:
+                        msg_parts.append(f"Bỏ qua: {s['skipped']}")
+                    msg = ' | '.join(msg_parts) + f" → Bộ: {collection.name}"
+                    messages.success(request, msg)
+
+                    # Show details per set
+                    for detail in s.get('sets_detail', []):
+                        messages.info(
+                            request,
+                            f"  Ch{detail['chapter']}: {detail['title']} ({detail['count']} từ)"
+                        )
+
+                    if s.get('skip_reasons'):
+                        messages.warning(
+                            request,
+                            f"Skip reasons: {' | '.join(s['skip_reasons'][:5])}"
+                        )
+
+                    return redirect("admin:vocab_vocabulary_distribute_jp")
+
+                # -----------------------------------------------------------
+                # MODE 2: Import all into a single set (legacy behavior)
+                # -----------------------------------------------------------
+                # Auto-create set if collection chosen but no specific set
+                if collection and not vocab_set:
+                    set_title = request.POST.get("new_set_title", "").strip()
+                    if not set_title:
+                        from django.utils import timezone
+                        set_title = f"{collection.name} - Import {timezone.now().strftime('%d/%m/%Y %H:%M')}"
+
+                    vocab_set = VocabularySet.objects.create(
+                        title=set_title,
+                        collection=collection,
+                        language=Vocabulary.Language.JAPANESE,
+                        is_public=True,
+                        status=VocabularySet.Status.PUBLISHED,
+                    )
+                    messages.info(request, f"Đã tạo set mới: {vocab_set.title}")
+
                 total_stats = {
                     'created_vocabs': 0,
+                    'existing_vocabs': 0,
                     'created_definitions': 0,
+                    'existing_definitions': 0,
                     'created_examples': 0,
-                    'skipped': 0
+                    'added_to_set': 0,
+                    'skipped': 0,
                 }
 
                 # Process Files
@@ -524,7 +628,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                         if not isinstance(data, list):
                             messages.warning(request, f"Skipped {f.name}: JSON must be a list.")
                             continue
-                            
+
                         stats = import_jp_vocab_data(
                             items=data,
                             vocab_set=vocab_set,
@@ -547,15 +651,30 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                         for k in total_stats:
                             total_stats[k] += stats.get(k, 0)
 
-                messages.success(
-                    request,
-                    f"Imported! Vocabs: {total_stats['created_vocabs']}, "
-                    f"Definitions: {total_stats['created_definitions']}, "
-                    f"Examples: {total_stats['created_examples']}, "
-                    f"Skipped: {total_stats['skipped']}"
-                )
+                s = total_stats
+                msg_parts = [f"Import thành công!"]
+                msg_parts.append(f"Từ mới: {s['created_vocabs']}")
+                if s['existing_vocabs']:
+                    msg_parts.append(f"Từ đã có: {s['existing_vocabs']}")
+                msg_parts.append(f"Nghĩa mới: {s['created_definitions']}")
+                if s['existing_definitions']:
+                    msg_parts.append(f"Nghĩa đã có: {s['existing_definitions']}")
+                if s['created_examples']:
+                    msg_parts.append(f"Ví dụ mới: {s['created_examples']}")
+                if s['added_to_set']:
+                    msg_parts.append(f"Thêm vào set: {s['added_to_set']}")
+                if s['skipped']:
+                    msg_parts.append(f"Bỏ qua: {s['skipped']}")
+                    skip_reasons = s.get('skip_reasons', [])
+                    if skip_reasons:
+                        messages.warning(request, f"Skip reasons (mẫu): {' | '.join(skip_reasons[:3])}")
+                msg = ' | '.join(msg_parts)
+                if collection:
+                    msg += f" → Bộ: {collection.name}"
+                if vocab_set:
+                    msg += f" → Set: {vocab_set.title}"
+                messages.success(request, msg)
                 
-                # Redirect to distribution page
                 return redirect("admin:vocab_vocabulary_distribute_jp")
 
             except json.JSONDecodeError:
@@ -563,21 +682,320 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             except Exception as e:
                 messages.error(request, f"Error: {str(e)}")
 
+        # GET: prepare context
+        # Collections (bộ từ vựng)
+        collections = VocabSource.objects.filter(is_active=True).order_by('display_order', 'name')
+        if not collections.exists():
+            VocabSource.get_or_create_default_sources()
+            collections = VocabSource.objects.filter(is_active=True).order_by('display_order', 'name')
+        
+        # Sets within collections (for JS to filter)
+        from django.db.models import Count
         vocab_sets = VocabularySet.objects.filter(
             language=Vocabulary.Language.JAPANESE
-        ).order_by('-created_at')
+        ).annotate(
+            word_count=Count('items')
+        ).order_by('collection__name', 'title')
+        
         # Also include sets without language filter if none found
         if not vocab_sets.exists():
-            vocab_sets = VocabularySet.objects.all().order_by('-created_at')[:50]
+            vocab_sets = VocabularySet.objects.all().annotate(
+                word_count=Count('items')
+            ).order_by('-created_at')[:50]
+
+        source_types = VocabSource.SourceType.choices
 
         context = dict(
             self.admin_site.each_context(request),
             title="Import Japanese Vocabulary",
+            collections=collections,
             vocab_sets=vocab_sets,
-            sources=ExampleSentence.Source.choices,
+            source_types=source_types,
             json_data=json_data,
         )
         return render(request, "admin/vocab/vocabulary/import_jp.html", context)
+
+    def quick_create_set_api(self, request):
+        """API to quickly create a VocabularySet from the import page."""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+        
+        title = request.POST.get('title', '').strip()
+        language = request.POST.get('language', 'jp')
+        description = request.POST.get('description', '').strip()
+        
+        if not title:
+            return JsonResponse({'error': 'Tên bộ từ vựng không được để trống'}, status=400)
+        
+        try:
+            vocab_set = VocabularySet.objects.create(
+                title=title,
+                language=language,
+                description=description,
+                is_public=True,
+                status=VocabularySet.Status.PUBLISHED,
+            )
+            return JsonResponse({
+                'id': vocab_set.id,
+                'title': vocab_set.title,
+                'language': vocab_set.language,
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def manual_distribute_view(self, request):
+        """3-Panel Manual Distribution UI for JP Vocabulary."""
+        from django.db.models import Count
+        
+        # Get filter from query params
+        collection_id = request.GET.get('collection', '')
+        
+        # Get all collections for filter dropdown
+        collections = VocabSource.objects.filter(is_active=True).order_by('display_order', 'name')
+        
+        # Get all VocabularySets with word count, filtered by collection if selected
+        sets_qs = VocabularySet.objects.annotate(
+            word_count=Count('items')
+        )
+        
+        if collection_id:
+            sets_qs = sets_qs.filter(collection_id=collection_id)
+        
+        sets = sets_qs.order_by('collection__name', 'toeic_level', 'set_number', 'title')
+        
+        # Count total JP vocab and unassigned (also filtered by collection if selected)
+        if collection_id:
+            # Only count vocab in sets belonging to this collection
+            vocab_in_collection = SetItem.objects.filter(
+                vocabulary_set__collection_id=collection_id
+            ).values_list('definition__entry__vocab_id', flat=True).distinct()
+            total_vocab = len(set(vocab_in_collection))
+            unassigned_count = 0  # When filtering by collection, no "unassigned" concept
+        else:
+            total_vocab = Vocabulary.objects.filter(language=Vocabulary.Language.JAPANESE).count()
+            # Unassigned = JP vocab that has no SetItem pointing to any of its definitions
+            assigned_vocab_ids = SetItem.objects.filter(
+                definition__entry__vocab__language=Vocabulary.Language.JAPANESE
+            ).values_list('definition__entry__vocab_id', flat=True).distinct()
+            unassigned_count = total_vocab - len(set(assigned_vocab_ids))
+        
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Manual Vocabulary Distribution",
+            sets=sets,
+            total_vocab=total_vocab,
+            unassigned_count=unassigned_count,
+            collections=collections,
+            current_collection_id=collection_id,
+        )
+        return render(request, "admin/vocab/vocabulary/manual_distribute.html", context)
+    
+    def manual_distribute_api(self, request):
+        """API to get vocabulary items for a set."""
+        set_id = request.GET.get('set_id', 'unassigned')
+        
+        vocabs = []
+        
+        if set_id == 'unassigned':
+            # Get JP vocab that has no SetItem
+            from django.db.models import Exists, OuterRef
+            
+            has_set_item = SetItem.objects.filter(
+                definition__entry__vocab=OuterRef('pk')
+            )
+            
+            unassigned_vocabs = Vocabulary.objects.filter(
+                language=Vocabulary.Language.JAPANESE
+            ).exclude(
+                Exists(has_set_item)
+            ).order_by('word')[:500]  # Limit for performance
+            
+            for v in unassigned_vocabs:
+                lesson = ''
+                if v.extra_data and isinstance(v.extra_data, dict):
+                    lesson = v.extra_data.get('lesson', '')
+                vocabs.append({
+                    'id': v.id,
+                    'word': v.word,
+                    'lesson': lesson,
+                })
+        else:
+            # Get vocab in the specified set
+            try:
+                vocab_set = VocabularySet.objects.get(pk=int(set_id))
+                items = SetItem.objects.filter(vocabulary_set=vocab_set).select_related(
+                    'definition__entry__vocab'
+                ).order_by('display_order', 'id')
+                
+                for item in items:
+                    v = item.definition.entry.vocab
+                    lesson = ''
+                    if v.extra_data and isinstance(v.extra_data, dict):
+                        lesson = v.extra_data.get('lesson', '')
+                    vocabs.append({
+                        'id': v.id,
+                        'word': v.word,
+                        'lesson': lesson,
+                        'set_item_id': item.id,
+                    })
+            except (VocabularySet.DoesNotExist, ValueError):
+                pass
+        
+        return JsonResponse({'vocabs': vocabs})
+    
+    def move_to_set_api(self, request):
+        """API to move vocabulary items to a target set."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        
+        try:
+            vocab_ids = json.loads(request.POST.get('vocab_ids', '[]'))
+            target_set_id = request.POST.get('target_set_id', '')
+            source_set_id = request.POST.get('source_set_id', '')
+            
+            if not vocab_ids:
+                return JsonResponse({'success': False, 'error': 'No vocab_ids provided'})
+            
+            moved = 0
+            
+            with transaction.atomic():
+                for vocab_id in vocab_ids:
+                    try:
+                        vocab = Vocabulary.objects.get(pk=int(vocab_id))
+                    except Vocabulary.DoesNotExist:
+                        continue
+                    
+                    # Get the first definition for this vocab
+                    first_def = WordDefinition.objects.filter(entry__vocab=vocab).first()
+                    if not first_def:
+                        # Create a placeholder entry and definition if none exists
+                        entry, _ = WordEntry.objects.get_or_create(
+                            vocab=vocab,
+                            part_of_speech='noun',
+                            defaults={'ipa': ''}
+                        )
+                        first_def = WordDefinition.objects.create(
+                            entry=entry,
+                            meaning=vocab.word
+                        )
+                    
+                    # Remove from source set if it was in one
+                    if source_set_id and source_set_id != 'unassigned':
+                        SetItem.objects.filter(
+                            vocabulary_set_id=int(source_set_id),
+                            definition=first_def
+                        ).delete()
+                    
+                    # If moving to unassigned, just remove from all sets
+                    if target_set_id == 'unassigned':
+                        SetItem.objects.filter(definition=first_def).delete()
+                        moved += 1
+                        continue
+                    
+                    # Add to target set
+                    try:
+                        target_set = VocabularySet.objects.get(pk=int(target_set_id))
+                        
+                        # Check if already in target set
+                        if not SetItem.objects.filter(
+                            vocabulary_set=target_set,
+                            definition=first_def
+                        ).exists():
+                            max_order = SetItem.objects.filter(
+                                vocabulary_set=target_set
+                            ).count()
+                            
+                            SetItem.objects.create(
+                                vocabulary_set=target_set,
+                                definition=first_def,
+                                display_order=max_order
+                            )
+                        moved += 1
+                    except (VocabularySet.DoesNotExist, ValueError):
+                        continue
+            
+            return JsonResponse({'success': True, 'moved': moved})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    def create_set_api(self, request):
+        """API to create a new VocabularySet."""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+        
+        title = request.POST.get('title', '').strip()
+        toeic_level = request.POST.get('toeic_level', '').strip()
+        collection_id = request.POST.get('collection_id', '').strip()
+        chapter = request.POST.get('chapter', '').strip()
+        
+        if not title:
+            return JsonResponse({'error': 'Title required'}, status=400)
+        
+        try:
+            # Get collection if provided
+            collection = None
+            collection_name = None
+            if collection_id:
+                try:
+                    collection = VocabSource.objects.get(pk=int(collection_id))
+                    collection_name = collection.name
+                except (VocabSource.DoesNotExist, ValueError):
+                    pass
+            
+            # Parse chapter
+            chapter_num = None
+            if chapter:
+                try:
+                    chapter_num = int(chapter)
+                except ValueError:
+                    pass
+            
+            vocab_set = VocabularySet.objects.create(
+                title=title,
+                toeic_level=toeic_level if toeic_level else None,
+                collection=collection,
+                chapter=chapter_num,
+                language=collection.language if collection else 'en',
+                is_public=True,
+                status=VocabularySet.Status.PUBLISHED,
+            )
+            
+            return JsonResponse({
+                'id': vocab_set.id,
+                'title': vocab_set.title,
+                'toeic_level': vocab_set.toeic_level,
+                'chapter': vocab_set.chapter,
+                'collection_id': collection.id if collection else None,
+                'collection_name': collection_name,
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    def set_counts_api(self, request):
+        """API to get updated word counts for sets."""
+        from django.db.models import Count, Exists, OuterRef
+        
+        # Count unassigned JP vocab
+        has_set_item = SetItem.objects.filter(
+            definition__entry__vocab=OuterRef('pk')
+        )
+        
+        unassigned = Vocabulary.objects.filter(
+            language=Vocabulary.Language.JAPANESE
+        ).exclude(
+            Exists(has_set_item)
+        ).count()
+        
+        # Get counts for all sets
+        sets = VocabularySet.objects.annotate(
+            word_count=Count('items')
+        ).values('id', 'word_count')
+        
+        return JsonResponse({
+            'unassigned': unassigned,
+            'sets': [{'id': s['id'], 'count': s['word_count']} for s in sets]
+        })
 
     def distribute_jp_view(self, request):
         """Auto-distribute JP words into VocabularySets by lesson."""
@@ -1225,3 +1643,84 @@ class CourseAdmin(admin.ModelAdmin):
             messages.error(request, f"Error initializing courses: {e}")
             
         return redirect("admin:vocab_course_changelist")
+
+
+@admin.register(VocabSource)
+class VocabSourceAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name', 'source_type', 'language', 'level', 'is_active', 'display_order')
+    list_filter = ('source_type', 'language', 'is_active')
+    search_fields = ('code', 'name', 'description')
+    list_editable = ('display_order', 'is_active')
+    ordering = ('display_order', 'name')
+    
+    fieldsets = (
+        (None, {
+            'fields': ('code', 'name', 'source_type')
+        }),
+        ('Details', {
+            'fields': ('description', 'language', 'level', 'publisher')
+        }),
+        ('Settings', {
+            'fields': ('is_active', 'display_order')
+        }),
+    )
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('init-defaults/', self.admin_site.admin_view(self.init_defaults_view), name='vocab_vocabsource_init_defaults'),
+            path('api/create/', self.admin_site.admin_view(self.create_api), name='vocab_vocabsource_create_api'),
+        ]
+        return custom_urls + urls
+    
+    def init_defaults_view(self, request):
+        """Initialize default sources."""
+        VocabSource.get_or_create_default_sources()
+        messages.success(request, "Default sources initialized successfully.")
+        return redirect("admin:vocab_vocabsource_changelist")
+    
+    def create_api(self, request):
+        """API to create a new source (used by import page)."""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+        
+        code = request.POST.get('code', '').strip().lower()
+        name = request.POST.get('name', '').strip()
+        source_type = request.POST.get('source_type', 'book')
+        language = request.POST.get('language', '')
+        level = request.POST.get('level', '')
+        
+        if not code or not name:
+            return JsonResponse({'error': 'Code and name are required'}, status=400)
+        
+        # Sanitize code
+        import re
+        code = re.sub(r'[^a-z0-9_]', '_', code)
+        
+        # Check if exists
+        if VocabSource.objects.filter(code=code).exists():
+            source = VocabSource.objects.get(code=code)
+            return JsonResponse({
+                'id': source.id,
+                'code': source.code,
+                'name': source.name,
+                'exists': True,
+            })
+        
+        try:
+            source = VocabSource.objects.create(
+                code=code,
+                name=name,
+                source_type=source_type,
+                language=language,
+                level=level,
+                is_active=True,
+            )
+            return JsonResponse({
+                'id': source.id,
+                'code': source.code,
+                'name': source.name,
+                'exists': False,
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

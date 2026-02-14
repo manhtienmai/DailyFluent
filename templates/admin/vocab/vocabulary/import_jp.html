@@ -4,121 +4,223 @@
 {% block extrahead %}
     {{ block.super }}
     <style>
-        textarea {
-            width: 100%;
-            height: 400px;
-            font-family: monospace;
-            padding: 10px;
-            box-sizing: border-box;
+        /* ===== Layout ===== */
+        .ij * { box-sizing: border-box; }
+        .ij {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        .submit-row {
-            margin-top: 20px;
+        
+        /* ===== Import Sections ===== */
+        .ij-section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
         }
-        .form-row {
-            margin-bottom: 15px;
+        .ij-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
         }
-        .form-row label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .ij-section-num {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            flex-shrink: 0;
         }
-        .form-row select {
-            padding: 6px 10px;
+        .ij-section-title {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .ij-section-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-left: auto;
+        }
+        
+        /* ===== Collection + Set Row ===== */
+        .ij-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .ij-field {
+            flex: 1;
             min-width: 200px;
         }
-        .inline-fields {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+        .ij-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
         }
-        .result-box {
-            background: #dff0d8;
-            border: 1px solid #d0e9c6;
-            padding: 12px 16px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        .ij-field select,
+        .ij-field input {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 0.8125rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
         }
-        .result-box.error {
-            background: #f2dede;
-            border-color: #ebccd1;
+        .ij-field select:focus,
+        .ij-field input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-
+        .ij-field .help {
+            font-size: 0.6875rem;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+        
+        /* ===== Buttons ===== */
+        .ij-btn-create {
+            padding: 8px 14px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .ij-btn-create:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .ij-btn-source {
+            padding: 8px 14px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .ij-btn-source:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+        
+        /* ===== Collection Info Box ===== */
+        .ij-info {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.8125rem;
+            color: #166534;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .ij-info.show { display: flex; }
+        .ij-info-icon { font-size: 1.125rem; }
+        .ij-info strong { font-weight: 700; }
+        
+        /* ===== New Set Input ===== */
+        .ij-new-set {
+            display: none;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .ij-new-set.show { display: flex; }
+        
         /* ===== Drop Zone ===== */
         .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
             padding: 2rem 1.5rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             margin-bottom: 12px;
             background: #fafbfc;
-            position: relative;
         }
-        .drop-zone:hover {
-            border-color: #79aec8;
-            background: #f0f7fb;
-        }
-        .drop-zone.drag-over {
-            border-color: #417690;
-            background: #e4f0f7;
-            box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.15);
-        }
-        .drop-zone.has-file {
-            border-color: #4caf50;
-            background: #f1f8e9;
-            border-style: solid;
-        }
-        .drop-zone-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.5;
-        }
-        .drop-zone-text {
-            color: #666;
-            font-size: 0.9375rem;
-            line-height: 1.5;
-        }
-        .drop-zone-text strong {
-            color: #417690;
-        }
-        .drop-zone-file {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.9375rem;
-            color: #2e7d32;
-            font-weight: 600;
-        }
+        .drop-zone:hover { border-color: #6366f1; background: #f5f3ff; }
+        .drop-zone.drag-over { border-color: #6366f1; background: #ede9fe; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .drop-zone.has-file { border-color: #10b981; background: #f0fdf4; border-style: solid; }
+        .drop-zone-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+        .drop-zone-text { color: #64748b; font-size: 0.875rem; line-height: 1.5; }
+        .drop-zone-text strong { color: #6366f1; }
+        .drop-zone-file { display: none; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.875rem; color: #166534; font-weight: 600; }
         .drop-zone.has-file .drop-zone-prompt { display: none; }
         .drop-zone.has-file .drop-zone-file { display: flex; }
-        .drop-zone-remove {
-            background: none;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 2px 8px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            color: #999;
-            margin-left: 0.5rem;
-        }
-        .drop-zone-remove:hover {
-            border-color: #e53935;
-            color: #e53935;
-        }
-        .drop-zone input[type="file"] {
-            display: none;
-        }
+        .drop-zone-remove { background: none; border: 1px solid #d1d5db; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.75rem; color: #94a3b8; margin-left: 0.5rem; }
+        .drop-zone-remove:hover { border-color: #ef4444; color: #ef4444; }
+        .drop-zone input[type="file"] { display: none; }
+        
         .input-separator {
-            text-align: center;
-            color: #999;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
+            text-align: center; color: #94a3b8; font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
         }
+        textarea {
+            width: 100%; height: 250px; font-family: monospace; font-size: 0.8125rem;
+            padding: 10px; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 8px;
+        }
+        textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        
+        /* ===== Submit ===== */
+        .ij-submit {
+            padding: 12px 32px;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+            transition: all 0.15s;
+        }
+        .ij-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+        
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 12px; padding: 24px; width: 100%;
+            max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;
+        }
+        .modal-header h3 { margin: 0; font-size: 1rem; color: #1f2937; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af; line-height: 1; }
+        .modal-close:hover { color: #ef4444; }
+        .modal-row { margin-bottom: 14px; }
+        .modal-row label { display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+        .modal-row input, .modal-row select { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8125rem; }
+        .modal-row input:focus, .modal-row select:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .modal-row .help { font-size: 0.6875rem; color: #94a3b8; margin-top: 3px; }
+        .modal-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+        .modal-btn-cancel { padding: 8px 16px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .modal-btn-cancel:hover { background: #e5e7eb; }
+        .modal-btn-save { padding: 8px 20px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .modal-btn-save:hover { background: linear-gradient(135deg, #059669, #047857); }
     </style>
 {% endblock %}
 
@@ -132,34 +234,97 @@
 {% endblock %}
 
 {% block content %}
-<div id="content-main">
-    <div class="module">
-        <h2>Import Japanese Vocabulary (Mimikara Format)</h2>
-        <p>Drag &amp; drop a JSON file or paste JSON data below. Each item should have <code>word_info</code> (kanji, reading), <code>meanings</code> (vietnamese), and <code>examples</code>.</p>
+<div id="content-main" class="ij">
+    <form method="post" id="import-form" enctype="multipart/form-data">
+        {% csrf_token %}
 
-        <form method="post" id="import-form" enctype="multipart/form-data">
-            {% csrf_token %}
+        <!-- Section 1: Chọn bộ từ vựng -->
+        <div class="ij-section">
+            <div class="ij-section-header">
+                <div class="ij-section-num">1</div>
+                <div class="ij-section-title">Chọn bộ từ vựng</div>
+                <div class="ij-section-desc">Từ vựng import sẽ thuộc bộ này</div>
+            </div>
+            
+            <div class="ij-row">
+                <div class="ij-field" style="flex: 2;">
+                    <label for="collection">Bộ từ vựng (Collection)</label>
+                    <select name="collection" id="collection">
+                        <option value="">-- Chọn bộ từ vựng --</option>
+                        {% for col in collections %}
+                        <option value="{{ col.id }}" data-name="{{ col.name }}" data-type="{{ col.source_type }}" data-lang="{{ col.language }}">
+                            📚 {{ col.name }} {% if col.level %}({{ col.level }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="help">Bộ = nhóm chứa nhiều set. VD: "Mimikara N2" chứa Set 1, Set 2...</div>
+                </div>
+                <button type="button" class="ij-btn-create" id="btn-create-collection" style="margin-bottom: 4px;">+ Tạo bộ mới</button>
+            </div>
+            
+            <!-- Info box when collection selected -->
+            <div class="ij-info" id="collection-info">
+                <span class="ij-info-icon">📚</span>
+                <span>Đã chọn bộ: <strong id="collection-info-name"></strong>. Chọn set cụ thể hoặc tạo set mới bên dưới.</span>
+            </div>
+            
+            <!-- Auto-group checkbox -->
+            <div class="ij-row" id="auto-group-row" style="display: none;">
+                <div class="ij-field" style="flex: 2;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: #1e293b; padding: 10px 14px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px;">
+                        <input type="checkbox" name="auto_group" id="auto_group" checked style="width: 18px; height: 18px; accent-color: #6366f1;">
+                        <span>
+                            Tự động tạo set theo chương/chủ đề
+                            <span style="display: block; font-size: 0.6875rem; font-weight: 400; color: #92400e; margin-top: 2px;">
+                                Mỗi metadata.lesson khác nhau → 1 set riêng. Chapter/section tự detect từ tên file.
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
 
-            <div class="inline-fields">
-                <div class="form-row">
-                    <label for="vocab_set">Vocabulary Set (optional):</label>
+            <!-- Set selector (appears when collection is chosen AND auto-group is off) -->
+            <div class="ij-row" id="set-row" style="display: none;">
+                <div class="ij-field" style="flex: 2;">
+                    <label for="vocab_set">Set từ vựng trong bộ</label>
                     <select name="vocab_set" id="vocab_set">
-                        <option value="">-- None --</option>
-                        {% for vs in vocab_sets %}
-                        <option value="{{ vs.id }}">{{ vs.title }}</option>
-                        {% endfor %}
+                        <option value="">🆕 Tạo set mới tự động</option>
                     </select>
+                    <div class="help">Chọn set có sẵn hoặc để "Tạo set mới tự động" - hệ thống sẽ tạo set mới khi import</div>
                 </div>
-                <div class="form-row">
-                    <label for="source">Source:</label>
-                    <select name="source" id="source">
-                        {% for value, label in sources %}
-                        <option value="{{ value }}" {% if value == "mimikara_n2" %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
+            </div>
+            
+            <!-- New set name (when auto-create, single set mode) -->
+            <div class="ij-new-set" id="new-set-row">
+                <div class="ij-field" style="flex: 2;">
+                    <label for="new_set_title">Tên set mới (optional)</label>
+                    <input type="text" name="new_set_title" id="new_set_title" placeholder="VD: Bài 1 - Động từ cơ bản (để trống = tự động tạo)">
+                    <div class="help">Nếu để trống, tên set sẽ là "Tên bộ - Import ngày/tháng/năm"</div>
                 </div>
-                <div class="form-row">
-                    <label for="default_pos">Default POS:</label>
+            </div>
+        </div>
+
+        <!-- Section 2: Cấu hình -->
+        <div class="ij-section">
+            <div class="ij-section-header">
+                <div class="ij-section-num">2</div>
+                <div class="ij-section-title">Cấu hình Import</div>
+            </div>
+            
+            <div class="ij-row">
+                <div class="ij-field">
+                    <label for="source">Source (nguồn ví dụ)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select name="source" id="source" style="flex: 1;">
+                            {% for col in collections %}
+                            <option value="{{ col.code }}" {% if col.code == "mimikara_n2" %}selected{% endif %}>{{ col.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="help">Nguồn gốc của câu ví dụ (sách/từ điển)</div>
+                </div>
+                <div class="ij-field" style="max-width: 160px;">
+                    <label for="default_pos">Default POS</label>
                     <select name="default_pos" id="default_pos">
                         <option value="noun" selected>noun</option>
                         <option value="verb">verb</option>
@@ -169,16 +334,23 @@
                     </select>
                 </div>
             </div>
+        </div>
 
-            <!-- Drop Zone -->
-            <div class="form-row">
-                <label>JSON Files:</label>
+        <!-- Section 3: Dữ liệu -->
+        <div class="ij-section">
+            <div class="ij-section-header">
+                <div class="ij-section-num">3</div>
+                <div class="ij-section-title">Dữ liệu Import</div>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">JSON Files</label>
                 <div class="drop-zone" id="drop-zone">
                     <input type="file" name="json_files" id="file-input" accept=".json,application/json" multiple />
                     <div class="drop-zone-prompt">
-                        <div class="drop-zone-icon">&#128196;</div>
+                        <div class="drop-zone-icon">📄</div>
                         <div class="drop-zone-text">
-                            Kéo thả nhiều file JSON vào đây hoặc <strong>nhấn để chọn files</strong>
+                            Kéo thả file JSON vào đây hoặc <strong>nhấn để chọn</strong>
                         </div>
                     </div>
                     <div class="drop-zone-file-list" id="file-list"></div>
@@ -186,216 +358,330 @@
                 <div class="input-separator">hoặc nhập trực tiếp</div>
             </div>
 
-            <div class="form-row">
-                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <label for="json_data">JSON Data (Optional):</label>
-                    <button type="button" id="load-sample" class="button" style="padding: 5px 10px; cursor: pointer;">Load Sample</button>
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label style="font-size: 0.75rem; font-weight: 600; color: #475569;">JSON Data (Optional)</label>
+                    <button type="button" id="load-sample" style="padding: 4px 10px; font-size: 0.75rem; cursor: pointer; background: #f1f5f9; border: 1px solid #d1d5db; border-radius: 4px; color: #475569;">Load Sample</button>
                 </div>
                 <textarea name="json_data" id="json_data">{{ json_data }}</textarea>
-                <div class="help" style="margin-top: 5px; color: #666;">
-                    JSON array of items with <code>word_info.kanji</code>, <code>meanings.vietnamese</code>, <code>examples[]</code>.
-                </div>
             </div>
+        </div>
 
-            <div class="submit-row">
-                <input type="submit" value="Import Japanese Vocabulary" class="default" />
+        <!-- Submit -->
+        <div style="text-align: center; padding: 8px 0;">
+            <button type="submit" class="ij-submit">📥 Import Japanese Vocabulary</button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal: Tạo bộ từ vựng mới -->
+<div class="modal-overlay" id="modal-collection">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>📚 Tạo bộ từ vựng mới</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modal-collection')">&times;</button>
+        </div>
+        
+        <div class="modal-row">
+            <label>Tên bộ từ vựng *</label>
+            <input type="text" id="mc-name" placeholder="VD: Shinkanzen Master N2, Minna N5...">
+        </div>
+        
+        <div class="modal-row">
+            <label>Mã code *</label>
+            <input type="text" id="mc-code" placeholder="Tự tạo từ tên">
+            <div class="help">Chỉ chữ thường, số, underscore</div>
+        </div>
+        
+        <div class="modal-inline">
+            <div class="modal-row">
+                <label>Loại</label>
+                <select id="mc-type">
+                    {% for value, label in source_types %}
+                    <option value="{{ value }}" {% if value == 'book' %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
             </div>
-        </form>
+            <div class="modal-row">
+                <label>Ngôn ngữ</label>
+                <select id="mc-lang">
+                    <option value="jp" selected>Japanese</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="modal-row">
+            <label>Cấp độ (optional)</label>
+            <input type="text" id="mc-level" placeholder="VD: N2, N3, B2...">
+        </div>
+        
+        <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeModal('modal-collection')">Hủy</button>
+            <button type="button" class="modal-btn-save" id="btn-save-collection">📚 Tạo bộ</button>
+        </div>
     </div>
 </div>
 
 <script>
 (function() {
+    // ===== Helpers =====
+    function getCookie(name) {
+        const v = "; " + document.cookie;
+        const p = v.split("; " + name + "=");
+        if (p.length === 2) return p.pop().split(";").shift();
+        return "";
+    }
+    
+    window.closeModal = function(id) {
+        document.getElementById(id).classList.remove('show');
+    };
+    
+    // ===== All sets data (for filtering by collection) =====
+    const allSets = [
+        {% for vs in vocab_sets %}
+        { id: {{ vs.id }}, title: "{{ vs.title|escapejs }}", collectionId: {{ vs.collection_id|default:"null" }}, wordCount: {{ vs.word_count }} },
+        {% endfor %}
+    ];
+    
+    // ===== Collection select logic =====
+    const collectionSelect = document.getElementById('collection');
+    const vocabSetSelect = document.getElementById('vocab_set');
+    const setRow = document.getElementById('set-row');
+    const newSetRow = document.getElementById('new-set-row');
+    const autoGroupRow = document.getElementById('auto-group-row');
+    const autoGroupCheck = document.getElementById('auto_group');
+    const collectionInfo = document.getElementById('collection-info');
+    const collectionInfoName = document.getElementById('collection-info-name');
+    const sourceSelect = document.getElementById('source');
+    
+    function updateSetVisibility() {
+        const colId = collectionSelect.value;
+        const isAutoGroup = autoGroupCheck.checked;
+        
+        if (colId) {
+            autoGroupRow.style.display = '';
+            
+            if (isAutoGroup) {
+                // Auto-group mode: hide set selector and new set name
+                setRow.style.display = 'none';
+                newSetRow.classList.remove('show');
+            } else {
+                // Manual mode: show set selector
+                setRow.style.display = '';
+                if (!vocabSetSelect.value) {
+                    newSetRow.classList.add('show');
+                }
+            }
+        } else {
+            autoGroupRow.style.display = 'none';
+            setRow.style.display = 'none';
+            newSetRow.classList.remove('show');
+        }
+    }
+    
+    collectionSelect.addEventListener('change', () => {
+        const colId = collectionSelect.value;
+        
+        if (colId) {
+            // Show info
+            const opt = collectionSelect.options[collectionSelect.selectedIndex];
+            collectionInfoName.textContent = opt.dataset.name;
+            collectionInfo.classList.add('show');
+            
+            // Filter sets for this collection
+            vocabSetSelect.innerHTML = '<option value="">🆕 Tạo set mới tự động</option>';
+            allSets.filter(s => String(s.collectionId) === colId).forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.title} (${s.wordCount} từ)`;
+                vocabSetSelect.appendChild(opt);
+            });
+            
+            // Auto-select matching source
+            const colCode = opt.dataset.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            for (let i = 0; i < sourceSelect.options.length; i++) {
+                if (sourceSelect.options[i].value.includes(colCode.substring(0, 8))) {
+                    sourceSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        } else {
+            collectionInfo.classList.remove('show');
+        }
+        
+        updateSetVisibility();
+    });
+    
+    autoGroupCheck.addEventListener('change', updateSetVisibility);
+    
+    vocabSetSelect.addEventListener('change', () => {
+        if (vocabSetSelect.value) {
+            // Specific set selected → disable auto-group
+            autoGroupCheck.checked = false;
+            newSetRow.classList.remove('show');
+        } else {
+            newSetRow.classList.add('show');
+        }
+        updateSetVisibility();
+    });
+    
+    // ===== Create Collection Modal =====
+    document.getElementById('btn-create-collection').addEventListener('click', () => {
+        document.getElementById('modal-collection').classList.add('show');
+        document.getElementById('mc-name').focus();
+    });
+    
+    document.getElementById('modal-collection').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-collection') closeModal('modal-collection');
+    });
+    
+    // Auto-generate code
+    document.getElementById('mc-name').addEventListener('input', () => {
+        const codeInput = document.getElementById('mc-code');
+        if (!codeInput.dataset.manual) {
+            codeInput.value = document.getElementById('mc-name').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        }
+    });
+    document.getElementById('mc-code').addEventListener('input', () => {
+        document.getElementById('mc-code').dataset.manual = 'true';
+    });
+    
+    document.getElementById('btn-save-collection').addEventListener('click', async () => {
+        const name = document.getElementById('mc-name').value.trim();
+        const code = document.getElementById('mc-code').value.trim();
+        
+        if (!name) { alert('Nhập tên bộ từ vựng'); return; }
+        
+        const btn = document.getElementById('btn-save-collection');
+        btn.disabled = true;
+        btn.textContent = 'Đang tạo...';
+        
+        try {
+            const fd = new URLSearchParams({
+                name: name,
+                code: code || name.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+                source_type: document.getElementById('mc-type').value,
+                language: document.getElementById('mc-lang').value,
+                level: document.getElementById('mc-level').value,
+            });
+            
+            const resp = await fetch("{% url 'admin:vocab_vocabsource_create_api' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
+                body: fd.toString()
+            });
+            const data = await resp.json();
+            
+            if (data.error) {
+                alert('Lỗi: ' + data.error);
+            } else {
+                // Add to collection select
+                const opt = document.createElement('option');
+                opt.value = data.id;
+                opt.textContent = '📚 ' + data.name;
+                opt.dataset.name = data.name;
+                opt.selected = true;
+                collectionSelect.appendChild(opt);
+                
+                // Also add to source select
+                const srcOpt = document.createElement('option');
+                srcOpt.value = data.code;
+                srcOpt.textContent = data.name;
+                sourceSelect.appendChild(srcOpt);
+                
+                // Trigger change
+                collectionSelect.dispatchEvent(new Event('change'));
+                
+                closeModal('modal-collection');
+                document.getElementById('mc-name').value = '';
+                document.getElementById('mc-code').value = '';
+                document.getElementById('mc-level').value = '';
+                delete document.getElementById('mc-code').dataset.manual;
+            }
+        } catch (e) {
+            alert('Lỗi: ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📚 Tạo bộ';
+        }
+    });
+    
+    // ===== Drop Zone =====
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const fileListEl = document.getElementById('file-list');
-    const textarea = document.getElementById('json_data');
-
-    // Accumulator: keep track of all files across multiple selections/drops
     let accumulatedFiles = new DataTransfer();
 
-    // Click to select file
-    dropZone.addEventListener('click', function(e) {
-        if (e.target.closest('.drop-zone-remove')) return;
-        fileInput.click();
-    });
+    dropZone.addEventListener('click', (e) => { if (!e.target.closest('.drop-zone-remove')) fileInput.click(); });
+    fileInput.addEventListener('change', () => addFiles(fileInput.files));
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
-    // File selected via input — append to accumulated list
-    fileInput.addEventListener('change', function() {
-        addFiles(fileInput.files);
-    });
-
-    // Drag events
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-    });
-
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            addFiles(files);
-        }
-    });
-
-    /**
-     * Append new files to the accumulator (skip duplicates by name+size).
-     */
     function addFiles(files) {
-        const existingNames = new Set();
-        for (const f of accumulatedFiles.files) {
-            existingNames.add(f.name + '|' + f.size);
-        }
-
-        Array.from(files).forEach(f => {
-            const key = f.name + '|' + f.size;
-            if (!existingNames.has(key)) {
-                accumulatedFiles.items.add(f);
-                existingNames.add(key);
-            }
-        });
-
-        // Sync the hidden file input with the accumulated list
+        const existing = new Set();
+        for (const f of accumulatedFiles.files) existing.add(f.name + '|' + f.size);
+        Array.from(files).forEach(f => { const k = f.name + '|' + f.size; if (!existing.has(k)) { accumulatedFiles.items.add(f); existing.add(k); } });
         fileInput.files = accumulatedFiles.files;
         renderFileList();
     }
 
-    /**
-     * Remove a single file by index and re-render.
-     */
-    function removeFile(index) {
-        const newDT = new DataTransfer();
+    function removeFile(idx) {
+        const dt = new DataTransfer();
         const files = accumulatedFiles.files;
-        for (let i = 0; i < files.length; i++) {
-            if (i !== index) newDT.items.add(files[i]);
-        }
-        accumulatedFiles = newDT;
+        for (let i = 0; i < files.length; i++) if (i !== idx) dt.items.add(files[i]);
+        accumulatedFiles = dt;
         fileInput.files = accumulatedFiles.files;
         renderFileList();
     }
 
-    /**
-     * Clear all files.
-     */
-    function clearAllFiles() {
-        accumulatedFiles = new DataTransfer();
-        fileInput.files = accumulatedFiles.files;
-        renderFileList();
-    }
+    function clearAll() { accumulatedFiles = new DataTransfer(); fileInput.files = accumulatedFiles.files; renderFileList(); }
 
-    /**
-     * Render the file list UI from accumulatedFiles.
-     */
     function renderFileList() {
         fileListEl.innerHTML = '';
         const files = accumulatedFiles.files;
-
         if (files.length > 0) {
             dropZone.classList.add('has-file');
-
-            Array.from(files).forEach((file, index) => {
-                const item = document.createElement('div');
-                item.className = 'drop-zone-file';
-                item.style.display = 'flex';
-                item.innerHTML = `
-                    <span>📄 ${file.name} (${formatSize(file.size)})</span>
-                    <button type="button" class="drop-zone-remove" data-index="${index}" title="Remove">&times;</button>
-                `;
-                fileListEl.appendChild(item);
+            Array.from(files).forEach((f, i) => {
+                const d = document.createElement('div');
+                d.className = 'drop-zone-file'; d.style.display = 'flex';
+                const sz = f.size < 1024 ? f.size + ' B' : f.size < 1048576 ? (f.size/1024).toFixed(1) + ' KB' : (f.size/1048576).toFixed(1) + ' MB';
+                d.innerHTML = `<span>📄 ${f.name} (${sz})</span><button type="button" class="drop-zone-remove" data-index="${i}" title="Remove">&times;</button>`;
+                fileListEl.appendChild(d);
             });
-
-            // Add "Clear all" button
-            const clearBtn = document.createElement('div');
-            clearBtn.style.cssText = 'text-align:center; margin-top:8px;';
-            clearBtn.innerHTML = `<button type="button" class="button" id="clear-all-files"
-                style="padding:4px 12px; font-size:0.8125rem; cursor:pointer; background:#e53935; color:#fff; border:none; border-radius:4px;">
-                Xóa tất cả files (${files.length})
-            </button>`;
-            fileListEl.appendChild(clearBtn);
+            const cb = document.createElement('div');
+            cb.style.cssText = 'text-align:center; margin-top:8px;';
+            cb.innerHTML = `<button type="button" id="clear-all-files" style="padding:4px 12px; font-size:0.75rem; cursor:pointer; background:#ef4444; color:#fff; border:none; border-radius:4px;">Xóa tất cả (${files.length})</button>`;
+            fileListEl.appendChild(cb);
         } else {
             dropZone.classList.remove('has-file');
         }
     }
 
-    // Delegate click for individual remove buttons & clear-all
-    fileListEl.addEventListener('click', function(e) {
-        const removeBtn = e.target.closest('.drop-zone-remove');
-        if (removeBtn) {
-            e.stopPropagation();
-            const idx = parseInt(removeBtn.dataset.index, 10);
-            removeFile(idx);
-            return;
-        }
-        if (e.target.closest('#clear-all-files')) {
-            e.stopPropagation();
-            clearAllFiles();
-        }
+    fileListEl.addEventListener('click', (e) => {
+        const rb = e.target.closest('.drop-zone-remove');
+        if (rb) { e.stopPropagation(); removeFile(parseInt(rb.dataset.index)); return; }
+        if (e.target.closest('#clear-all-files')) { e.stopPropagation(); clearAll(); }
     });
 
-    function formatSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
-    // Also support dropping JSON files anywhere on the page
-    document.addEventListener('dragover', function(e) { e.preventDefault(); });
-    document.addEventListener('drop', function(e) {
+    document.addEventListener('dragover', (e) => e.preventDefault());
+    document.addEventListener('drop', (e) => {
         e.preventDefault();
-        const files = e.dataTransfer.files;
-        const jsonFiles = Array.from(files).filter(f => f.name.endsWith('.json') || f.type === 'application/json');
-        if (jsonFiles.length > 0) {
-            const dt = new DataTransfer();
-            jsonFiles.forEach(f => dt.items.add(f));
-            addFiles(dt.files);
-        }
+        const jf = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.json'));
+        if (jf.length) { const dt = new DataTransfer(); jf.forEach(f => dt.items.add(f)); addFiles(dt.files); }
     });
 
-    // Load sample button
-    document.getElementById('load-sample').addEventListener('click', function() {
-        const sample = [
-            {
-                "word_info": {
-                    "kanji": "経験",
-                    "reading": "けいけん",
-                    "html_display": "<ruby>経験<rt>けいけん</rt></ruby>"
-                },
-                "meanings": {
-                    "vietnamese": "kinh nghiệm, trải nghiệm",
-                    "han_viet": "KINH NGHIỆM"
-                },
-                "metadata": {
-                    "lesson": "Bài 1"
-                },
-                "part_of_speech": "noun",
-                "examples": [
-                    {
-                        "type": "sentence",
-                        "jp_html": "<ruby>海外<rt>かいがい</rt></ruby>で<ruby>働<rt>はたら</rt></ruby>いた<ruby>経験<rt>けいけん</rt></ruby>がある。",
-                        "jp_text": "海外で働いた経験がある。",
-                        "vn_text": "Tôi có kinh nghiệm làm việc ở nước ngoài."
-                    },
-                    {
-                        "type": "compound",
-                        "label": "Từ ghép",
-                        "jp_html": "<ruby>経験者<rt>けいけんしゃ</rt></ruby>",
-                        "jp_text": "経験者",
-                        "vn_text": "người có kinh nghiệm"
-                    }
-                ]
-            }
-        ];
-        textarea.value = JSON.stringify(sample, null, 4);
-        textarea.removeAttribute('readonly');
-        clearAllFiles();
+    // ===== Load sample =====
+    document.getElementById('load-sample').addEventListener('click', () => {
+        document.getElementById('json_data').value = JSON.stringify([{
+            word_info: { kanji: "経験", reading: "けいけん" },
+            meanings: { vietnamese: "kinh nghiệm, trải nghiệm", han_viet: "KINH NGHIỆM" },
+            metadata: { lesson: "Bài 1" },
+            part_of_speech: "noun",
+            examples: [{ type: "sentence", jp_text: "海外で働いた経験がある。", vn_text: "Tôi có kinh nghiệm làm việc ở nước ngoài." }]
+        }], null, 4);
+        clearAll();
     });
 })();
 </script>

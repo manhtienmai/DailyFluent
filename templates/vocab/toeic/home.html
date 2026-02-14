@@ -869,22 +869,6 @@
       </article>
     </section>
 
-    <!-- ========== OVERALL PROGRESS BAR ========== -->
-    <div class="glass-panel-light overall-progress">
-      <div class="overall-progress-header">
-        <span class="overall-progress-label">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          Tiến độ tổng
-        </span>
-        <span class="overall-progress-pct">{{ overall_completion|default:0 }}%</span>
-      </div>
-      <div class="overall-progress-track">
-        <div class="overall-progress-fill" style="width: {{ overall_completion|default:0 }}%;"></div>
-      </div>
-    </div>
-
     <!-- ========== REVIEW BANNER ========== -->
     {% if review_count > 0 %}
     <a href="{% url 'vocab:toeic_review' %}" class="review-banner">

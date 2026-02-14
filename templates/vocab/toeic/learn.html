@@ -42,14 +42,11 @@
     <div class="df-toeic-learn-card" :class="{'df-toeic-learn-card--flipped': isFlipped}" @click="flip()">
       <!-- Front -->
       <div class="df-toeic-learn-card-front">
-        <template x-if="isJP && currentItem?.html_display">
-          <div class="df-toeic-learn-word df-toeic-learn-word--jp" x-html="currentItem.html_display"></div>
+        <template x-if="isJP">
+          <div class="df-toeic-learn-word df-toeic-learn-word--jp df-toeic-learn-word--jp-front" x-text="currentItem?.word"></div>
         </template>
-        <template x-if="!isJP || !currentItem?.html_display">
-          <div class="df-toeic-learn-word" x-text="currentItem?.word" :style="isJP ? 'font-size: 3.5em; font-weight: 800' : ''"></div>
-        </template>
-        <template x-if="isJP && currentItem?.reading && !currentItem?.html_display">
-          <div class="df-toeic-learn-ipa" x-text="currentItem.reading"></div>
+        <template x-if="!isJP">
+          <div class="df-toeic-learn-word" x-text="currentItem?.word"></div>
         </template>
         <template x-if="!isJP">
           <div class="df-toeic-learn-ipa" x-text="currentItem?.ipa"></div>

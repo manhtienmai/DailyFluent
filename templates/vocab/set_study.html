@@ -71,8 +71,8 @@
         <!-- Japanese Front -->
         <template x-if="isJapanese">
           <div class="text-center">
-            <!-- Kanji (large) -->
-            <div class="text-5xl font-extrabold text-primary leading-tight" x-text="currentItem?.word"></div>
+            <!-- Kanji only (no reading), large for easy viewing -->
+            <div class="df-set-study-kanji-front text-primary leading-tight" x-text="currentItem?.word"></div>
             <!-- Hán Việt (Badge) -->
             <template x-if="currentItem?.extra_data?.han_viet">
               <div class="mt-3 inline-block px-3 py-1 rounded-lg bg-amber-100 text-amber-700 text-sm font-bold border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700" 

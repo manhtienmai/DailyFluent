@@ -1,19 +1,20 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-{% block title %}Vocabulary Set Manager{% endblock %}
+{% block title %}Manual Vocabulary Distribution{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <style>
-  /* Base */
+  /* Dark Theme Base */
   .vsm * { box-sizing: border-box; }
   
   .vsm {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f1f5f9;
-    min-height: 100vh;
+    background: #0f172a;
+    min-height: calc(100vh - 100px);
     padding: 1rem;
+    margin: -20px;
   }
   
   /* Header */
@@ -55,19 +56,102 @@
     font-weight: 700;
   }
   
+  /* Collection Filter Bar */
+  .vsm-filter-bar {
+    background: #1e293b;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border: 1px solid #334155;
+  }
+  
+  .vsm-filter-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .vsm-filter-select {
+    flex: 1;
+    max-width: 350px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    border: 1px solid #475569;
+    border-radius: 0.5rem;
+    background: #0f172a;
+    color: #e2e8f0;
+    cursor: pointer;
+  }
+  
+  .vsm-filter-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+  
+  .vsm-filter-select option {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+  
+  .vsm-filter-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  
+  .vsm-filter-btn:hover {
+    background: #4f46e5;
+  }
+  
+  .vsm-filter-btn.clear {
+    background: transparent;
+    border: 1px solid #475569;
+    color: #94a3b8;
+  }
+  
+  .vsm-filter-btn.clear:hover {
+    background: #334155;
+    color: #e2e8f0;
+  }
+  
+  .vsm-filter-info {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-left: auto;
+  }
+  
+  .vsm-filter-info strong {
+    color: #a5b4fc;
+  }
+  
   /* Main Layout - 3 columns */
   .vsm-main {
     display: grid;
     grid-template-columns: 280px 1fr 280px;
     gap: 1rem;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 240px);
+    min-height: 500px;
   }
   
   /* Panel Base */
   .vsm-panel {
-    background: #fff;
+    background: #1e293b;
     border-radius: 1rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #334155;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -75,15 +159,15 @@
   
   .vsm-panel-header {
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border-bottom: 1px solid #334155;
+    background: #1e293b;
     flex-shrink: 0;
   }
   
   .vsm-panel-title {
     font-size: 0.8125rem;
     font-weight: 700;
-    color: #1e293b;
+    color: #e2e8f0;
     margin: 0 0 0.5rem;
     display: flex;
     align-items: center;
@@ -93,8 +177,8 @@
   .vsm-panel-count {
     font-size: 0.6875rem;
     font-weight: 600;
-    background: #e2e8f0;
-    color: #64748b;
+    background: #475569;
+    color: #e2e8f0;
     padding: 0.125rem 0.5rem;
     border-radius: 1rem;
   }
@@ -103,6 +187,25 @@
     flex: 1;
     overflow-y: auto;
     padding: 0.5rem;
+  }
+  
+  /* Custom scrollbar for dark theme */
+  .vsm-panel-body::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .vsm-panel-body::-webkit-scrollbar-track {
+    background: #0f172a;
+    border-radius: 3px;
+  }
+  
+  .vsm-panel-body::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+  
+  .vsm-panel-body::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
   }
   
   /* Search Box */
@@ -114,15 +217,20 @@
     width: 100%;
     padding: 0.5rem 0.75rem 0.5rem 2rem;
     font-size: 0.75rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #475569;
     border-radius: 0.5rem;
-    background: #fff;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+  
+  .vsm-search input::placeholder {
+    color: #64748b;
   }
   
   .vsm-search input:focus {
     outline: none;
     border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
   }
   
   .vsm-search-icon {
@@ -132,7 +240,7 @@
     transform: translateY(-50%);
     width: 14px;
     height: 14px;
-    color: #94a3b8;
+    color: #64748b;
   }
   
   /* Set Item (Left Panel) */
@@ -149,16 +257,16 @@
   }
   
   .vsm-set-item:hover {
-    background: #f1f5f9;
+    background: #334155;
   }
   
   .vsm-set-item.active {
-    background: #ede9fe;
-    border-color: #a5b4fc;
+    background: #3730a3;
+    border-color: #6366f1;
   }
   
   .vsm-set-item.drop-target {
-    background: #fef3c7;
+    background: #713f12;
     border-color: #fbbf24;
     border-style: dashed;
   }
@@ -188,7 +296,7 @@
   .vsm-set-name {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #1e293b;
+    color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -196,15 +304,15 @@
   
   .vsm-set-meta {
     font-size: 0.6875rem;
-    color: #94a3b8;
+    color: #64748b;
     margin-top: 0.125rem;
   }
   
   .vsm-set-count {
     font-size: 0.6875rem;
     font-weight: 700;
-    background: #e2e8f0;
-    color: #64748b;
+    background: #475569;
+    color: #e2e8f0;
     padding: 0.125rem 0.5rem;
     border-radius: 1rem;
     flex-shrink: 0;
@@ -220,16 +328,22 @@
     display: flex;
     gap: 0.375rem;
     padding: 0.5rem;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border-top: 1px solid #334155;
+    background: #1e293b;
   }
   
   .vsm-add-set input {
     flex: 1;
     padding: 0.5rem 0.625rem;
     font-size: 0.75rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #475569;
     border-radius: 0.375rem;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+  
+  .vsm-add-set input::placeholder {
+    color: #64748b;
   }
   
   .vsm-add-set input:focus {
@@ -241,16 +355,18 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    background: #10b981;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #fff;
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
   }
   
   .vsm-add-set button:hover {
-    background: #059669;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
   }
   
   /* Vocab Item (Center Panel) */
@@ -261,20 +377,20 @@
     padding: 0.5rem 0.625rem;
     margin-bottom: 0.25rem;
     border-radius: 0.5rem;
-    background: #f8fafc;
+    background: #0f172a;
     cursor: grab;
     transition: all 0.15s ease;
     border: 1px solid transparent;
   }
   
   .vsm-vocab-item:hover {
-    background: #f1f5f9;
-    border-color: #e2e8f0;
+    background: #334155;
+    border-color: #475569;
   }
   
   .vsm-vocab-item.selected {
-    background: #ede9fe;
-    border-color: #a5b4fc;
+    background: #3730a3;
+    border-color: #6366f1;
   }
   
   .vsm-vocab-item.dragging {
@@ -290,24 +406,18 @@
   }
   
   .vsm-vocab-word {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #1e293b;
+    color: #e2e8f0;
     flex: 1;
     min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   
-  .vsm-vocab-meaning {
+  .vsm-vocab-extra {
     font-size: 0.6875rem;
     color: #64748b;
     flex: 1;
     min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     text-align: right;
   }
   
@@ -324,16 +434,17 @@
     font-size: 0.6875rem;
     font-weight: 600;
     border-radius: 0.375rem;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    color: #475569;
+    border: 1px solid #475569;
+    background: transparent;
+    color: #94a3b8;
     cursor: pointer;
     transition: all 0.15s ease;
   }
   
   .vsm-toolbar-btn:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: #334155;
+    border-color: #64748b;
+    color: #e2e8f0;
   }
   
   .vsm-toolbar-btn.primary {
@@ -346,35 +457,38 @@
     background: #4f46e5;
   }
   
-  .vsm-toolbar-btn.danger {
-    background: #ef4444;
-    border-color: #ef4444;
-    color: #fff;
-  }
-  
-  .vsm-toolbar-btn.danger:hover:not(:disabled) {
-    background: #dc2626;
-  }
-  
   .vsm-toolbar-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
   
-  /* Target Panel (Right) */
-  .vsm-target-header {
+  /* Selection Info */
+  .vsm-selection-info {
+    padding: 0.75rem;
+    background: #713f12;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
     font-size: 0.75rem;
-    color: #64748b;
-    margin-bottom: 0.375rem;
+    color: #fef3c7;
+    text-align: center;
+    border: 1px solid #a16207;
   }
   
+  .vsm-selection-info strong {
+    font-weight: 700;
+    color: #fbbf24;
+  }
+  
+  /* Target select */
   .vsm-target-select {
     width: 100%;
     padding: 0.5rem 0.625rem;
     font-size: 0.75rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #475569;
     border-radius: 0.5rem;
-    background: #fff;
+    background: #0f172a;
+    color: #e2e8f0;
+    margin-bottom: 0.5rem;
   }
   
   .vsm-target-select:focus {
@@ -382,10 +496,14 @@
     border-color: #6366f1;
   }
   
+  .vsm-target-select option {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+  
   .vsm-move-btn {
     width: 100%;
     padding: 0.75rem;
-    margin-top: 0.75rem;
     font-size: 0.8125rem;
     font-weight: 700;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -408,11 +526,11 @@
     transform: none;
   }
   
-  /* Quick Create Section */
+  /* Quick Create */
   .vsm-quick-create {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #334155;
   }
   
   .vsm-quick-create h4 {
@@ -433,83 +551,66 @@
   .vsm-quick-create-row label {
     font-size: 0.6875rem;
     font-weight: 600;
-    color: #475569;
+    color: #94a3b8;
   }
   
   .vsm-quick-create-row select,
   .vsm-quick-create-row input {
     padding: 0.375rem 0.5rem;
     font-size: 0.75rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #475569;
     border-radius: 0.375rem;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+  
+  .vsm-quick-create-row input::placeholder {
+    color: #64748b;
   }
   
   .vsm-quick-create-row select:focus,
   .vsm-quick-create-row input:focus {
     outline: none;
     border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  }
+  
+  .vsm-quick-create-row select option {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+  
+  /* Number input spinner styling for dark theme */
+  .vsm-quick-create-row input[type="number"]::-webkit-inner-spin-button,
+  .vsm-quick-create-row input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.5;
   }
   
   .vsm-create-btn {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.625rem;
     font-size: 0.75rem;
     font-weight: 600;
-    background: #10b981;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #fff;
     border: none;
     border-radius: 0.375rem;
     cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
   }
   
   .vsm-create-btn:hover {
-    background: #059669;
-  }
-  
-  /* Delete Set Button */
-  .vsm-delete-set-btn {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  
-  .vsm-delete-set-btn:hover {
-    background: #fecaca;
-  }
-  
-  .vsm-delete-set-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  /* Selection Info */
-  .vsm-selection-info {
-    padding: 0.75rem;
-    background: #fef3c7;
-    border-radius: 0.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.75rem;
-    color: #92400e;
-    text-align: center;
-  }
-  
-  .vsm-selection-info strong {
-    font-weight: 700;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
   }
   
   /* Empty State */
   .vsm-empty {
     text-align: center;
     padding: 2rem 1rem;
-    color: #94a3b8;
+    color: #64748b;
   }
   
   .vsm-empty-icon {
@@ -528,12 +629,12 @@
     bottom: 1.5rem;
     right: 1.5rem;
     padding: 0.75rem 1.25rem;
-    background: #1e293b;
+    background: #334155;
     color: #fff;
     border-radius: 0.5rem;
     font-size: 0.8125rem;
     font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 1000;
     opacity: 0;
     transform: translateY(1rem);
@@ -557,7 +658,7 @@
   .vsm-loading {
     position: absolute;
     inset: 0;
-    background: rgba(255,255,255,0.8);
+    background: rgba(15, 23, 42, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -575,7 +676,7 @@
   .vsm-spinner {
     width: 24px;
     height: 24px;
-    border: 3px solid #e2e8f0;
+    border: 3px solid #475569;
     border-top-color: #6366f1;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -583,6 +684,21 @@
   
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+  
+  /* Back link */
+  .vsm-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+  }
+  
+  .vsm-back:hover {
+    color: #a5b4fc;
   }
   
   /* Responsive */
@@ -600,15 +716,54 @@
 </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+  &rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+  &rsaquo; Manual Distribution
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="vsm">
+  <!-- Back Link -->
+  <a href="{% url 'admin:vocab_vocabulary_distribute_jp' %}" class="vsm-back">
+    ← Quay lại Auto-distribute
+  </a>
+  
   <!-- Header -->
   <div class="vsm-header">
-    <h1>📚 Vocabulary Set Manager</h1>
+    <h1>📚 Manual Vocabulary Distribution</h1>
     <div class="vsm-header-stats">
-      <div class="vsm-header-stat">Tổng: <strong id="stat-total">{{ imported_count }}</strong></div>
-      <div class="vsm-header-stat">Chưa phân: <strong id="stat-unassigned">0</strong></div>
+      <div class="vsm-header-stat">Tổng: <strong id="stat-total">{{ total_vocab }}</strong></div>
+      <div class="vsm-header-stat">Chưa phân: <strong id="stat-unassigned">{{ unassigned_count }}</strong></div>
     </div>
+  </div>
+  
+  <!-- Collection Filter Bar -->
+  <div class="vsm-filter-bar">
+    <span class="vsm-filter-label">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+      </svg>
+      Bộ từ vựng:
+    </span>
+    <select id="collection-filter" class="vsm-filter-select">
+      <option value="">-- Tất cả bộ từ vựng --</option>
+      {% for col in collections %}
+        <option value="{{ col.id }}" {% if current_collection_id == col.id|stringformat:"s" %}selected{% endif %}>
+          {{ col.name }} ({{ col.get_source_type_display }})
+        </option>
+      {% endfor %}
+    </select>
+    <button type="button" id="btn-apply-filter" class="vsm-filter-btn">Lọc</button>
+    {% if current_collection_id %}
+    <button type="button" id="btn-clear-filter" class="vsm-filter-btn clear">Xóa bộ lọc</button>
+    {% endif %}
+    <span class="vsm-filter-info">
+      Hiển thị <strong>{{ sets|length }}</strong> sets
+    </span>
   </div>
   
   <!-- Main 3-Column Layout -->
@@ -617,8 +772,8 @@
     <div class="vsm-panel" id="panel-sets">
       <div class="vsm-panel-header">
         <div class="vsm-panel-title">
-          Sets / Lessons
-          <span class="vsm-panel-count" id="sets-count">0</span>
+          Vocabulary Sets
+          <span class="vsm-panel-count" id="sets-count">{{ sets|length }}</span>
         </div>
         <div class="vsm-search">
           <svg class="vsm-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -630,39 +785,41 @@
       </div>
       
       <div class="vsm-panel-body" id="sets-list">
-        <!-- Unassigned special set -->
+        <!-- Unassigned special set (only show if not filtering by collection) -->
+        {% if not current_collection_id %}
         <div class="vsm-set-item active" data-set-id="unassigned">
           <div class="vsm-set-icon unassigned">⚠️</div>
           <div class="vsm-set-info">
             <div class="vsm-set-name">Chưa phân bổ</div>
-            <div class="vsm-set-meta">Từ vựng mới import</div>
+            <div class="vsm-set-meta">Từ vựng cần assign</div>
           </div>
-          <span class="vsm-set-count" id="unassigned-count">0</span>
+          <span class="vsm-set-count" id="unassigned-count">{{ unassigned_count }}</span>
         </div>
+        {% endif %}
         
-        <!-- Lesson sets -->
-        {% for lesson in lessons %}
-        <div class="vsm-set-item" 
-             data-set-id="{{ lesson.id }}"
-             data-set-name="{{ lesson.title }}"
-             data-section-id="{{ lesson.section_id|default:'' }}"
-             data-course-id="{{ lesson.section.course_id|default:'' }}">
+        <!-- VocabularySets -->
+        {% for set in sets %}
+        <div class="vsm-set-item {% if current_collection_id and forloop.first %}active{% endif %}" 
+             data-set-id="{{ set.id }}"
+             data-set-name="{{ set.title }}"
+             data-collection="{{ set.collection_id|default:'' }}"
+             data-chapter="{{ set.chapter|default:'' }}">
           <div class="vsm-set-icon">📖</div>
           <div class="vsm-set-info">
-            <div class="vsm-set-name">{{ lesson.title }}</div>
+            <div class="vsm-set-name">{{ set.title }}</div>
             <div class="vsm-set-meta">
-              {% if lesson.section %}{{ lesson.section.title }}{% else %}No section{% endif %}
+              {% if set.chapter %}Chương {{ set.chapter }} · {% endif %}{% if set.collection %}{{ set.collection.name }}{% elif set.toeic_level %}TOEIC {{ set.toeic_level }}{% else %}General{% endif %}
             </div>
           </div>
-          <span class="vsm-set-count" data-lesson-id="{{ lesson.id }}">0</span>
+          <span class="vsm-set-count" data-set-id="{{ set.id }}">{{ set.word_count }}</span>
         </div>
         {% endfor %}
       </div>
       
-      <!-- Add New Lesson -->
+      <!-- Add New Set -->
       <div class="vsm-add-set">
-        <input type="text" id="new-lesson-name" placeholder="Tên lesson mới...">
-        <button type="button" id="btn-add-lesson">+ Thêm</button>
+        <input type="text" id="new-set-name" placeholder="Tên set mới...">
+        <button type="button" id="btn-add-set">+ Thêm</button>
       </div>
     </div>
     
@@ -674,7 +831,7 @@
       
       <div class="vsm-panel-header">
         <div class="vsm-panel-title">
-          <span id="current-set-name">Chưa phân bổ</span>
+          <span id="current-set-name">{% if current_collection_id and sets %}{{ sets.0.title }}{% else %}Chưa phân bổ{% endif %}</span>
           <span class="vsm-panel-count" id="vocab-count">0</span>
         </div>
         <div class="vsm-search">
@@ -687,7 +844,6 @@
         <div class="vsm-toolbar">
           <button type="button" class="vsm-toolbar-btn" id="btn-select-all">☑️ Chọn tất cả</button>
           <button type="button" class="vsm-toolbar-btn" id="btn-clear-selection">☐ Bỏ chọn</button>
-          <button type="button" class="vsm-toolbar-btn danger" id="btn-remove-from-set" disabled>🗑️ Xóa khỏi set</button>
         </div>
       </div>
       
@@ -710,14 +866,12 @@
           Đang chọn <strong id="selected-count">0</strong> từ vựng
         </div>
         
-        <div class="vsm-target-header">Chọn set đích:</div>
+        <label style="font-size: 0.6875rem; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 0.375rem;">Chọn set đích:</label>
         <select id="target-set" class="vsm-target-select">
           <option value="">-- Chọn set --</option>
-          <option value="unassigned">⚠️ Chưa phân bổ</option>
-          {% for lesson in lessons %}
-            <option value="{{ lesson.id }}">
-              {% if lesson.section %}{{ lesson.section.title }} — {% endif %}{{ lesson.title }}
-            </option>
+          <option value="unassigned">⚠️ Bỏ khỏi set (Unassign)</option>
+          {% for set in sets %}
+            <option value="{{ set.id }}">{{ set.title }}</option>
           {% endfor %}
         </select>
         
@@ -725,30 +879,39 @@
           ➡️ Chuyển từ vựng
         </button>
         
-        <!-- Delete Current Set -->
-        <button type="button" id="btn-delete-set" class="vsm-delete-set-btn" disabled>
-          🗑️ Xóa set hiện tại
-        </button>
-        
-        <!-- Quick Create -->
+        <!-- Quick Create Set -->
         <div class="vsm-quick-create">
-          <h4>⚡ Tạo nhanh</h4>
+          <h4>⚡ Tạo set mới</h4>
           
           <div class="vsm-quick-create-row">
-            <label>Section:</label>
-            <select id="qc-section">
-              <option value="">-- Chọn section --</option>
-              {% for section in sections %}
-                <option value="{{ section.id }}" data-course="{{ section.course_id }}">
-                  {{ section.course.title }} — {{ section.title }}
-                </option>
+            <label>Bộ từ vựng:</label>
+            <select id="qc-collection">
+              <option value="">-- Không chọn --</option>
+              {% for col in collections %}
+                <option value="{{ col.id }}" {% if current_collection_id == col.id|stringformat:"s" %}selected{% endif %}>{{ col.name }}</option>
               {% endfor %}
             </select>
           </div>
           
           <div class="vsm-quick-create-row">
-            <label>Tên lesson mới:</label>
-            <input type="text" id="qc-lesson-name" placeholder="Lesson 1, Unit 2...">
+            <label>Chương (Chapter):</label>
+            <input type="number" id="qc-chapter" placeholder="VD: 1, 2, 3..." min="1">
+          </div>
+          
+          <div class="vsm-quick-create-row">
+            <label>TOEIC Level:</label>
+            <select id="qc-toeic-level">
+              <option value="">-- Không chọn --</option>
+              <option value="600">TOEIC 600</option>
+              <option value="730">TOEIC 730</option>
+              <option value="860">TOEIC 860</option>
+              <option value="990">TOEIC 990</option>
+            </select>
+          </div>
+          
+          <div class="vsm-quick-create-row">
+            <label>Tên set:</label>
+            <input type="text" id="qc-set-name" placeholder="VD: Unit 1 - Business">
           </div>
           
           <button type="button" id="btn-qc-create" class="vsm-create-btn">
@@ -765,21 +928,10 @@
 
 <script>
 (function() {
-  // Data
-  const vocabData = {
-    {% for vocab in imported_vocabs %}
-    "{{ vocab.id }}": {
-      id: "{{ vocab.id }}",
-      word: "{{ vocab.en_word|escapejs }}",
-      meaning: "{{ vocab.vi_meaning|escapejs }}",
-      lessonId: "{{ vocab.lesson_ref_id|default:'' }}"
-    },
-    {% endfor %}
-  };
-  
   // State
-  let currentSetId = 'unassigned';
+  let currentSetId = '{% if current_collection_id and sets %}{{ sets.0.id }}{% else %}unassigned{% endif %}';
   let selectedVocabIds = new Set();
+  let vocabCache = {}; // Cache vocab data by set
   
   // Elements
   const setsList = document.getElementById('sets-list');
@@ -790,19 +942,24 @@
   const btnMove = document.getElementById('btn-move');
   const btnSelectAll = document.getElementById('btn-select-all');
   const btnClearSelection = document.getElementById('btn-clear-selection');
-  const btnRemoveFromSet = document.getElementById('btn-remove-from-set');
-  const btnDeleteSet = document.getElementById('btn-delete-set');
-  const btnAddLesson = document.getElementById('btn-add-lesson');
-  const newLessonName = document.getElementById('new-lesson-name');
+  const btnAddSet = document.getElementById('btn-add-set');
+  const newSetName = document.getElementById('new-set-name');
   const currentSetNameEl = document.getElementById('current-set-name');
   const selectedCountEl = document.getElementById('selected-count');
   const vocabCountEl = document.getElementById('vocab-count');
   const vocabLoading = document.getElementById('vocab-loading');
   const toast = document.getElementById('toast');
   
+  // Filter elements
+  const collectionFilter = document.getElementById('collection-filter');
+  const btnApplyFilter = document.getElementById('btn-apply-filter');
+  const btnClearFilter = document.getElementById('btn-clear-filter');
+  
   // Quick Create
-  const qcSection = document.getElementById('qc-section');
-  const qcLessonName = document.getElementById('qc-lesson-name');
+  const qcCollection = document.getElementById('qc-collection');
+  const qcChapter = document.getElementById('qc-chapter');
+  const qcToeicLevel = document.getElementById('qc-toeic-level');
+  const qcSetName = document.getElementById('qc-set-name');
   const btnQcCreate = document.getElementById('btn-qc-create');
   
   // Helpers
@@ -817,46 +974,55 @@
     vocabLoading.classList.toggle('show', show);
   }
   
-  function getVocabsByLesson(lessonId) {
-    return Object.values(vocabData).filter(v => {
-      if (lessonId === 'unassigned') return !v.lessonId;
-      return v.lessonId === String(lessonId);
-    });
-  }
-  
-  function updateCounts() {
-    // Update set counts
-    const counts = {};
-    let unassignedCount = 0;
-    
-    Object.values(vocabData).forEach(v => {
-      if (!v.lessonId) {
-        unassignedCount++;
-      } else {
-        counts[v.lessonId] = (counts[v.lessonId] || 0) + 1;
-      }
-    });
-    
-    document.getElementById('unassigned-count').textContent = unassignedCount;
-    document.getElementById('stat-unassigned').textContent = unassignedCount;
-    
-    document.querySelectorAll('.vsm-set-count[data-lesson-id]').forEach(el => {
-      const lessonId = el.dataset.lessonId;
-      el.textContent = counts[lessonId] || 0;
-    });
-    
-    document.getElementById('sets-count').textContent = document.querySelectorAll('.vsm-set-item').length;
-  }
-  
   function updateSelectedCount() {
     selectedCountEl.textContent = selectedVocabIds.size;
     btnMove.disabled = selectedVocabIds.size === 0 || !targetSet.value;
-    btnRemoveFromSet.disabled = selectedVocabIds.size === 0 || currentSetId === 'unassigned';
   }
   
-  // Render vocabulary list
-  function renderVocabList() {
-    const vocabs = getVocabsByLesson(currentSetId);
+  // Collection Filter
+  btnApplyFilter.addEventListener('click', () => {
+    const collectionId = collectionFilter.value;
+    const url = new URL(window.location.href);
+    if (collectionId) {
+      url.searchParams.set('collection', collectionId);
+    } else {
+      url.searchParams.delete('collection');
+    }
+    window.location.href = url.toString();
+  });
+  
+  if (btnClearFilter) {
+    btnClearFilter.addEventListener('click', () => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('collection');
+      window.location.href = url.toString();
+    });
+  }
+  
+  // Fetch vocab for a set
+  async function fetchVocabForSet(setId) {
+    if (vocabCache[setId]) return vocabCache[setId];
+    
+    showLoading(true);
+    try {
+      const url = "{% url 'admin:vocab_vocabulary_manual_distribute_api' %}?set_id=" + encodeURIComponent(setId);
+      const resp = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await resp.json();
+      vocabCache[setId] = data.vocabs || [];
+      return vocabCache[setId];
+    } catch (e) {
+      showToast('Lỗi tải dữ liệu', 'error');
+      return [];
+    } finally {
+      showLoading(false);
+    }
+  }
+  
+  // Render vocab list
+  async function renderVocabList() {
+    const vocabs = await fetchVocabForSet(currentSetId);
     const searchTerm = searchVocab.value.toLowerCase();
     
     vocabCountEl.textContent = vocabs.length;
@@ -865,24 +1031,24 @@
       vocabList.innerHTML = `
         <div class="vsm-empty">
           <div class="vsm-empty-icon">📭</div>
-          <p>Set này chưa có từ vựng</p>
+          <p>${currentSetId === 'unassigned' ? 'Không có từ vựng chưa phân bổ' : 'Set này chưa có từ vựng'}</p>
         </div>
       `;
       return;
     }
     
     const filtered = vocabs.filter(v => 
-      !searchTerm || v.word.toLowerCase().includes(searchTerm) || v.meaning.toLowerCase().includes(searchTerm)
+      !searchTerm || v.word.toLowerCase().includes(searchTerm)
     );
     
     vocabList.innerHTML = filtered.map(v => `
-      <div class="vsm-vocab-item ${selectedVocabIds.has(v.id) ? 'selected' : ''}" 
+      <div class="vsm-vocab-item ${selectedVocabIds.has(String(v.id)) ? 'selected' : ''}" 
            data-vocab-id="${v.id}"
            draggable="true">
         <input type="checkbox" class="vsm-vocab-checkbox" 
-               ${selectedVocabIds.has(v.id) ? 'checked' : ''}>
+               ${selectedVocabIds.has(String(v.id)) ? 'checked' : ''}>
         <span class="vsm-vocab-word">${v.word}</span>
-        <span class="vsm-vocab-meaning">${v.meaning}</span>
+        <span class="vsm-vocab-extra">${v.lesson || ''}</span>
       </div>
     `).join('');
     
@@ -903,7 +1069,13 @@
       
       // Drag events
       item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', vocabId);
+        if (!selectedVocabIds.has(vocabId)) {
+          selectedVocabIds.add(vocabId);
+          item.classList.add('selected');
+          checkbox.checked = true;
+          updateSelectedCount();
+        }
+        e.dataTransfer.setData('text/plain', Array.from(selectedVocabIds).join(','));
         item.classList.add('dragging');
       });
       
@@ -915,9 +1087,9 @@
   
   function toggleVocabSelection(vocabId, selected) {
     if (selected) {
-      selectedVocabIds.add(vocabId);
+      selectedVocabIds.add(String(vocabId));
     } else {
-      selectedVocabIds.delete(vocabId);
+      selectedVocabIds.delete(String(vocabId));
     }
     
     const item = vocabList.querySelector(`[data-vocab-id="${vocabId}"]`);
@@ -933,7 +1105,7 @@
     
     // Update UI
     setsList.querySelectorAll('.vsm-set-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.setId === setId);
+      item.classList.toggle('active', item.dataset.setId === String(setId));
     });
     
     const activeSet = setsList.querySelector(`[data-set-id="${setId}"]`);
@@ -941,53 +1113,48 @@
       currentSetNameEl.textContent = activeSet.querySelector('.vsm-set-name').textContent;
     }
     
-    // Enable/disable delete button
-    btnDeleteSet.disabled = setId === 'unassigned';
-    
     renderVocabList();
     updateSelectedCount();
   }
   
   // Move vocabs to target set
-  async function moveVocabs(targetLessonId) {
+  async function moveVocabs(targetSetId) {
     if (selectedVocabIds.size === 0) return;
     
     showLoading(true);
     
     const vocabIds = Array.from(selectedVocabIds);
-    const assignments = vocabIds.map(id => ({
-      vocab_id: id,
-      lesson_id: targetLessonId === 'unassigned' ? null : targetLessonId
-    }));
     
     try {
-      const response = await fetch("{% url 'admin:vocab_englishvocabulary_assign_lessons_api' %}", {
+      const formData = new URLSearchParams();
+      formData.append('vocab_ids', JSON.stringify(vocabIds));
+      formData.append('target_set_id', targetSetId);
+      formData.append('source_set_id', currentSetId);
+      
+      const response = await fetch("{% url 'admin:vocab_vocabulary_move_to_set_api' %}", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: new URLSearchParams({
-          assignments: JSON.stringify(assignments)
-        })
+        body: formData.toString()
       });
       
       const data = await response.json();
       
       if (data.success) {
-        // Update local data
-        vocabIds.forEach(id => {
-          if (vocabData[id]) {
-            vocabData[id].lessonId = targetLessonId === 'unassigned' ? '' : String(targetLessonId);
-          }
-        });
+        // Clear cache for affected sets
+        delete vocabCache[currentSetId];
+        delete vocabCache[targetSetId];
+        
+        // Update counts in UI
+        updateSetCounts();
         
         selectedVocabIds.clear();
-        updateCounts();
         renderVocabList();
         updateSelectedCount();
         
-        showToast(`✅ Đã chuyển ${vocabIds.length} từ vựng`, 'success');
+        showToast(`✅ Đã chuyển ${data.moved} từ vựng`, 'success');
       } else {
         showToast('❌ Lỗi: ' + (data.error || 'Unknown'), 'error');
       }
@@ -998,54 +1165,69 @@
     }
   }
   
-  // Create new lesson
-  async function createLesson(name, sectionId = null) {
+  // Update set counts via API
+  async function updateSetCounts() {
+    try {
+      const resp = await fetch("{% url 'admin:vocab_vocabulary_set_counts_api' %}", {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await resp.json();
+      
+      const unassignedCountEl = document.getElementById('unassigned-count');
+      const statUnassignedEl = document.getElementById('stat-unassigned');
+      
+      if (unassignedCountEl) unassignedCountEl.textContent = data.unassigned || 0;
+      if (statUnassignedEl) statUnassignedEl.textContent = data.unassigned || 0;
+      
+      if (data.sets) {
+        data.sets.forEach(s => {
+          const el = document.querySelector(`.vsm-set-count[data-set-id="${s.id}"]`);
+          if (el) el.textContent = s.count;
+        });
+      }
+    } catch (e) {
+      console.error('Failed to update counts', e);
+    }
+  }
+  
+  // Create new set
+  async function createSet(name, toeicLevel, collectionId, chapter) {
     if (!name) return null;
     
     try {
-      // If no section, use first available or create temp
-      if (!sectionId) {
-        const firstSection = document.querySelector('#qc-section option[value]:not([value=""])');
-        if (firstSection) {
-          sectionId = firstSection.value;
-        } else {
-          showToast('❌ Cần có section trước', 'error');
-          return null;
-        }
-      }
+      const formData = new URLSearchParams();
+      formData.append('title', name);
+      if (toeicLevel) formData.append('toeic_level', toeicLevel);
+      if (collectionId) formData.append('collection_id', collectionId);
+      if (chapter) formData.append('chapter', chapter);
       
-      const courseId = document.querySelector(`#qc-section option[value="${sectionId}"]`)?.dataset.course;
-      
-      const response = await fetch("{% url 'admin:vocab_englishvocabulary_create_lesson_api' %}", {
+      const response = await fetch("{% url 'admin:vocab_vocabulary_create_set_api' %}", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRFToken': getCookie('csrftoken'),
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: new URLSearchParams({
-          title: name,
-          section_id: sectionId,
-          course_id: courseId || ''
-        })
+        body: formData.toString()
       });
       
       const data = await response.json();
       
       if (data.id) {
+        // Build meta text
+        let metaText = '';
+        if (data.chapter) metaText += `Chương ${data.chapter} · `;
+        metaText += data.collection_name || (data.toeic_level ? 'TOEIC ' + data.toeic_level : 'General');
+        
         // Add to sets list
         const newSetHtml = `
-          <div class="vsm-set-item" 
-               data-set-id="${data.id}"
-               data-set-name="${data.title}"
-               data-section-id="${data.section_id || ''}"
-               data-course-id="${data.course_id || ''}">
+          <div class="vsm-set-item" data-set-id="${data.id}" data-set-name="${data.title}" data-chapter="${data.chapter || ''}">
             <div class="vsm-set-icon">📖</div>
             <div class="vsm-set-info">
               <div class="vsm-set-name">${data.title}</div>
-              <div class="vsm-set-meta">${data.section_title || 'No section'}</div>
+              <div class="vsm-set-meta">${metaText}</div>
             </div>
-            <span class="vsm-set-count" data-lesson-id="${data.id}">0</span>
+            <span class="vsm-set-count" data-set-id="${data.id}">0</span>
           </div>
         `;
         
@@ -1054,15 +1236,15 @@
         // Add to target select
         const newOption = document.createElement('option');
         newOption.value = data.id;
-        newOption.textContent = (data.section_title ? data.section_title + ' — ' : '') + data.title;
+        newOption.textContent = data.title;
         targetSet.appendChild(newOption);
         
-        // Add event listener to new set
+        // Add event listener
         const newSetEl = setsList.querySelector(`[data-set-id="${data.id}"]`);
         newSetEl.addEventListener('click', () => selectSet(data.id));
         setupDragDrop(newSetEl);
         
-        showToast(`✅ Đã tạo lesson: ${data.title}`, 'success');
+        showToast(`✅ Đã tạo set: ${data.title}`, 'success');
         return data.id;
       } else {
         showToast('❌ Lỗi: ' + (data.error || 'Unknown'), 'error');
@@ -1071,71 +1253,6 @@
     } catch (e) {
       showToast('❌ Lỗi: ' + e.message, 'error');
       return null;
-    }
-  }
-  
-  // Delete lesson
-  async function deleteLesson(lessonId) {
-    if (lessonId === 'unassigned') return;
-    
-    const vocabsInSet = getVocabsByLesson(lessonId);
-    if (vocabsInSet.length > 0) {
-      if (!confirm(`Set này có ${vocabsInSet.length} từ vựng. Các từ sẽ được chuyển về "Chưa phân bổ". Tiếp tục?`)) {
-        return;
-      }
-    } else {
-      if (!confirm('Xác nhận xóa set này?')) {
-        return;
-      }
-    }
-    
-    showLoading(true);
-    
-    try {
-      // First, move all vocabs to unassigned
-      if (vocabsInSet.length > 0) {
-        const assignments = vocabsInSet.map(v => ({
-          vocab_id: v.id,
-          lesson_id: null
-        }));
-        
-        await fetch("{% url 'admin:vocab_englishvocabulary_assign_lessons_api' %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-          body: new URLSearchParams({
-            assignments: JSON.stringify(assignments)
-          })
-        });
-        
-        // Update local data
-        vocabsInSet.forEach(v => {
-          if (vocabData[v.id]) {
-            vocabData[v.id].lessonId = '';
-          }
-        });
-      }
-      
-      // Note: Delete lesson API needs to be implemented in admin.py
-      // For now, just remove from UI (vocabs already moved to unassigned)
-      const setEl = setsList.querySelector(`[data-set-id="${lessonId}"]`);
-      if (setEl) setEl.remove();
-      
-      // Remove from target select
-      const targetOption = targetSet.querySelector(`option[value="${lessonId}"]`);
-      if (targetOption) targetOption.remove();
-      
-      // Select unassigned
-      selectSet('unassigned');
-      updateCounts();
-      
-      showToast('✅ Đã xóa set (từ vựng đã chuyển về chưa phân bổ)', 'success');
-    } catch (e) {
-      showToast('❌ Lỗi: ' + e.message, 'error');
-    } finally {
-      showLoading(false);
     }
   }
   
@@ -1154,11 +1271,8 @@
       e.preventDefault();
       setItem.classList.remove('drop-target');
       
-      const vocabId = e.dataTransfer.getData('text/plain');
       const targetSetId = setItem.dataset.setId;
-      
-      if (vocabId && targetSetId !== currentSetId) {
-        selectedVocabIds.add(vocabId);
+      if (targetSetId !== currentSetId && selectedVocabIds.size > 0) {
         await moveVocabs(targetSetId);
       }
     });
@@ -1207,49 +1321,41 @@
     updateSelectedCount();
   });
   
-  btnRemoveFromSet.addEventListener('click', () => {
-    moveVocabs('unassigned');
-  });
-  
-  btnDeleteSet.addEventListener('click', () => {
-    deleteLesson(currentSetId);
-  });
-  
-  btnAddLesson.addEventListener('click', async () => {
-    const name = newLessonName.value.trim();
+  btnAddSet.addEventListener('click', async () => {
+    const name = newSetName.value.trim();
     if (!name) {
-      showToast('Nhập tên lesson', 'error');
+      showToast('Nhập tên set', 'error');
       return;
     }
     
-    const lessonId = await createLesson(name);
-    if (lessonId) {
-      newLessonName.value = '';
-      selectSet(lessonId);
+    // Use current collection filter as default
+    const currentCollection = collectionFilter ? collectionFilter.value : '';
+    const setId = await createSet(name, null, currentCollection, null);
+    if (setId) {
+      newSetName.value = '';
+      selectSet(setId);
     }
   });
   
   btnQcCreate.addEventListener('click', async () => {
-    const name = qcLessonName.value.trim();
-    const sectionId = qcSection.value;
+    const name = qcSetName.value.trim();
+    const toeicLevel = qcToeicLevel.value;
+    const collectionId = qcCollection.value;
+    const chapter = qcChapter.value;
     
     if (!name) {
-      showToast('Nhập tên lesson', 'error');
+      showToast('Nhập tên set', 'error');
       return;
     }
     
-    if (!sectionId) {
-      showToast('Chọn section', 'error');
-      return;
+    const setId = await createSet(name, toeicLevel, collectionId, chapter);
+    if (setId && selectedVocabIds.size > 0) {
+      await moveVocabs(setId);
+      selectSet(setId);
     }
     
-    const lessonId = await createLesson(name, sectionId);
-    if (lessonId && selectedVocabIds.size > 0) {
-      await moveVocabs(lessonId);
-      selectSet(lessonId);
-    }
-    
-    qcLessonName.value = '';
+    qcSetName.value = '';
+    qcChapter.value = '';
   });
   
   function getCookie(name) {
@@ -1260,8 +1366,7 @@
   }
   
   // Init
-  updateCounts();
-  selectSet('unassigned');
+  selectSet(currentSetId);
 })();
 </script>
 {% endblock %}

@@ -43,6 +43,7 @@ Top Bar Component with logo, streak, coins, countdown timer
     {% endif %}
 
     {# Streak #}
+    {% if user.is_authenticated %}
     <div class="df-topbar-stat df-topbar-streak" title="Chuỗi ngày học">
       <svg viewBox="0 0 24 24" fill="currentColor" class="df-stat-icon df-streak-icon">
         <path
@@ -50,8 +51,10 @@ Top Bar Component with logo, streak, coins, countdown timer
       </svg>
       <span class="df-stat-value" id="df-streak-value">{{ user_streak|default:0 }}</span>
     </div>
+    {% endif %}
 
     {# Coins #}
+    {% if user.is_authenticated %}
     <div class="df-topbar-stat df-topbar-coins" title="Xu của bạn">
       <svg viewBox="0 0 24 24" fill="currentColor" class="df-stat-icon df-coins-icon">
         <circle cx="12" cy="12" r="10" />
@@ -59,6 +62,7 @@ Top Bar Component with logo, streak, coins, countdown timer
       </svg>
       <span class="df-stat-value" id="df-coins-value">{{ user_coins|default:0 }}</span>
     </div>
+    {% endif %}
 
     {# User Profile - Moved from Sidebar #}
     <div class="df-topbar-user" id="df-sidebar-user-btn" title="Hồ sơ cá nhân">

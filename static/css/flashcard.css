@@ -195,9 +195,10 @@
   margin-bottom: 0.5rem;
 }
 
-/* Japanese specific */
+/* Japanese specific - larger kanji for easy viewing, no reading on front */
 .df-fc-main-word--jp {
   font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", sans-serif;
+  font-size: 5rem;
 }
 
 /* English specific */

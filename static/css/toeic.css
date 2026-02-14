@@ -542,6 +542,20 @@
   text-align: center;
 }
 
+/* Japanese front: kanji only, larger for easy viewing */
+.df-toeic-learn-word--jp-front {
+  font-size: 5rem;
+  font-weight: 800;
+  font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", sans-serif;
+}
+
+/* set_study.html: kanji only on front, large */
+.df-set-study-kanji-front {
+  font-size: 5rem;
+  font-weight: 800;
+  font-family: "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic", sans-serif;
+}
+
 .df-toeic-learn-ipa {
   font-size: 1rem;
   color: var(--text-secondary);

@@ -67,6 +67,88 @@ class UserStudySettings(models.Model):
         return self.reviews_today < self.reviews_per_day
 
 
+class VocabSource(models.Model):
+    """
+    Nguồn từ vựng - có thể là sách, bộ từ vựng, chủ đề, etc.
+    Cho phép thêm động các nguồn mới từ giao diện admin.
+    """
+    class SourceType(models.TextChoices):
+        BOOK = 'book', _('Sách')
+        COURSE = 'course', _('Khóa học')
+        TOPIC = 'topic', _('Chủ đề')
+        EXAM = 'exam', _('Đề thi')
+        DICTIONARY = 'dictionary', _('Từ điển')
+        USER = 'user', _('Người dùng')
+        OTHER = 'other', _('Khác')
+    
+    # Unique code for reference in code (e.g., 'mimikara_n2', 'toeic_600')
+    code = models.CharField(
+        max_length=50, 
+        unique=True, 
+        db_index=True,
+        help_text="Mã nguồn (VD: mimikara_n2, toeic_600)"
+    )
+    name = models.CharField(
+        max_length=200,
+        help_text="Tên hiển thị (VD: Mimikara N2, TOEIC 600)"
+    )
+    source_type = models.CharField(
+        max_length=20,
+        choices=SourceType.choices,
+        default=SourceType.BOOK,
+    )
+    description = models.TextField(blank=True, help_text="Mô tả chi tiết")
+    
+    # Optional metadata
+    language = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="Ngôn ngữ chính (en, jp, etc.)"
+    )
+    level = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Cấp độ (N2, B2, 600, etc.)"
+    )
+    publisher = models.CharField(max_length=200, blank=True)
+    
+    is_active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Vocab Source"
+        verbose_name_plural = "Vocab Sources"
+        ordering = ['display_order', 'name']
+    
+    def __str__(self):
+        return self.name
+    
+    @classmethod
+    def get_or_create_default_sources(cls):
+        """Tạo các sources mặc định nếu chưa tồn tại."""
+        defaults = [
+            ('cambridge', 'Cambridge Dictionary', 'dictionary', 'en'),
+            ('oxford', 'Oxford Dictionary', 'dictionary', 'en'),
+            ('toeic_600', 'TOEIC 600', 'exam', 'en'),
+            ('toeic_730', 'TOEIC 730', 'exam', 'en'),
+            ('toeic_860', 'TOEIC 860', 'exam', 'en'),
+            ('toeic_990', 'TOEIC 990', 'exam', 'en'),
+            ('mimikara_n2', 'Mimikara N2', 'book', 'jp'),
+            ('user', 'User Created', 'user', ''),
+            ('other', 'Other', 'other', ''),
+        ]
+        for code, name, stype, lang in defaults:
+            cls.objects.get_or_create(
+                code=code,
+                defaults={
+                    'name': name,
+                    'source_type': stype,
+                    'language': lang,
+                }
+            )
+
+
 class Vocabulary(models.Model):
     """
     Vocabulary Core - Tầng 1: Mặt chữ (Spelling).
@@ -208,7 +290,7 @@ class ExampleSentence(models.Model):
 
 class Course(models.Model):
     """
-    Khóa học (Course) - e.g. TOEIC 600, TOEIC 990.
+    Khóa học (Course) - e.g. TOEIC 600, TOEIC 990, Tango N2.
     Replaces hardcoded TOEIC_LEVELS config.
     """
     title = models.CharField(max_length=255)
@@ -223,6 +305,14 @@ class Course(models.Model):
 
     # Link to legacy integer level for compatibility with VocabularySet
     toeic_level = models.IntegerField(unique=True, null=True, blank=True)
+    
+    # Link to VocabSource collection
+    collection = models.OneToOneField(
+        'VocabSource', on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='course',
+        help_text="Liên kết với bộ từ vựng (VocabSource)"
+    )
     
     # UI config
     icon = models.TextField(help_text="SVG Icon or Emoji", blank=True)
@@ -257,8 +347,16 @@ class VocabularySet(models.Model):
         LEVEL_860 = 860, _('TOEIC 860')
         LEVEL_990 = 990, _('TOEIC 990')
 
-    title = models.CharField(max_length=255, help_text="Tên bộ (VD: TOEIC 600)")
-    description = models.TextField(blank=True, help_text="Mô tả bộ từ vựng")
+    # Bộ từ vựng cha (VD: "Mimikara N2" chứa nhiều sets)
+    collection = models.ForeignKey(
+        'VocabSource', on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='sets',
+        help_text="Bộ từ vựng chứa set này (VD: Mimikara N2, Minna N5)"
+    )
+    
+    title = models.CharField(max_length=255, help_text="Tên set (VD: Bài 1 - Động từ)")
+    description = models.TextField(blank=True, help_text="Mô tả set từ vựng")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='vocabulary_sets', help_text="Null = System, ID = User")
     is_public = models.BooleanField(default=False, help_text="Công khai hay riêng tư")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)

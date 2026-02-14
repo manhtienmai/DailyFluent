@@ -475,24 +475,35 @@ class CourseListView(LoginRequiredMixin, TemplateView):
                     status=UserSetProgress.ProgressStatus.COMPLETED
                 ).count()
             else:
-                # Non-TOEIC course (e.g. JP) - calculate stats from language
-                lang = course.language
-                jp_sets_qs = VocabularySet.objects.filter(language=lang, toeic_level__isnull=True, status='published')
-                total_sets = jp_sets_qs.count()
+                # Non-TOEIC course - use collection if linked, else fallback to language
+                if course.collection:
+                    # Course linked to a specific VocabSource collection
+                    sets_qs = VocabularySet.objects.filter(
+                        collection=course.collection,
+                        status='published'
+                    )
+                else:
+                    # Fallback: filter by language (legacy behavior)
+                    lang = course.language
+                    sets_qs = VocabularySet.objects.filter(
+                        language=lang, toeic_level__isnull=True, status='published'
+                    )
+                
+                total_sets = sets_qs.count()
                 total_words = SetItem.objects.filter(
-                    vocabulary_set__in=jp_sets_qs
+                    vocabulary_set__in=sets_qs
                 ).count()
                 completed_sets = UserSetProgress.objects.filter(
                     user=user,
-                    vocabulary_set__in=jp_sets_qs,
+                    vocabulary_set__in=sets_qs,
                     status=UserSetProgress.ProgressStatus.COMPLETED
                 ).count()
                 # Learned words via FSRS
-                jp_vocab_ids = SetItem.objects.filter(
-                    vocabulary_set__in=jp_sets_qs
+                vocab_ids = SetItem.objects.filter(
+                    vocabulary_set__in=sets_qs
                 ).values_list('definition__entry__vocab_id', flat=True)
                 learned_count = FsrsCardStateEn.objects.filter(
-                    user=user, vocab_id__in=jp_vocab_ids, state__gte=2
+                    user=user, vocab_id__in=vocab_ids, state__gte=2
                 ).count()
                 completion = round(learned_count / total_words * 100) if total_words > 0 else 0
 
@@ -629,7 +640,13 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
             sets = VocabularySet.objects.filter(
                 toeic_level=level, status='published'
             ).order_by('chapter', 'set_number')
+        elif course.collection:
+            # Filter by the course's linked collection (e.g., Tango N2)
+            sets = VocabularySet.objects.filter(
+                collection=course.collection, status='published'
+            ).order_by('chapter', 'set_number')
         else:
+            # Fallback: filter by language (legacy behavior)
             sets = VocabularySet.objects.filter(
                 language=course.language, toeic_level__isnull=True, status='published'
             ).order_by('chapter', 'set_number')
@@ -739,6 +756,11 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
         if level is not None:
             vocab_set = get_object_or_404(
                 VocabularySet, toeic_level=level, set_number=set_number, status='published'
+            )
+        elif course.collection:
+            vocab_set = get_object_or_404(
+                VocabularySet, collection=course.collection,
+                set_number=set_number, status='published'
             )
         else:
             vocab_set = get_object_or_404(
@@ -884,6 +906,11 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
             vocab_set = get_object_or_404(
                 VocabularySet, toeic_level=level, set_number=set_number, status='published'
             )
+        elif course.collection:
+            vocab_set = get_object_or_404(
+                VocabularySet, collection=course.collection,
+                set_number=set_number, status='published'
+            )
         else:
             vocab_set = get_object_or_404(
                 VocabularySet, language=course.language, toeic_level__isnull=True,
@@ -988,6 +1015,11 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
         if level is not None:
             vocab_set = get_object_or_404(
                 VocabularySet, toeic_level=level, set_number=set_number, status='published'
+            )
+        elif course.collection:
+            vocab_set = get_object_or_404(
+                VocabularySet, collection=course.collection,
+                set_number=set_number, status='published'
             )
         else:
             vocab_set = get_object_or_404(

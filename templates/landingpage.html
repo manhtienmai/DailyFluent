@@ -60,6 +60,9 @@
      Radius:  8px (sm), 16px (card), 24px (lg), 9999px (pill)
      ========================================================================== */
 
+  /* --- Alpine.js x-cloak --- */
+  [x-cloak] { display: none !important; }
+
   /* --- Header (scrolled = frosted white glass) --- */
   .lp-header-scrolled {
     background: rgba(255, 255, 255, 0.82);
@@ -263,21 +266,34 @@
 
   /* --- FAQ (glassmorphism) --- */
   .lp-faq-item {
-    background: rgba(255,255,255,0.72);
+    background: rgba(255,255,255,0.9) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.8);
-    border-radius: 16px;
-    box-shadow:
-      0 2px 12px -2px rgba(99, 102, 241, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px -2px rgba(99, 102, 241, 0.08);
     transition: all 0.2s ease;
+    margin-bottom: 0.75rem !important;
+  }
+  .lp-faq-item:last-child {
+    margin-bottom: 0 !important;
   }
   .lp-faq-item:hover {
-    box-shadow:
-      0 4px 20px -4px rgba(99, 102, 241, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-color: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 4px 20px -4px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.2) !important;
+  }
+  .lp-faq-item button {
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer;
+  }
+  .lp-faq-item button span {
+    color: #1e293b !important;
+  }
+  
+  /* FAQ container spacing */
+  #faq .space-y-3 > * + * {
+    margin-top: 0.75rem !important;
   }
 
   /* --- Points Pop --- */
@@ -301,11 +317,78 @@
     max-width: 80%;
   }
 
+  /* Force section padding for landing page */
+  #features,
+  #how-it-works,
+  #demo,
+  #testimonials,
+  #faq {
+    padding-top: 7rem !important;
+    padding-bottom: 7rem !important;
+  }
+  
+  .lp-stats-bar {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  
+  .lp-final-cta {
+    padding-top: 6rem !important;
+    padding-bottom: 8rem !important;
+  }
+
   /* --- Page Overrides --- */
   html { scroll-behavior: smooth; }
   body.df-has-fixed-header { padding-top: 0 !important; }
-  body { overflow: auto !important; overflow-x: hidden !important; height: auto !important; }
-  .df-main-scroll { height: auto !important; overflow: visible !important; }
+  body { 
+    overflow: auto !important; 
+    overflow-x: hidden !important; 
+    height: auto !important; 
+    position: static !important;
+  }
+  .df-main-scroll { 
+    height: auto !important; 
+    overflow: visible !important; 
+    padding: 0 !important;
+  }
+  .df-main-content-wrapper {
+    min-height: auto !important;
+    display: block !important;
+  }
+  
+  /* Ensure Tailwind spacing utilities work */
+  .py-28 { padding-top: 7rem !important; padding-bottom: 7rem !important; }
+  .py-24 { padding-top: 6rem !important; padding-bottom: 6rem !important; }
+  .py-10 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .pt-24 { padding-top: 6rem !important; }
+  .pb-16 { padding-bottom: 4rem !important; }
+  .mb-16 { margin-bottom: 4rem !important; }
+  .mb-8 { margin-bottom: 2rem !important; }
+  .mb-6 { margin-bottom: 1.5rem !important; }
+  .mb-4 { margin-bottom: 1rem !important; }
+  .mt-12 { margin-top: 3rem !important; }
+  .gap-8 { gap: 2rem !important; }
+  .gap-12 { gap: 3rem !important; }
+  .gap-16 { gap: 4rem !important; }
+  
+  /* --- Landing page icon containers with gradients --- */
+  .lp-icon-indigo {
+    background: linear-gradient(to bottom right, #6366f1, #4f46e5) !important;
+  }
+  .lp-icon-violet {
+    background: linear-gradient(to bottom right, #8b5cf6, #9333ea) !important;
+  }
+  .lp-icon-orange {
+    background: linear-gradient(to bottom right, #f97316, #f59e0b) !important;
+  }
+  
+  /* Ensure icon SVGs are visible */
+  .lp-icon-indigo svg,
+  .lp-icon-violet svg,
+  .lp-icon-orange svg {
+    color: white !important;
+    stroke: currentColor !important;
+  }
 </style>
 {% endblock %}
 
@@ -519,7 +602,7 @@
     <div class="grid md:grid-cols-3 gap-8">
       <!-- Card 1: Spaced Repetition -->
       <div class="lp-card p-8 group">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-300">
+        <div class="lp-icon-indigo w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-300">
           <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <p class="text-sm font-semibold text-rose-500 mb-2">"Học trước quên sau?"</p>
@@ -532,7 +615,7 @@
 
       <!-- Card 2: Phân tích từng Part -->
       <div class="lp-card p-8 group">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20 group-hover:shadow-xl group-hover:shadow-violet-500/30 transition-all duration-300">
+        <div class="lp-icon-violet w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20 group-hover:shadow-xl group-hover:shadow-violet-500/30 transition-all duration-300">
           <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         </div>
         <p class="text-sm font-semibold text-rose-500 mb-2">"Sợ Part 7 dài dòng?"</p>
@@ -545,7 +628,7 @@
 
       <!-- Card 3: Lộ trình cấp tốc -->
       <div class="lp-card p-8 group">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20 group-hover:shadow-xl group-hover:shadow-orange-500/30 transition-all duration-300">
+        <div class="lp-icon-orange w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20 group-hover:shadow-xl group-hover:shadow-orange-500/30 transition-all duration-300">
           <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
         <p class="text-sm font-semibold text-rose-500 mb-2">"Cần bằng gấp?"</p>
@@ -593,7 +676,7 @@
       <!-- Step 1 -->
       <div class="text-center relative">
         <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+          <div class="lp-icon-indigo w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
           </div>
           <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold mb-3">1</span>
@@ -608,7 +691,7 @@
       <!-- Step 2 -->
       <div class="text-center relative">
         <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-500/30">
+          <div class="lp-icon-violet w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-500/30">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           </div>
           <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-sm font-bold mb-3">2</span>
@@ -623,7 +706,7 @@
       <!-- Step 3 -->
       <div class="text-center relative">
         <div class="lp-card p-6 mb-6 mx-auto max-w-xs">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+          <div class="lp-icon-orange w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
           </div>
           <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 text-sm font-bold mb-3">3</span>
