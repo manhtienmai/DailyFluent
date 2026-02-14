@@ -19,7 +19,7 @@ urlpatterns = [
     path('sets/<int:pk>/import/', views.import_json_view, name='set_import'),
 
     # Lists
-    path('', views.EnglishListView.as_view(), name='list'),
+
     path('english/<str:word>/', views.VocabularyDetailView.as_view(), name='vocabulary_detail'),
 
     path('progress/', views.ProgressView.as_view(), name='progress'),

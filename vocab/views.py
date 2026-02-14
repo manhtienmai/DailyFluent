@@ -390,48 +390,6 @@ def import_json_view(request, pk):
     return redirect('vocab:set_detail', pk=pk)
 
 
-class EnglishListView(LoginRequiredMixin, ListView):
-    model = WordDefinition
-    template_name = 'vocab/english_list.html'
-    context_object_name = 'words'
-    paginate_by = 50
-
-    def get_queryset(self):
-        # Base queryset: words with English vocabulary
-        queryset = WordDefinition.objects.filter(entry__vocab__language=Vocabulary.Language.ENGLISH).select_related('entry__vocab')
-        
-        # Search
-        query = self.request.GET.get('q')
-        if query:
-            queryset = queryset.filter(
-                Q(entry__vocab__word__icontains=query) | 
-                Q(entry__ipa__icontains=query) | 
-                Q(meaning__icontains=query)
-            )
-            
-        return queryset.order_by('entry__vocab__word')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['total_count'] = self.get_queryset().count()
-        q = self.request.GET.get('q', '')
-        context['q'] = q
-        context['base_qs'] = f'q={q}' if q else ''
-
-        # Build page_items for pagination component
-        page_obj = context.get('page_obj')
-        if page_obj:
-            num_pages = page_obj.paginator.num_pages
-            current = page_obj.number
-            page_items = []
-            for p in range(1, num_pages + 1):
-                if p == 1 or p == num_pages or abs(p - current) <= 2:
-                    page_items.append(p)
-                elif page_items and page_items[-1] is not None:
-                    page_items.append(None)
-            context['page_items'] = page_items
-
-        return context
 
 class GamesView(LoginRequiredMixin, TemplateView):
     template_name = 'vocab/games.html'
@@ -939,11 +897,12 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
             pass
 
         items_data = []
+        is_jp = course.language == 'JP'
         for item in items:
             d = item.definition
             e = d.entry
             v = e.vocab
-            items_data.append({
+            row = {
                 'id': v.id,
                 'definition_id': d.id,
                 'word': v.word,
@@ -953,7 +912,23 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
                 'part_of_speech': e.part_of_speech,
                 'example': d.example_sentence,
                 'example_trans': d.example_trans,
-            })
+            }
+            if is_jp:
+                ed = v.extra_data or {}
+                row['reading'] = ed.get('reading', '')
+                row['han_viet'] = ed.get('han_viet', '')
+                row['html_display'] = ed.get('html_display', '')
+                # Collect all examples (sentence type) with HTML
+                examples_list = []
+                for ex in d.examples.all():
+                    examples_list.append({
+                        'sentence': ex.sentence,
+                        'translation': ex.translation,
+                    })
+                row['examples'] = examples_list
+                # Collect relations from definition extra_data
+                row['relations'] = (d.extra_data or {}).get('relations', [])
+            items_data.append(row)
             
         config = {
             'label': course.title,

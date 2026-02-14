@@ -57,12 +57,12 @@
   }
 
   .course-page--jp {
-    --accent: #dc2626;
-    --accent-end: #b91c1c;
-    --accent-light: rgba(220, 38, 38, 0.08);
-    --accent-border: rgba(220, 38, 38, 0.2);
-    --accent-shadow: rgba(220, 38, 38, 0.15);
-    --accent-glow: rgba(220, 38, 38, 0.5);
+    --accent: #e8a0bf;
+    --accent-end: #d4789c;
+    --accent-light: rgba(232, 160, 191, 0.1);
+    --accent-border: rgba(232, 160, 191, 0.25);
+    --accent-shadow: rgba(232, 160, 191, 0.15);
+    --accent-glow: rgba(232, 160, 191, 0.45);
   }
 
   /* Pastel Gradient Mesh Background */
@@ -1097,7 +1097,7 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
       </svg>
-      All Courses
+      Tất cả khóa học
     </a>
 
     <!-- ========== HERO HEADER ========== -->
@@ -1118,19 +1118,19 @@
     <section class="stats-row">
       <article class="glass-panel-light stat-card stat-card--words">
         <div class="stat-value stat-value--accent">{{ total_words }}</div>
-        <div class="stat-label">Total Words</div>
+        <div class="stat-label">Tổng từ</div>
       </article>
       <article class="glass-panel-light stat-card stat-card--learned">
         <div class="stat-value stat-value--green">{{ learned_words }}</div>
-        <div class="stat-label">Learned</div>
+        <div class="stat-label">Đã thuộc</div>
       </article>
       <article class="glass-panel-light stat-card stat-card--sets">
         <div class="stat-value stat-value--amber">{{ completed_sets }}<span class="stat-value-fraction">/{{ total_sets }}</span></div>
-        <div class="stat-label">Sets Done</div>
+        <div class="stat-label">Bộ hoàn thành</div>
       </article>
       <article class="glass-panel-light stat-card stat-card--pct">
         <div class="stat-value stat-value--rose">{{ completion }}%</div>
-        <div class="stat-label">Mastery</div>
+        <div class="stat-label">Tiến độ</div>
       </article>
     </section>
 
@@ -1141,7 +1141,7 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
-          Course Progress
+          Tiến độ khóa học
         </span>
         <span class="progress-pct">{{ completion }}%</span>
       </div>
@@ -1159,10 +1159,10 @@
         </svg>
       </div>
       <div class="review-banner-content">
-        <div class="review-banner-title">{{ review_count }} cards due for review</div>
-        <div class="review-banner-sub">Spaced repetition keeps your memory sharp</div>
+        <div class="review-banner-title">{{ review_count }} thẻ cần ôn tập</div>
+        <div class="review-banner-sub">Ôn tập giãn cách giúp ghi nhớ lâu hơn</div>
       </div>
-      <span class="review-banner-btn">Review</span>
+      <span class="review-banner-btn">Ôn tập</span>
     </a>
     {% endif %}
 
@@ -1172,7 +1172,7 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
         </svg>
-        Curriculum &middot; {{ chapters|length }} chapters
+        Chương trình &middot; {{ chapters|length }} chương
       </div>
 
       <div class="chapter-list">
@@ -1188,9 +1188,9 @@
               <div class="chapter-info">
                 <div class="chapter-name">{{ chapter.name }}</div>
                 <div class="chapter-meta">
-                  <span>{{ chapter.sets|length }} sets</span>
+                  <span>{{ chapter.sets|length }} bộ</span>
                   <span class="chapter-meta-dot"></span>
-                  <span>{{ chapter.words_learned }}/{{ chapter.words_total }} words</span>
+                  <span>{{ chapter.words_learned }}/{{ chapter.words_total }} từ</span>
                 </div>
               </div>
             </div>
@@ -1218,7 +1218,7 @@
 
             <!-- Chapter progress bar -->
             <div class="chapter-bar">
-              <span class="chapter-bar-label">{{ chapter.words_learned }}/{{ chapter.words_total }} words</span>
+              <span class="chapter-bar-label">{{ chapter.words_learned }}/{{ chapter.words_total }} từ</span>
               <div class="chapter-bar-track">
                 <div class="chapter-bar-fill" style="width: {{ chapter.completion }}%;"></div>
               </div>
@@ -1264,7 +1264,7 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
-          <p>No sets have been imported for this level yet.</p>
+          <p>Chưa có bộ từ nào cho cấp độ này.</p>
         </div>
         {% endfor %}
       </div>

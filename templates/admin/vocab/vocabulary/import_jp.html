@@ -137,7 +137,7 @@
         <h2>Import Japanese Vocabulary (Mimikara Format)</h2>
         <p>Drag &amp; drop a JSON file or paste JSON data below. Each item should have <code>word_info</code> (kanji, reading), <code>meanings</code> (vietnamese), and <code>examples</code>.</p>
 
-        <form method="post" id="import-form">
+        <form method="post" id="import-form" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="inline-fields">
@@ -172,29 +172,26 @@
 
             <!-- Drop Zone -->
             <div class="form-row">
-                <label>JSON File:</label>
+                <label>JSON Files:</label>
                 <div class="drop-zone" id="drop-zone">
-                    <input type="file" id="file-input" accept=".json,application/json" />
+                    <input type="file" name="json_files" id="file-input" accept=".json,application/json" multiple />
                     <div class="drop-zone-prompt">
                         <div class="drop-zone-icon">&#128196;</div>
                         <div class="drop-zone-text">
-                            Keo tha file JSON vao day hoac <strong>nhan de chon file</strong>
+                            Kéo thả nhiều file JSON vào đây hoặc <strong>nhấn để chọn files</strong>
                         </div>
                     </div>
-                    <div class="drop-zone-file">
-                        <span id="file-name"></span>
-                        <button type="button" class="drop-zone-remove" id="file-remove">&times; Xoa</button>
-                    </div>
+                    <div class="drop-zone-file-list" id="file-list"></div>
                 </div>
-                <div class="input-separator">hoac nhap truc tiep</div>
+                <div class="input-separator">hoặc nhập trực tiếp</div>
             </div>
 
             <div class="form-row">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <label for="json_data" class="required">JSON Data:</label>
+                    <label for="json_data">JSON Data (Optional):</label>
                     <button type="button" id="load-sample" class="button" style="padding: 5px 10px; cursor: pointer;">Load Sample</button>
                 </div>
-                <textarea name="json_data" id="json_data" required>{{ json_data }}</textarea>
+                <textarea name="json_data" id="json_data">{{ json_data }}</textarea>
                 <div class="help" style="margin-top: 5px; color: #666;">
                     JSON array of items with <code>word_info.kanji</code>, <code>meanings.vietnamese</code>, <code>examples[]</code>.
                 </div>
@@ -211,21 +208,21 @@
 (function() {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
-    const fileNameEl = document.getElementById('file-name');
-    const fileRemove = document.getElementById('file-remove');
+    const fileListEl = document.getElementById('file-list');
     const textarea = document.getElementById('json_data');
+
+    // Accumulator: keep track of all files across multiple selections/drops
+    let accumulatedFiles = new DataTransfer();
 
     // Click to select file
     dropZone.addEventListener('click', function(e) {
-        if (e.target === fileRemove || e.target.closest('.drop-zone-remove')) return;
+        if (e.target.closest('.drop-zone-remove')) return;
         fileInput.click();
     });
 
-    // File selected via input
+    // File selected via input — append to accumulated list
     fileInput.addEventListener('change', function() {
-        if (fileInput.files.length > 0) {
-            handleFile(fileInput.files[0]);
-        }
+        addFiles(fileInput.files);
     });
 
     // Drag events
@@ -242,47 +239,106 @@
     dropZone.addEventListener('drop', function(e) {
         e.preventDefault();
         dropZone.classList.remove('drag-over');
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            handleFile(files[0]);
+            addFiles(files);
         }
     });
 
-    // Remove file
-    fileRemove.addEventListener('click', function(e) {
-        e.stopPropagation();
-        dropZone.classList.remove('has-file');
-        fileInput.value = '';
-        fileNameEl.textContent = '';
-        textarea.value = '';
-        textarea.removeAttribute('readonly');
-    });
+    /**
+     * Append new files to the accumulator (skip duplicates by name+size).
+     */
+    function addFiles(files) {
+        const existingNames = new Set();
+        for (const f of accumulatedFiles.files) {
+            existingNames.add(f.name + '|' + f.size);
+        }
 
-    function handleFile(file) {
-        if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-            alert('Vui long chon file JSON.');
+        Array.from(files).forEach(f => {
+            const key = f.name + '|' + f.size;
+            if (!existingNames.has(key)) {
+                accumulatedFiles.items.add(f);
+                existingNames.add(key);
+            }
+        });
+
+        // Sync the hidden file input with the accumulated list
+        fileInput.files = accumulatedFiles.files;
+        renderFileList();
+    }
+
+    /**
+     * Remove a single file by index and re-render.
+     */
+    function removeFile(index) {
+        const newDT = new DataTransfer();
+        const files = accumulatedFiles.files;
+        for (let i = 0; i < files.length; i++) {
+            if (i !== index) newDT.items.add(files[i]);
+        }
+        accumulatedFiles = newDT;
+        fileInput.files = accumulatedFiles.files;
+        renderFileList();
+    }
+
+    /**
+     * Clear all files.
+     */
+    function clearAllFiles() {
+        accumulatedFiles = new DataTransfer();
+        fileInput.files = accumulatedFiles.files;
+        renderFileList();
+    }
+
+    /**
+     * Render the file list UI from accumulatedFiles.
+     */
+    function renderFileList() {
+        fileListEl.innerHTML = '';
+        const files = accumulatedFiles.files;
+
+        if (files.length > 0) {
+            dropZone.classList.add('has-file');
+
+            Array.from(files).forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'drop-zone-file';
+                item.style.display = 'flex';
+                item.innerHTML = `
+                    <span>📄 ${file.name} (${formatSize(file.size)})</span>
+                    <button type="button" class="drop-zone-remove" data-index="${index}" title="Remove">&times;</button>
+                `;
+                fileListEl.appendChild(item);
+            });
+
+            // Add "Clear all" button
+            const clearBtn = document.createElement('div');
+            clearBtn.style.cssText = 'text-align:center; margin-top:8px;';
+            clearBtn.innerHTML = `<button type="button" class="button" id="clear-all-files"
+                style="padding:4px 12px; font-size:0.8125rem; cursor:pointer; background:#e53935; color:#fff; border:none; border-radius:4px;">
+                Xóa tất cả files (${files.length})
+            </button>`;
+            fileListEl.appendChild(clearBtn);
+        } else {
+            dropZone.classList.remove('has-file');
+        }
+    }
+
+    // Delegate click for individual remove buttons & clear-all
+    fileListEl.addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.drop-zone-remove');
+        if (removeBtn) {
+            e.stopPropagation();
+            const idx = parseInt(removeBtn.dataset.index, 10);
+            removeFile(idx);
             return;
         }
-
-        fileNameEl.textContent = file.name + ' (' + formatSize(file.size) + ')';
-        dropZone.classList.add('has-file');
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                // Validate JSON
-                const parsed = JSON.parse(e.target.result);
-                // Pretty-print into textarea
-                textarea.value = JSON.stringify(parsed, null, 2);
-                textarea.setAttribute('readonly', 'readonly');
-            } catch (err) {
-                alert('File JSON khong hop le: ' + err.message);
-                dropZone.classList.remove('has-file');
-                fileInput.value = '';
-            }
-        };
-        reader.readAsText(file);
-    }
+        if (e.target.closest('#clear-all-files')) {
+            e.stopPropagation();
+            clearAllFiles();
+        }
+    });
 
     function formatSize(bytes) {
         if (bytes < 1024) return bytes + ' B';
@@ -290,54 +346,57 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
-    // Also support dropping file anywhere on the page
+    // Also support dropping JSON files anywhere on the page
     document.addEventListener('dragover', function(e) { e.preventDefault(); });
     document.addEventListener('drop', function(e) {
         e.preventDefault();
         const files = e.dataTransfer.files;
-        if (files.length > 0 && (files[0].name.endsWith('.json') || files[0].type === 'application/json')) {
-            handleFile(files[0]);
+        const jsonFiles = Array.from(files).filter(f => f.name.endsWith('.json') || f.type === 'application/json');
+        if (jsonFiles.length > 0) {
+            const dt = new DataTransfer();
+            jsonFiles.forEach(f => dt.items.add(f));
+            addFiles(dt.files);
         }
     });
-})();
 
-// Load sample button
-document.getElementById('load-sample').addEventListener('click', function() {
-    const sample = [
-        {
-            "word_info": {
-                "kanji": "経験",
-                "reading": "けいけん",
-                "html_display": "<ruby>経験<rt>けいけん</rt></ruby>"
-            },
-            "meanings": {
-                "vietnamese": "kinh nghiệm, trải nghiệm",
-                "han_viet": "KINH NGHIỆM"
-            },
-            "metadata": {
-                "lesson": "Bài 1"
-            },
-            "part_of_speech": "noun",
-            "examples": [
-                {
-                    "type": "sentence",
-                    "jp_html": "<ruby>海外<rt>かいがい</rt></ruby>で<ruby>働<rt>はたら</rt></ruby>いた<ruby>経験<rt>けいけん</rt></ruby>がある。",
-                    "jp_text": "海外で働いた経験がある。",
-                    "vn_text": "Tôi có kinh nghiệm làm việc ở nước ngoài."
+    // Load sample button
+    document.getElementById('load-sample').addEventListener('click', function() {
+        const sample = [
+            {
+                "word_info": {
+                    "kanji": "経験",
+                    "reading": "けいけん",
+                    "html_display": "<ruby>経験<rt>けいけん</rt></ruby>"
                 },
-                {
-                    "type": "compound",
-                    "label": "Từ ghép",
-                    "jp_html": "<ruby>経験者<rt>けいけんしゃ</rt></ruby>",
-                    "jp_text": "経験者",
-                    "vn_text": "người có kinh nghiệm"
-                }
-            ]
-        }
-    ];
-    document.getElementById('json_data').value = JSON.stringify(sample, null, 4);
-    document.getElementById('json_data').removeAttribute('readonly');
-    document.getElementById('drop-zone').classList.remove('has-file');
-});
+                "meanings": {
+                    "vietnamese": "kinh nghiệm, trải nghiệm",
+                    "han_viet": "KINH NGHIỆM"
+                },
+                "metadata": {
+                    "lesson": "Bài 1"
+                },
+                "part_of_speech": "noun",
+                "examples": [
+                    {
+                        "type": "sentence",
+                        "jp_html": "<ruby>海外<rt>かいがい</rt></ruby>で<ruby>働<rt>はたら</rt></ruby>いた<ruby>経験<rt>けいけん</rt></ruby>がある。",
+                        "jp_text": "海外で働いた経験がある。",
+                        "vn_text": "Tôi có kinh nghiệm làm việc ở nước ngoài."
+                    },
+                    {
+                        "type": "compound",
+                        "label": "Từ ghép",
+                        "jp_html": "<ruby>経験者<rt>けいけんしゃ</rt></ruby>",
+                        "jp_text": "経験者",
+                        "vn_text": "người có kinh nghiệm"
+                    }
+                ]
+            }
+        ];
+        textarea.value = JSON.stringify(sample, null, 4);
+        textarea.removeAttribute('readonly');
+        clearAllFiles();
+    });
+})();
 </script>
 {% endblock %}

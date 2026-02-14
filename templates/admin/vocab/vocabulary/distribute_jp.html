@@ -75,6 +75,12 @@
         {% else %}
         <p style="color: #666; margin-top: 20px;">All JP words are already assigned to sets. Nothing to distribute.</p>
         {% endif %}
+        <div style="margin-top: 20px; text-align: center;">
+            <p>Or distribute manually:</p>
+            <a href="{% url 'admin:vocab_vocabulary_changelist' %}?language__exact=JP&extra_data__lesson__isnull=True" class="button" style="background: #eee; color: #333;">
+                Go to Manual Distribution (Filter Unassigned)
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

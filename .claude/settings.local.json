@@ -30,7 +30,15 @@
       "Bash(chcp:*)",
       "Bash(E:)",
       "Bash(E:DailyFluentvenvScriptspython.exe -c \"import os; os.environ[''DJANGO_SETTINGS_MODULE'']=''config.settings''; import django; django.setup\\(\\); from django.template.loader import get_template; t1 = get_template\\(''vocab/toeic/set_detail.html''\\); print\\(''set_detail.html OK''\\); t2 = get_template\\(''vocab/vocabulary_detail.html''\\); print\\(''vocabulary_detail.html OK''\\)\")",
-      "Bash(DJANGO_SETTINGS_MODULE=config.settings PYTHONPATH=E:/DailyFluent E:/DailyFluent/venv/Scripts/python.exe:*)"
+      "Bash(DJANGO_SETTINGS_MODULE=config.settings PYTHONPATH=E:/DailyFluent E:/DailyFluent/venv/Scripts/python.exe:*)",
+      "Bash(cd /d E:DailyFluent)",
+      "Bash(git -C \"E:\\\\DailyFluent\" diff --stat templates/vocab/toeic/set_detail.html)",
+      "Bash(git -C \"E:\\\\DailyFluent\" add templates/vocab/toeic/set_detail.html)",
+      "Bash(git -C \"E:\\\\DailyFluent\" commit -m \"$\\(cat <<''EOF''\nfeat\\(ui\\): Add Vietnamese diacritics and change JP accent to pastel sakura\n\n- Update all Vietnamese labels with proper diacritics \\(có dấu\\)\n- Change JP course accent color from red to pastel sakura pink \\(#e8a0bf\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"E:\\\\DailyFluent\" push)",
+      "Bash(git -C \"E:\\\\DailyFluent\" diff --stat)",
+      "Bash(git -C \"E:\\\\DailyFluent\" add templates/vocab/toeic/learn.html static/css/toeic.css)",
+      "Bash(git -C \"E:\\\\DailyFluent\" commit -m \"$\\(cat <<''EOF''\nfix\\(flashcard\\): Fix JP flashcard display - render furigana, hide POS, show Hán Việt\n\n- Front: use x-html with html_display to render ruby/furigana instead of plain text\n- Back: render furigana on word, show Hán Việt, hide part_of_speech for JP\n- Back: only show reading when html_display is absent \\(avoid duplicate\\)\n- Examples: proper CSS for JP ruby text in flashcard examples\n- Add CSS classes for JP-specific flashcard elements \\(word, reading, hanviet, relations\\)\n- Bump toeic.css cache version\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

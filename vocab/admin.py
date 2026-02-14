@@ -464,17 +464,14 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         """Admin view to import Japanese vocabulary from Mimikara-format JSON."""
         json_data = ''
         if request.method == "POST":
+            json_files = request.FILES.getlist('json_files')
             json_data = request.POST.get("json_data", "")
-            if not json_data:
-                messages.error(request, "Please enter JSON data.")
+            
+            if not json_files and not json_data:
+                messages.error(request, "Please select JSON files or enter JSON data.")
                 return redirect("admin:vocab_vocabulary_import_jp")
 
             try:
-                data = json.loads(json_data)
-                if not isinstance(data, list):
-                    messages.error(request, "JSON must be a list of objects.")
-                    return redirect("admin:vocab_vocabulary_import_jp")
-
                 # Resolve optional VocabularySet
                 vocab_set = None
                 set_id = request.POST.get("vocab_set")
@@ -486,22 +483,54 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
 
                 source = request.POST.get("source", "other")
                 default_pos = request.POST.get("default_pos", "noun")
+                
+                total_stats = {
+                    'created_vocabs': 0,
+                    'created_definitions': 0,
+                    'created_examples': 0,
+                    'skipped': 0
+                }
 
-                stats = import_jp_vocab_data(
-                    items=data,
-                    vocab_set=vocab_set,
-                    source=source,
-                    default_pos=default_pos,
-                )
+                # Process Files
+                if json_files:
+                    for f in json_files:
+                        data = json.load(f)
+                        if not isinstance(data, list):
+                            messages.warning(request, f"Skipped {f.name}: JSON must be a list.")
+                            continue
+                            
+                        stats = import_jp_vocab_data(
+                            items=data,
+                            vocab_set=vocab_set,
+                            source=source,
+                            default_pos=default_pos,
+                        )
+                        for k in total_stats:
+                            total_stats[k] += stats.get(k, 0)
+
+                # Process Text Area
+                if json_data:
+                    data = json.loads(json_data)
+                    if isinstance(data, list):
+                        stats = import_jp_vocab_data(
+                            items=data,
+                            vocab_set=vocab_set,
+                            source=source,
+                            default_pos=default_pos,
+                        )
+                        for k in total_stats:
+                            total_stats[k] += stats.get(k, 0)
 
                 messages.success(
                     request,
-                    f"Imported! Vocabs: {stats['created_vocabs']}, "
-                    f"Definitions: {stats['created_definitions']}, "
-                    f"Examples: {stats['created_examples']}, "
-                    f"Skipped: {stats['skipped']}"
+                    f"Imported! Vocabs: {total_stats['created_vocabs']}, "
+                    f"Definitions: {total_stats['created_definitions']}, "
+                    f"Examples: {total_stats['created_examples']}, "
+                    f"Skipped: {total_stats['skipped']}"
                 )
-                return redirect("admin:vocab_vocabulary_changelist")
+                
+                # Redirect to distribution page
+                return redirect("admin:vocab_vocabulary_distribute_jp")
 
             except json.JSONDecodeError:
                 messages.error(request, "Invalid JSON format.")

@@ -2,7 +2,7 @@
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
-{% block title %}Vocabulary Courses | DailyFluent{% endblock %}
+{% block title %}Khóa học từ vựng | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -96,7 +96,7 @@
   .courses-header-icon {
     width: 48px;
     height: 48px;
-    border-radius: 14px;
+    border-radius: 50%;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     display: flex;
     align-items: center;
@@ -528,13 +528,13 @@
   }
 
   .course-card--red {
-    --card-orb-color: rgba(220, 38, 38, 0.15);
-    --card-orb-color-2: rgba(220, 38, 38, 0.08);
-    --card-shadow-color: rgba(220, 38, 38, 0.2);
-    --card-accent: #dc2626;
-    --card-accent-end: #b91c1c;
-    --card-accent-bg: rgba(220, 38, 38, 0.08);
-    --card-accent-border: rgba(220, 38, 38, 0.2);
+    --card-orb-color: rgba(232, 160, 191, 0.2);
+    --card-orb-color-2: rgba(232, 160, 191, 0.1);
+    --card-shadow-color: rgba(232, 160, 191, 0.25);
+    --card-accent: #e8a0bf;
+    --card-accent-end: #d4789c;
+    --card-accent-bg: rgba(232, 160, 191, 0.1);
+    --card-accent-border: rgba(232, 160, 191, 0.25);
   }
 
   /* Card header */
@@ -654,6 +654,7 @@
     position: relative;
     z-index: 1;
     margin-top: auto;
+    padding-right: 44px;
   }
 
   .course-card-progress-header {
@@ -842,8 +843,8 @@
       <div class="courses-header-left">
         <div class="courses-header-icon">📚</div>
         <div>
-          <h1 class="courses-title">Vocabulary Courses</h1>
-          <p class="courses-subtitle">Master vocabulary from beginner to advanced</p>
+          <h1 class="courses-title">Khóa học từ vựng</h1>
+          <p class="courses-subtitle">Chinh phục từ vựng từ cơ bản đến nâng cao</p>
         </div>
       </div>
     </header>
@@ -852,19 +853,19 @@
     <section class="overall-stats">
       <article class="glass-panel-light overall-stat overall-stat--words">
         <div class="overall-stat-value overall-stat-value--indigo">{{ total_words_all|default:0 }}</div>
-        <div class="overall-stat-label">Total Words</div>
+        <div class="overall-stat-label">Tổng từ</div>
       </article>
       <article class="glass-panel-light overall-stat overall-stat--learned">
         <div class="overall-stat-value overall-stat-value--green">{{ total_learned_all|default:0 }}</div>
-        <div class="overall-stat-label">Learned</div>
+        <div class="overall-stat-label">Đã thuộc</div>
       </article>
       <article class="glass-panel-light overall-stat overall-stat--sets">
         <div class="overall-stat-value overall-stat-value--amber">{{ total_completed_sets_all|default:0 }}<span style="font-size: 0.75em; opacity: 0.6">/{{ total_sets_all|default:0 }}</span></div>
-        <div class="overall-stat-label">Sets Done</div>
+        <div class="overall-stat-label">Bộ hoàn thành</div>
       </article>
       <article class="glass-panel-light overall-stat overall-stat--progress">
         <div class="overall-stat-value overall-stat-value--rose">{{ overall_completion|default:0 }}%</div>
-        <div class="overall-stat-label">Progress</div>
+        <div class="overall-stat-label">Tiến độ</div>
       </article>
     </section>
 
@@ -875,7 +876,7 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
-          Overall Mastery
+          Tiến độ tổng
         </span>
         <span class="overall-progress-pct">{{ overall_completion|default:0 }}%</span>
       </div>
@@ -893,10 +894,10 @@
         </svg>
       </div>
       <div class="review-banner-content">
-        <div class="review-banner-title">{{ review_count }} cards due for review</div>
-        <div class="review-banner-text">Keep your memory fresh with spaced repetition</div>
+        <div class="review-banner-title">{{ review_count }} thẻ cần ôn tập</div>
+        <div class="review-banner-text">Ôn tập giãn cách giúp ghi nhớ lâu hơn</div>
       </div>
-      <span class="review-banner-btn">Review Now</span>
+      <span class="review-banner-btn">Ôn tập ngay</span>
       <svg class="review-banner-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
       </svg>
@@ -908,7 +909,7 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
       </svg>
-      Courses
+      Khóa học
     </div>
 
     {% if levels %}
@@ -923,11 +924,11 @@
           <div class="course-card-badge">
             {% if item.completion == 100 %}
               <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-              Complete
+              Hoàn thành
             {% elif item.completion > 0 %}
-              In Progress
+              Đang học
             {% else %}
-              Not Started
+              Chưa bắt đầu
             {% endif %}
           </div>
         </div>
@@ -944,20 +945,20 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
             </svg>
-            <strong>{{ item.total_sets }}</strong> sets
+            <strong>{{ item.total_sets }}</strong> bộ
           </div>
           <div class="course-card-stat">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
             </svg>
-            <strong>{{ item.words_learned }}</strong>/{{ item.total_words }} words
+            <strong>{{ item.words_learned }}</strong>/{{ item.total_words }} từ
           </div>
         </div>
 
         <!-- Progress -->
         <div class="course-card-progress">
           <div class="course-card-progress-header">
-            <span class="course-card-progress-label">{{ item.completed_sets }}/{{ item.total_sets }} sets completed</span>
+            <span class="course-card-progress-label">{{ item.completed_sets }}/{{ item.total_sets }} bộ hoàn thành</span>
             <span class="course-card-progress-pct">{{ item.completion }}%</span>
           </div>
           <div class="course-card-progress-bar">
@@ -977,8 +978,8 @@
     {% else %}
     <div class="glass-panel courses-empty">
       <div class="courses-empty-icon">📚</div>
-      <div class="courses-empty-title">No courses available</div>
-      <div class="courses-empty-text">Courses are being prepared. Check back soon!</div>
+      <div class="courses-empty-title">Chưa có khóa học</div>
+      <div class="courses-empty-text">Khóa học đang được chuẩn bị. Hãy quay lại sau!</div>
     </div>
     {% endif %}
 

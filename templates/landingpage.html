@@ -11,36 +11,36 @@
       <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
         <img src="{% static 'logo_official.png' %}" alt="DailyFluent logo" class="w-full h-full object-contain">
       </div>
-      <span class="hidden sm:block font-bold text-white text-base lp-logo-text">DailyFluent</span>
+      <span class="hidden sm:block font-bold text-slate-900 text-base lp-logo-text">DailyFluent</span>
     </a>
 
     <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
-      <a href="#features" class="lp-nav-link text-white/70 hover:text-white transition-colors">Tính năng</a>
-      <a href="#how-it-works" class="lp-nav-link text-white/70 hover:text-white transition-colors">Cách học</a>
-      <a href="#demo" class="lp-nav-link text-white/70 hover:text-white transition-colors">Thử ngay</a>
-      <a href="#testimonials" class="lp-nav-link text-white/70 hover:text-white transition-colors">Review</a>
-      <a href="#faq" class="lp-nav-link text-white/70 hover:text-white transition-colors">FAQ</a>
+      <a href="#features" class="lp-nav-link text-slate-600 hover:text-indigo-600 transition-colors">Tính năng</a>
+      <a href="#how-it-works" class="lp-nav-link text-slate-600 hover:text-indigo-600 transition-colors">Cách học</a>
+      <a href="#demo" class="lp-nav-link text-slate-600 hover:text-indigo-600 transition-colors">Thử ngay</a>
+      <a href="#testimonials" class="lp-nav-link text-slate-600 hover:text-indigo-600 transition-colors">Review</a>
+      <a href="#faq" class="lp-nav-link text-slate-600 hover:text-indigo-600 transition-colors">FAQ</a>
     </nav>
 
     <div class="flex items-center gap-3">
-      <a href="{% url 'account_login' %}" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">Đăng nhập</a>
+      <a href="{% url 'account_login' %}" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Đăng nhập</a>
       <a href="{% url 'account_signup' %}" class="lp-btn-accent inline-flex items-center px-5 py-2.5 rounded-full text-sm font-bold">Đăng ký miễn phí</a>
     </div>
 
-    <button onclick="document.getElementById('lp-mobile-menu').classList.toggle('hidden')" class="md:hidden text-white p-2" aria-label="Menu">
+    <button onclick="document.getElementById('lp-mobile-menu').classList.toggle('hidden')" class="md:hidden text-slate-700 p-2" aria-label="Menu">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
   </div>
 
-  <div id="lp-mobile-menu" class="hidden md:hidden border-t border-white/10 lp-header-scrolled">
+  <div id="lp-mobile-menu" class="hidden md:hidden border-t border-slate-200/50 lp-header-scrolled">
     <div class="px-6 py-4 space-y-2">
-      <a href="#features" class="block text-white/70 hover:text-white text-sm py-2">Tính năng</a>
-      <a href="#how-it-works" class="block text-white/70 hover:text-white text-sm py-2">Cách học</a>
-      <a href="#demo" class="block text-white/70 hover:text-white text-sm py-2">Thử ngay</a>
-      <a href="#testimonials" class="block text-white/70 hover:text-white text-sm py-2">Review</a>
-      <a href="#faq" class="block text-white/70 hover:text-white text-sm py-2">FAQ</a>
-      <div class="pt-4 border-t border-white/10 flex gap-3">
-        <a href="{% url 'account_login' %}" class="flex-1 text-center py-2.5 rounded-full text-white/80 border border-white/20 text-sm">Đăng nhập</a>
+      <a href="#features" class="block text-slate-600 hover:text-indigo-600 text-sm py-2">Tính năng</a>
+      <a href="#how-it-works" class="block text-slate-600 hover:text-indigo-600 text-sm py-2">Cách học</a>
+      <a href="#demo" class="block text-slate-600 hover:text-indigo-600 text-sm py-2">Thử ngay</a>
+      <a href="#testimonials" class="block text-slate-600 hover:text-indigo-600 text-sm py-2">Review</a>
+      <a href="#faq" class="block text-slate-600 hover:text-indigo-600 text-sm py-2">FAQ</a>
+      <div class="pt-4 border-t border-slate-200/50 flex gap-3">
+        <a href="{% url 'account_login' %}" class="flex-1 text-center py-2.5 rounded-full text-slate-600 border border-slate-300 text-sm">Đăng nhập</a>
         <a href="{% url 'account_signup' %}" class="flex-1 text-center py-2.5 rounded-full lp-btn-accent text-sm font-bold">Đăng ký</a>
       </div>
     </div>
@@ -51,38 +51,38 @@
 {% block extra_css %}
 <style>
   /* ==========================================================================
-     DESIGN TOKENS - MODERN PALETTE
-     Primary:  Indigo (#4F46E5) - professional, trustworthy
-     Accent:   Orange (#F97316) - energetic CTAs
-     Success:  Emerald (#10B981) - progress, achievements
-     
+     DESIGN TOKENS - FROSTED CRYSTAL PALETTE
+     Primary:  Indigo-Violet (#6366f1 → #8b5cf6)
+     Accent:   Emerald (#10B981) - progress, achievements
+     Surface:  White glass (rgba 255,255,255,0.72) + blur
+
      Spacing: 8px grid → 8, 16, 24, 32, 48, 64, 96
      Radius:  8px (sm), 16px (card), 24px (lg), 9999px (pill)
      ========================================================================== */
 
-  /* --- Header --- */
+  /* --- Header (scrolled = frosted white glass) --- */
   .lp-header-scrolled {
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 4px 24px -4px rgba(99, 102, 241, 0.1), 0 1px 0 rgba(255,255,255,0.8);
   }
-  .lp-header-scrolled .lp-logo-text { color: #fff; }
-  .lp-header-scrolled .lp-nav-link { color: rgba(255,255,255,0.7); }
-  .lp-header-scrolled .lp-nav-link:hover { color: #fff; }
+  .lp-header-scrolled .lp-logo-text { color: #0f172a; }
+  .lp-header-scrolled .lp-nav-link { color: #475569; }
+  .lp-header-scrolled .lp-nav-link:hover { color: #4f46e5; }
 
-  /* --- Accent Button (Orange CTA) --- */
+  /* --- Accent Button (Indigo-Violet CTA) --- */
   .lp-btn-accent {
-    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: #fff;
-    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
   }
   .lp-btn-accent:hover {
-    background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
-    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.5);
+    background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.45);
     transform: translateY(-2px);
   }
   .lp-btn-accent::before {
@@ -99,21 +99,26 @@
     left: 100%;
   }
 
-  /* --- Secondary Button --- */
+  /* --- Secondary Button (light outline) --- */
   .lp-btn-secondary {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(148,163,184,0.4);
+    color: #334155;
     transition: all 0.3s ease;
   }
   .lp-btn-secondary:hover {
-    background: rgba(255,255,255,0.15);
-    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.8);
+    border-color: rgba(99,102,241,0.3);
   }
 
-  /* --- Hero Background (Indigo/Purple Gradient) --- */
+  /* --- Hero Background (Pastel Gradient Mesh) --- */
   .lp-hero {
-    background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 25%, #312E81 50%, #4338CA 75%, #1E1B4B 100%);
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(199, 210, 254, 0.6) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(251, 207, 232, 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(254, 215, 170, 0.35) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 50% at 80% 30%, rgba(167, 243, 208, 0.25) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     position: relative;
     overflow: hidden;
   }
@@ -124,9 +129,9 @@
     width: 200%;
     height: 200%;
     background:
-      radial-gradient(ellipse at 20% 30%, rgba(99,102,241,0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, rgba(168,85,247,0.1) 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 20%, rgba(249,115,22,0.08) 0%, transparent 40%);
+      radial-gradient(ellipse at 20% 30%, rgba(99,102,241,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(168,85,247,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 20%, rgba(16,185,129,0.06) 0%, transparent 40%);
     animation: meshDrift 30s ease-in-out infinite alternate;
   }
   @keyframes meshDrift {
@@ -134,35 +139,86 @@
     100% { transform: translate(-2%, 1%) rotate(1deg); }
   }
 
-  /* --- Glass Card (dark bg) --- */
+  /* --- Glass Card (hero cards on light bg) --- */
   .lp-glass {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.8);
     border-radius: 20px;
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
-  /* --- Cards (light bg) --- */
+  /* --- Cards (glassmorphism) --- */
   .lp-card {
-    background: #fff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.8);
     border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.1),
+      0 8px 48px -8px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .lp-card:hover {
-    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    box-shadow:
+      0 12px 40px -8px rgba(99, 102, 241, 0.15),
+      0 16px 64px -12px rgba(99, 102, 241, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
     transform: translateY(-4px);
     border-color: rgba(99, 102, 241, 0.2);
   }
 
-  /* --- Gradient Text --- */
+  /* --- Gradient Text (indigo-to-teal) --- */
   .lp-gradient-text {
-    background: linear-gradient(135deg, #818CF8 0%, #F97316 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* --- Stats Bar (white glass) --- */
+  .lp-stats-bar {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.8);
+    box-shadow:
+      0 4px 24px -4px rgba(99, 102, 241, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  /* --- Stat Number (gradient text) --- */
+  .lp-stat-number {
+    background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* --- Section Mesh Background --- */
+  .lp-section-mesh {
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(199, 210, 254, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(251, 207, 232, 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(254, 215, 170, 0.2) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 50% at 80% 30%, rgba(167, 243, 208, 0.15) 0%, transparent 40%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+
+  /* --- Final CTA (pastel gradient mesh) --- */
+  .lp-final-cta {
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 30%, rgba(199, 210, 254, 0.6) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, rgba(251, 207, 232, 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(167, 243, 208, 0.3) 0%, transparent 45%),
+      linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
   }
 
   /* --- Chart Animation --- */
@@ -205,9 +261,24 @@
     100% { transform: translateX(-50%); }
   }
 
-  /* --- FAQ --- */
-  .lp-faq-item { transition: all 0.2s ease; border-radius: 16px; }
-  .lp-faq-item:hover { background: #F8FAFC; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  /* --- FAQ (glassmorphism) --- */
+  .lp-faq-item {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 16px;
+    box-shadow:
+      0 2px 12px -2px rgba(99, 102, 241, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
+  }
+  .lp-faq-item:hover {
+    box-shadow:
+      0 4px 20px -4px rgba(99, 102, 241, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-color: rgba(99, 102, 241, 0.15);
+  }
 
   /* --- Points Pop --- */
   @keyframes pointsPop {
@@ -222,7 +293,7 @@
     padding: 6rem 0;
     position: relative;
   }
-  
+
   .lp-section-divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(148,163,184,0.3), transparent);
@@ -248,20 +319,20 @@
     <div class="grid lg:grid-cols-2 gap-16 items-center lg:min-h-screen lg:py-24">
 
       <div class="text-center lg:text-left">
-        <p class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-cyan-200 mb-8">
+        <p class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 border border-indigo-200/50 text-xs font-medium text-indigo-700 mb-8">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           5,000+ học viên đang học tháng này
         </p>
 
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-          <span class="text-white">Nâng trình TOEIC.</span><br>
+          <span class="text-slate-900">Nâng trình TOEIC.</span><br>
           <span class="lp-gradient-text">Mở lối sự nghiệp.</span>
         </h1>
 
-        <p class="text-lg text-slate-300 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+        <p class="text-lg text-slate-600 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
           Học từ vựng 600 Essential Words &amp; Luyện đề chuẩn ETS với phương pháp
-          <strong class="text-cyan-300">Spaced Repetition</strong> thông minh.
-          Chỉ <strong class="text-white">15 phút/ngày</strong>.
+          <strong class="text-indigo-600">Spaced Repetition</strong> thông minh.
+          Chỉ <strong class="text-slate-900">15 phút/ngày</strong>.
         </p>
 
         <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
@@ -269,13 +340,13 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             Test trình độ miễn phí
           </a>
-          <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors">
+          <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-slate-300 text-slate-700 text-sm font-medium hover:bg-white/50 transition-colors">
             Xem lộ trình học
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </a>
         </div>
 
-        <p class="text-sm text-slate-400">
+        <p class="text-sm text-slate-500">
           Không cần thẻ ngân hàng &middot; Hủy bất kỳ lúc nào &middot; 100% miễn phí
         </p>
       </div>
@@ -284,84 +355,84 @@
       <div class="relative hidden lg:block">
         <div class="absolute -top-4 -left-6 z-20 lp-float-1">
           <div class="lp-glass px-4 py-2.5 text-sm">
-            <span class="text-emerald-300 font-bold">Merger</span>
-            <span class="text-white/60 ml-2 text-xs">n. sáp nhập</span>
+            <span class="text-emerald-600 font-bold">Merger</span>
+            <span class="text-slate-500 ml-2 text-xs">n. sáp nhập</span>
           </div>
         </div>
         <div class="absolute top-20 -right-4 z-20 lp-float-2">
           <div class="lp-glass px-4 py-2.5 text-sm">
-            <span class="text-cyan-300 font-bold">Invoice</span>
-            <span class="text-white/60 ml-2 text-xs">n. hóa đơn</span>
+            <span class="text-indigo-600 font-bold">Invoice</span>
+            <span class="text-slate-500 ml-2 text-xs">n. hóa đơn</span>
           </div>
         </div>
         <div class="absolute bottom-24 -left-8 z-20 lp-float-3">
           <div class="lp-glass px-4 py-2.5 text-sm">
-            <span class="text-teal-300 font-bold">Deadline</span>
-            <span class="text-white/60 ml-2 text-xs">n. hạn chót</span>
+            <span class="text-teal-600 font-bold">Deadline</span>
+            <span class="text-slate-500 ml-2 text-xs">n. hạn chót</span>
           </div>
         </div>
 
         <div class="lp-glass p-8">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <p class="text-xs text-cyan-300 font-semibold uppercase tracking-wider">Tiến trình học tập</p>
-              <p class="text-white/60 text-sm mt-1">TOEIC Score Tracker</p>
+              <p class="text-xs text-indigo-600 font-semibold uppercase tracking-wider">Tiến trình học tập</p>
+              <p class="text-slate-500 text-sm mt-1">TOEIC Score Tracker</p>
             </div>
             <div class="text-right">
-              <p class="text-3xl font-extrabold text-emerald-400" style="text-shadow:0 0 24px rgba(52,211,153,0.4)">850</p>
-              <p class="text-xs text-emerald-300/80">+400 điểm</p>
+              <p class="text-3xl font-extrabold text-emerald-600">850</p>
+              <p class="text-xs text-emerald-600/80">+400 điểm</p>
             </div>
           </div>
 
-          <div class="relative bg-white/5 rounded-lg p-4 mb-6">
-            <div class="flex justify-between text-xs text-white/50 mb-2">
+          <div class="relative bg-white/40 rounded-lg p-4 mb-6">
+            <div class="flex justify-between text-xs text-slate-500 mb-2">
               <span>Điểm TOEIC</span>
-              <span class="text-emerald-400 font-semibold">+45% tuần này</span>
+              <span class="text-emerald-600 font-semibold">+45% tuần này</span>
             </div>
             <svg viewBox="0 0 400 120" class="w-full" fill="none">
-              <line x1="40" y1="10" x2="380" y2="10" stroke="rgba(255,255,255,0.05)"/>
-              <line x1="40" y1="40" x2="380" y2="40" stroke="rgba(255,255,255,0.05)"/>
-              <line x1="40" y1="70" x2="380" y2="70" stroke="rgba(255,255,255,0.05)"/>
-              <line x1="40" y1="100" x2="380" y2="100" stroke="rgba(255,255,255,0.05)"/>
-              <text x="8" y="14" fill="rgba(255,255,255,0.4)" font-size="9">850</text>
-              <text x="8" y="44" fill="rgba(255,255,255,0.35)" font-size="9">700</text>
-              <text x="8" y="74" fill="rgba(255,255,255,0.35)" font-size="9">550</text>
-              <text x="8" y="104" fill="rgba(255,255,255,0.35)" font-size="9">450</text>
+              <line x1="40" y1="10" x2="380" y2="10" stroke="rgba(99,102,241,0.08)"/>
+              <line x1="40" y1="40" x2="380" y2="40" stroke="rgba(99,102,241,0.08)"/>
+              <line x1="40" y1="70" x2="380" y2="70" stroke="rgba(99,102,241,0.08)"/>
+              <line x1="40" y1="100" x2="380" y2="100" stroke="rgba(99,102,241,0.08)"/>
+              <text x="8" y="14" fill="rgba(71,85,105,0.6)" font-size="9">850</text>
+              <text x="8" y="44" fill="rgba(71,85,105,0.5)" font-size="9">700</text>
+              <text x="8" y="74" fill="rgba(71,85,105,0.5)" font-size="9">550</text>
+              <text x="8" y="104" fill="rgba(71,85,105,0.5)" font-size="9">450</text>
               <defs>
                 <linearGradient id="areaG" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="rgba(52,211,153,0.2)"/>
-                  <stop offset="100%" stop-color="rgba(52,211,153,0)"/>
+                  <stop offset="0%" stop-color="rgba(99,102,241,0.15)"/>
+                  <stop offset="100%" stop-color="rgba(99,102,241,0)"/>
                 </linearGradient>
                 <linearGradient id="lineG" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#0e7490"/>
-                  <stop offset="100%" stop-color="#34d399"/>
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#10b981"/>
                 </linearGradient>
               </defs>
               <path d="M50,95 L90,90 L130,82 L170,70 L210,58 L250,45 L290,32 L330,22 L370,15 L370,110 L50,110Z" fill="url(#areaG)"/>
               <path d="M50,95 L90,90 L130,82 L170,70 L210,58 L250,45 L290,32 L330,22 L370,15" stroke="url(#lineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lp-chart-line"/>
-              <circle cx="50" cy="95" r="4" fill="#0e7490" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-              <circle cx="170" cy="70" r="3.5" fill="#0891b2"/>
+              <circle cx="50" cy="95" r="4" fill="#6366f1" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+              <circle cx="170" cy="70" r="3.5" fill="#818cf8"/>
               <circle cx="290" cy="32" r="3.5" fill="#10b981"/>
-              <circle cx="370" cy="15" r="5" fill="#34d399" stroke="#fff" stroke-width="2" class="animate-pulse"/>
-              <text x="40"  y="120" fill="rgba(255,255,255,0.35)" font-size="9">450</text>
-              <text x="130" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 1</text>
-              <text x="230" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 2</text>
-              <text x="330" y="120" fill="rgba(255,255,255,0.3)" font-size="9">Tháng 3</text>
+              <circle cx="370" cy="15" r="5" fill="#10b981" stroke="#fff" stroke-width="2" class="animate-pulse"/>
+              <text x="40"  y="120" fill="rgba(71,85,105,0.5)" font-size="9">450</text>
+              <text x="130" y="120" fill="rgba(71,85,105,0.45)" font-size="9">Tháng 1</text>
+              <text x="230" y="120" fill="rgba(71,85,105,0.45)" font-size="9">Tháng 2</text>
+              <text x="330" y="120" fill="rgba(71,85,105,0.45)" font-size="9">Tháng 3</text>
             </svg>
           </div>
 
           <div class="grid grid-cols-3 gap-3">
-            <div class="bg-white/5 rounded-lg p-3 text-center">
-              <p class="text-lg font-bold text-cyan-300">142</p>
-              <p class="text-xs text-white/50">Từ đã học</p>
+            <div class="bg-white/40 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-indigo-600">142</p>
+              <p class="text-xs text-slate-500">Từ đã học</p>
             </div>
-            <div class="bg-white/5 rounded-lg p-3 text-center">
-              <p class="text-lg font-bold text-emerald-300">28</p>
-              <p class="text-xs text-white/50">Đề đã làm</p>
+            <div class="bg-white/40 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-emerald-600">28</p>
+              <p class="text-xs text-slate-500">Đề đã làm</p>
             </div>
-            <div class="bg-white/5 rounded-lg p-3 text-center">
-              <p class="text-lg font-bold text-teal-300">15</p>
-              <p class="text-xs text-white/50">Chuỗi ngày</p>
+            <div class="bg-white/40 rounded-lg p-3 text-center">
+              <p class="text-lg font-bold text-teal-600">15</p>
+              <p class="text-xs text-slate-500">Chuỗi ngày</p>
             </div>
           </div>
         </div>
@@ -371,24 +442,24 @@
       <div class="lg:hidden">
         <div class="lp-glass p-6">
           <div class="flex items-center justify-between mb-4">
-            <p class="text-xs text-cyan-300 font-semibold">TOEIC Progress</p>
+            <p class="text-xs text-indigo-600 font-semibold">TOEIC Progress</p>
             <div class="text-right">
-              <span class="text-2xl font-extrabold text-emerald-400">850</span>
-              <span class="text-xs text-emerald-300/80 ml-1">+400</span>
+              <span class="text-2xl font-extrabold text-emerald-600">850</span>
+              <span class="text-xs text-emerald-600/80 ml-1">+400</span>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-3 text-center">
-            <div class="bg-white/5 rounded-lg p-2.5">
-              <p class="text-sm font-bold text-cyan-300">142</p>
-              <p class="text-xs text-white/50">Từ vựng</p>
+            <div class="bg-white/40 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-indigo-600">142</p>
+              <p class="text-xs text-slate-500">Từ vựng</p>
             </div>
-            <div class="bg-white/5 rounded-lg p-2.5">
-              <p class="text-sm font-bold text-emerald-300">28</p>
-              <p class="text-xs text-white/50">Đề thi</p>
+            <div class="bg-white/40 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-emerald-600">28</p>
+              <p class="text-xs text-slate-500">Đề thi</p>
             </div>
-            <div class="bg-white/5 rounded-lg p-2.5">
-              <p class="text-sm font-bold text-teal-300">15</p>
-              <p class="text-xs text-white/50">Streak</p>
+            <div class="bg-white/40 rounded-lg p-2.5">
+              <p class="text-sm font-bold text-teal-600">15</p>
+              <p class="text-xs text-slate-500">Streak</p>
             </div>
           </div>
         </div>
@@ -401,26 +472,26 @@
 <!-- ================================================================
      STATS BAR
      ================================================================ -->
-<section class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 py-10 relative overflow-hidden">
+<section class="lp-stats-bar py-10 relative overflow-hidden">
   <!-- Decorative orb -->
-  <div class="absolute top-0 right-1/4 w-64 h-64 rounded-full blur-3xl" style="background: rgba(249, 115, 22, 0.1)"></div>
+  <div class="absolute top-0 right-1/4 w-64 h-64 rounded-full blur-3xl" style="background: rgba(99,102,241,0.08)"></div>
   <div class="max-w-7xl mx-auto px-6 relative z-10">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
       <div class="p-4">
-        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">50+</div>
-        <div class="text-sm text-indigo-200">Đề thi TOEIC chuẩn ETS</div>
+        <div class="text-3xl sm:text-4xl font-extrabold lp-stat-number mb-1">50+</div>
+        <div class="text-sm text-slate-600">Đề thi TOEIC chuẩn ETS</div>
       </div>
       <div class="p-4">
-        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">10,000+</div>
-        <div class="text-sm text-indigo-200">Câu hỏi luyện tập</div>
+        <div class="text-3xl sm:text-4xl font-extrabold lp-stat-number mb-1">10,000+</div>
+        <div class="text-sm text-slate-600">Câu hỏi luyện tập</div>
       </div>
       <div class="p-4">
-        <div class="text-3xl sm:text-4xl font-extrabold text-white mb-1">5,000+</div>
-        <div class="text-sm text-indigo-200">Từ vựng TOEIC</div>
+        <div class="text-3xl sm:text-4xl font-extrabold lp-stat-number mb-1">5,000+</div>
+        <div class="text-sm text-slate-600">Từ vựng TOEIC</div>
       </div>
       <div class="p-4">
-        <div class="text-3xl sm:text-4xl font-extrabold text-orange-400 mb-1">+200</div>
-        <div class="text-sm text-indigo-200">Điểm trung bình tăng</div>
+        <div class="text-3xl sm:text-4xl font-extrabold lp-stat-number mb-1">+200</div>
+        <div class="text-sm text-slate-600">Điểm trung bình tăng</div>
       </div>
     </div>
   </div>
@@ -430,7 +501,7 @@
 <!-- ================================================================
      PAIN POINTS — Bento Grid
      ================================================================ -->
-<section id="features" class="py-28 bg-slate-50">
+<section id="features" class="py-28 lp-section-mesh">
   <div class="max-w-7xl mx-auto px-6">
     <div class="text-center mb-16">
       <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700 mb-4">
@@ -500,7 +571,7 @@
 <!-- ================================================================
      HOW IT WORKS — 3 Steps
      ================================================================ -->
-<section id="how-it-works" class="py-28 bg-white relative">
+<section id="how-it-works" class="py-28 lp-section-mesh relative">
   <div class="max-w-7xl mx-auto px-6">
     <div class="text-center mb-16">
       <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-xs font-semibold text-violet-700 mb-4">
@@ -517,7 +588,7 @@
 
     <div class="grid md:grid-cols-3 gap-12 relative">
       <!-- Connecting line -->
-      <div class="hidden md:block absolute top-14 left-[17%] right-[17%] h-0.5 bg-gradient-to-r from-indigo-200 via-violet-300 to-orange-200 rounded-full"></div>
+      <div class="hidden md:block absolute top-14 left-[17%] right-[17%] h-0.5 bg-gradient-to-r from-indigo-200 via-violet-200 to-pink-200 rounded-full"></div>
 
       <!-- Step 1 -->
       <div class="text-center relative">
@@ -571,12 +642,12 @@
 <!-- ================================================================
      INTERACTIVE DEMO — Mini Quiz
      ================================================================ -->
-<section id="demo" class="py-28 bg-white">
+<section id="demo" class="py-28 lp-section-mesh">
   <div class="max-w-7xl mx-auto px-6">
     <div class="grid lg:grid-cols-2 gap-16 items-center">
 
       <div class="text-center lg:text-left">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-xs font-semibold text-orange-700 mb-4">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700 mb-4">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           Thử ngay không cần đăng ký
         </span>
@@ -658,10 +729,10 @@
 <!-- ================================================================
      SOCIAL PROOF — Testimonials
      ================================================================ -->
-<section id="testimonials" class="py-28 bg-gradient-to-b from-slate-50 to-white overflow-hidden relative">
+<section id="testimonials" class="py-28 lp-section-mesh overflow-hidden relative">
   <!-- Decorative background patterns -->
-  <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(199, 210, 254, 0.4)"></div>
-  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(255, 237, 213, 0.3)"></div>
+  <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(199, 210, 254, 0.3)"></div>
+  <div class="absolute -bottom-16 -left-16 w-72 h-72 rounded-full blur-3xl" style="background: rgba(251, 207, 232, 0.2)"></div>
   
   <div class="max-w-7xl mx-auto px-6 relative z-10">
     <div class="text-center mb-16">
@@ -788,7 +859,7 @@
 <!-- ================================================================
      FAQ
      ================================================================ -->
-<section id="faq" class="py-28 bg-slate-50">
+<section id="faq" class="py-28 lp-section-mesh">
   <div class="max-w-3xl mx-auto px-6">
     <div class="text-center mb-16">
       <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-semibold text-indigo-700 mb-4">
@@ -802,7 +873,7 @@
       {% with faqs="DailyFluent có hoàn toàn miễn phí không?|Có! Tất cả tính năng hiện tại đều miễn phí 100%, bao gồm: luyện đề thi, học từ vựng với SRS, phân tích điểm Part, và lộ trình cá nhân. Không cần nhập thẻ ngân hàng." %}
       {% endwith %}
 
-      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="lp-faq-item overflow-hidden">
         <button @click="open = open===1 ? null : 1" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
           <span class="text-sm font-semibold text-slate-800">DailyFluent có hoàn toàn miễn phí không?</span>
           <svg :class="{'rotate-180': open===1}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -812,7 +883,7 @@
         </div>
       </div>
 
-      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="lp-faq-item overflow-hidden">
         <button @click="open = open===2 ? null : 2" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
           <span class="text-sm font-semibold text-slate-800">Đề thi có giống đề thi thật không?</span>
           <svg :class="{'rotate-180': open===2}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -822,7 +893,7 @@
         </div>
       </div>
 
-      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="lp-faq-item overflow-hidden">
         <button @click="open = open===3 ? null : 3" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
           <span class="text-sm font-semibold text-slate-800">Mỗi ngày cần học bao nhiêu lâu?</span>
           <svg :class="{'rotate-180': open===3}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -832,7 +903,7 @@
         </div>
       </div>
 
-      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="lp-faq-item overflow-hidden">
         <button @click="open = open===4 ? null : 4" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
           <span class="text-sm font-semibold text-slate-800">Spaced Repetition (SRS) là gì?</span>
           <svg :class="{'rotate-180': open===4}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -842,7 +913,7 @@
         </div>
       </div>
 
-      <div class="lp-faq-item bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="lp-faq-item overflow-hidden">
         <button @click="open = open===5 ? null : 5" class="w-full text-left px-6 py-5 flex items-center justify-between gap-4">
           <span class="text-sm font-semibold text-slate-800">Trình độ hiện tại của tôi yếu lắm, có dùng được không?</span>
           <svg :class="{'rotate-180': open===5}" class="w-5 h-5 text-slate-400 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -855,23 +926,20 @@
   </div>
 </section>
 
-<!-- Transition from light to dark -->
-<div class="h-24 bg-gradient-to-b from-slate-50 via-slate-300 to-slate-800"></div>
-
 <!-- ================================================================
-     FINAL CTA (dark bookend)
+     FINAL CTA (Frosted Crystal)
      ================================================================ -->
-<section class="bg-gradient-to-b from-slate-800 via-indigo-900 to-slate-900 py-24 lg:py-32 relative overflow-hidden">
+<section class="lp-final-cta py-24 lg:py-32 relative overflow-hidden">
   <!-- Decorative background elements -->
-  <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(129, 140, 248, 0.15)"></div>
-  <div class="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(251, 146, 60, 0.1); animation-delay: 1s"></div>
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl" style="background: linear-gradient(to right, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05))"></div>
+  <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(199, 210, 254, 0.3)"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse" style="background: rgba(251, 207, 232, 0.2); animation-delay: 1s"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl" style="background: linear-gradient(to right, rgba(99, 102, 241, 0.06), rgba(167, 243, 208, 0.06))"></div>
 
   <div class="relative z-10 max-w-3xl mx-auto px-6 text-center">
-    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-6 leading-tight">
+    <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
       Sẵn sàng nâng trình <span class="lp-gradient-text">TOEIC</span>?
     </h2>
-    <p class="text-lg text-slate-300 mb-12 max-w-lg mx-auto leading-relaxed">
+    <p class="text-lg text-slate-600 mb-12 max-w-lg mx-auto leading-relaxed">
       Tham gia cùng hàng nghìn học viên đang sử dụng DailyFluent
       để đạt mục tiêu điểm TOEIC của họ.
     </p>
@@ -881,16 +949,16 @@
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         Bắt đầu miễn phí ngay
       </a>
-      <a href="{% url 'account_login' %}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-colors">
+      <a href="{% url 'account_login' %}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full border border-slate-300 text-slate-700 font-medium hover:bg-white/50 transition-colors">
         Đã có tài khoản? Đăng nhập
       </a>
     </div>
 
-    <p class="text-sm text-slate-400">
+    <p class="text-sm text-slate-500">
       Không cần thẻ ngân hàng &middot; Đăng ký trong 30 giây &middot; Hủy bất kỳ lúc nào
     </p>
 
-    <div class="flex items-center justify-center gap-8 mt-12 text-white/50">
+    <div class="flex items-center justify-center gap-8 mt-12 text-slate-400">
       <div class="flex items-center gap-2 text-xs">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         Bảo mật SSL
