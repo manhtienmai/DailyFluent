@@ -44,10 +44,36 @@ class SetItemInline(admin.TabularInline):
     autocomplete_fields = ['definition']
 
 
+class LessonAssignedFilter(admin.SimpleListFilter):
+    """Filter JP vocabulary by whether extra_data.lesson is assigned."""
+    title = 'Lesson assigned'
+    parameter_name = 'lesson_assigned'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('yes', 'Has lesson'),
+            ('no', 'No lesson (needs manual assign)'),
+        ]
+
+    def queryset(self, request, queryset):
+        from django.db.models import Q
+        if self.value() == 'yes':
+            return queryset.exclude(
+                extra_data__lesson__isnull=True
+            ).exclude(extra_data__lesson='')
+        if self.value() == 'no':
+            return queryset.filter(
+                Q(extra_data__lesson__isnull=True) |
+                Q(extra_data__lesson='') |
+                Q(extra_data__lesson=None)
+            )
+        return queryset
+
+
 @admin.register(Vocabulary)
 class VocabularyAdmin(nested_admin.NestedModelAdmin):
     list_display = ('word', 'language', 'entry_count')
-    list_filter = ('language',)
+    list_filter = ('language', LessonAssignedFilter)
     search_fields = ('word', 'extra_data')
     inlines = [WordEntryInline]
     change_list_template = "admin/vocab/vocabulary/change_list.html"
@@ -557,9 +583,10 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         """Auto-distribute JP words into VocabularySets by lesson."""
         if request.method == "POST":
             try:
+                include_assigned = request.POST.get('include_assigned') == 'on'
                 stats = distribute_jp_vocab(
                     source='mimikara_n2',
-                    only_unassigned=True,
+                    only_unassigned=not include_assigned,
                 )
                 messages.success(
                     request,
@@ -669,6 +696,7 @@ class VocabularySetAdmin(admin.ModelAdmin):
             path('<int:set_id>/add-words/', self.admin_site.admin_view(self.add_words_to_set_api), name='vocab_vocabularyset_add_words'),
             path('<int:set_id>/manage-words/', self.admin_site.admin_view(self.manage_words_view), name='vocab_vocabularyset_manage_words'),
             path('<int:set_id>/remove-word/<int:word_id>/', self.admin_site.admin_view(self.remove_word_from_set_api), name='vocab_vocabularyset_remove_word'),
+            path('<int:set_id>/move-words/', self.admin_site.admin_view(self.move_words_api), name='vocab_vocabularyset_move_words'),
         ]
         return custom_urls + urls
 
@@ -783,13 +811,81 @@ class VocabularySetAdmin(admin.ModelAdmin):
             'definition__entry__vocab'
         ).order_by('display_order', 'id')
 
+        # Get all other sets for "Move to..." dropdown
+        all_sets = VocabularySet.objects.exclude(pk=set_id).order_by(
+            'toeic_level', 'set_number', 'chapter'
+        ).values('id', 'title', 'set_number', 'toeic_level', 'chapter_name', 'milestone')
+
         context = dict(
             self.admin_site.each_context(request),
             title=f"Manage Words: {vocab_set.title}",
             vocab_set=vocab_set,
             set_items=set_items,
+            all_sets=list(all_sets),
         )
         return render(request, "admin/vocab/vocabularyset/manage_words.html", context)
+
+
+    def move_words_api(self, request, set_id):
+        """API to move selected words from current set to another set."""
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            target_set_id = data.get('target_set_id')
+            word_def_ids = data.get('word_ids', [])
+
+            if not target_set_id or not word_def_ids:
+                return JsonResponse({"error": "Target set and word IDs are required"}, status=400)
+
+            # verify sets exist
+            source_set = VocabularySet.objects.get(pk=set_id)
+            target_set = VocabularySet.objects.get(pk=target_set_id)
+
+            moved_count = 0
+            with transaction.atomic():
+                # Get items to move
+                items_to_move = SetItem.objects.filter(
+                    vocabulary_set=source_set, 
+                    definition_id__in=word_def_ids
+                )
+                
+                # Get existing definitions in target set to avoid duplicates
+                existing_defs_in_target = SetItem.objects.filter(
+                    vocabulary_set=target_set,
+                    definition_id__in=word_def_ids
+                ).values_list('definition_id', flat=True)
+                
+                # Create links in target set for words NOT already there
+                new_items = []
+                current_target_count = target_set.items.count()
+                
+                for item in items_to_move:
+                    if item.definition_id not in existing_defs_in_target:
+                        new_items.append(SetItem(
+                            vocabulary_set=target_set,
+                            definition=item.definition,
+                            display_order=current_target_count + len(new_items)
+                        ))
+                
+                if new_items:
+                    SetItem.objects.bulk_create(new_items)
+                
+                # Delete from source set
+                count, _ = items_to_move.delete()
+                moved_count = count
+
+            return JsonResponse({
+                "success": True, 
+                "moved_count": moved_count,
+                "message": f"Moved {moved_count} words to {target_set.title}"
+            })
+
+        except VocabularySet.DoesNotExist:
+            return JsonResponse({"error": "Set not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
     def search_words_api(self, request):
         """API endpoint to search for existing words."""

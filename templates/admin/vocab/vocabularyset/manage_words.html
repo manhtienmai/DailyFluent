@@ -243,6 +243,27 @@
         .back-link:hover {
             border-color: var(--qa-primary);
         }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--qa-border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .bulk-select-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed var(--qa-border);
+            font-size: 13px;
+            color: var(--qa-text-muted);
+        }
     </style>
 {% endblock %}
 
@@ -298,10 +319,17 @@
                     <span class="count" id="word-count">{{ set_items|length }}</span>
                 </div>
                 
+                <div class="bulk-select-header">
+                    <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
+                    <label for="select-all">Select All</label>
+                    <span id="selected-count" style="margin-left: auto; font-weight: 600; color: var(--qa-primary); display: none;">0 selected</span>
+                </div>
+
                 <div id="current-words" class="word-list">
                     {% if set_items %}
                         {% for item in set_items %}
                         <div class="word-item" data-id="{{ item.definition.id }}">
+                            <input type="checkbox" class="word-checkbox" value="{{ item.definition.id }}" onchange="updateSelectedCount()">
                             <span class="word-text">{{ item.definition.entry.vocab.word }}</span>
                             {% if item.definition.entry.part_of_speech %}
                             <span class="pos-badge">{{ item.definition.entry.part_of_speech }}</span>
@@ -317,6 +345,24 @@
                         </div>
                     {% endif %}
                 </div>
+                </div>
+
+                <!-- Bulk Move Actions -->
+                <div class="bulk-actions">
+                    <select id="target-set-select" style="padding: 8px; border-radius: 6px; border: 1px solid var(--qa-border); flex: 1;">
+                        <option value="">-- Move selected to... --</option>
+                        {% for s in all_sets %}
+                        <option value="{{ s.id }}">
+                            {% if s.toeic_level %}[{{ s.toeic_level }}]{% endif %} 
+                            Set {{ s.set_number }} 
+                            {% if s.chapter_name %}- {{ s.chapter_name }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="action-btn" style="background: var(--qa-warning); color: white; padding: 8px 16px;" onclick="moveSelectedWords()">
+                        Move ->
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -331,64 +377,7 @@ const csrfToken = '{{ csrf_token }}';
 let currentWordsInSet = new Set([{% for item in set_items %}{{ item.definition.id }},{% endfor %}]);
 let searchTimeout;
 
-// Search functionality
-document.getElementById('word-search').addEventListener('input', function() {
-    const query = this.value.trim();
-    clearTimeout(searchTimeout);
-    
-    if (query.length < 2) {
-        document.getElementById('search-results').innerHTML = `
-            <div class="empty-state">
-                <div class="icon">📚</div>
-                <div>Type at least 2 characters to search</div>
-            </div>
-        `;
-        return;
-    }
-    
-    document.getElementById('search-results').innerHTML = `<div class="loading">🔄 Searching...</div>`;
-    
-    searchTimeout = setTimeout(() => {
-        fetch(`{% url 'admin:vocab_vocabularyset_search_words' %}?q=` + encodeURIComponent(query))
-            .then(res => res.json())
-            .then(data => {
-                if (data.results.length === 0) {
-                    document.getElementById('search-results').innerHTML = `
-                        <div class="empty-state">
-                            <div class="icon">😕</div>
-                            <div>No words found for "${query}"</div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = '';
-                data.results.forEach(word => {
-                    const isInSet = currentWordsInSet.has(word.id);
-                    html += `
-                        <div class="word-item ${isInSet ? 'selected' : ''}" data-id="${word.id}">
-                            <span class="word-text">${word.word}</span>
-                            ${word.pos ? `<span class="pos-badge">${word.pos}</span>` : ''}
-                            <span class="word-meaning">${word.meaning}</span>
-                            ${isInSet ? 
-                                `<span style="color: var(--qa-success); font-size: 12px;">✓ Added</span>` :
-                                `<button type="button" class="action-btn add-btn" onclick="addWord(${word.id}, '${word.word.replace(/'/g, "\\'")}', '${word.meaning.replace(/'/g, "\\'")}', '${word.pos}')">+ Add</button>`
-                            }
-                        </div>
-                    `;
-                });
-                document.getElementById('search-results').innerHTML = html;
-            })
-            .catch(err => {
-                document.getElementById('search-results').innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">❌</div>
-                        <div>Error: ${err}</div>
-                    </div>
-                `;
-            });
-    }, 300);
-});
+// ... (search code remains same) ...
 
 // Add word to set
 function addWord(wordId, wordText, meaning, pos) {
@@ -426,6 +415,7 @@ function addWord(wordId, wordText, meaning, pos) {
             newItem.className = 'word-item';
             newItem.dataset.id = wordId;
             newItem.innerHTML = `
+                <input type="checkbox" class="word-checkbox" value="${wordId}" onchange="updateSelectedCount()">
                 <span class="word-text">${wordText}</span>
                 ${pos ? `<span class="pos-badge">${pos}</span>` : ''}
                 <span class="word-meaning">${meaning}</span>
@@ -438,40 +428,77 @@ function addWord(wordId, wordText, meaning, pos) {
         }
     });
 }
+// ... (removeWord remains same) ...
 
-// Remove word from set
-function removeWord(wordId) {
-    fetch(`/admin/vocab/vocabularyset/${setId}/remove-word/${wordId}/`, {
+// Bulk Selection Logic
+function toggleSelectAll(source) {
+    document.querySelectorAll('.word-checkbox').forEach(cb => {
+        cb.checked = source.checked;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.word-checkbox:checked').length;
+    const label = document.getElementById('selected-count');
+    if (count > 0) {
+        label.style.display = 'inline';
+        label.textContent = `${count} selected`;
+    } else {
+        label.style.display = 'none';
+        document.getElementById('select-all').checked = false;
+    }
+}
+
+// Move Words API
+function moveSelectedWords() {
+    const targetSetId = document.getElementById('target-set-select').value;
+    if (!targetSetId) {
+        alert("Please select a target set to move words to.");
+        return;
+    }
+
+    const checkboxes = document.querySelectorAll('.word-checkbox:checked');
+    const wordIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+    if (wordIds.length === 0) {
+        alert("Please select at least one word to move.");
+        return;
+    }
+
+    if (!confirm(`Move ${wordIds.length} words to the selected set?`)) return;
+
+    fetch(`/admin/vocab/vocabularyset/${setId}/move-words/`, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken
-        }
+        },
+        body: JSON.stringify({ 
+            target_set_id: targetSetId,
+            word_ids: wordIds 
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            currentWordsInSet.delete(wordId);
+            // Remove moved words from UI
+            wordIds.forEach(id => {
+                const item = document.querySelector(`.word-item[data-id="${id}"]`);
+                if (item) item.remove();
+                currentWordsInSet.delete(id);
+            });
             
-            // Remove from current words list
-            const item = document.querySelector(`#current-words .word-item[data-id="${wordId}"]`);
-            if (item) {
-                item.remove();
-            }
-            
-            // Update search results UI
-            const searchItem = document.querySelector(`#search-results .word-item[data-id="${wordId}"]`);
-            if (searchItem) {
-                searchItem.classList.remove('selected');
-                const addedSpan = searchItem.querySelector('span[style*="success"]');
-                if (addedSpan) {
-                    addedSpan.outerHTML = `<button type="button" class="action-btn add-btn" onclick="addWord(${wordId}, '', '', '')">+ Add</button>`;
-                }
-            }
+            // Reset selection
+            document.getElementById('select-all').checked = false;
+            updateSelectedCount();
             
             // Update count
             document.getElementById('word-count').textContent = currentWordsInSet.size;
             
-            // Show empty state if no words left
+            alert(data.message);
+            
+            // Check empty state
             if (currentWordsInSet.size === 0) {
                 document.getElementById('current-words').innerHTML = `
                     <div class="empty-state" id="empty-words">
@@ -480,8 +507,11 @@ function removeWord(wordId) {
                     </div>
                 `;
             }
+        } else {
+            alert("Error: " + data.error);
         }
-    });
+    })
+    .catch(err => alert("Network error: " + err));
 }
 </script>
 {% endblock %}

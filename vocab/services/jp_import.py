@@ -277,7 +277,16 @@ def distribute_jp_vocab(source='mimikara_n2', only_unassigned=True):
     if not lesson_groups:
         return stats
 
-    # 3. Process each lesson group
+    # 3. Pre-compute vocab IDs already in ANY set (for consistent skip logic)
+    already_in_set_ids = set()
+    if only_unassigned:
+        already_in_set_ids = set(
+            SetItem.objects.filter(
+                definition__entry__vocab__language=Vocabulary.Language.JAPANESE,
+            ).values_list('definition__entry__vocab_id', flat=True)
+        )
+
+    # 4. Process each lesson group
     with transaction.atomic():
         set_number_counter = VocabularySet.objects.filter(
             language=Vocabulary.Language.JAPANESE,
@@ -309,20 +318,17 @@ def distribute_jp_vocab(source='mimikara_n2', only_unassigned=True):
             # Sort vocabs by order
             vocabs.sort(key=lambda v: v.extra_data.get('order', 0))
 
-            # 4. Assign each word
+            # 5. Assign each word
             for display_order, vocab in enumerate(vocabs):
+                # Skip if already in ANY set (matches confirmation page logic)
+                if only_unassigned and vocab.id in already_in_set_ids:
+                    stats['already_assigned'] += 1
+                    continue
+
                 # Get first definition for this vocab
                 defn = WordDefinition.objects.filter(entry__vocab=vocab).first()
                 if not defn:
                     continue
-
-                # Check if already assigned to this set
-                if only_unassigned:
-                    if SetItem.objects.filter(
-                        vocabulary_set=vocab_set, definition=defn
-                    ).exists():
-                        stats['already_assigned'] += 1
-                        continue
 
                 set_item, si_created = SetItem.objects.get_or_create(
                     vocabulary_set=vocab_set,
@@ -332,6 +338,7 @@ def distribute_jp_vocab(source='mimikara_n2', only_unassigned=True):
 
                 if si_created:
                     stats['words_assigned'] += 1
+                    already_in_set_ids.add(vocab.id)
 
                     # Link examples (mimikara source) to this set_item
                     examples = ExampleSentence.objects.filter(

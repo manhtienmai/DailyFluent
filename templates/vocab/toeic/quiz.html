@@ -4,14 +4,14 @@
 {% block title %}Quiz Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260214">
 {% endblock %}
 
 {% block content %}
 <div class="df-toeic-container" x-data="toeicQuiz()" x-init="init()">
   <!-- Header -->
   <div class="df-toeic-learn-header">
-    <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-back-btn">
+    <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
@@ -34,7 +34,12 @@
   <!-- Question Area -->
   <div class="df-toeic-quiz-area" x-show="!showResult">
     <div class="df-toeic-quiz-word">
-      <span x-text="currentQ?.word"></span>
+      <template x-if="isJP && currentQ?.html_display">
+        <span x-html="currentQ.html_display" style="font-size:1.4em; font-weight:800; line-height:1.6"></span>
+      </template>
+      <template x-if="!isJP || !currentQ?.html_display">
+        <span x-text="currentQ?.word" :style="isJP ? 'font-size:1.4em; font-weight:800' : ''"></span>
+      </template>
       <button type="button" class="df-toeic-learn-audio-btn df-toeic-learn-audio-btn--sm"
               @click="playAudio()" x-show="currentQ?.audio_url">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -43,9 +48,11 @@
         </svg>
       </button>
     </div>
-    <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
+    <template x-if="!isJP">
+      <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
+    </template>
 
-    <div class="df-toeic-quiz-prompt">Choose the correct meaning:</div>
+    <div class="df-toeic-quiz-prompt">Chọn nghĩa đúng:</div>
 
     <div class="df-toeic-quiz-choices">
       <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
@@ -72,7 +79,7 @@
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
             <polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
-          Correct!
+          Chính xác!
         </div>
       </template>
       <template x-if="!isCorrect && answered">
@@ -82,19 +89,19 @@
             <line x1="15" y1="9" x2="9" y2="15"/>
             <line x1="9" y1="9" x2="15" y2="15"/>
           </svg>
-          <span>Correct answer: <strong x-text="currentQ?.correct"></strong></span>
+          <span>Đáp án đúng: <strong x-text="currentQ?.correct"></strong></span>
         </div>
       </template>
       <button type="button" class="df-toeic-btn df-toeic-btn--primary df-toeic-btn--sm"
-              @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Next' : 'See Results'">
+              @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Tiếp' : 'Xem kết quả'">
       </button>
     </div>
   </div>
 
   <!-- Results Screen -->
   <div class="df-toeic-quiz-result" x-show="showResult" x-transition>
-    <div class="df-toeic-quiz-result-icon" x-text="score >= 8 ? '🎉' : '💪'"></div>
-    <h2 class="df-toeic-quiz-result-title" x-text="score >= 8 ? 'Excellent!' : 'Keep Practicing!'"></h2>
+    <div class="df-toeic-quiz-result-icon" x-text="pct >= 80 ? '🎉' : '💪'"></div>
+    <h2 class="df-toeic-quiz-result-title" x-text="pct >= 80 ? 'Xuất sắc!' : 'Cố lên!'"></h2>
 
     <div class="df-toeic-quiz-result-score">
       <span class="df-toeic-quiz-result-score-big" x-text="score"></span>
@@ -102,31 +109,31 @@
     </div>
 
     <div class="df-toeic-quiz-result-pct"
-         :class="{'df-toeic-quiz-result-pct--pass': score >= 8}">
-      <span x-text="Math.round(score / questions.length * 100) + '%'"></span>
+         :class="{'df-toeic-quiz-result-pct--pass': pct >= 80}">
+      <span x-text="pct + '%'"></span>
     </div>
 
-    <template x-if="score >= 8">
-      <p class="df-toeic-quiz-result-msg">Set completed! The next set is now unlocked.</p>
+    <template x-if="pct >= 80">
+      <p class="df-toeic-quiz-result-msg">Hoàn thành bộ từ! Bạn đã nắm vững bộ từ này.</p>
     </template>
-    <template x-if="score < 8">
-      <p class="df-toeic-quiz-result-msg">Score 80% or higher to complete this set.</p>
+    <template x-if="pct < 80">
+      <p class="df-toeic-quiz-result-msg">Đạt 80% trở lên để hoàn thành bộ từ.</p>
     </template>
 
     <div class="df-toeic-learn-summary-actions">
-      <template x-if="score < 8">
-        <a href="{% url 'vocab:toeic_learn' level set_number %}" class="df-toeic-btn df-toeic-btn--secondary">
-          Review Words
+      <template x-if="pct < 80">
+        <a href="{% url 'vocab:course_learn' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary">
+          Học lại từ vựng
         </a>
       </template>
-      <button type="button" @click="retry()" class="df-toeic-btn df-toeic-btn--primary" x-show="score < 8">
-        Retry Quiz
+      <button type="button" @click="retry()" class="df-toeic-btn df-toeic-btn--primary" x-show="pct < 80">
+        Làm lại
       </button>
-      <a :href="levelUrl" class="df-toeic-btn df-toeic-btn--primary" x-show="score >= 8">
-        Continue
+      <a href="{% url 'vocab:course_detail' slug=course.slug %}" class="df-toeic-btn df-toeic-btn--primary" x-show="pct >= 80">
+        Tiếp tục
       </a>
-      <a href="{% url 'vocab:toeic_level' level %}" class="df-toeic-btn df-toeic-btn--secondary" x-show="score >= 8">
-        Back to Level
+      <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary" x-show="pct >= 80">
+        Quay về Set
       </a>
     </div>
   </div>
@@ -147,11 +154,14 @@ function toeicQuiz() {
     score: 0,
     wrongIds: [],
     showResult: false,
-    levelUrl: "{% url 'vocab:toeic_level' level %}",
     audioEl: null,
+    isJP: '{{ config.language }}' === 'jp',
 
     get currentQ() {
       return this.questions[this.currentIndex] || null;
+    },
+    get pct() {
+      return this.questions.length ? Math.round(this.score / this.questions.length * 100) : 0;
     },
 
     init() {
@@ -211,7 +221,6 @@ function toeicQuiz() {
         if (data && data.new_badges && window.BadgeManager) {
             window.BadgeManager.show(data.new_badges);
         }
-        if (data.next_url) this.levelUrl = data.next_url;
       } catch (err) {
         console.error('Failed to submit quiz results', err);
       }

@@ -65,19 +65,25 @@
             </div>
         </div>
 
-        {% if unassigned > 0 %}
         <form method="post">
             {% csrf_token %}
+            <div style="margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 4px;">
+                <label for="include_assigned" style="font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="include_assigned" id="include_assigned">
+                    Include already assigned words (Re-distribute all)
+                </label>
+                <p class="help" style="margin-top: 5px; color: #666; font-size: 0.9em; margin-left: 20px;">
+                    Check this to process ALL words with a lesson, even if they are already in a set. Useful for updating sets after changing logic or adding new examples.
+                </p>
+            </div>
+
             <div class="submit-row">
-                <input type="submit" value="Distribute {{ unassigned }} words into {{ lesson_count }} sets" class="default" />
+                <input type="submit" value="Distribute Vocabulary" class="default" />
             </div>
         </form>
-        {% else %}
-        <p style="color: #666; margin-top: 20px;">All JP words are already assigned to sets. Nothing to distribute.</p>
-        {% endif %}
         <div style="margin-top: 20px; text-align: center;">
             <p>Or distribute manually:</p>
-            <a href="{% url 'admin:vocab_vocabulary_changelist' %}?language__exact=JP&extra_data__lesson__isnull=True" class="button" style="background: #eee; color: #333;">
+            <a href="{% url 'admin:vocab_vocabulary_changelist' %}?language__exact=jp&lesson_assigned=no" class="button" style="background: #eee; color: #333;">
                 Go to Manual Distribution (Filter Unassigned)
             </a>
         </div>

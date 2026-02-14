@@ -492,7 +492,7 @@ class CourseListView(LoginRequiredMixin, TemplateView):
                     vocabulary_set__in=jp_sets_qs
                 ).values_list('definition__entry__vocab_id', flat=True)
                 learned_count = FsrsCardStateEn.objects.filter(
-                    user=user, vocab_id__in=jp_vocab_ids, state__gt=0
+                    user=user, vocab_id__in=jp_vocab_ids, state__gte=2
                 ).count()
                 completion = round(learned_count / total_words * 100) if total_words > 0 else 0
 
@@ -694,7 +694,7 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
                 vocabulary_set_id__in=set_ids
             ).values_list('definition__entry__vocab_id', flat=True)
             learned_words = FsrsCardStateEn.objects.filter(
-                user=user, vocab_id__in=jp_vocab_ids, state__gt=0
+                user=user, vocab_id__in=jp_vocab_ids, state__gte=2
             ).count()
             completion = round(learned_words / total_words * 100) if total_words > 0 else 0
             review_count = FsrsCardStateEn.objects.filter(
@@ -766,7 +766,13 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
             ).values('vocab_id', 'state')
 
             for s in states:
-                status = 'known' if s['state'] > 0 else 'new'
+                st = s['state']
+                if st >= 2:
+                    status = 'known'
+                elif st == 1:
+                    status = 'learning'
+                else:
+                    status = 'new'
                 vocab_status_map[s['vocab_id']] = status
 
         items_data = []
@@ -814,7 +820,8 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
 
         # Computed stats
         known_count = sum(1 for i in items_data if i['status'] == 'known')
-        new_count = len(items_data) - known_count
+        learning_count = sum(1 for i in items_data if i['status'] == 'learning')
+        new_count = len(items_data) - known_count - learning_count
         total_count = len(items_data)
         progress_pct = round(known_count / total_count * 100) if total_count > 0 else 0
 
@@ -896,12 +903,23 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
         except Exception:
             pass
 
+        # Pre-load FSRS state for resume logic
+        all_vocab_ids = [item.definition.entry.vocab_id for item in items]
+        studied_states = {}
+        if user.is_authenticated:
+            studied_states = dict(
+                FsrsCardStateEn.objects.filter(
+                    user=user, vocab_id__in=all_vocab_ids
+                ).values_list('vocab_id', 'state')
+            )
+
         items_data = []
-        is_jp = course.language == 'JP'
+        is_jp = course.language == Vocabulary.Language.JAPANESE
         for item in items:
             d = item.definition
             e = d.entry
             v = e.vocab
+            fsrs_state = studied_states.get(v.id, 0)
             row = {
                 'id': v.id,
                 'definition_id': d.id,
@@ -912,6 +930,8 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
                 'part_of_speech': e.part_of_speech,
                 'example': d.example_sentence,
                 'example_trans': d.example_trans,
+                'studied': fsrs_state > 0,
+                'prev_result': 'known' if fsrs_state >= 2 else ('unknown' if fsrs_state == 1 else None),
             }
             if is_jp:
                 ed = v.extra_data or {}
@@ -1007,14 +1027,18 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
             choices = [d.meaning] + distractors
             random.shuffle(choices)
 
-            questions.append({
+            q = {
                 'vocab_id': v.id,
                 'word': v.word,
                 'ipa': e.ipa,
                 'audio_url': e.get_audio_url('us'),
                 'correct': d.meaning,
                 'choices': choices,
-            })
+            }
+            if course.language == Vocabulary.Language.JAPANESE:
+                ed = v.extra_data or {}
+                q['html_display'] = ed.get('html_display', '')
+            questions.append(q)
 
         config = {
             'label': course.title,
@@ -1157,10 +1181,11 @@ def api_toeic_learn_result(request):
                 card_state.save()
 
         # Update UserSetProgress by counting ACTUAL learned cards in DB
+        # state >= 2 = graduated (known). state 1 = Learning (marked unknown).
         learned_count = FsrsCardStateEn.objects.filter(
             user=user,
             vocab_id__in=valid_vocab_ids,
-            state__gt=0
+            state__gte=2
         ).count()
 
         total_items = vocab_set.items.count()

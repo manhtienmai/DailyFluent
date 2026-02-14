@@ -46,7 +46,7 @@
           <div class="df-toeic-learn-word df-toeic-learn-word--jp" x-html="currentItem.html_display"></div>
         </template>
         <template x-if="!isJP || !currentItem?.html_display">
-          <div class="df-toeic-learn-word" x-text="currentItem?.word" :style="isJP ? 'font-size: 2.8em' : ''"></div>
+          <div class="df-toeic-learn-word" x-text="currentItem?.word" :style="isJP ? 'font-size: 3.5em; font-weight: 800' : ''"></div>
         </template>
         <template x-if="isJP && currentItem?.reading && !currentItem?.html_display">
           <div class="df-toeic-learn-ipa" x-text="currentItem.reading"></div>
@@ -183,7 +183,7 @@ function toeicLearn() {
     quizUrl: '',
     levelUrl: '',
     audioEl: null,
-    isJP: '{{ config.language }}' === 'JP',
+    isJP: '{{ config.language }}' === 'jp',
 
     get currentItem() {
       return this.items[this.currentIndex] || null;
@@ -199,6 +199,25 @@ function toeicLearn() {
       const raw = document.getElementById('toeic-items-data');
       this.items = JSON.parse(raw.textContent);
       this.audioEl = new Audio();
+
+      // Resume: pre-fill results for already-studied items
+      let firstUnstudied = -1;
+      this.items.forEach((item, i) => {
+        if (item.prev_result) {
+          this.results[i] = item.prev_result;
+        } else if (firstUnstudied === -1) {
+          firstUnstudied = i;
+        }
+      });
+
+      if (firstUnstudied === -1 && this.items.length > 0) {
+        // All items already studied - show completion summary
+        this.currentIndex = this.items.length - 1;
+        this.showCompletion();
+      } else if (firstUnstudied > 0) {
+        // Resume from first un-studied item
+        this.currentIndex = firstUnstudied;
+      }
     },
 
     flip() {

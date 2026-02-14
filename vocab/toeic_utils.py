@@ -41,21 +41,22 @@ def get_level_words_learned(user, level):
 
 def get_level_words_learned_count(user, level):
     """
-    Return the count of learned words (state > 0) in a level.
+    Return the count of learned words (state >= 2, graduated) in a level.
     Uses FsrsCardStateEn as the source of truth instead of UserSetProgress cache.
+    state 0 = New, 1 = Learning (marked unknown), 2 = Review (known), 3 = Relearning.
     """
     if not user.is_authenticated:
         return 0
-        
+
     level_vocab_ids = SetItem.objects.filter(
         vocabulary_set__toeic_level=level,
         vocabulary_set__status='published'
     ).values_list('definition__entry__vocab_id', flat=True)
-    
+
     return FsrsCardStateEn.objects.filter(
         user=user,
         vocab_id__in=level_vocab_ids,
-        state__gt=0
+        state__gte=2
     ).count()
 
 
