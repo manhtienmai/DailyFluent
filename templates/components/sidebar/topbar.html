@@ -42,6 +42,24 @@ Top Bar Component with logo, streak, coins, countdown timer
     </div>
     {% endif %}
 
+    {# Language Switcher #}
+    {% if user.is_authenticated %}
+    <div class="df-lang-switcher" x-data="langSwitcher()" title="Chuyển ngôn ngữ học">
+      <button @click="toggle()"
+              class="df-lang-toggle"
+              :class="{ 'df-lang-jp-active': current === 'jp', 'df-lang-en-active': current === 'en' }">
+        <span class="df-lang-opt df-lang-opt-jp" :class="{ 'df-lang-opt-active': current === 'jp' }">
+          <span class="df-lang-flag">🇯🇵</span>
+          <span class="df-lang-label">JP</span>
+        </span>
+        <span class="df-lang-opt df-lang-opt-en" :class="{ 'df-lang-opt-active': current === 'en' }">
+          <span class="df-lang-flag">🇬🇧</span>
+          <span class="df-lang-label">EN</span>
+        </span>
+      </button>
+    </div>
+    {% endif %}
+
     {# Streak #}
     {% if user.is_authenticated %}
     <div class="df-topbar-stat df-topbar-streak" title="Chuỗi ngày học">
@@ -108,6 +126,133 @@ Top Bar Component with logo, streak, coins, countdown timer
 
   </div>
 </header>
+
+{# Language Switcher Styles & Script #}
+<style>
+.df-lang-switcher {
+  display: flex;
+  align-items: center;
+}
+
+.df-lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  background: rgba(241, 245, 249, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  line-height: 1;
+}
+
+.df-lang-toggle:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.15);
+  transform: scale(1.03);
+}
+
+[data-theme="dark"] .df-lang-toggle {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(100, 116, 139, 0.4);
+}
+
+.df-lang-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  transition: all 0.25s ease;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.df-lang-flag {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.df-lang-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.df-lang-opt-active {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.df-lang-opt-jp.df-lang-opt-active {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.df-lang-opt-en.df-lang-opt-active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.df-lang-jp-active {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .df-lang-jp-active {
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+.df-lang-en-active {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .df-lang-en-active {
+  border-color: rgba(96, 165, 250, 0.3);
+}
+</style>
+
+<script>
+function langSwitcher() {
+  return {
+    current: localStorage.getItem('df_study_lang') || '{{ study_language }}',
+
+    init() {
+      // Sync localStorage with server value on first load
+      if (!localStorage.getItem('df_study_lang')) {
+        localStorage.setItem('df_study_lang', this.current);
+      }
+    },
+
+    async toggle() {
+      const newLang = this.current === 'jp' ? 'en' : 'jp';
+      this.current = newLang;
+      localStorage.setItem('df_study_lang', newLang);
+
+      try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                       || document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+        await fetch('/api/set-language/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+          body: JSON.stringify({ language: newLang }),
+        });
+      } catch (e) {
+        console.warn('Failed to save language:', e);
+      }
+
+      window.location.reload();
+    }
+  };
+}
+</script>
 
 {# Pass exam_date to JS #}
 {% if user.is_authenticated and exam_goal %}

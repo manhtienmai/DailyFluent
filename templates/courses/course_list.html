@@ -1,11 +1,11 @@
 {% extends "layouts/sidebar_layout.html" %}
 
-{% block title %}Courses | DailyFluent{% endblock %}
+{% block title %}Khóa học | DailyFluent{% endblock %}
 
 {% block content %}
 <div class="mb-6">
-  <h1 class="text-2xl font-bold text-slate-900 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text">Courses</h1>
-  <p class="text-sm text-slate-600 mt-1">Chọn một course để xem các section/lesson ở sidebar bên trái.</p>
+  <h1 class="text-2xl font-bold text-slate-900 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text">Khóa học</h1>
+  <p class="text-sm text-slate-600 mt-1">Chọn một khóa học để xem các section/lesson ở sidebar bên trái.</p>
 </div>
 
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -26,7 +26,7 @@
     </div>
     {% endif %}
     <div class="p-5">
-      <div class="text-xs text-blue-600 uppercase tracking-wider font-semibold mb-2">Course</div>
+      <div class="text-xs text-blue-600 uppercase tracking-wider font-semibold mb-2">Khóa học</div>
       <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{{ c.title }}</h3>
       {% if c.description %}
       <p class="text-sm text-slate-600 mb-4 line-clamp-2">{{ c.description|truncatewords:15 }}</p>
@@ -46,7 +46,7 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
     </svg>
-    <p>Chưa có course nào. Hãy tạo trong admin trước nhé.</p>
+    <p>Chưa có khóa học nào. Hãy tạo trong admin trước nhé.</p>
   </div>
   {% endfor %}
 </div>

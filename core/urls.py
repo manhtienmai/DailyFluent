@@ -18,6 +18,9 @@ urlpatterns = [
     path("api/dictation/upload-sas/", views.dictation_upload_sas, name="dictation_upload_sas"),
     path("api/dictation/complete-upload/", views.dictation_upload_complete, name="dictation_upload_complete"),
     
+    # Language preference
+    path("api/set-language/", views.set_language, name="set_language"),
+
     # Profile API endpoints
     path("api/profile/update/", views.profile_update, name="profile_update"),
     path("api/profile/upload-avatar/", views.profile_upload_avatar, name="profile_upload_avatar"),

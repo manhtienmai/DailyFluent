@@ -1612,10 +1612,10 @@ class CourseAdmin(admin.ModelAdmin):
     def init_defaults_view(self, request):
         """Create the 4 default TOEIC courses."""
         courses_data = [
-            {'title': 'TOEIC 600 Essential', 'slug': 'toeic-600-essential', 'toeic_level': 600, 'description': 'Từ vựng cơ bản dành cho người mới bắt đầu.', 'icon': '🌱', 'gradient': 'linear-gradient(135deg, #4caf50, #2e7d32)'},
-            {'title': 'TOEIC 730 Intermediate', 'slug': 'toeic-730-intermediate', 'toeic_level': 730, 'description': 'Từ vựng trung cấp dành cho môi trường công sở.', 'icon': '📘', 'gradient': 'linear-gradient(135deg, #2196f3, #1565c0)'},
-            {'title': 'TOEIC 860 Advanced', 'slug': 'toeic-860-advanced', 'toeic_level': 860, 'description': 'Từ vựng nâng cao để đạt điểm xuất sắc.', 'icon': '🔮', 'gradient': 'linear-gradient(135deg, #9c27b0, #6a1b9a)'},
-            {'title': 'TOEIC 990 Master', 'slug': 'toeic-990-master', 'toeic_level': 990, 'description': 'Từ vựng chuyên sâu chinh phục điểm tuyệt đối.', 'icon': '👑', 'gradient': 'linear-gradient(135deg, #ff9800, #e65100)'},
+            {'title': 'TOEIC 600 Cơ bản', 'slug': 'toeic-600-essential', 'toeic_level': 600, 'description': 'Từ vựng cơ bản dành cho người mới bắt đầu.', 'icon': '🌱', 'gradient': 'linear-gradient(135deg, #4caf50, #2e7d32)'},
+            {'title': 'TOEIC 730 Trung cấp', 'slug': 'toeic-730-intermediate', 'toeic_level': 730, 'description': 'Từ vựng trung cấp dành cho môi trường công sở.', 'icon': '📘', 'gradient': 'linear-gradient(135deg, #2196f3, #1565c0)'},
+            {'title': 'TOEIC 860 Nâng cao', 'slug': 'toeic-860-advanced', 'toeic_level': 860, 'description': 'Từ vựng nâng cao để đạt điểm xuất sắc.', 'icon': '🔮', 'gradient': 'linear-gradient(135deg, #9c27b0, #6a1b9a)'},
+            {'title': 'TOEIC 990 Chuyên gia', 'slug': 'toeic-990-master', 'toeic_level': 990, 'description': 'Từ vựng chuyên sâu chinh phục điểm tuyệt đối.', 'icon': '👑', 'gradient': 'linear-gradient(135deg, #ff9800, #e65100)'},
         ]
         
         created_count = 0

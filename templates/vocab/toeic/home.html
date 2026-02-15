@@ -2,7 +2,7 @@
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
-{% block title %}Khóa học từ vựng | DailyFluent{% endblock %}
+{% block title %}{% if study_language == 'jp' %}Khóa học tiếng Nhật{% else %}Khóa học tiếng Anh{% endif %} | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -841,10 +841,10 @@
     <!-- ========== PAGE HEADER ========== -->
     <header class="courses-header">
       <div class="courses-header-left">
-        <div class="courses-header-icon">📚</div>
+        <div class="courses-header-icon">{% if study_language == 'jp' %}🇯🇵{% else %}📚{% endif %}</div>
         <div>
-          <h1 class="courses-title">Khóa học từ vựng</h1>
-          <p class="courses-subtitle">Chinh phục từ vựng từ cơ bản đến nâng cao</p>
+          <h1 class="courses-title">{% if study_language == 'jp' %}Khóa học tiếng Nhật{% else %}Khóa học tiếng Anh{% endif %}</h1>
+          <p class="courses-subtitle">{% if study_language == 'jp' %}Chinh phục từ vựng tiếng Nhật{% else %}Chinh phục từ vựng từ cơ bản đến nâng cao{% endif %}</p>
         </div>
       </div>
     </header>

@@ -450,8 +450,18 @@ class CourseListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         
-        # Get active courses - TOEIC first (by level), then non-TOEIC
-        courses = Course.objects.filter(is_active=True).order_by(
+        # Get user's study language
+        study_lang = 'en'  # default
+        try:
+            from core.models import UserProfile
+            profile = UserProfile.objects.filter(user=user).first()
+            if profile:
+                study_lang = profile.study_language or 'en'
+        except Exception:
+            pass
+        
+        # Filter courses by the selected study language
+        courses = Course.objects.filter(is_active=True, language=study_lang).order_by(
             F('toeic_level').asc(nulls_last=True), 'title'
         )
 

@@ -813,7 +813,7 @@
     <header class="glass-panel exam-header">
       <div class="exam-title-group">
         <h1>Kho đề luyện thi</h1>
-        <p>TOEIC & JLPT practice tests</p>
+        <p>Đề luyện thi TOEIC & JLPT</p>
       </div>
       <div class="exam-stats">
         <div class="exam-stat-capsule">
@@ -828,11 +828,11 @@
 
     <!-- Level Filter -->
     <section class="glass-panel-light exam-filters">
-      <span class="exam-filter-label">Level</span>
+      <span class="exam-filter-label">Cấp độ</span>
       <nav class="exam-level-pills" aria-label="Filter by level">
         <a href="{% url 'exam:exam_list' %}"
            class="exam-level-pill {% if not selected_level %}exam-level-pill--active-all{% else %}exam-level-pill--default{% endif %}">
-          All
+          Tất cả
         </a>
         {% for lvl in levels %}
         <a href="?level={{ lvl }}"
@@ -861,9 +861,9 @@
               {% elif exam.category == 'DOKKAI' %}読解
               {% elif exam.category == 'CHOUKAI' %}聴解
               {% elif exam.category == 'MIX' %}総合
-              {% elif exam.category == 'LISTENING' %}Listening
-              {% elif exam.category == 'READING' %}Reading
-              {% elif exam.category == 'TOEIC_FULL' %}Full Test
+              {% elif exam.category == 'LISTENING' %}Nghe
+              {% elif exam.category == 'READING' %}Đọc
+              {% elif exam.category == 'TOEIC_FULL' %}Toàn bộ
               {% else %}{{ exam.category }}{% endif %}
             </span>
             {% endif %}

@@ -161,21 +161,21 @@
       </svg>
     </div>
 
-    <h1 class="df-delete-title">Delete Vocabulary Set</h1>
+    <h1 class="df-delete-title">Xóa bộ từ vựng</h1>
 
     <p class="df-delete-message">
-      Are you sure you want to delete <strong>"{{ object.title }}"</strong>?
-      This action cannot be undone and will remove all items in the set.
+      Bạn có chắc muốn xóa <strong>"{{ object.title }}"</strong> không?
+      Hành động này không thể hoàn tác và sẽ xóa tất cả từ trong bộ.
     </p>
 
     <form method="post">
       {% csrf_token %}
       <div class="df-delete-actions">
         <button type="submit" class="df-btn df-btn-danger">
-          Yes, Delete
+          Có, Xóa
         </button>
         <a href="{% url 'vocab:set_detail' object.pk %}" class="df-btn df-btn-secondary">
-          Cancel
+          Hủy
         </a>
       </div>
     </form>

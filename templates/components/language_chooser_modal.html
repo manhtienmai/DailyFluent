@@ -1,0 +1,376 @@
+{% comment %}
+Language Chooser Modal - Shown on first visit when no language preference is set.
+Uses Alpine.js for show/hide logic and localStorage for fast access.
+{% endcomment %}
+
+<div x-data="languageChooser()" x-show="showModal" x-cloak
+     class="lang-modal-overlay"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     style="display:none;">
+
+  <div class="lang-modal-backdrop"></div>
+
+  <div class="lang-modal-content"
+       x-transition:enter="transition ease-out duration-300 delay-100"
+       x-transition:enter-start="opacity-0 transform scale-95 translate-y-4"
+       x-transition:enter-end="opacity-100 transform scale-100 translate-y-0">
+
+    {# Header #}
+    <div class="lang-modal-header">
+      <h2 class="lang-modal-title">Ban muon hoc ngon ngu nao?</h2>
+      <p class="lang-modal-subtitle">Chon ngon ngu de bat dau hanh trinh cua ban</p>
+    </div>
+
+    {# Language Cards #}
+    <div class="lang-modal-cards">
+
+      {# Japanese Card #}
+      <button @click="selectLanguage('jp')" class="lang-card lang-card-jp"
+              :class="{ 'lang-card-selected': selected === 'jp' }">
+        <div class="lang-card-flag">
+          <svg viewBox="0 0 60 40" class="lang-flag-svg">
+            <rect width="60" height="40" fill="#fff" rx="4"/>
+            <circle cx="30" cy="20" r="10" fill="#bc002d"/>
+          </svg>
+        </div>
+        <div class="lang-card-info">
+          <span class="lang-card-badge lang-card-badge-jp">JLPT</span>
+          <span class="lang-card-name">Tieng Nhat</span>
+          <span class="lang-card-desc">Kanji, tu vung, ngu phap</span>
+        </div>
+        <div class="lang-card-check" x-show="selected === 'jp'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+      </button>
+
+      {# English Card #}
+      <button @click="selectLanguage('en')" class="lang-card lang-card-en"
+              :class="{ 'lang-card-selected': selected === 'en' }">
+        <div class="lang-card-flag">
+          <svg viewBox="0 0 60 40" class="lang-flag-svg">
+            <rect width="60" height="40" fill="#012169" rx="4"/>
+            <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="4"/>
+            <path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="2"/>
+            <path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="7"/>
+            <path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="4"/>
+          </svg>
+        </div>
+        <div class="lang-card-info">
+          <span class="lang-card-badge lang-card-badge-en">TOEIC</span>
+          <span class="lang-card-name">Tieng Anh</span>
+          <span class="lang-card-desc">Tu vung, luyen thi, nghe</span>
+        </div>
+        <div class="lang-card-check" x-show="selected === 'en'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+      </button>
+
+    </div>
+
+    {# Confirm Button #}
+    <button @click="confirm()" class="lang-modal-confirm"
+            :disabled="!selected" :class="{ 'lang-confirm-disabled': !selected }">
+      <span x-text="selected ? 'Bat dau hoc!' : 'Chon ngon ngu'"></span>
+      <svg x-show="selected" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="lang-confirm-arrow">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </button>
+
+  </div>
+</div>
+
+<style>
+/* ========== Language Chooser Modal ========== */
+.lang-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.lang-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(199, 210, 254, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(251, 207, 232, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(167, 243, 208, 0.3) 0%, transparent 45%),
+    rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .lang-modal-backdrop {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+    rgba(2, 6, 23, 0.85);
+}
+
+.lang-modal-content {
+  position: relative;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 520px;
+  width: 100%;
+  box-shadow:
+    0 8px 32px -4px rgba(99, 102, 241, 0.15),
+    0 24px 64px -8px rgba(99, 102, 241, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] .lang-modal-content {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow:
+    0 8px 32px -4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.lang-modal-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.lang-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 0.5rem;
+}
+
+.lang-modal-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+}
+
+/* Cards Grid */
+.lang-modal-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 480px) {
+  .lang-modal-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Language Card */
+.lang-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.lang-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.12);
+}
+
+[data-theme="dark"] .lang-card {
+  background: rgba(51, 65, 85, 0.5);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.lang-card-selected.lang-card-jp {
+  border-color: #ef4444;
+  background: rgba(254, 226, 226, 0.4);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), 0 8px 24px -4px rgba(239, 68, 68, 0.12);
+}
+
+[data-theme="dark"] .lang-card-selected.lang-card-jp {
+  border-color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.lang-card-selected.lang-card-en {
+  border-color: #3b82f6;
+  background: rgba(219, 234, 254, 0.4);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 8px 24px -4px rgba(59, 130, 246, 0.12);
+}
+
+[data-theme="dark"] .lang-card-selected.lang-card-en {
+  border-color: #60a5fa;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.lang-card-flag {
+  width: 64px;
+  height: 42px;
+}
+
+.lang-flag-svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.lang-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lang-card-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin: 0 auto;
+}
+
+.lang-card-badge-jp {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
+}
+
+[data-theme="dark"] .lang-card-badge-jp {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.lang-card-badge-en {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #2563eb;
+}
+
+[data-theme="dark"] .lang-card-badge-en {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+.lang-card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+}
+
+.lang-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.lang-card-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  color: #22c55e;
+}
+
+/* Confirm Button */
+.lang-modal-confirm {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px -2px rgba(99, 102, 241, 0.35);
+}
+
+.lang-modal-confirm:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.45);
+}
+
+.lang-confirm-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lang-confirm-arrow {
+  width: 18px;
+  height: 18px;
+}
+</style>
+
+<script>
+function languageChooser() {
+  return {
+    showModal: false,
+    selected: null,
+
+    init() {
+      // Only show if no language stored in localStorage and user is authenticated
+      const stored = localStorage.getItem('df_study_lang');
+      if (!stored) {
+        // Use a small delay so the page renders first
+        this.$nextTick(() => { this.showModal = true; });
+      }
+    },
+
+    selectLanguage(lang) {
+      this.selected = lang;
+    },
+
+    async confirm() {
+      if (!this.selected) return;
+
+      // Save to localStorage immediately
+      localStorage.setItem('df_study_lang', this.selected);
+
+      // POST to backend
+      try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                       || document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+        await fetch('/api/set-language/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+          body: JSON.stringify({ language: this.selected }),
+        });
+      } catch (e) {
+        console.warn('Failed to save language preference to server:', e);
+      }
+
+      // Reload to apply language filter
+      window.location.reload();
+    }
+  };
+}
+</script>

@@ -8,7 +8,7 @@ class Command(BaseCommand):
         # Define default courses
         courses_data = [
             {
-                'title': 'TOEIC 600 Essential',
+                'title': 'TOEIC 600 Cơ bản',
                 'slug': 'toeic-600-essential',
                 'description': 'Từ vựng cơ bản dành cho người mới bắt đầu.',
                 'toeic_level': 600,
@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 'gradient': 'linear-gradient(135deg, #4ade80 0%, #16a34a 100%)'
             },
             {
-                'title': 'TOEIC 730 Intermediate',
+                'title': 'TOEIC 730 Trung cấp',
                 'slug': 'toeic-730-intermediate',
                 'description': 'Từ vựng trung cấp dành cho môi trường công sở.',
                 'toeic_level': 730,
@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 'gradient': 'linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)'
             },
             {
-                'title': 'TOEIC 860 Advanced',
+                'title': 'TOEIC 860 Nâng cao',
                 'slug': 'toeic-860-advanced',
                 'description': 'Từ vựng nâng cao để đạt điểm xuất sắc.',
                 'toeic_level': 860,
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 'gradient': 'linear-gradient(135deg, #c084fc 0%, #7c3aed 100%)'
             },
             {
-                'title': 'TOEIC 990 Master',
+                'title': 'TOEIC 990 Chuyên gia',
                 'slug': 'toeic-990-master',
                 'description': 'Từ vựng chuyên sâu chinh phục điểm tuyệt đối.',
                 'toeic_level': 990,

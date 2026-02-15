@@ -1,7 +1,7 @@
 {% extends "layouts/sidebar_layout.html" %}
 {% load static %}
 
-{% block title %}TOEIC Review | DailyFluent{% endblock %}
+{% block title %}Ôn tập TOEIC | DailyFluent{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260129">
@@ -17,7 +17,7 @@
       </svg>
     </a>
     <div class="df-toeic-learn-header-info">
-      <span class="df-toeic-learn-set-label">TOEIC Review</span>
+      <span class="df-toeic-learn-set-label">Ôn tập TOEIC</span>
     </div>
     <div class="df-toeic-learn-counter">
       <span x-text="reviewedCount"></span>/<span x-text="totalCards"></span>
@@ -48,7 +48,7 @@
             <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
           </svg>
         </button>
-        <div class="df-toeic-learn-flip-hint">Tap to flip</div>
+        <div class="df-toeic-learn-flip-hint">Chạm để lật</div>
       </div>
 
       <!-- Back -->
@@ -69,22 +69,22 @@
     <div class="df-toeic-review-grades" x-show="isFlipped" x-transition>
       <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--again"
               @click="grade('again')" :disabled="grading">
-        <span class="df-toeic-grade-label">Again</span>
+        <span class="df-toeic-grade-label">Lại</span>
         <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.again || ''"></span>
       </button>
       <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--hard"
               @click="grade('hard')" :disabled="grading">
-        <span class="df-toeic-grade-label">Hard</span>
+        <span class="df-toeic-grade-label">Khó</span>
         <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.hard || ''"></span>
       </button>
       <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--good"
               @click="grade('good')" :disabled="grading">
-        <span class="df-toeic-grade-label">Good</span>
+        <span class="df-toeic-grade-label">Tốt</span>
         <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.good || ''"></span>
       </button>
       <button type="button" class="df-toeic-grade-btn df-toeic-grade-btn--easy"
               @click="grade('easy')" :disabled="grading">
-        <span class="df-toeic-grade-label">Easy</span>
+        <span class="df-toeic-grade-label">Dễ</span>
         <span class="df-toeic-grade-interval" x-text="currentCard?.intervals?.easy || ''"></span>
       </button>
     </div>
@@ -93,13 +93,13 @@
   <!-- Complete Screen -->
   <div class="df-toeic-learn-summary" x-show="showComplete" x-transition>
     <div class="df-toeic-learn-summary-icon">🎉</div>
-    <h2 class="df-toeic-learn-summary-title">Review Complete!</h2>
+    <h2 class="df-toeic-learn-summary-title">Ôn tập hoàn tất!</h2>
     <p class="df-toeic-review-complete-text">
-      You reviewed <strong x-text="reviewedCount"></strong> cards.
+      Bạn đã ôn <strong x-text="reviewedCount"></strong> thẻ.
     </p>
     <div class="df-toeic-learn-summary-actions">
       <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-btn df-toeic-btn--primary">
-        Back to TOEIC Home
+        Về trang TOEIC
       </a>
     </div>
   </div>
@@ -108,11 +108,11 @@
   <!-- Empty State -->
   <div class="df-toeic-learn-summary">
     <div class="df-toeic-learn-summary-icon">✅</div>
-    <h2 class="df-toeic-learn-summary-title">All caught up!</h2>
-    <p class="df-toeic-review-complete-text">No cards are due for review right now. Check back later!</p>
+    <h2 class="df-toeic-learn-summary-title">Đã ôn hết rồi!</h2>
+    <p class="df-toeic-review-complete-text">Hiện tại không có thẻ nào cần ôn. Hãy quay lại sau nhé!</p>
     <div class="df-toeic-learn-summary-actions">
       <a href="{% url 'vocab:toeic_home' %}" class="df-toeic-btn df-toeic-btn--primary">
-        Back to TOEIC Home
+        Về trang TOEIC
       </a>
     </div>
   </div>

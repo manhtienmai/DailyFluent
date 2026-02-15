@@ -35,7 +35,8 @@
   </style>
 </head>
 <body class="df-sidebar-body">
-  
+  <div style="display:none">{% csrf_token %}</div>
+
   {# ========== SIDEBAR ========== #}
   {% include "components/sidebar/sidebar.html" %}
   
@@ -53,6 +54,11 @@
 
   {# ========== USER PROFILE MODAL ========== #}
   {% include "components/sidebar/user_modal.html" %}
+
+  {# ========== LANGUAGE CHOOSER MODAL (first visit) ========== #}
+  {% if user.is_authenticated %}
+    {% include "components/language_chooser_modal.html" %}
+  {% endif %}
 
   {# Scripts #}
   <script src="{% static 'js/sidebar-layout.js' %}?v=20260114"></script>

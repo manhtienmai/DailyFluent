@@ -28,11 +28,11 @@
         
         <div class="grid grid-cols-2 gap-8 mt-8 pt-6 border-t border-white/20">
             <div class="text-center">
-                <p class="text-indigo-200 text-sm mb-1">Listening</p>
+                <p class="text-indigo-200 text-sm mb-1">Nghe</p>
                 <p class="text-3xl font-bold">{{ test.estimated_listening }}</p>
             </div>
             <div class="text-center">
-                <p class="text-indigo-200 text-sm mb-1">Reading</p>
+                <p class="text-indigo-200 text-sm mb-1">Đọc</p>
                 <p class="text-3xl font-bold">{{ test.estimated_reading }}</p>
             </div>
         </div>
@@ -48,15 +48,15 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {% if skill == 'L1' %}Listening - Photos
-                        {% elif skill == 'L2' %}Listening - Q&A
-                        {% elif skill == 'L3' %}Listening - Conversations
-                        {% elif skill == 'L4' %}Listening - Talks
-                        {% elif skill == 'R5' %}Reading - Incomplete Sentences
-                        {% elif skill == 'R6' %}Reading - Text Completion
-                        {% elif skill == 'R7' %}Reading - Comprehension
-                        {% elif skill == 'VOC' %}Vocabulary
-                        {% elif skill == 'GRM' %}Grammar
+                        {% if skill == 'L1' %}Nghe - Mô tả hình ảnh
+                        {% elif skill == 'L2' %}Nghe - Hỏi đáp
+                        {% elif skill == 'L3' %}Nghe - Hội thoại
+                        {% elif skill == 'L4' %}Nghe - Bài nói ngắn
+                        {% elif skill == 'R5' %}Đọc - Điền câu
+                        {% elif skill == 'R6' %}Đọc - Hoàn thành đoạn văn
+                        {% elif skill == 'R7' %}Đọc - Đọc hiểu
+                        {% elif skill == 'VOC' %}Từ vựng
+                        {% elif skill == 'GRM' %}Ngữ pháp
                         {% else %}{{ skill }}
                         {% endif %}
                     </span>

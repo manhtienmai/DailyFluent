@@ -13,8 +13,9 @@ def sidebar_data(request):
         'exam_goal': None,
         'user_streak': 0,
         'user_coins': 0,
+        'study_language': 'jp',
     }
-    
+
     if request.user.is_authenticated:
         # Get ExamGoal
         try:
@@ -36,6 +37,15 @@ def sidebar_data(request):
         # For now, just a placeholder
         context['user_coins'] = 0
         
+        # Get study_language
+        try:
+            from core.models import UserProfile
+            profile = UserProfile.objects.filter(user=request.user).first()
+            if profile:
+                context['study_language'] = profile.study_language
+        except Exception:
+            pass
+
         # Get Equipped Frame
         try:
             from shop.models import UserInventory

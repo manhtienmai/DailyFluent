@@ -606,7 +606,7 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
       </svg>
-      Back to Sets
+      Quay lại danh sách
     </a>
 
     <!-- Form Card -->
@@ -626,10 +626,10 @@
           {% endif %}
         </div>
         <h1 class="form-title">
-          {% if form.instance.pk %}Edit Vocabulary Set{% else %}Create New Set{% endif %}
+          {% if form.instance.pk %}Chỉnh sửa bộ từ{% else %}Tạo bộ từ mới{% endif %}
         </h1>
         <p class="form-subtitle">
-          {% if form.instance.pk %}Update your vocabulary collection details{% else %}Build your personalized word collection{% endif %}
+          {% if form.instance.pk %}Cập nhật thông tin bộ từ vựng{% else %}Tạo bộ sưu tập từ vựng cá nhân{% endif %}
         </p>
       </header>
 
@@ -662,7 +662,7 @@
                    id="{{ form.title.id_for_label }}"
                    value="{{ form.title.value|default:'' }}"
                    class="form-input"
-                   placeholder="e.g., TOEIC Essential Words, Daily Conversation..."
+                   placeholder="VD: Từ vựng TOEIC cần thiết, Hội thoại hàng ngày..."
                    required>
             {% if form.title.errors %}
             <div class="form-error">
@@ -684,7 +684,7 @@
                       id="{{ form.description.id_for_label }}"
                       rows="3"
                       class="form-input form-textarea"
-                      placeholder="Describe what this set is about, target level, etc...">{{ form.description.value|default:'' }}</textarea>
+                      placeholder="Mô tả nội dung bộ từ, trình độ mục tiêu...">{{ form.description.value|default:'' }}</textarea>
             {% if form.description.errors %}
             <div class="form-error">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -694,7 +694,7 @@
               {{ form.description.errors.0 }}
             </div>
             {% endif %}
-            <p class="form-help">A good description helps others understand your set's purpose.</p>
+            <p class="form-help">Mô tả rõ ràng giúp người khác hiểu mục đích bộ từ của bạn.</p>
           </div>
 
           <!-- Status Field -->
@@ -736,7 +736,7 @@
               <div class="form-checkbox-content">
                 <div class="form-checkbox-label">{{ form.is_public.label }}</div>
                 <div class="form-checkbox-desc">
-                  Share this set with the community. Other users will be able to view and study your vocabulary collection.
+                  Chia sẻ bộ từ với cộng đồng. Người dùng khác có thể xem và học từ bộ từ vựng của bạn.
                 </div>
               </div>
               <div class="form-checkbox-icon">
@@ -751,19 +751,19 @@
         <!-- Footer Actions -->
         <footer class="form-footer">
           <a href="{% url 'vocab:set_list' %}" class="form-btn form-btn--cancel">
-            Cancel
+            Hủy
           </a>
           <button type="submit" class="form-btn form-btn--submit">
             {% if form.instance.pk %}
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            Save Changes
+            Lưu thay đổi
             {% else %}
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Create Set
+            Tạo bộ từ
             {% endif %}
           </button>
         </footer>
@@ -777,26 +777,26 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
-        Quick Tips
+        Mẹo nhanh
       </div>
       <div class="form-tips-list">
         <div class="form-tips-item">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          <span>Use clear, descriptive titles for better organization</span>
+          <span>Đặt tiêu đề rõ ràng, dễ hiểu để tổ chức tốt hơn</span>
         </div>
         <div class="form-tips-item">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          <span>Group related words together (e.g., by topic or level)</span>
+          <span>Nhóm các từ liên quan lại (VD: theo chủ đề hoặc trình độ)</span>
         </div>
         <div class="form-tips-item">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          <span>Public sets help the community learn together</span>
+          <span>Bộ từ công khai giúp cộng đồng cùng nhau học tập</span>
         </div>
       </div>
     </aside>

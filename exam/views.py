@@ -89,14 +89,32 @@ def exam_list(request):
     
     selected_level = request.GET.get("level") or ""
 
-    templates = ExamTemplate.objects.filter(is_active=True).annotate(
+    # Get user's study language for filtering
+    study_lang = 'en'
+    if request.user.is_authenticated:
+        try:
+            from core.models import UserProfile
+            profile = UserProfile.objects.filter(user=request.user).first()
+            if profile:
+                study_lang = profile.study_language or 'en'
+        except Exception:
+            pass
+
+    # Map study language to exam levels
+    EN_LEVELS = ["TOEIC"]
+    JP_LEVELS = ["N5", "N4", "N3", "N2", "N1"]
+    allowed_levels = EN_LEVELS if study_lang == 'en' else JP_LEVELS
+
+    templates = ExamTemplate.objects.filter(
+        is_active=True, level__in=allowed_levels
+    ).annotate(
         attempt_count=Count('attempts', filter=Q(attempts__status=ExamAttempt.Status.SUBMITTED))
     ).order_by('title')
     
     if selected_level:
         templates = templates.filter(level=selected_level)
 
-    levels = ["TOEIC", "N5", "N4", "N3", "N2", "N1"]
+    levels = allowed_levels
 
     # Pagination - 12 items per page
     paginator = Paginator(templates, 12)
@@ -112,6 +130,7 @@ def exam_list(request):
             "total_exams": paginator.count,
             "selected_level": selected_level,
             "levels": levels,
+            "study_lang": study_lang,
         },
     )
 

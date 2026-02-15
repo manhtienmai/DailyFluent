@@ -594,6 +594,11 @@ def home(request):
         exam_goal = None
         placement_data = {}
 
+    # Get study_language for dashboard filtering
+    from core.models import UserProfile
+    user_profile = UserProfile.get_or_create_for_user(request.user)
+    study_language = user_profile.study_language
+
     context = {
         "streak": streak,
         "minutes_today": minutes_today,
@@ -605,6 +610,7 @@ def home(request):
         "recent_exam_results": recent_exam_results,
         "vocab_stats": vocab_stats,
         "week_days": week_days,
+        "study_language": study_language,
         # Placement data
         "profile": placement_data.get('profile'),
         "path": placement_data.get('path'),
@@ -941,7 +947,20 @@ def lesson_detail(request, course_slug: str, lesson_slug: str):
 
 def dictation_list(request):
     """Danh sách các bài tập dictation"""
-    exercises = DictationExercise.objects.filter(is_active=True).select_related("lesson", "lesson__section", "lesson__section__course").prefetch_related("segments").order_by("order", "title")
+    # Get user's study language for filtering
+    study_lang = 'en'
+    if request.user.is_authenticated:
+        try:
+            from .models import UserProfile
+            profile = UserProfile.objects.filter(user=request.user).first()
+            if profile:
+                study_lang = profile.study_language or 'en'
+        except Exception:
+            pass
+
+    exercises = DictationExercise.objects.filter(
+        is_active=True, language=study_lang
+    ).select_related("lesson", "lesson__section", "lesson__section__course").prefetch_related("segments").order_by("order", "title")
 
     progress_map = {}
     if request.user.is_authenticated:
@@ -1283,6 +1302,27 @@ def update_exam_goal(request):
         return JsonResponse({"success": True})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+
+@login_required
+@require_POST
+def set_language(request):
+    """API endpoint to set user's study language preference."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    language = data.get("language", "").strip().lower()
+    if language not in ("jp", "en"):
+        return JsonResponse({"success": False, "error": "Invalid language. Use 'jp' or 'en'."}, status=400)
+
+    from core.models import UserProfile
+    profile = UserProfile.get_or_create_for_user(request.user)
+    profile.study_language = language
+    profile.save(update_fields=["study_language"])
+
+    return JsonResponse({"success": True, "language": language})
 
 
 def health(request):

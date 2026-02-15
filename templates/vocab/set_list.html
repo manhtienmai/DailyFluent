@@ -704,14 +704,14 @@
     <!-- Header -->
     <header class="glass-panel sets-header">
       <div class="sets-title-group">
-        <h1>Vocabulary Sets</h1>
-        <p>Manage and explore vocabulary collections</p>
+        <h1>Bộ từ vựng</h1>
+        <p>Quản lý và khám phá các bộ từ vựng</p>
       </div>
       <a href="{% url 'vocab:set_create' %}" class="sets-cta-btn">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path d="M12 5v14M5 12h14"/>
         </svg>
-        Create New Set
+        Tạo bộ mới
       </a>
     </header>
 
@@ -721,23 +721,23 @@
       <nav class="sets-tabs" aria-label="Set type" id="setsTabNav">
         <button type="button" data-tab="public"
            class="sets-tab {% if tab != 'my' %}sets-tab--active{% endif %}">
-          Public Sets
+          Bộ công khai
         </button>
         {% if user.is_authenticated %}
         <button type="button" data-tab="my"
            class="sets-tab {% if tab == 'my' %}sets-tab--active{% endif %}">
-          My Sets
+          Bộ của tôi
         </button>
         {% endif %}
       </nav>
 
       <!-- Language Filter -->
       <div class="sets-lang-group" id="setsLangNav">
-        <span class="sets-lang-label">Language</span>
+        <span class="sets-lang-label">Ngôn ngữ</span>
         <div class="sets-lang-pills">
           <button type="button" data-lang="all"
              class="sets-lang-pill {% if current_lang == 'all' %}sets-lang-pill--active{% else %}sets-lang-pill--default{% endif %}">
-            All
+            Tất cả
           </button>
           <button type="button" data-lang="en"
              class="sets-lang-pill {% if current_lang == 'en' %}sets-lang-pill--en{% else %}sets-lang-pill--default{% endif %}">
@@ -788,7 +788,7 @@
         <!-- Card Body -->
         <div class="set-card-body">
           <h3 class="set-title">{{ set.title }}</h3>
-          <p class="set-desc">{{ set.description|default:"No description provided." }}</p>
+          <p class="set-desc">{{ set.description|default:"Chưa có mô tả." }}</p>
         </div>
 
         <!-- Card Footer -->
@@ -799,7 +799,7 @@
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              My Set
+              Của tôi
             </span>
             {% else %}
             <span class="set-owner set-owner--user">
@@ -814,7 +814,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            System
+            Hệ thống
           </span>
           {% endif %}
 
@@ -832,13 +832,13 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
-        <h3>No sets found</h3>
-        <p>We couldn't find any vocabulary sets matching your filters. Try changing your search or create a new set.</p>
+        <h3>Không tìm thấy bộ từ nào</h3>
+        <p>Không tìm thấy bộ từ vựng nào phù hợp với bộ lọc của bạn. Hãy thử thay đổi tìm kiếm hoặc tạo bộ mới.</p>
         <a href="{% url 'vocab:set_create' %}" class="sets-cta-btn">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path d="M12 5v14M5 12h14"/>
           </svg>
-          Create New Set
+          Tạo bộ mới
         </a>
       </div>
       {% endfor %}
@@ -846,10 +846,10 @@
 
     <!-- Pagination -->
     {% if is_paginated %}
-    <nav class="glass-panel-light sets-pagination" aria-label="Pagination">
+    <nav class="glass-panel-light sets-pagination" aria-label="Phân trang">
       {% if page_obj.has_previous %}
       <a href="?page={{ page_obj.previous_page_number }}&tab={{ tab }}&lang={{ current_lang }}"
-         class="sets-page-btn sets-page-btn--nav" aria-label="Previous page">
+         class="sets-page-btn sets-page-btn--nav" aria-label="Trang trước">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -857,12 +857,12 @@
       {% endif %}
 
       <span class="sets-page-info">
-        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
       </span>
 
       {% if page_obj.has_next %}
       <a href="?page={{ page_obj.next_page_number }}&tab={{ tab }}&lang={{ current_lang }}"
-         class="sets-page-btn sets-page-btn--nav" aria-label="Next page">
+         class="sets-page-btn sets-page-btn--nav" aria-label="Trang sau">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
         </svg>

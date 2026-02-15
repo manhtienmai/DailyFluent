@@ -1730,7 +1730,7 @@
         <!-- Listening Section Score -->
         <div class="df-toeic-section-score-card">
           <div class="df-toeic-section-score-header">LISTENING</div>
-          <div class="df-toeic-section-score-label">Your score</div>
+          <div class="df-toeic-section-score-label">Điểm của bạn</div>
           <div class="df-toeic-section-score-value" id="listening-score">{{ toeic_stats.listening.score }}</div>
           <div class="df-toeic-section-score-slider">
             <span class="df-toeic-section-slider-min">5</span>
@@ -1788,7 +1788,7 @@
         <!-- Reading Section Score -->
         <div class="df-toeic-section-score-card" style="margin-top: auto;">
           <div class="df-toeic-section-score-header">READING</div>
-          <div class="df-toeic-section-score-label">Your score</div>
+          <div class="df-toeic-section-score-label">Điểm của bạn</div>
           <div class="df-toeic-section-score-value" id="reading-score">{{ toeic_stats.reading.score }}</div>
           <div class="df-toeic-section-score-slider">
             <span class="df-toeic-section-slider-min">5</span>
@@ -1803,7 +1803,7 @@
     
     <!-- Total Score -->
     <div class="df-toeic-total-score">
-      <div class="df-toeic-total-header">TOTAL SCORE</div>
+      <div class="df-toeic-total-header">TỔNG ĐIỂM</div>
       <div class="df-toeic-total-value" id="total-score">{{ toeic_stats.total_score }}</div>
     </div>
   </div>
@@ -1855,7 +1855,7 @@
           d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
       <p class="df-result-tips-text">
-        <strong>Tips:</strong> Khi xem chi tiết đáp án, bạn có thể tạo và lưu highlight từ vựng, keywords và tạo note để
+        <strong>Mẹo:</strong> Khi xem chi tiết đáp án, bạn có thể tạo và lưu highlight từ vựng, keywords và tạo note để
         học và tra cứu khi có nhu cầu ôn lại đề thi này trong tương lai.
       </p>
     </div>
@@ -2027,7 +2027,7 @@
         const totalAccuracy = partTotal.total > 0 ? ((partTotal.correct / partTotal.total) * 100).toFixed(2) : '0.00';
         html += `
           <tr class="total-row">
-            <td>Total</td>
+            <td>Tổng</td>
             <td class="text-center">${partTotal.correct}</td>
             <td class="text-center">${partTotal.wrong}</td>
             <td class="text-center">${partTotal.skipped}</td>

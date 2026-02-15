@@ -184,12 +184,12 @@
   <div style="padding: 0 1.5rem; margin-bottom: 1.25rem;">
     <div class="df-profile-card">
       <div class="df-profile-card-header">
-        <span class="df-profile-card-title">ABOUT ME</span>
+        <span class="df-profile-card-title">GIỚI THIỆU</span>
         {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('bio-modal')">✏️</button>{% endif %}
       </div>
       <div class="df-profile-card-body">
         <p class="df-profile-bio {% if not user_profile.bio %}df-profile-bio-placeholder{% endif %}">
-          {{ user_profile.bio|default:"Click edit to add your bio..." }}
+          {{ user_profile.bio|default:"Nhấn chỉnh sửa để thêm giới thiệu..." }}
         </p>
       </div>
     </div>
@@ -200,7 +200,7 @@
     <div class="df-profile-content">
       <div class="df-profile-card">
         <div class="df-profile-tabs">
-          <button class="df-profile-tab df-profile-tab--active" data-tab="about">About</button>
+          <button class="df-profile-tab df-profile-tab--active" data-tab="about">Giới thiệu</button>
           <button class="df-profile-tab" data-tab="courses">Khóa học</button>
           <button class="df-profile-tab" data-tab="results">Kết quả thi</button>
         </div>
@@ -209,7 +209,7 @@
           <!-- About Panel -->
           <div id="panel-about" class="df-profile-panel df-profile-panel--active">
             <div class="df-profile-about-title">{{ user_profile.display_title|default:"Hello Fellow < Love />! 👋" }}</div>
-            <p class="df-profile-about-subtitle">{{ user_profile.subtitle|default:"Welcome to my profile" }}</p>
+            <p class="df-profile-about-subtitle">{{ user_profile.subtitle|default:"Chào mừng đến trang cá nhân" }}</p>
             
             <!-- Social Links -->
             <div class="df-social-links">
@@ -228,17 +228,17 @@
               {% for item in user_profile.info_items %}
               <li class="df-profile-info-item"><span>{{ item.icon }}</span><span>{{ item.text }}</span></li>
               {% empty %}
-              <li class="df-profile-info-item"><span>👋</span><span>Hi, I'm {{ profile_user.username }}</span></li>
-              <li class="df-profile-info-item"><span>💼</span><span>I'm a learner...</span></li>
+              <li class="df-profile-info-item"><span>👋</span><span>Xin chào, mình là {{ profile_user.username }}</span></li>
+              <li class="df-profile-info-item"><span>💼</span><span>Mình là người học...</span></li>
               {% endfor %}
             </ul>
             
             <!-- Skills -->
-            <h3 class="df-profile-section-title"><span>&lt;/&gt;</span> Skills {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('skills-modal')">✏️</button>{% endif %}</h3>
+            <h3 class="df-profile-section-title"><span>&lt;/&gt;</span> Kỹ năng {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('skills-modal')">✏️</button>{% endif %}</h3>
             
             {% if user_profile.skills.languages %}
             <div class="df-skills-group">
-              <div class="df-skills-label">📚 Languages:</div>
+              <div class="df-skills-label">📚 Ngôn ngữ:</div>
               <div class="df-skills-tags">
                 {% for lang in user_profile.skills.languages %}
                 <span class="df-skill-tag df-skill-tag--blue">{{ lang }}</span>
@@ -249,7 +249,7 @@
             
             {% if user_profile.skills.tools %}
             <div class="df-skills-group">
-              <div class="df-skills-label">🛠️ Tools:</div>
+              <div class="df-skills-label">🛠️ Công cụ:</div>
               <div class="df-skills-tags">
                 {% for tool in user_profile.skills.tools %}
                 <span class="df-skill-tag df-skill-tag--green">{{ tool }}</span>
@@ -259,7 +259,7 @@
             {% endif %}
             
             <!-- Certificates -->
-            <h3 class="df-profile-section-title">📜 Certificates {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('certs-modal')">✏️</button>{% endif %}</h3>
+            <h3 class="df-profile-section-title">📜 Chứng chỉ {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('certs-modal')">✏️</button>{% endif %}</h3>
             <ul class="df-certificates-list">
               {% for cert in user_profile.certificates %}
               <li>{{ cert.name }} <span class="df-certificate-score">{{ cert.score }}</span></li>
@@ -269,7 +269,7 @@
             </ul>
             
             <!-- Hobbies -->
-            <h3 class="df-profile-section-title">📋 Hobbies {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('hobbies-modal')">✏️</button>{% endif %}</h3>
+            <h3 class="df-profile-section-title">📋 Sở thích {% if is_own_profile %}<button class="df-profile-edit-btn" onclick="openModal('hobbies-modal')">✏️</button>{% endif %}</h3>
             <div class="df-hobbies-list">
               {% for hobby in user_profile.hobbies %}
               <div class="df-hobby-item"><span>{{ hobby.icon }}</span>{{ hobby.text }}</div>
@@ -321,16 +321,16 @@
     <!-- Sidebar -->
     <div class="df-profile-sidebar">
       <div class="df-achievement-card">
-        <div class="df-achievement-card-header">Achievements</div>
+        <div class="df-achievement-card-header">Thành tích</div>
         <div class="df-achievement-card-body">
-          <div class="df-achievement-item df-achievement-item--orange"><span class="df-achievement-value">{{ streak.total_study_minutes|default:0 }}m</span><span class="df-achievement-label">of work</span></div>
-          <div class="df-achievement-item df-achievement-item--red"><span class="df-achievement-value">{{ streak.longest_streak|default:0 }}</span><span class="df-achievement-label">days longest streak</span></div>
-          <div class="df-achievement-item df-achievement-item--green"><span class="df-achievement-value">{{ total_vocab|default:0 }}</span><span class="df-achievement-label">words in total</span></div>
+          <div class="df-achievement-item df-achievement-item--orange"><span class="df-achievement-value">{{ streak.total_study_minutes|default:0 }}m</span><span class="df-achievement-label">thời gian học</span></div>
+          <div class="df-achievement-item df-achievement-item--red"><span class="df-achievement-value">{{ streak.longest_streak|default:0 }}</span><span class="df-achievement-label">ngày liên tiếp dài nhất</span></div>
+          <div class="df-achievement-item df-achievement-item--green"><span class="df-achievement-value">{{ total_vocab|default:0 }}</span><span class="df-achievement-label">từ vựng đã học</span></div>
         </div>
       </div>
       
       <div class="df-achievement-card">
-        <div class="df-achievement-card-header">Badges</div>
+        <div class="df-achievement-card-header">Huy hiệu</div>
         {% if badges_with_status %}
         <div class="df-badges-grid-mini">
           {% for item in badges_with_status|slice:":6" %}{% if item.earned %}
@@ -338,14 +338,14 @@
           {% endif %}{% endfor %}
         </div>
         {% else %}
-        <div class="df-badges-preview"><div class="df-badge-mascot">🐸</div><p class="df-badges-empty-text">No achievements</p></div>
+        <div class="df-badges-preview"><div class="df-badge-mascot">🐸</div><p class="df-badges-empty-text">Chưa có thành tích</p></div>
         {% endif %}
       </div>
       
       <div class="df-stats-inline">
         <div class="df-stat-inline"><div class="df-stat-inline-value">{{ total_exams|default:0 }}</div><div class="df-stat-inline-label">Bài thi</div></div>
         <div class="df-stat-inline"><div class="df-stat-inline-value">{{ total_courses|default:0 }}</div><div class="df-stat-inline-label">Khóa học</div></div>
-        <div class="df-stat-inline"><div class="df-stat-inline-value">{{ streak.current_streak|default:0 }}</div><div class="df-stat-inline-label">Streak</div></div>
+        <div class="df-stat-inline"><div class="df-stat-inline-value">{{ streak.current_streak|default:0 }}</div><div class="df-stat-inline-label">Chuỗi ngày</div></div>
       </div>
     </div>
   </div>

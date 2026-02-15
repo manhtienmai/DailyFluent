@@ -149,6 +149,12 @@ class DictationExercise(models.Model):
         ],
         default="intermediate"
     )
+    language = models.CharField(
+        max_length=5,
+        choices=[('en', 'English'), ('jp', 'Japanese')],
+        default='en',
+        help_text="Ngôn ngữ của bài dictation"
+    )
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
     
@@ -536,6 +542,18 @@ class UserProfile(models.Model):
         help_text="Sở thích: [{'icon': '🏔️', 'text': 'Traveling'}, ...]"
     )
     
+    # Language preference
+    LANGUAGE_CHOICES = [
+        ('jp', 'Japanese'),
+        ('en', 'English'),
+    ]
+    study_language = models.CharField(
+        max_length=5,
+        choices=LANGUAGE_CHOICES,
+        default='jp',
+        help_text="Ngôn ngữ đang học: jp (Tiếng Nhật) hoặc en (Tiếng Anh)"
+    )
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
