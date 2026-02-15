@@ -1078,7 +1078,7 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
         </svg>
-        Today's Focus
+        Nhiệm vụ hôm nay
       </div>
       <div class="mission-list">
         {% for activity in lesson.recommended_activities|slice:":2" %}
@@ -1111,7 +1111,7 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
         </svg>
-        Quick Actions
+        Thao tác nhanh
       </div>
       <div class="quick-grid">
         <a href="{% url 'vocab:set_list' %}" class="glass-panel-light quick-btn">
@@ -1135,6 +1135,32 @@
 
     <!-- ========== CONTENT GRID ========== -->
     <section class="content-grid">
+      <!-- Learning Vocabulary Sets -->
+      <article class="glass-panel content-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">📚 Bộ từ vựng đang học</h2>
+          <a href="{% url 'vocab:course_list' %}" class="panel-link">Xem tất cả →</a>
+        </div>
+        {% if user_vocab_sets %}
+          {% for vocab_set in user_vocab_sets|slice:":2" %}
+          <a href="{% url 'vocab:set_detail' vocab_set.id %}" class="course-ticket">
+            <div class="course-icon">{{ vocab_set.title|slice:":2"|upper }}</div>
+            <div class="course-info">
+              <div class="course-title">{{ vocab_set.title }}</div>
+              <div class="course-meta">{{ vocab_set.mastered_count|default:0 }}/{{ vocab_set.total_count|default:0 }} từ đã thuộc</div>
+            </div>
+            <svg class="course-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>Bạn chưa học bộ từ vựng nào.</p>
+            <a href="{% url 'vocab:course_list' %}">Khám phá bộ từ vựng →</a>
+          </div>
+        {% endif %}
+      </article>
       <!-- My Courses -->
       <article class="glass-panel content-panel">
         <div class="panel-header">

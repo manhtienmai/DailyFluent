@@ -546,6 +546,21 @@ def home(request):
             "progress": progress,
         }
         
+        # Get user's active vocabulary sets
+        from vocab.models import VocabularySet, UserSetProgress
+        user_vocab_sets = []
+        active_sets = UserSetProgress.objects.filter(
+            user=request.user,
+            status__in=['in_progress', 'not_started']
+        ).select_related('vocabulary_set').order_by('-started_at')[:4]
+        
+        for progress_item in active_sets:
+            vocab_set = progress_item.vocabulary_set
+            # Count mastered and total words
+            vocab_set.mastered_count = progress_item.words_learned or 0
+            vocab_set.total_count = vocab_set.setitem_set.count() if hasattr(vocab_set, 'setitem_set') else 0
+            user_vocab_sets.append(vocab_set)
+        
         # Build week days for streak display
         from datetime import timedelta
         today = timezone.localdate()
@@ -593,6 +608,7 @@ def home(request):
         week_days = []
         exam_goal = None
         placement_data = {}
+        user_vocab_sets = []
 
     # Get study_language for dashboard filtering
     from core.models import UserProfile
@@ -611,6 +627,7 @@ def home(request):
         "vocab_stats": vocab_stats,
         "week_days": week_days,
         "study_language": study_language,
+        "user_vocab_sets": user_vocab_sets,
         # Placement data
         "profile": placement_data.get('profile'),
         "path": placement_data.get('path'),
