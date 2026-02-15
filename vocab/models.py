@@ -274,7 +274,7 @@ class ExampleSentence(models.Model):
     sentence = models.TextField(help_text="Câu ví dụ tiếng Anh")
     translation = models.TextField(blank=True, help_text="Dịch câu ví dụ")
     source = models.CharField(
-        max_length=20, choices=Source.choices, default=Source.CAMBRIDGE, db_index=True
+        max_length=50, choices=Source.choices, default=Source.CAMBRIDGE, db_index=True
     )
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
