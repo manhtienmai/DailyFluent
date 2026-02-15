@@ -1161,32 +1161,6 @@
           </div>
         {% endif %}
       </article>
-      <!-- My Courses -->
-      <article class="glass-panel content-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">📚 Khóa học của tôi</h2>
-          <a href="{% url 'core:course_list' %}" class="panel-link">Xem tất cả →</a>
-        </div>
-        {% if enrolled_courses %}
-          {% for enrollment in enrolled_courses|slice:":2" %}
-          <a href="{% url 'core:course_detail' enrollment.course.slug %}" class="course-ticket">
-            <div class="course-icon">{{ enrollment.course.title|slice:":2"|upper }}</div>
-            <div class="course-info">
-              <div class="course-title">{{ enrollment.course.title }}</div>
-              <div class="course-meta">{% if enrollment.progress %}{{ enrollment.progress }}% hoàn thành{% else %}Chưa bắt đầu{% endif %}</div>
-            </div>
-            <svg class="course-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
-          {% endfor %}
-        {% else %}
-          <div class="empty-state">
-            <p>Bạn chưa đăng ký khóa học nào.</p>
-            <a href="{% url 'core:course_list' %}">Khám phá khóa học →</a>
-          </div>
-        {% endif %}
-      </article>
 
       <!-- Exam Results -->
       <article class="glass-panel content-panel">

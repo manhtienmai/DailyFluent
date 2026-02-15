@@ -114,6 +114,12 @@ class VocabSource(models.Model):
     
     is_active = models.BooleanField(default=True)
     display_order = models.PositiveIntegerField(default=0)
+    cover_image = models.ImageField(
+        upload_to='vocab_sources/',
+        blank=True,
+        null=True,
+        help_text="Ảnh bìa cho bộ từ vựng (600×330px recommended)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

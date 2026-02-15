@@ -532,6 +532,7 @@ class CourseListView(LoginRequiredMixin, TemplateView):
                     'gradient': course.gradient,
                     'level': level,
                     'language': course.language,
+                    'cover_image_url': course.collection.cover_image.url if course.collection and course.collection.cover_image else '',
                 }
             })
 

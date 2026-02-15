@@ -507,17 +507,10 @@ def home(request):
     for exam in latest_exams:
         exam.comment_count = max(100, int(exam.attempt_count * 0.1))
     
-    # Lấy khóa học đã đăng ký và kết quả luyện thi gần nhất
-    enrolled_courses = []
+    # Lấy kết quả luyện thi gần nhất
     recent_exam_results = []
-    
+
     if request.user.is_authenticated:
-        # Lấy khóa học đã đăng ký (max 4)
-        from core.models import Enrollment
-        enrolled_courses = Enrollment.objects.filter(
-            user=request.user
-        ).select_related('course').order_by('-enrolled_at')[:4]
-        
         # Lấy kết quả luyện thi gần nhất (max 5)
         recent_exam_results = ExamAttempt.objects.filter(
             user=request.user,
@@ -546,12 +539,18 @@ def home(request):
             "progress": progress,
         }
         
-        # Get user's active vocabulary sets
+        # Get study_language early so we can filter by it
+        from core.models import UserProfile
+        user_profile = UserProfile.get_or_create_for_user(request.user)
+        study_language = user_profile.study_language
+
+        # Get user's active vocabulary sets (filtered by study_language)
         from vocab.models import VocabularySet, UserSetProgress
         user_vocab_sets = []
         active_sets = UserSetProgress.objects.filter(
             user=request.user,
-            status__in=['in_progress', 'not_started']
+            status__in=['in_progress', 'not_started'],
+            vocabulary_set__language=study_language,
         ).select_related('vocabulary_set').order_by('-started_at')[:4]
         
         for progress_item in active_sets:
@@ -609,11 +608,7 @@ def home(request):
         exam_goal = None
         placement_data = {}
         user_vocab_sets = []
-
-    # Get study_language for dashboard filtering
-    from core.models import UserProfile
-    user_profile = UserProfile.get_or_create_for_user(request.user)
-    study_language = user_profile.study_language
+        study_language = 'jp'
 
     context = {
         "streak": streak,
@@ -622,7 +617,6 @@ def home(request):
         "new_cards_today": new_cards_today,
         "reviews_today": reviews_today,
         "latest_exams": latest_exams,
-        "enrolled_courses": enrolled_courses,
         "recent_exam_results": recent_exam_results,
         "vocab_stats": vocab_stats,
         "week_days": week_days,

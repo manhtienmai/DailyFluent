@@ -1,4 +1,5 @@
 import json
+from django.utils.html import format_html
 import os
 import uuid
 from django.contrib import admin, messages
@@ -1647,7 +1648,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(VocabSource)
 class VocabSourceAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'source_type', 'language', 'level', 'is_active', 'display_order')
+    list_display = ('name', 'code', 'source_type', 'language', 'level', 'is_active', 'display_order', 'cover_image_preview')
     list_filter = ('source_type', 'language', 'is_active')
     search_fields = ('code', 'name', 'description')
     list_editable = ('display_order', 'is_active')
@@ -1660,10 +1661,34 @@ class VocabSourceAdmin(admin.ModelAdmin):
         ('Details', {
             'fields': ('description', 'language', 'level', 'publisher')
         }),
+        ('Ảnh bìa', {
+            'fields': ('cover_image', 'cover_image_large_preview'),
+            'description': 'Upload ảnh bìa 600×330px (WebP/JPG). Ảnh sẽ được lưu trên Azure.'
+        }),
         ('Settings', {
             'fields': ('is_active', 'display_order')
         }),
     )
+
+    readonly_fields = ('cover_image_large_preview',)
+
+    def cover_image_preview(self, obj):
+        if obj.cover_image:
+            return format_html(
+                '<img src="{}" style="height:40px; width:72px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0;"/>',
+                obj.cover_image.url
+            )
+        return '—'
+    cover_image_preview.short_description = 'Ảnh'
+
+    def cover_image_large_preview(self, obj):
+        if obj.cover_image:
+            return format_html(
+                '<img src="{}" style="max-width:600px; max-height:330px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"/>',
+                obj.cover_image.url
+            )
+        return 'Chưa có ảnh'
+    cover_image_large_preview.short_description = 'Xem trước'
     
     def get_urls(self):
         urls = super().get_urls()
