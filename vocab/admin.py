@@ -1093,7 +1093,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         try:
             data = json.loads(request.body)
             set_item_id = data.get('set_item_id')
-            model_name = data.get('model', 'gemini-2.5-pro')
+            model_name = data.get('model', 'gemini-2.0-flash')
 
             if not set_item_id:
                 return JsonResponse({
@@ -1130,7 +1130,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         try:
             data = json.loads(request.body)
             set_item_ids = data.get('set_item_ids', [])
-            model_name = data.get('model', 'gemini-2.5-pro')
+            model_name = data.get('model', 'gemini-2.0-flash')
 
             if not set_item_ids:
                 return JsonResponse({

@@ -21,7 +21,7 @@ class GeminiService:
 
     @classmethod
     def get_model(cls, model_name=None):
-        model_name = model_name or 'gemini-2.5-pro'
+        model_name = model_name or 'gemini-2.0-flash'
         if model_name not in cls._models:
             if not cls._configure():
                 return None

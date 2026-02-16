@@ -45,6 +45,9 @@ def generate_and_save_batch(set_item_ids, model_name=None):
     """
     from vocab.models import SetItem, QuizQuestion
 
+    # Ensure all IDs are ints
+    set_item_ids = [int(sid) for sid in set_item_ids]
+
     items = SetItem.objects.filter(
         pk__in=set_item_ids
     ).select_related('definition__entry__vocab')
