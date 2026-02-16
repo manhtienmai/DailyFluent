@@ -1099,9 +1099,10 @@ class ExampleSentenceAdmin(admin.ModelAdmin):
 
 @admin.register(VocabularySet)
 class VocabularySetAdmin(admin.ModelAdmin):
-    list_display = ('title', 'get_course', 'owner', 'status', 'is_public', 'toeic_level', 'set_number', 'created_at')
-    list_filter = ('status', 'is_public', 'toeic_level', 'created_at')
+    list_display = ('title', 'get_course', 'collection', 'owner', 'status', 'is_public', 'toeic_level', 'set_number', 'created_at')
+    list_filter = ('collection', 'status', 'is_public', 'toeic_level', 'created_at')
     search_fields = ('title', 'description')
+    list_editable = ('collection', 'status', 'set_number')
     inlines = [SetItemInline]
     change_list_template = "admin/vocab/vocabularyset/change_list.html"
 

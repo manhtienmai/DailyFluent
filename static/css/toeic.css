@@ -870,8 +870,8 @@
 }
 
 .df-toeic-btn--primary {
-  background: var(--action-primary, #0D9488);
-  color: white;
+  background-color: var(--action-primary, #0D9488) !important;
+  color: white !important;
 }
 
 .df-toeic-btn--primary:hover {
@@ -879,14 +879,68 @@
 }
 
 .df-toeic-btn--secondary {
-  background: var(--bg-interactive);
+  background-color: var(--bg-interactive) !important;
   color: var(--text-primary);
   border: 1px solid var(--border-default);
 }
 
 .df-toeic-btn--secondary:hover {
-  background: var(--bg-surface);
+  background-color: var(--bg-surface) !important;
   border-color: var(--border-strong);
+}
+
+/* ---- Quiz Page Layout (Crystal Design) ---- */
+.df-quiz-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(199, 210, 254, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(251, 207, 232, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 60% 80%, rgba(167, 243, 208, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 40% at 10% 90%, rgba(254, 215, 170, 0.25) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  background-attachment: fixed;
+  padding: 1.5rem;
+}
+
+[data-theme="dark"] .df-quiz-page {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 60% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background-attachment: fixed;
+}
+
+.df-quiz-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.df-quiz-glass-panel {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px -4px rgba(99, 102, 241, 0.12),
+    0 8px 48px -8px rgba(99, 102, 241, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+[data-theme="dark"] .df-quiz-glass-panel {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(148, 163, 184, 0.1);
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.4),
+    0 8px 48px -8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.df-quiz-main-card {
+  padding: 1.5rem;
 }
 
 /* ---- Quiz ---- */
@@ -903,7 +957,7 @@
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 1.5rem 0 0.5rem;
+  margin: 1rem 0 0.5rem;
   text-align: center;
 }
 
@@ -918,6 +972,7 @@
   font-size: 0.875rem;
   color: var(--text-tertiary);
   margin-bottom: 0.75rem;
+  font-weight: 500;
 }
 
 .df-toeic-quiz-choices {
@@ -932,8 +987,8 @@
   gap: 0.75rem;
   padding: 0.875rem 1rem;
   border-radius: 0.75rem;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
+  border: 1.5px solid #cbd5e1;
+  background-color: rgba(248, 250, 252, 0.8) !important;
   font-size: 0.9375rem;
   color: var(--text-primary);
   cursor: pointer;
@@ -942,26 +997,44 @@
   width: 100%;
 }
 
+[data-theme="dark"] .df-toeic-quiz-choice {
+  border-color: rgba(148, 163, 184, 0.25);
+  background-color: rgba(30, 41, 59, 0.6) !important;
+}
+
 .df-toeic-quiz-choice:hover:not(:disabled) {
   border-color: var(--action-primary, #0D9488);
-  background: rgba(13, 148, 136, 0.04);
+  background-color: rgba(13, 148, 136, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12);
+}
+
+[data-theme="dark"] .df-toeic-quiz-choice:hover:not(:disabled) {
+  background-color: rgba(13, 148, 136, 0.15) !important;
 }
 
 .df-toeic-quiz-choice--correct {
   border-color: #10B981 !important;
-  background: rgba(16, 185, 129, 0.1) !important;
-  color: #10B981;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669;
+}
+
+[data-theme="dark"] .df-toeic-quiz-choice--correct {
+  color: #34d399;
 }
 
 .df-toeic-quiz-choice--wrong {
   border-color: #EF4444 !important;
   background: rgba(239, 68, 68, 0.1) !important;
-  color: #EF4444;
+  color: #DC2626;
+}
+
+[data-theme="dark"] .df-toeic-quiz-choice--wrong {
+  color: #f87171;
 }
 
 .df-toeic-quiz-choice--disabled {
   cursor: default;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .df-toeic-quiz-choice--disabled.df-toeic-quiz-choice--correct,
@@ -973,14 +1046,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--bg-interactive);
+  background: #e2e8f0;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #475569;
   flex-shrink: 0;
+}
+
+[data-theme="dark"] .df-toeic-quiz-choice-letter {
+  background: rgba(100, 116, 139, 0.3);
+  color: #94a3b8;
 }
 
 .df-toeic-quiz-choice--correct .df-toeic-quiz-choice-letter {
@@ -1008,7 +1086,11 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #10B981;
+  color: #059669;
+}
+
+[data-theme="dark"] .df-toeic-quiz-feedback--correct {
+  color: #34d399;
 }
 
 .df-toeic-quiz-feedback--wrong {
@@ -1016,13 +1098,29 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #EF4444;
+  color: #DC2626;
+}
+
+[data-theme="dark"] .df-toeic-quiz-feedback--wrong {
+  color: #f87171;
+}
+
+/* Quiz Next Button */
+.df-quiz-next-btn {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9375rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+.df-quiz-next-btn:hover {
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
 }
 
 /* Quiz Result */
 .df-toeic-quiz-result {
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1rem;
 }
 
 .df-toeic-quiz-result-icon {
@@ -1067,6 +1165,20 @@
   font-size: 0.9375rem;
   color: var(--text-secondary);
   margin-bottom: 2rem;
+}
+
+/* Quiz responsive */
+@media (max-width: 640px) {
+  .df-quiz-page {
+    padding: 0.75rem;
+  }
+  .df-quiz-glass-panel {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+  .df-quiz-main-card {
+    padding: 1rem;
+  }
 }
 
 /* ---- Review Grade Buttons ---- */

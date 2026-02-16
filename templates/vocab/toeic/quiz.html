@@ -4,143 +4,152 @@
 {% block title %}Quiz Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260214">
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260216">
 {% endblock %}
 
 {% block content %}
-<div class="df-toeic-container" x-data="toeicQuiz()" x-init="init()">
-  <!-- Header -->
-  <div class="df-toeic-learn-header">
-    <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M15 18l-6-6 6-6"/>
-      </svg>
-    </a>
-    <div class="df-toeic-learn-header-info">
-      <span class="df-toeic-level-badge df-toeic-level-badge--sm" style="background: {{ config.gradient }};">
-        {{ config.label }}
-      </span>
-      <span class="df-toeic-learn-set-label">Quiz - Set {{ set_number }}</span>
-    </div>
-    <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + questions.length"></div>
-  </div>
+<div class="df-quiz-page" x-data="toeicQuiz()" x-init="init()">
+<div class="df-quiz-container">
 
-  <!-- Progress Bar -->
-  <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
-    <div class="df-toeic-progress-fill df-toeic-progress-fill--quiz"
-         :style="'width:' + ((currentIndex) / questions.length * 100) + '%'"></div>
-  </div>
-
-  <!-- Question Area -->
-  <div class="df-toeic-quiz-area" x-show="!showResult">
-    <div class="df-toeic-quiz-word">
-      <template x-if="isJP && currentQ?.html_display">
-        <span x-html="currentQ.html_display" style="font-size:1.4em; font-weight:800; line-height:1.6"></span>
-      </template>
-      <template x-if="!isJP || !currentQ?.html_display">
-        <span x-text="currentQ?.word" :style="isJP ? 'font-size:1.4em; font-weight:800' : ''"></span>
-      </template>
-      <button type="button" class="df-toeic-learn-audio-btn df-toeic-learn-audio-btn--sm"
-              @click="playAudio()" x-show="currentQ?.audio_url">
+  <!-- Header Card -->
+  <div class="df-quiz-glass-panel">
+    <div class="df-toeic-learn-header">
+      <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-back-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M15.54 8.46a5 5 0 010 7.07"/>
+          <path d="M15 18l-6-6 6-6"/>
         </svg>
-      </button>
+      </a>
+      <div class="df-toeic-learn-header-info">
+        <span class="df-toeic-level-badge df-toeic-level-badge--sm" style="background: {{ config.gradient }};">
+          {{ config.label }}
+        </span>
+        <span class="df-toeic-learn-set-label">Quiz - Set {{ set_number }}</span>
+      </div>
+      <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + questions.length"></div>
     </div>
-    <template x-if="!isJP">
-      <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
-    </template>
 
-    <div class="df-toeic-quiz-prompt">Chọn nghĩa đúng:</div>
+    <!-- Progress Bar -->
+    <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
+      <div class="df-toeic-progress-fill df-toeic-progress-fill--quiz"
+           :style="'width:' + ((currentIndex) / questions.length * 100) + '%'"></div>
+    </div>
+  </div>
 
-    <div class="df-toeic-quiz-choices">
-      <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
-        <button type="button"
-                class="df-toeic-quiz-choice"
-                :class="{
-                  'df-toeic-quiz-choice--correct': answered && choice === currentQ.correct,
-                  'df-toeic-quiz-choice--wrong': answered && selectedIndex === ci && choice !== currentQ.correct,
-                  'df-toeic-quiz-choice--disabled': answered,
-                }"
-                :disabled="answered"
-                @click="answer(ci)">
-          <span class="df-toeic-quiz-choice-letter" x-text="['A','B','C','D'][ci]"></span>
-          <span x-text="choice"></span>
+  <!-- Question Card -->
+  <div class="df-quiz-glass-panel df-quiz-main-card" x-show="!showResult">
+    <div class="df-toeic-quiz-area">
+      <div class="df-toeic-quiz-word">
+        <template x-if="isJP && currentQ?.html_display">
+          <span x-html="currentQ.html_display" style="font-size:1.4em; font-weight:800; line-height:1.6"></span>
+        </template>
+        <template x-if="!isJP || !currentQ?.html_display">
+          <span x-text="currentQ?.word" :style="isJP ? 'font-size:1.4em; font-weight:800' : ''"></span>
+        </template>
+        <button type="button" class="df-toeic-learn-audio-btn df-toeic-learn-audio-btn--sm"
+                @click="playAudio()" x-show="currentQ?.audio_url">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 010 7.07"/>
+          </svg>
         </button>
+      </div>
+      <template x-if="!isJP">
+        <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
       </template>
-    </div>
 
-    <!-- Feedback -->
-    <div class="df-toeic-quiz-feedback" x-show="answered" x-transition>
-      <template x-if="isCorrect">
-        <div class="df-toeic-quiz-feedback--correct">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          Chính xác!
-        </div>
-      </template>
-      <template x-if="!isCorrect && answered">
-        <div class="df-toeic-quiz-feedback--wrong">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
-          <span>Đáp án đúng: <strong x-text="currentQ?.correct"></strong></span>
-        </div>
-      </template>
-      <button type="button" class="df-toeic-btn df-toeic-btn--primary df-toeic-btn--sm"
-              @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Tiếp' : 'Xem kết quả'">
-      </button>
+      <div class="df-toeic-quiz-prompt">Chọn nghĩa đúng:</div>
+
+      <div class="df-toeic-quiz-choices">
+        <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
+          <button type="button"
+                  class="df-toeic-quiz-choice"
+                  :class="{
+                    'df-toeic-quiz-choice--correct': answered && choice === currentQ.correct,
+                    'df-toeic-quiz-choice--wrong': answered && selectedIndex === ci && choice !== currentQ.correct,
+                    'df-toeic-quiz-choice--disabled': answered,
+                  }"
+                  :disabled="answered"
+                  @click="answer(ci)">
+            <span class="df-toeic-quiz-choice-letter" x-text="['A','B','C','D'][ci]"></span>
+            <span x-text="choice"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- Feedback -->
+      <div class="df-toeic-quiz-feedback" x-show="answered" x-transition>
+        <template x-if="isCorrect">
+          <div class="df-toeic-quiz-feedback--correct">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Chính xác!
+          </div>
+        </template>
+        <template x-if="!isCorrect && answered">
+          <div class="df-toeic-quiz-feedback--wrong">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <span>Đáp án đúng: <strong x-text="currentQ?.correct"></strong></span>
+          </div>
+        </template>
+        <button type="button" class="df-toeic-btn df-toeic-btn--primary df-quiz-next-btn"
+                @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Tiếp theo →' : 'Xem kết quả'">
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Results Screen -->
-  <div class="df-toeic-quiz-result" x-show="showResult" x-transition>
-    <div class="df-toeic-quiz-result-icon" x-text="pct >= 80 ? '🎉' : '💪'"></div>
-    <h2 class="df-toeic-quiz-result-title" x-text="pct >= 80 ? 'Xuất sắc!' : 'Cố lên!'"></h2>
+  <div class="df-quiz-glass-panel df-quiz-main-card" x-show="showResult" x-transition>
+    <div class="df-toeic-quiz-result">
+      <div class="df-toeic-quiz-result-icon" x-text="pct >= 80 ? '🎉' : '💪'"></div>
+      <h2 class="df-toeic-quiz-result-title" x-text="pct >= 80 ? 'Xuất sắc!' : 'Cố lên!'"></h2>
 
-    <div class="df-toeic-quiz-result-score">
-      <span class="df-toeic-quiz-result-score-big" x-text="score"></span>
-      <span class="df-toeic-quiz-result-score-total">/ <span x-text="questions.length"></span></span>
-    </div>
+      <div class="df-toeic-quiz-result-score">
+        <span class="df-toeic-quiz-result-score-big" x-text="score"></span>
+        <span class="df-toeic-quiz-result-score-total">/ <span x-text="questions.length"></span></span>
+      </div>
 
-    <div class="df-toeic-quiz-result-pct"
-         :class="{'df-toeic-quiz-result-pct--pass': pct >= 80}">
-      <span x-text="pct + '%'"></span>
-    </div>
+      <div class="df-toeic-quiz-result-pct"
+           :class="{'df-toeic-quiz-result-pct--pass': pct >= 80}">
+        <span x-text="pct + '%'"></span>
+      </div>
 
-    <template x-if="pct >= 80">
-      <p class="df-toeic-quiz-result-msg">Hoàn thành bộ từ! Bạn đã nắm vững bộ từ này.</p>
-    </template>
-    <template x-if="pct < 80">
-      <p class="df-toeic-quiz-result-msg">Đạt 80% trở lên để hoàn thành bộ từ.</p>
-    </template>
-
-    <div class="df-toeic-learn-summary-actions">
-      <template x-if="pct < 80">
-        <a href="{% url 'vocab:course_learn' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary">
-          Học lại từ vựng
-        </a>
+      <template x-if="pct >= 80">
+        <p class="df-toeic-quiz-result-msg">Hoàn thành bộ từ! Bạn đã nắm vững bộ từ này.</p>
       </template>
-      <button type="button" @click="retry()" class="df-toeic-btn df-toeic-btn--primary" x-show="pct < 80">
-        Làm lại
-      </button>
-      <a href="{% url 'vocab:course_detail' slug=course.slug %}" class="df-toeic-btn df-toeic-btn--primary" x-show="pct >= 80">
-        Tiếp tục
-      </a>
-      <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary" x-show="pct >= 80">
-        Quay về Set
-      </a>
+      <template x-if="pct < 80">
+        <p class="df-toeic-quiz-result-msg">Đạt 80% trở lên để hoàn thành bộ từ.</p>
+      </template>
+
+      <div class="df-toeic-learn-summary-actions">
+        <template x-if="pct < 80">
+          <a href="{% url 'vocab:course_learn' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary">
+            Học lại từ vựng
+          </a>
+        </template>
+        <button type="button" @click="retry()" class="df-toeic-btn df-toeic-btn--primary" x-show="pct < 80">
+          Làm lại
+        </button>
+        <a href="{% url 'vocab:course_detail' slug=course.slug %}" class="df-toeic-btn df-toeic-btn--primary" x-show="pct >= 80">
+          Tiếp tục
+        </a>
+        <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-btn df-toeic-btn--secondary" x-show="pct >= 80">
+          Quay về Set
+        </a>
+      </div>
     </div>
   </div>
 
   <!-- Hidden data -->
   <script id="toeic-quiz-data" type="application/json">{{ questions_json|safe }}</script>
   <form id="csrf-form" class="hidden">{% csrf_token %}</form>
+</div>
 </div>
 
 <script>

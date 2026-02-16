@@ -258,7 +258,7 @@ textarea:not([class*="bg-"]) {
 }
 
 /* Ensure buttons have visible backgrounds when needed */
-button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.df-auth-btn):not(.df-auth-social-btn):not(.df-dictation-btn):not(.df-dictation-tab):not(.df-dictation-settings-btn):not(.df-transcript-nav-btn):not(.df-transcript-play-btn):not(.df-transcript-item-play):not(.df-toeic-question-number):not(.df-toeic-nav-qbtn):not(.df-toeic-part-btn):not(.df-toeic-nav-part-btn):not(.df-toeic-submit-btn):not(.df-toeic-audio-btn) {
+button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.df-auth-btn):not(.df-auth-social-btn):not(.df-dictation-btn):not(.df-dictation-tab):not(.df-dictation-settings-btn):not(.df-transcript-nav-btn):not(.df-transcript-play-btn):not(.df-transcript-item-play):not(.df-toeic-question-number):not(.df-toeic-nav-qbtn):not(.df-toeic-part-btn):not(.df-toeic-nav-part-btn):not(.df-toeic-submit-btn):not(.df-toeic-audio-btn):not(.df-toeic-quiz-choice):not(.df-toeic-learn-audio-btn):not(.df-toeic-grade-btn):not(.df-toeic-btn) {
   background-color: #fff;
 }
 
