@@ -480,6 +480,7 @@ class QuizQuestion(models.Model):
     question_type = models.CharField(max_length=10, choices=QuestionType.choices)
     correct_answer = models.CharField(max_length=255)
     distractors = models.JSONField(default=list)  # ["wrong1", "wrong2", "wrong3"]
+    mondai_type = models.CharField(max_length=50, blank=True, null=True, help_text="Tag for JLPT mondai type")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

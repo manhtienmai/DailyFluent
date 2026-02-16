@@ -459,6 +459,7 @@ class ExamQuestion(models.Model):
     
     image = models.ImageField(
         upload_to="exam/toeic/images/",
+        max_length=500,
         blank=True,
         null=True,
         help_text="Hình ảnh cho Listening Part 1 hoặc Reading Part 7 (nếu có).",
@@ -475,6 +476,7 @@ class ExamQuestion(models.Model):
 
     audio = models.FileField(
         upload_to="exam/listening/",
+        max_length=500,
         blank=True,
         null=True,
         help_text="File audio cho câu hỏi nghe (nếu có).",

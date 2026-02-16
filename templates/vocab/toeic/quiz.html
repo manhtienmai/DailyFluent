@@ -4,34 +4,24 @@
 {% block title %}Quiz Set {{ set_number }} - {{ config.label }} | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260216">
+<link rel="stylesheet" href="{% static 'css/toeic.css' %}?v=20260216b">
 {% endblock %}
 
 {% block content %}
 <div class="df-quiz-page" x-data="toeicQuiz()" x-init="init()">
 <div class="df-quiz-container">
 
-  <!-- Header Card -->
-  <div class="df-quiz-glass-panel">
-    <div class="df-toeic-learn-header">
-      <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-toeic-back-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-      </a>
-      <div class="df-toeic-learn-header-info">
-        <span class="df-toeic-level-badge df-toeic-level-badge--sm" style="background: {{ config.gradient }};">
-          {{ config.label }}
-        </span>
-        <span class="df-toeic-learn-set-label">Quiz - Set {{ set_number }}</span>
+  <!-- Quiz Header (compact) -->
+  <div class="df-quiz-header">
+    <a href="{% url 'vocab:course_set_detail' slug=course.slug set_number=set_number %}" class="df-quiz-header__back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <span class="df-quiz-header__title">Set {{ set_number }}</span>
+    <div class="df-quiz-header__progress">
+      <span class="df-quiz-header__counter" x-text="(currentIndex + 1) + ' / ' + questions.length"></span>
+      <div class="df-quiz-header__bar">
+        <div class="df-quiz-header__fill" :style="'width:' + ((currentIndex + 1) / questions.length * 100) + '%'"></div>
       </div>
-      <div class="df-toeic-learn-counter" x-text="(currentIndex + 1) + '/' + questions.length"></div>
-    </div>
-
-    <!-- Progress Bar -->
-    <div class="df-toeic-progress-bar df-toeic-progress-bar--lg">
-      <div class="df-toeic-progress-fill df-toeic-progress-fill--quiz"
-           :style="'width:' + ((currentIndex) / questions.length * 100) + '%'"></div>
     </div>
   </div>
 

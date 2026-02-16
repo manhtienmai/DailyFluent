@@ -43,7 +43,9 @@
       "Bash(PYTHONIOENCODING=utf-8 python:*)",
       "Bash(grep:*)",
       "Bash(xargs:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "WebSearch",
+      "WebFetch(domain:ai.google.dev)"
     ]
   }
 }

@@ -1,14 +1,19 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.views.decorators.http import require_POST
 import json
+
+from collections import OrderedDict
 
 from .models import (
     ExamTemplate,
     ExamAttempt,
+    ExamQuestion,
     QuestionAnswer,
     QuestionType,
     ExamBook,
@@ -1055,3 +1060,334 @@ def take_toeic_exam(request, session_id):
             "is_redo_mode": is_redo_mode,
         },
     )
+
+
+# ======================
+#  CHOUKAI (Listening)
+# ======================
+
+def choukai_book_list(request):
+    """Danh sách sách luyện nghe JLPT (Choukai)."""
+    selected_level = request.GET.get("level", "")
+
+    qs = ExamBook.objects.filter(category=ExamCategory.CHOUKAI, is_active=True)
+
+    jp_levels = ["N5", "N4", "N3", "N2", "N1"]
+    if selected_level in jp_levels:
+        qs = qs.filter(level=selected_level)
+
+    books = qs.prefetch_related("tests__questions").order_by("level", "title")
+
+    # Annotate question count per book
+    for book in books:
+        book.question_count = sum(
+            t.questions.count() for t in book.tests.all()
+        )
+        # Collect unique mondai tags
+        mondai_set = set()
+        for t in book.tests.all():
+            for q in t.questions.all():
+                if q.mondai:
+                    mondai_set.add(q.mondai)
+        book.mondai_tags = sorted(mondai_set)
+
+    return render(
+        request,
+        "exam/choukai/book_list.html",
+        {
+            "books": books,
+            "levels": jp_levels,
+            "selected_level": selected_level,
+        },
+    )
+
+
+def _resolve_file_url(field):
+    """Return the correct URL for a FileField/ImageField.
+
+    Some fields store full https:// URLs (e.g. Azure blob), others store
+    relative paths.  Using field.url on a full-URL value doubles the
+    MEDIA_URL prefix, so we detect and return the raw value directly.
+    """
+    if not field:
+        return None
+    raw = str(field)
+    if raw.startswith("http://") or raw.startswith("https://"):
+        return raw
+    return field.url
+
+
+def _ruby_to_html(text):
+    """Convert inline ruby notation ``kanji(reading)`` → ``<ruby>kanji<rt>reading</rt></ruby>``.
+
+    Pattern: one-or-more non-paren chars followed by ``(hiragana/katakana)``.
+    Leaves non-matching text (punctuation, spaces) untouched.
+    """
+    import re
+    from markupsafe import Markup
+
+    if not text:
+        return ""
+
+    # Match: base(reading) where base has no parens and reading is kana / letters
+    def _repl(m):
+        base = m.group(1)
+        rt = m.group(2)
+        # Skip pure-hiragana bases where base == reading (redundant ruby)
+        if base == rt:
+            return base
+        return f"<ruby>{base}<rt>{rt}</rt></ruby>"
+
+    html = re.sub(r'([^\s()（）、。！？…「」『』\n]+)\(([^)]+)\)', _repl, text)
+    return Markup(html)
+
+
+def _parse_ruby_blocks(transcript_vi):
+    """Parse ``audio_transcript_vi`` into ordered ruby-annotated HTML lines.
+
+    The field contains speaker blocks like::
+
+        [F]：バス(ばす)の(の)朝(あさ)...
+        *  vocab...
+        *  **Full Vietnamese translation:** ...
+
+        [M]：えっと(えっと)...
+        ...
+
+    Returns a list of ``{ speaker, ruby_html }`` in order.
+    """
+    import re
+    if not transcript_vi:
+        return []
+
+    # Split on [F]： or [M]： only at line start (not after * bullet)
+    blocks = re.split(r'(?m)(?=^\[[FM]\][\s：:])', transcript_vi.strip())
+    result = []
+    for block in blocks:
+        block = block.strip()
+        if not block:
+            continue
+        # Only match speaker lines at the very start of the block
+        m = re.match(r'^\[([FM])\][\s：:]+(.+?)(?:\n|$)', block)
+        if m:
+            speaker = m.group(1).upper()
+            ruby_line = m.group(2).strip()
+            result.append({
+                "speaker": speaker,
+                "ruby_html": _ruby_to_html(ruby_line),
+            })
+    return result
+
+
+def _parse_conversation(raw_lines, transcript_vi=""):
+    """Parse conversation lines into structured {speaker, text, text_vi, text_ruby} pairs.
+
+    The choukai tool generates alternating lines:
+      even index → Japanese text (may have ►F：/►M： prefix for speaker)
+      odd  index → Vietnamese translation of the previous line
+
+    ``transcript_vi`` is the raw ``audio_transcript_vi`` field which contains
+    ruby-annotated versions of the speaker lines.
+    """
+    import re
+
+    # Build ruby lookup: ordered list per speaker
+    ruby_blocks = _parse_ruby_blocks(transcript_vi)
+    # Index counters per speaker to match in order
+    ruby_by_speaker = {}  # { "F": [html1, html2, ...], "M": [...] }
+    for rb in ruby_blocks:
+        ruby_by_speaker.setdefault(rb["speaker"], []).append(rb["ruby_html"])
+    ruby_idx = {"F": 0, "M": 0}
+
+    parsed = []
+    i = 0
+    while i < len(raw_lines):
+        line = raw_lines[i]
+        jp_text = line.get("text", "")
+        vi_text = ""
+
+        # Next line is the Vietnamese translation
+        if i + 1 < len(raw_lines):
+            next_line = raw_lines[i + 1]
+            next_text = next_line.get("text", "")
+            # Heuristic: if next line doesn't start with ► it's a translation
+            if not next_text.startswith("►"):
+                vi_text = next_text
+                i += 2
+            else:
+                i += 1
+        else:
+            i += 1
+
+        # Extract speaker from ►F： or ►M： prefix
+        speaker = ""
+        m = re.match(r'^►\s*([FMfm])[\s：:]+', jp_text)
+        if m:
+            speaker = m.group(1).upper()
+            jp_text = jp_text[m.end():]
+        elif jp_text.startswith("►"):
+            jp_text = jp_text.lstrip("►").strip()
+            speaker = "N"  # narrator
+
+        # Match ruby annotation from transcript_vi
+        text_ruby = ""
+        if speaker in ("F", "M"):
+            idx = ruby_idx.get(speaker, 0)
+            speaker_rubies = ruby_by_speaker.get(speaker, [])
+            if idx < len(speaker_rubies):
+                text_ruby = speaker_rubies[idx]
+                ruby_idx[speaker] = idx + 1
+
+        parsed.append({
+            "speaker": speaker,
+            "text": jp_text,
+            "text_vi": vi_text,
+            "text_ruby": str(text_ruby),  # Markup → str for JSON
+        })
+    return parsed
+
+
+def choukai_book_detail(request, slug):
+    """Trang luyện nghe cho 1 cuốn sách Choukai."""
+    book = get_object_or_404(ExamBook, slug=slug, is_active=True, category=ExamCategory.CHOUKAI)
+
+    # Get the auto-created template(s) for this book
+    templates = ExamTemplate.objects.filter(
+        book=book, category=ExamCategory.CHOUKAI, is_active=True
+    )
+
+    # Gather all questions across all templates for this book
+    questions = (
+        ExamQuestion.objects.filter(template__in=templates)
+        .select_related("template")
+        .order_by("mondai", "order_in_mondai", "order", "id")
+    )
+
+    # Group by mondai (1-5)
+    mondai_groups = OrderedDict()
+    for q in questions:
+        key = q.mondai or "1"
+        if key not in mondai_groups:
+            mondai_groups[key] = []
+        mondai_groups[key].append(q)
+
+    # Build rich question data for template
+    mondai_data = []
+    for mondai_key, qs_list in mondai_groups.items():
+        items = []
+        for q in qs_list:
+            # Parse conversation into structured pairs with ruby
+            raw_conv = q.data.get("conversation", [])
+            conversation = _parse_conversation(raw_conv, q.audio_transcript_vi or "")
+
+            # Process choices — add ruby HTML if text contains kanji(reading) patterns
+            raw_choices = q.data.get("choices", [])
+            choices = []
+            for c in raw_choices:
+                choice = dict(c)
+                text = c.get("text", "")
+                ruby_html = str(_ruby_to_html(text))
+                # Only set text_ruby if it differs from plain text (has actual ruby)
+                choice["text_ruby"] = ruby_html if ruby_html != text else ""
+                choices.append(choice)
+
+            item = {
+                "id": q.id,
+                "order": q.order,
+                "order_in_mondai": q.order_in_mondai,
+                "text": q.text or "",
+                "text_vi": q.text_vi or "",
+                "audio_url": _resolve_file_url(q.audio),
+                "image_url": _resolve_file_url(q.image),
+                "choices": choices,
+                "correct_answer": q.correct_answer or "",
+                "conversation": conversation,
+                "audio_transcript": q.audio_transcript or "",
+                "audio_transcript_vi": q.audio_transcript_vi or "",
+            }
+            items.append(item)
+
+        mondai_data.append({
+            "key": mondai_key,
+            "questions": items,
+            "count": len(items),
+        })
+
+    total_questions = questions.count()
+
+    # Load previous answers for logged-in user
+    prev_answers = {}  # {question_id: {"selected": key, "correct": bool}}
+    if request.user.is_authenticated and templates.exists():
+        attempt = ExamAttempt.objects.filter(
+            user=request.user,
+            template=templates.first(),
+            data__mode="choukai_practice",
+        ).order_by("-started_at").first()
+        if attempt:
+            for ans in attempt.answers.select_related("question"):
+                prev_answers[ans.question_id] = {
+                    "selected": ans.raw_answer.get("selected_key", ""),
+                    "correct": ans.is_correct,
+                }
+
+    return render(
+        request,
+        "exam/choukai/book_detail.html",
+        {
+            "book": book,
+            "mondai_data": mondai_data,
+            "mondai_data_json": json.dumps(mondai_data, ensure_ascii=False),
+            "prev_answers_json": json.dumps(prev_answers, ensure_ascii=False),
+            "total_questions": total_questions,
+        },
+    )
+
+
+@require_POST
+@login_required
+def choukai_save_answer(request):
+    """API: save a single choukai answer. Creates/reuses an ExamAttempt per user+template."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
+
+    question_id = data.get("question_id")
+    selected_key = data.get("selected_key", "")
+    if not question_id:
+        return JsonResponse({"ok": False, "error": "question_id required"}, status=400)
+
+    question = get_object_or_404(ExamQuestion, pk=question_id)
+    template = question.template
+
+    # Get or create an in-progress attempt for this user + template
+    attempt = ExamAttempt.objects.filter(
+        user=request.user,
+        template=template,
+        status=ExamAttempt.Status.IN_PROGRESS,
+        data__mode="choukai_practice",
+    ).order_by("-started_at").first()
+    if not attempt:
+        attempt = ExamAttempt.objects.create(
+            user=request.user,
+            template=template,
+            total_questions=ExamQuestion.objects.filter(template=template).count(),
+            data={"mode": "choukai_practice"},
+        )
+
+    is_correct = str(selected_key) == str(question.correct_answer)
+
+    QuestionAnswer.objects.update_or_create(
+        attempt=attempt,
+        question=question,
+        defaults={
+            "raw_answer": {"selected_key": selected_key},
+            "is_correct": is_correct,
+        },
+    )
+
+    # Update correct count
+    attempt.correct_count = attempt.answers.filter(is_correct=True).count()
+    attempt.save(update_fields=["correct_count"])
+
+    return JsonResponse({"ok": True, "is_correct": is_correct})

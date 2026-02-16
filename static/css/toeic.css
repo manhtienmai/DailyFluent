@@ -921,13 +921,13 @@
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
+  border-radius: 24px;
   box-shadow:
-    0 4px 24px -4px rgba(99, 102, 241, 0.12),
-    0 8px 48px -8px rgba(99, 102, 241, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
+    0 4px 32px -4px rgba(99, 102, 241, 0.08),
+    0 16px 48px -8px rgba(99, 102, 241, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 [data-theme="dark"] .df-quiz-glass-panel {
@@ -943,6 +943,77 @@
   padding: 1.5rem;
 }
 
+/* ---- Quiz Compact Header ---- */
+.df-quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.df-quiz-header__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-interactive, rgba(0,0,0,0.04));
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.df-quiz-header__back:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+}
+.df-quiz-header__back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.df-quiz-header__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.df-quiz-header__progress {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.df-quiz-header__counter {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.df-quiz-header__bar {
+  width: 80px;
+  height: 4px;
+  background: var(--bg-interactive, rgba(0,0,0,0.06));
+  border-radius: 2px;
+  overflow: hidden;
+}
+[data-theme="dark"] .df-quiz-header__bar {
+  background: rgba(255,255,255,0.08);
+}
+
+.df-quiz-header__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #6366f1, #0ea5e9);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* ---- Quiz ---- */
 .df-toeic-quiz-area {
   max-width: 560px;
@@ -954,11 +1025,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 1rem 0 0.5rem;
+  margin: 1.25rem 0 0.75rem;
   text-align: center;
+  letter-spacing: -0.02em;
 }
 
 .df-toeic-quiz-ipa {
@@ -984,16 +1056,16 @@
 .df-toeic-quiz-choice {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.75rem;
-  border: 1.5px solid #cbd5e1;
-  background-color: rgba(248, 250, 252, 0.8) !important;
-  font-size: 0.9375rem;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1.5px solid #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  font-size: 1rem;
   color: var(--text-primary);
   cursor: pointer;
   text-align: left;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
@@ -1185,7 +1257,7 @@
 .df-toeic-review-grades {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1.5rem;
+  margin: 1.5rem auto 0;
   width: 100%;
   max-width: 480px;
 }

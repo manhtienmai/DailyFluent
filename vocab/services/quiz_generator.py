@@ -7,12 +7,30 @@ from .gemini_service import GeminiService
 logger = logging.getLogger(__name__)
 
 
-def generate_and_save_for_set_item(set_item_id, model_name=None):
+def _is_pure_kana(text):
+    """Check if text is purely hiragana/katakana (no kanji)."""
+    for ch in text:
+        if ch in 'ぁ-んァ-ヶー・＜＞':
+            continue
+        # Unicode ranges: Hiragana 3040-309F, Katakana 30A0-30FF
+        cp = ord(ch)
+        if (0x3040 <= cp <= 0x309F) or (0x30A0 <= cp <= 0x30FF):
+            continue
+        # Fullwidth brackets, punctuation, etc - still "kana-like"
+        if ch in '＜＞（）「」・ー〜':
+            continue
+        # If it's a CJK ideograph (kanji), it's NOT pure kana
+        if (0x4E00 <= cp <= 0x9FFF) or (0x3400 <= cp <= 0x4DBF):
+            return False
+    return True
+
+
+def generate_and_save_for_set_item(set_item_id, model_name=None, mondai_type=None):
     """
     Generate quiz distractors for a single SetItem and save to DB.
     Returns (result_dict, error_string).
     """
-    from vocab.models import SetItem, QuizQuestion
+    from vocab.models import SetItem
 
     try:
         set_item = SetItem.objects.select_related(
@@ -24,28 +42,29 @@ def generate_and_save_for_set_item(set_item_id, model_name=None):
     vocab = set_item.definition.entry.vocab
     ed = vocab.extra_data or {}
     kanji = vocab.word
-    reading = ed.get('reading', '')
+    reading = ed.get('reading', '') or kanji  # fallback: word itself
     meaning = set_item.definition.meaning
+    is_kana = _is_pure_kana(kanji)
 
-    if not reading:
-        return None, f"No reading found for {kanji}"
+    if is_kana:
+        result, error = generate_meaning_only_distractors(kanji, meaning, model_name=model_name)
+    else:
+        result, error = generate_quiz_distractors(kanji, reading, meaning, model_name=model_name)
 
-    result, error = generate_quiz_distractors(kanji, reading, meaning, model_name=model_name)
     if error:
         return None, error
 
-    saved = _save_quiz_results(set_item, result)
+    saved = _save_quiz_results(set_item, result, mondai_type=mondai_type)
     return saved, None
 
 
-def generate_and_save_batch(set_item_ids, model_name=None):
+def generate_and_save_batch(set_item_ids, model_name=None, mondai_type=None):
     """
     Generate quiz distractors for multiple SetItems in one Gemini call.
     Returns (results_dict_by_id, errors_list).
     """
-    from vocab.models import SetItem, QuizQuestion
+    from vocab.models import SetItem
 
-    # Ensure all IDs are ints
     set_item_ids = [int(sid) for sid in set_item_ids]
 
     items = SetItem.objects.filter(
@@ -54,54 +73,68 @@ def generate_and_save_batch(set_item_ids, model_name=None):
 
     items_map = {item.pk: item for item in items}
 
-    # Build word list for batch prompt
-    words = []
-    valid_ids = []
+    # Split words into kanji words (3 quiz types) and kana-only words (meaning only)
+    kanji_words = []
+    kana_words = []
     for sid in set_item_ids:
         item = items_map.get(sid)
         if not item:
             continue
         vocab = item.definition.entry.vocab
         ed = vocab.extra_data or {}
-        reading = ed.get('reading', '')
-        if not reading:
-            continue
-        words.append({
+        word = vocab.word
+        reading = ed.get('reading', '') or word
+        meaning = item.definition.meaning
+
+        entry = {
             'id': sid,
-            'kanji': vocab.word,
+            'kanji': word,
             'reading': reading,
-            'meaning': item.definition.meaning,
-        })
-        valid_ids.append(sid)
+            'meaning': meaning,
+        }
+        if _is_pure_kana(word):
+            kana_words.append(entry)
+        else:
+            kanji_words.append(entry)
 
-    if not words:
-        return {}, ["No valid words with reading found"]
+    if not kanji_words and not kana_words:
+        return {}, ["No valid words found in batch"]
 
-    result, error = generate_batch_distractors(words, model_name=model_name)
-    if error:
-        return {}, [error]
-
-    # Save results to DB
     results_by_id = {}
     errors = []
-    for word_data in words:
-        sid = word_data['id']
-        kanji = word_data['kanji']
-        word_result = result.get(kanji)
-        if not word_result:
-            errors.append(f"No result for {kanji}")
-            continue
-        item = items_map[sid]
-        saved = _save_quiz_results(item, word_result)
-        results_by_id[sid] = {
-            'word': kanji,
-            'questions': saved,
-        }
+
+    # Process kanji words (full 3-type generation)
+    if kanji_words:
+        result, error = generate_batch_distractors(kanji_words, model_name=model_name)
+        if error:
+            errors.append(error)
+        else:
+            for wd in kanji_words:
+                word_result = result.get(wd['kanji'])
+                if not word_result:
+                    errors.append(f"No result for {wd['kanji']}")
+                    continue
+                saved = _save_quiz_results(items_map[wd['id']], word_result, mondai_type=mondai_type)
+                results_by_id[wd['id']] = {'word': wd['kanji'], 'questions': saved}
+
+    # Process kana-only words (meaning-only generation)
+    if kana_words:
+        result, error = generate_batch_meaning_only(kana_words, model_name=model_name)
+        if error:
+            errors.append(error)
+        else:
+            for wd in kana_words:
+                word_result = result.get(wd['kanji'])
+                if not word_result:
+                    errors.append(f"No result for {wd['kanji']}")
+                    continue
+                saved = _save_quiz_results(items_map[wd['id']], word_result, mondai_type=mondai_type)
+                results_by_id[wd['id']] = {'word': wd['kanji'], 'questions': saved}
 
     return results_by_id, errors
 
 
-def _save_quiz_results(set_item, result):
+def _save_quiz_results(set_item, result, mondai_type=None):
     """Save quiz result dict to QuizQuestion records."""
     from vocab.models import QuizQuestion
 
@@ -117,6 +150,7 @@ def _save_quiz_results(set_item, result):
                 defaults={
                     'correct_answer': q_data.get('correct', ''),
                     'distractors': q_data.get('distractors', []),
+                    'mondai_type': mondai_type,
                 },
             )
             saved[qtype] = {
@@ -128,7 +162,7 @@ def _save_quiz_results(set_item, result):
 
 def generate_quiz_distractors(kanji, reading, meaning, model_name=None):
     """
-    Generate quiz distractors for a single JP vocabulary word using Gemini AI.
+    Generate quiz distractors for a JP word with kanji.
     Returns (data_dict, error_string).
     """
     prompt = f"""You are a JLPT exam question designer. Generate high-quality distractors for a Japanese vocabulary quiz.
@@ -165,10 +199,32 @@ Return ONLY valid JSON in this exact format, no markdown:
     return _call_gemini_and_parse(prompt, model_name)
 
 
+def generate_meaning_only_distractors(word, meaning, model_name=None):
+    """
+    Generate meaning-only distractors for a hiragana/katakana word.
+    Reading and kanji quiz types are not applicable.
+    """
+    prompt = f"""You are a JLPT exam question designer. Generate distractors for a Japanese vocabulary quiz.
+
+Word: {word}
+Meaning (Vietnamese): {meaning}
+
+This word is written in hiragana/katakana only (no kanji). Generate exactly 3 plausible but WRONG Vietnamese meaning distractors. They should be meanings of similar or related Japanese words, NOT random words.
+
+Return ONLY valid JSON, no markdown:
+{{
+  "meaning": {{
+    "correct": "{meaning}",
+    "distractors": ["wrong1", "wrong2", "wrong3"]
+  }}
+}}"""
+
+    return _call_gemini_and_parse(prompt, model_name)
+
+
 def generate_batch_distractors(words, model_name=None):
     """
-    Generate quiz distractors for multiple words in one Gemini call.
-    words: list of dicts with keys: kanji, reading, meaning
+    Generate quiz distractors for multiple kanji words in one Gemini call.
     Returns (data_dict_keyed_by_kanji, error_string).
     """
     word_lines = []
@@ -188,12 +244,42 @@ For EACH word above, generate exactly 3 plausible but WRONG distractors for each
 2. **Reading** (Hiragana): Similar-looking/sounding hiragana readings.
 3. **Kanji**: Visually similar kanji compounds sharing characters.
 
-Return ONLY valid JSON in this exact format (no markdown), keyed by kanji:
+Return ONLY valid JSON in this exact format (no markdown), keyed by the word:
 {{
   "{sample_kanji}": {{
     "meaning": {{ "correct": "...", "distractors": ["w1", "w2", "w3"] }},
     "reading": {{ "correct": "...", "distractors": ["w1", "w2", "w3"] }},
     "kanji": {{ "correct": "...", "distractors": ["w1", "w2", "w3"] }}
+  }},
+  ...
+}}"""
+
+    return _call_gemini_and_parse(prompt, model_name)
+
+
+def generate_batch_meaning_only(words, model_name=None):
+    """
+    Generate meaning-only distractors for multiple hiragana/katakana words.
+    Returns (data_dict_keyed_by_word, error_string).
+    """
+    word_lines = []
+    for i, w in enumerate(words, 1):
+        word_lines.append(f"{i}. {w['kanji']} — {w['meaning']}")
+
+    words_text = "\n".join(word_lines)
+    sample = words[0]['kanji']
+
+    prompt = f"""You are a JLPT exam question designer. Generate distractors for a Japanese vocabulary quiz.
+
+These words are hiragana/katakana only (no kanji). For each, generate 3 plausible but WRONG Vietnamese meaning distractors. They should be meanings of similar or related Japanese words.
+
+Words:
+{words_text}
+
+Return ONLY valid JSON (no markdown), keyed by the word:
+{{
+  "{sample}": {{
+    "meaning": {{ "correct": "...", "distractors": ["w1", "w2", "w3"] }}
   }},
   ...
 }}"""

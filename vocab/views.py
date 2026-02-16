@@ -536,15 +536,20 @@ class CourseListView(LoginRequiredMixin, TemplateView):
                 }
             })
 
-        # Calculate total review count across all levels
+        # Calculate review count across all courses
         review_count = 0
         if user.is_authenticated:
-            # Global FSRS review count
             try:
-                from vocab.services import FsrsService
-                review_count = FsrsService.get_due_cards(user).count()
-            except ImportError:
-                pass  # Handle case where FsrsService is not ready
+                all_vocab_ids = SetItem.objects.filter(
+                    vocabulary_set__status='published',
+                ).values_list('definition__entry__vocab_id', flat=True).distinct()
+                review_count = FsrsCardStateEn.objects.filter(
+                    user=user,
+                    vocab_id__in=all_vocab_ids,
+                    due__lte=timezone.now(),
+                ).count()
+            except Exception:
+                pass
 
         # Aggregate stats
         total_words_all = sum(c['total_words'] for c in courses_data)
@@ -1190,19 +1195,40 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         now = timezone.now()
+        slug = self.kwargs.get('slug')
 
-        # Get all TOEIC vocab IDs
-        toeic_vocab_ids = SetItem.objects.filter(
-            vocabulary_set__toeic_level__isnull=False,
-            vocabulary_set__status='published',
-        ).values_list(
-            'definition__entry__vocab_id', flat=True
-        ).distinct()
+        # Determine which vocab IDs to review based on course context
+        course = None
+        if slug:
+            course = get_object_or_404(Course, slug=slug)
+
+        if course:
+            # Course-specific review: get vocab IDs from this course's sets
+            if course.toeic_level is not None:
+                sets_qs = VocabularySet.objects.filter(
+                    toeic_level=course.toeic_level, status='published',
+                )
+            elif course.collection:
+                sets_qs = VocabularySet.objects.filter(
+                    collection=course.collection, status='published',
+                )
+            else:
+                sets_qs = VocabularySet.objects.filter(
+                    language=course.language, toeic_level__isnull=True, status='published',
+                )
+            vocab_ids_qs = SetItem.objects.filter(
+                vocabulary_set__in=sets_qs,
+            ).values_list('definition__entry__vocab_id', flat=True).distinct()
+        else:
+            # Legacy /toeic/review/ — review all vocab across all courses
+            vocab_ids_qs = SetItem.objects.filter(
+                vocabulary_set__status='published',
+            ).values_list('definition__entry__vocab_id', flat=True).distinct()
 
         # Get due FSRS cards
         due_cards = FsrsCardStateEn.objects.filter(
             user=user,
-            vocab_id__in=toeic_vocab_ids,
+            vocab_id__in=vocab_ids_qs,
             due__lte=now,
         ).select_related('vocab')[:50]
 
@@ -1217,10 +1243,11 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
             )
             vocab_map = {v.id: v for v in vocabs_qs}
 
+        is_jp = course.language == 'jp' if course else False
+
         cards_data = []
         for card_state in due_cards:
             vocab = vocab_map.get(card_state.vocab_id) or card_state.vocab
-            # Get first entry + definition for display
             entries = list(vocab.entries.all())
             entry = entries[0] if entries else None
             if not entry:
@@ -1231,21 +1258,31 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
                 continue
 
             intervals = preview_intervals(card_state.card_data)
-            cards_data.append({
+            card = {
                 'vocab_id': vocab.id,
                 'word': vocab.word,
-                'ipa': entry.ipa,
-                'audio_url': entry.get_audio_url('us'),
                 'meaning': definition.meaning,
                 'part_of_speech': entry.part_of_speech,
                 'example': definition.example_sentence,
                 'example_trans': definition.example_trans,
                 'intervals': intervals,
-            })
+            }
+            if is_jp:
+                extra = vocab.extra_data or {}
+                card['reading'] = extra.get('reading', '')
+                card['html_display'] = extra.get('html_display', '')
+            else:
+                card['ipa'] = entry.ipa
+                card['audio_url'] = entry.get_audio_url('us')
+
+            cards_data.append(card)
 
         context.update({
             'cards_json': json.dumps(cards_data),
             'cards_count': len(cards_data),
+            'course': course,
+            'is_jp': is_jp,
+            'back_url': reverse('vocab:course_detail', args=[slug]) if slug else reverse('vocab:toeic_home'),
         })
         return context
 

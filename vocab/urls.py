@@ -40,6 +40,7 @@ urlpatterns = [
     path('courses/<slug:slug>/set/<int:set_number>/quiz/', views.CourseQuizView.as_view(), name='course_quiz'), 
     
     path('toeic/review/', views.ToeicReviewView.as_view(), name='toeic_review'),
+    path('courses/<slug:slug>/review/', views.ToeicReviewView.as_view(), name='course_review'),
 
     # Games
     path('games/', views.GamesView.as_view(), name='games'),

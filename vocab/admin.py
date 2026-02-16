@@ -104,6 +104,15 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             path('manual-distribute/move/', self.admin_site.admin_view(self.move_to_set_api), name='vocab_vocabulary_move_to_set_api'),
             path('manual-distribute/create-set/', self.admin_site.admin_view(self.create_set_api), name='vocab_vocabulary_create_set_api'),
             path('manual-distribute/set-counts/', self.admin_site.admin_view(self.set_counts_api), name='vocab_vocabulary_set_counts_api'),
+            # Choukai Tool
+            path('choukai-tool/', self.admin_site.admin_view(self.choukai_tool_view), name='vocab_vocabulary_choukai_tool'),
+            path('choukai-tool/ghibli-redraw/', self.admin_site.admin_view(self.choukai_ghibli_api), name='vocab_vocabulary_choukai_ghibli'),
+            path('choukai-tool/ocr-extract/', self.admin_site.admin_view(self.choukai_ocr_api), name='vocab_vocabulary_choukai_ocr'),
+            path('choukai-tool/translate/', self.admin_site.admin_view(self.choukai_translate_api), name='vocab_vocabulary_choukai_translate'),
+            path('choukai-tool/upload-audio/', self.admin_site.admin_view(self.choukai_upload_audio_api), name='vocab_vocabulary_choukai_upload_audio'),
+            path('choukai-tool/save-question/', self.admin_site.admin_view(self.choukai_save_question_api), name='vocab_vocabulary_choukai_save_question'),
+            path('choukai-tool/load-questions/', self.admin_site.admin_view(self.choukai_load_questions_api), name='vocab_vocabulary_choukai_load_questions'),
+            path('choukai-tool/create-book/', self.admin_site.admin_view(self.choukai_create_book_api), name='vocab_vocabulary_choukai_create_book'),
             # Quiz Generation
             path('quiz-generate/', self.admin_site.admin_view(self.quiz_generate_view), name='vocab_vocabulary_quiz_generate'),
             path('quiz-generate/api/', self.admin_site.admin_view(self.quiz_generate_api), name='vocab_vocabulary_quiz_generate_api'),
@@ -1004,6 +1013,303 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             'sets': [{'id': s['id'], 'count': s['word_count']} for s in sets]
         })
 
+    # ── Choukai Tool Views ──────────────────────────────────────
+
+    # Mondai types for JLPT Choukai
+    CHOUKAI_MONDAI_TYPES = [
+        ('1', 'もんだい1 課題理解'),
+        ('2', 'もんだい2 ポイント理解'),
+        ('3', 'もんだい3 概要理解'),
+        ('4', 'もんだい4 発話表現'),
+        ('5', 'もんだい5 即時応答'),
+    ]
+
+    def _get_or_create_choukai_template(self, book):
+        """Get or create the single hidden template for a choukai book."""
+        from exam.models import ExamTemplate, ExamCategory
+        template, _ = ExamTemplate.objects.get_or_create(
+            book=book,
+            category=ExamCategory.CHOUKAI,
+            defaults={
+                'title': f'Choukai - {book.title}',
+                'level': book.level,
+            },
+        )
+        return template
+
+    def choukai_tool_view(self, request):
+        from exam.models import ExamBook, ExamCategory
+        books = ExamBook.objects.filter(
+            category=ExamCategory.CHOUKAI
+        ).order_by('title')
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Choukai Data Preparation Tool",
+            books=books,
+            mondai_types=self.CHOUKAI_MONDAI_TYPES,
+        )
+        return render(request, "admin/vocab/vocabulary/choukai_tool.html", context)
+
+    def choukai_load_questions_api(self, request):
+        """GET: return questions for a book, optionally filtered by mondai tag."""
+        from exam.models import ExamQuestion
+        book_id = request.GET.get('book_id')
+        mondai = request.GET.get('mondai', '')
+        if not book_id:
+            return JsonResponse({'questions': []})
+        qs = ExamQuestion.objects.filter(
+            template__book_id=int(book_id),
+        ).order_by('mondai', 'order_in_mondai', 'order')
+        if mondai:
+            qs = qs.filter(mondai=mondai)
+        return JsonResponse({'questions': [
+            {
+                'id': q.id,
+                'order': q.order,
+                'mondai': q.mondai,
+                'order_in_mondai': q.order_in_mondai,
+                'text': q.text,
+                'text_vi': q.text_vi,
+                'audio_url': q.audio.url if q.audio else '',
+                'image_url': q.image.url if q.image else '',
+                'audio_transcript': q.audio_transcript,
+                'audio_transcript_vi': q.audio_transcript_vi,
+                'data': q.data,
+                'correct_answer': q.correct_answer,
+            }
+            for q in qs
+        ]})
+
+    def choukai_ghibli_api(self, request):
+        """POST: Ghibli-redraw via Gemini. Returns base64 preview."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        if 'image' not in request.FILES:
+            return JsonResponse({'success': False, 'error': 'No image file'}, status=400)
+        try:
+            image_file = request.FILES['image']
+            image_bytes = image_file.read()
+            mime_type = image_file.content_type or 'image/png'
+            model_name = request.POST.get('model', 'gemini-2.5-flash-image')
+            custom_prompt = request.POST.get('prompt', '').strip()
+
+            from .services.gemini_service import GeminiService
+            prompt = custom_prompt or (
+                "Redraw this image in Studio Ghibli anime style. Keep the same composition "
+                "and scene but transform it into warm, hand-painted Ghibli aesthetic with "
+                "soft colors and detailed backgrounds."
+            )
+            result_bytes, result_mime = GeminiService.generate_image(
+                prompt, ref_image_bytes=image_bytes, mime_type=mime_type,
+                model_name=model_name,
+            )
+            if result_bytes is None:
+                return JsonResponse({'success': False, 'error': result_mime})
+            import base64
+            b64 = base64.b64encode(result_bytes).decode()
+            return JsonResponse({'success': True, 'image_b64': b64, 'mime_type': result_mime})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def choukai_ocr_api(self, request):
+        """POST: OCR extract via Gemini, return JSON text."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        if 'image' not in request.FILES:
+            return JsonResponse({'success': False, 'error': 'No image file'}, status=400)
+        try:
+            image_file = request.FILES['image']
+            image_bytes = image_file.read()
+            mime_type = image_file.content_type or 'image/png'
+            model_name = request.POST.get('model', 'gemini-2.5-flash')
+            from .services.gemini_service import GeminiService
+            prompt = (
+                "Extract all text from this Japanese listening exam image. Return as JSON with this structure:\n"
+                '{\n  "questions": [\n    {\n'
+                '      "number": 1,\n'
+                '      "question_text": "...",\n'
+                '      "choices": ["1. ...", "2. ...", "3. ...", "4. ..."]\n'
+                '    }\n  ]\n}\n'
+                'If there are images/illustrations described in the question, note them in an "image_description" field.\n'
+                'IMPORTANT: Preserve ALL kanji exactly as printed. Do NOT simplify or replace kanji with hiragana.'
+            )
+            text = GeminiService.generate_with_image(prompt, image_bytes, mime_type, model_name=model_name)
+            return JsonResponse({'success': True, 'text': text})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def choukai_translate_api(self, request):
+        """POST: segment + translate JP text via Gemini."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        try:
+            data = json.loads(request.body)
+            text = data.get('text', '').strip()
+            model_name = data.get('model', 'gemini-2.5-flash')
+            level = data.get('level', '').strip().upper()  # e.g. "N3"
+            if not text:
+                return JsonResponse({'success': False, 'error': 'No text provided'}, status=400)
+            from .services.gemini_service import GeminiService
+
+            # Build ruby filtering rule based on book level
+            ruby_filter = ""
+            if level in ("N3", "N2", "N1"):
+                # Map levels to numeric difficulty for comparison
+                # N5=5(easiest), N4=4, N3=3, N2=2, N1=1(hardest)
+                level_num = int(level[1])  # e.g. N3 → 3
+                skip_threshold = level_num + 2  # skip words 2+ levels below
+                skip_levels = [f"N{n}" for n in range(skip_threshold, 6) if n <= 5]
+                if skip_levels:
+                    ruby_filter = (
+                        f"\n\nIMPORTANT — Ruby/furigana filtering rule:\n"
+                        f"The learner is studying at {level} level.\n"
+                        f"Only add furigana 漢字(かんじ) for vocabulary that is {level} level or harder (closer to N1).\n"
+                        f"Do NOT add furigana for very basic words at {', '.join(skip_levels)} level "
+                        f"(e.g. common words like 人, 何, 今日, 食べる, 行く, 大きい, 時間, 学校, etc.).\n"
+                        f"These easy words should appear as plain kanji without (reading) annotation.\n"
+                        f"Only annotate words that a {level} student would actually need help reading.\n"
+                    )
+            elif level in ("N4", "N5"):
+                ruby_filter = (
+                    "\n\nAdd furigana 漢字(かんじ) for all kanji words since the learner is at beginner level.\n"
+                )
+
+            prompt = (
+                "Segment this Japanese text and provide Vietnamese translation.\n"
+                "Lines may have speaker tags like [F] (female) or [M] (male) — keep those tags in your output.\n\n"
+                "For each sentence:\n"
+                "1. Show the speaker tag if present (e.g. [F] or [M])\n"
+                "2. Break into segments (words/phrases)\n"
+                "3. Show reading (furigana) for kanji using format: 漢字(かんじ)\n"
+                "4. Vietnamese meaning of each segment\n"
+                "5. Full Vietnamese translation of the sentence\n\n"
+                "Format as structured text. Do NOT wrap in ```json or ``` code fences.\n"
+                f"{ruby_filter}\n"
+                f"Text:\n{text}"
+            )
+            result = GeminiService.generate_text(prompt, model_name=model_name)
+            return JsonResponse({'success': True, 'result': result})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def choukai_upload_audio_api(self, request):
+        """POST: upload audio to Azure, return URL."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        if 'audio' not in request.FILES:
+            return JsonResponse({'success': False, 'error': 'No audio file'}, status=400)
+        try:
+            audio_file = request.FILES['audio']
+            custom_path = request.POST.get('path', '').strip()
+            ext = os.path.splitext(audio_file.name)[1].lower() or '.mp3'
+            if custom_path:
+                if not custom_path.startswith('exam/choukai/'):
+                    custom_path = f"exam/choukai/{custom_path}"
+                if not custom_path.endswith(ext):
+                    custom_path += ext
+                unique_name = custom_path
+            else:
+                unique_name = f"exam/choukai/{uuid.uuid4().hex}{ext}"
+            from config.storage_backends import AzureMediaStorage
+            storage = AzureMediaStorage()
+            saved = storage.save(unique_name, audio_file)
+            url = storage.url(saved)
+            return JsonResponse({'success': True, 'url': url})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def choukai_save_question_api(self, request):
+        """POST: save question to book. Auto-manages hidden template."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        try:
+            from exam.models import ExamBook, ExamQuestion, QuestionType
+            from django.core.files.base import ContentFile
+            import base64
+
+            data = json.loads(request.body)
+            question_id = data.get('question_id')
+            book_id = data.get('book_id')
+            if not book_id:
+                return JsonResponse({'success': False, 'error': 'book_id is required'}, status=400)
+
+            book = ExamBook.objects.get(pk=int(book_id))
+            template = self._get_or_create_choukai_template(book)
+
+            # Question fields
+            mondai = data.get('mondai', '')
+            order_in_mondai = data.get('order_in_mondai', 1)
+            text = data.get('text', '')
+            text_vi = data.get('text_vi', '')
+            correct_answer = data.get('correct_answer', '')
+            q_data = data.get('data', {})
+            audio_transcript = data.get('audio_transcript', '')
+            audio_transcript_vi = data.get('audio_transcript_vi', '')
+            conversation = data.get('conversation', [])
+            image_b64 = data.get('image_b64', '')
+            image_mime = data.get('image_mime', 'image/png')
+            audio_url = data.get('audio_url', '')
+
+            # Auto-compute order = total questions in book + 1
+            if question_id:
+                question = ExamQuestion.objects.get(pk=int(question_id))
+            else:
+                max_order = template.questions.count()
+                question = ExamQuestion(template=template, order=max_order + 1)
+
+            question.mondai = mondai
+            question.order_in_mondai = int(order_in_mondai) if order_in_mondai else 1
+            question.text = text
+            question.text_vi = text_vi
+            question.correct_answer = correct_answer or '1'
+            if conversation:
+                q_data['conversation'] = conversation
+            question.data = q_data
+            question.audio_transcript = audio_transcript
+            question.audio_transcript_vi = audio_transcript_vi
+            question.question_type = QuestionType.MCQ
+
+            if image_b64:
+                img_bytes = base64.b64decode(image_b64)
+                ext = '.png' if 'png' in image_mime else '.jpg'
+                fname = f"exam/choukai/img_{uuid.uuid4().hex[:8]}{ext}"
+                question.image.save(fname, ContentFile(img_bytes), save=False)
+
+            if audio_url:
+                question.audio = audio_url
+
+            question.save()
+            return JsonResponse({
+                'success': True,
+                'question_id': question.id,
+                'message': f'Saved Q{question.order} mondai={mondai} (id={question.id})',
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def choukai_create_book_api(self, request):
+        """POST: create a new ExamBook for Choukai category."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        try:
+            from exam.models import ExamBook, ExamCategory, ExamLevel
+            data = json.loads(request.body)
+            title = data.get('title', '').strip()
+            level = data.get('level', 'N2')
+            if not title:
+                return JsonResponse({'success': False, 'error': 'Title is required'}, status=400)
+            if level not in ExamLevel.values:
+                return JsonResponse({'success': False, 'error': f'Invalid level: {level}'}, status=400)
+            book = ExamBook.objects.create(
+                title=title, level=level,
+                category=ExamCategory.CHOUKAI, is_active=True,
+            )
+            return JsonResponse({'success': True, 'id': book.id, 'title': book.title, 'level': book.level})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
     def quiz_generate_view(self, request):
         """View to render the quiz generation page with Collection > Set selection."""
         collections = VocabSource.objects.filter(
@@ -1093,7 +1399,8 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         try:
             data = json.loads(request.body)
             set_item_id = data.get('set_item_id')
-            model_name = data.get('model', 'gemini-2.0-flash')
+            model_name = data.get('model', 'gemini-2.5-flash')
+            mondai_type = data.get('mondai_type')
 
             if not set_item_id:
                 return JsonResponse({
@@ -1102,7 +1409,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                 }, status=400)
 
             from .services.quiz_generator import generate_and_save_for_set_item
-            result, error = generate_and_save_for_set_item(set_item_id, model_name=model_name)
+            result, error = generate_and_save_for_set_item(set_item_id, model_name=model_name, mondai_type=mondai_type)
 
             if error:
                 return JsonResponse({
@@ -1130,7 +1437,8 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
         try:
             data = json.loads(request.body)
             set_item_ids = data.get('set_item_ids', [])
-            model_name = data.get('model', 'gemini-2.0-flash')
+            model_name = data.get('model', 'gemini-2.5-flash')
+            mondai_type = data.get('mondai_type')
 
             if not set_item_ids:
                 return JsonResponse({
@@ -1139,7 +1447,7 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
                 }, status=400)
 
             from .services.quiz_generator import generate_and_save_batch
-            results, errors = generate_and_save_batch(set_item_ids, model_name=model_name)
+            results, errors = generate_and_save_batch(set_item_ids, model_name=model_name, mondai_type=mondai_type)
 
             return JsonResponse({
                 'status': 'success',
@@ -1905,3 +2213,11 @@ class VocabSourceAdmin(admin.ModelAdmin):
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+
+@admin.register(QuizQuestion)
+class QuizQuestionAdmin(admin.ModelAdmin):
+    list_display = ('set_item', 'question_type', 'mondai_type', 'correct_answer', 'created_at')
+    list_filter = ('question_type', 'mondai_type', 'created_at')
+    search_fields = ('set_item__definition__entry__vocab__word', 'correct_answer')
+    readonly_fields = ('created_at', 'updated_at')

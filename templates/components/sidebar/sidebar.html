@@ -45,7 +45,7 @@ Sidebar Navigation Component
     </a>
 
     <a href="{% url 'exam:exam_list' %}" data-title="Đề thi"
-      class="df-sidebar-item {% if 'exam' in request.path and 'dictation' not in request.path %}active{% endif %}">
+      class="df-sidebar-item {% if 'exam' in request.path and 'dictation' not in request.path and 'choukai' not in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-exam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 11l3 3L22 4" />
@@ -53,6 +53,17 @@ Sidebar Navigation Component
         </svg>
       </span>
       <span class="df-sidebar-label">Đề thi</span>
+    </a>
+
+    <a href="{% url 'exam:choukai_book_list' %}" data-title="Luyện nghe"
+      class="df-sidebar-item {% if 'choukai' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon df-icon-choukai">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 18v-6a9 9 0 0118 0v6"/>
+          <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Luyện nghe</span>
     </a>
 
     <a href="{% url 'core:dictation_list' %}" data-title="Nghe chép chính tả"
