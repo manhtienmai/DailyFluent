@@ -39,14 +39,27 @@
   <div class="df-quiz-glass-panel df-quiz-main-card" x-show="!showResult">
     <div class="df-toeic-quiz-area">
       <div class="df-toeic-quiz-word">
-        <template x-if="isJP && currentQ?.html_display">
+        <!-- JP meaning quiz: show kanji with furigana -->
+        <template x-if="isJP && currentQ?.quiz_type === 'meaning' && currentQ?.html_display">
           <span x-html="currentQ.html_display" style="font-size:1.4em; font-weight:800; line-height:1.6"></span>
         </template>
-        <template x-if="!isJP || !currentQ?.html_display">
-          <span x-text="currentQ?.word" :style="isJP ? 'font-size:1.4em; font-weight:800' : ''"></span>
+        <!-- JP reading quiz: show kanji WITHOUT furigana -->
+        <template x-if="isJP && currentQ?.quiz_type === 'reading'">
+          <span x-text="currentQ.word" style="font-size:1.4em; font-weight:800"></span>
+        </template>
+        <!-- JP kanji quiz: show reading + meaning hint -->
+        <template x-if="isJP && currentQ?.quiz_type === 'kanji'">
+          <div style="text-align:center">
+            <span style="font-size:1.4em; font-weight:800" x-text="currentQ.reading"></span>
+            <div style="margin-top:0.3em; font-size:0.95em; opacity:0.75" x-text="currentQ.meaning"></div>
+          </div>
+        </template>
+        <!-- English / non-JP -->
+        <template x-if="!isJP">
+          <span x-text="currentQ?.word"></span>
         </template>
         <button type="button" class="df-toeic-learn-audio-btn df-toeic-learn-audio-btn--sm"
-                @click="playAudio()" x-show="currentQ?.audio_url">
+                @click="playAudio()" x-show="currentQ?.audio_url && currentQ?.quiz_type !== 'kanji'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M15.54 8.46a5 5 0 010 7.07"/>
@@ -57,7 +70,7 @@
         <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
       </template>
 
-      <div class="df-toeic-quiz-prompt">Chọn nghĩa đúng:</div>
+      <div class="df-toeic-quiz-prompt" x-text="quizPrompt"></div>
 
       <div class="df-toeic-quiz-choices">
         <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
@@ -171,6 +184,12 @@ function toeicQuiz() {
     },
     get pct() {
       return this.questions.length ? Math.round(this.score / this.questions.length * 100) : 0;
+    },
+    get quizPrompt() {
+      const qt = this.currentQ?.quiz_type;
+      if (qt === 'reading') return 'Chọn cách đọc đúng:';
+      if (qt === 'kanji') return 'Chọn chữ Hán (Kanji) đúng:';
+      return 'Chọn nghĩa đúng:';
     },
 
     init() {

@@ -1059,28 +1059,95 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
             ).values_list('meaning', flat=True).distinct()
         )
 
+        is_jp = course.language == Vocabulary.Language.JAPANESE
+
+        # Build reading and kanji distractor pools for JP courses
+        if is_jp:
+            current_vocab_ids = [item.definition.entry.vocab_id for item in items]
+            course_vocabs = Vocabulary.objects.filter(
+                language=Vocabulary.Language.JAPANESE,
+                entries__definitions__included_in_sets__vocabulary_set__status='published',
+                entries__definitions__included_in_sets__vocabulary_set__language=course.language,
+            ).exclude(id__in=current_vocab_ids).distinct()
+
+            if level is not None:
+                course_vocabs = course_vocabs.filter(
+                    entries__definitions__included_in_sets__vocabulary_set__toeic_level=level,
+                )
+            elif course.collection:
+                course_vocabs = course_vocabs.filter(
+                    entries__definitions__included_in_sets__vocabulary_set__collection=course.collection,
+                )
+
+            reading_distractors = []
+            kanji_distractors = []
+            for cv in course_vocabs:
+                ed = cv.extra_data or {}
+                reading = ed.get('reading', '')
+                if reading:
+                    reading_distractors.append(reading)
+                kanji_distractors.append(cv.word)
+
         questions = []
         for item in items:
             d = item.definition
             e = d.entry
             v = e.vocab
 
-            # Build 3 distractors
-            distractors = random.sample(level_definitions, min(3, len(level_definitions)))
-            choices = [d.meaning] + distractors
-            random.shuffle(choices)
-
-            q = {
-                'vocab_id': v.id,
-                'word': v.word,
-                'ipa': e.ipa,
-                'audio_url': e.get_audio_url('us'),
-                'correct': d.meaning,
-                'choices': choices,
-            }
-            if course.language == Vocabulary.Language.JAPANESE:
+            if is_jp:
                 ed = v.extra_data or {}
-                q['html_display'] = ed.get('html_display', '')
+                reading = ed.get('reading', '')
+                html_display = ed.get('html_display', '')
+
+                # Determine available quiz types
+                quiz_types = ['meaning']
+                if reading:
+                    quiz_types.extend(['reading', 'kanji'])
+                quiz_type = random.choice(quiz_types)
+
+                if quiz_type == 'meaning':
+                    distractors = random.sample(level_definitions, min(3, len(level_definitions)))
+                    choices = [d.meaning] + distractors
+                    random.shuffle(choices)
+                    correct = d.meaning
+                elif quiz_type == 'reading':
+                    pool = [r for r in reading_distractors if r != reading]
+                    distractors = random.sample(pool, min(3, len(pool)))
+                    choices = [reading] + distractors
+                    random.shuffle(choices)
+                    correct = reading
+                else:  # kanji
+                    pool = [k for k in kanji_distractors if k != v.word]
+                    distractors = random.sample(pool, min(3, len(pool)))
+                    choices = [v.word] + distractors
+                    random.shuffle(choices)
+                    correct = v.word
+
+                q = {
+                    'vocab_id': v.id,
+                    'word': v.word,
+                    'reading': reading,
+                    'meaning': d.meaning,
+                    'html_display': html_display,
+                    'audio_url': e.get_audio_url('us'),
+                    'quiz_type': quiz_type,
+                    'correct': correct,
+                    'choices': choices,
+                }
+            else:
+                # English / other languages - unchanged
+                distractors = random.sample(level_definitions, min(3, len(level_definitions)))
+                choices = [d.meaning] + distractors
+                random.shuffle(choices)
+
+                q = {
+                    'vocab_id': v.id,
+                    'word': v.word,
+                    'ipa': e.ipa,
+                    'audio_url': e.get_audio_url('us'),
+                    'correct': d.meaning,
+                    'choices': choices,
+                }
             questions.append(q)
 
         config = {
