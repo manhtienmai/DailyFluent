@@ -287,6 +287,16 @@ def _extract_fields(item, item_idx, default_pos):
         item.get('display', '')
     )
 
+    # --- Fix reading from html_display ---
+    # If html_display has <ruby> tags, the reading field may only contain
+    # furigana portions (e.g. しあ for 知り合い). Extract the full reading
+    # by replacing <ruby>X<rt>Y</rt></ruby> with Y and keeping plain text.
+    if html_display and '<ruby>' in html_display:
+        full_reading = re.sub(r'<ruby>[^<]*<rt>([^<]*)</rt></ruby>', r'\1', html_display)
+        full_reading = re.sub(r'<[^>]+>', '', full_reading)
+        if full_reading and len(full_reading) >= len(reading):
+            reading = full_reading
+
     # --- Meanings (Vietnamese) ---
     meanings = item.get('meanings', {})
     if isinstance(meanings, str):

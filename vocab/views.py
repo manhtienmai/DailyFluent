@@ -1040,7 +1040,7 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
 
         items = vocab_set.items.select_related(
             'definition__entry__vocab'
-        ).order_by('display_order', 'created_at')
+        ).prefetch_related('quiz_questions').order_by('display_order', 'created_at')
 
         # Get all meanings from same course for distractors
         if level is not None:
@@ -1099,13 +1099,25 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
                 reading = ed.get('reading', '')
                 html_display = ed.get('html_display', '')
 
+                # Check for stored quiz data
+                stored_quiz = {
+                    qq.question_type: qq
+                    for qq in item.quiz_questions.all()
+                }
+
                 # Determine available quiz types
                 quiz_types = ['meaning']
                 if reading:
                     quiz_types.extend(['reading', 'kanji'])
                 quiz_type = random.choice(quiz_types)
 
-                if quiz_type == 'meaning':
+                if quiz_type in stored_quiz:
+                    # Use stored distractors
+                    qq = stored_quiz[quiz_type]
+                    correct = qq.correct_answer
+                    choices = [correct] + qq.distractors[:3]
+                    random.shuffle(choices)
+                elif quiz_type == 'meaning':
                     distractors = random.sample(level_definitions, min(3, len(level_definitions)))
                     choices = [d.meaning] + distractors
                     random.shuffle(choices)

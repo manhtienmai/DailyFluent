@@ -466,6 +466,32 @@ class SetItemExample(models.Model):
         return f"{self.set_item} → {self.example.sentence[:40]}"
 
 
+class QuizQuestion(models.Model):
+    """
+    Stores pre-generated quiz distractors for a SetItem.
+    Each SetItem can have up to 3 records (meaning, reading, kanji).
+    """
+    class QuestionType(models.TextChoices):
+        MEANING = 'meaning', 'Meaning'
+        READING = 'reading', 'Reading'
+        KANJI = 'kanji', 'Kanji'
+
+    set_item = models.ForeignKey(SetItem, on_delete=models.CASCADE, related_name='quiz_questions')
+    question_type = models.CharField(max_length=10, choices=QuestionType.choices)
+    correct_answer = models.CharField(max_length=255)
+    distractors = models.JSONField(default=list)  # ["wrong1", "wrong2", "wrong3"]
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('set_item', 'question_type')
+        verbose_name = "Quiz Question"
+        verbose_name_plural = "Quiz Questions"
+
+    def __str__(self):
+        return f"{self.set_item} - {self.question_type}: {self.correct_answer}"
+
+
 class FsrsCardStateEn(models.Model):
     """
     Lưu trạng thái FSRS cho từ vựng tiếng Anh của user.

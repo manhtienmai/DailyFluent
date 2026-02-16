@@ -12,7 +12,7 @@ from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.core.files.storage import default_storage
-from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, VocabularySet, SetItem, SetItemExample, UserSetProgress, Course, VocabSource
+from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, VocabularySet, SetItem, SetItemExample, UserSetProgress, Course, VocabSource, QuizQuestion
 from .utils_scraper import scrape_cambridge
 from .services.jp_import import import_jp_vocab_data, import_jp_vocab_grouped, distribute_jp_vocab
 import nested_admin
@@ -104,6 +104,12 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             path('manual-distribute/move/', self.admin_site.admin_view(self.move_to_set_api), name='vocab_vocabulary_move_to_set_api'),
             path('manual-distribute/create-set/', self.admin_site.admin_view(self.create_set_api), name='vocab_vocabulary_create_set_api'),
             path('manual-distribute/set-counts/', self.admin_site.admin_view(self.set_counts_api), name='vocab_vocabulary_set_counts_api'),
+            # Quiz Generation
+            path('quiz-generate/', self.admin_site.admin_view(self.quiz_generate_view), name='vocab_vocabulary_quiz_generate'),
+            path('quiz-generate/api/', self.admin_site.admin_view(self.quiz_generate_api), name='vocab_vocabulary_quiz_generate_api'),
+            path('quiz-generate/batch-api/', self.admin_site.admin_view(self.quiz_generate_batch_api), name='vocab_vocabulary_quiz_generate_batch_api'),
+            path('quiz-generate/load-set/', self.admin_site.admin_view(self.quiz_load_set_api), name='vocab_vocabulary_quiz_load_set'),
+            path('quiz-generate/collection-sets/', self.admin_site.admin_view(self.quiz_collection_sets_api), name='vocab_vocabulary_quiz_collection_sets'),
         ]
         return custom_urls + urls
 
@@ -997,6 +1003,155 @@ class VocabularyAdmin(nested_admin.NestedModelAdmin):
             'unassigned': unassigned,
             'sets': [{'id': s['id'], 'count': s['word_count']} for s in sets]
         })
+
+    def quiz_generate_view(self, request):
+        """View to render the quiz generation page with Collection > Set selection."""
+        collections = VocabSource.objects.filter(
+            is_active=True,
+            language='jp',
+        ).order_by('display_order', 'name')
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title="Generate Quiz Distractors",
+            collections=collections,
+        )
+        return render(request, "admin/vocab/vocabulary/quiz_generate.html", context)
+
+    def quiz_collection_sets_api(self, request):
+        """API to get sets for a collection with quiz stats."""
+        from django.db.models import Count, Q
+        collection_id = request.GET.get('collection_id')
+        if not collection_id:
+            return JsonResponse({'error': 'collection_id required'}, status=400)
+
+        sets = VocabularySet.objects.filter(
+            collection_id=int(collection_id),
+            status=VocabularySet.Status.PUBLISHED,
+        ).annotate(
+            word_count=Count('items'),
+            quiz_count=Count('items__quiz_questions', distinct=True,
+                             filter=Q(items__quiz_questions__isnull=False)),
+        ).filter(word_count__gt=0).order_by('set_number', 'title')
+
+        result = []
+        for s in sets:
+            # Count items that have at least one quiz question
+            items_with_quiz = SetItem.objects.filter(
+                vocabulary_set=s,
+                quiz_questions__isnull=False,
+            ).distinct().count()
+            result.append({
+                'id': s.id,
+                'title': s.title,
+                'word_count': s.word_count,
+                'items_with_quiz': items_with_quiz,
+            })
+
+        return JsonResponse({'sets': result})
+
+    def quiz_load_set_api(self, request):
+        """API to load words in a VocabularySet with quiz status."""
+        set_id = request.GET.get('set_id')
+        if not set_id:
+            return JsonResponse({'error': 'set_id required'}, status=400)
+
+        try:
+            vocab_set = VocabularySet.objects.get(pk=int(set_id))
+        except (VocabularySet.DoesNotExist, ValueError):
+            return JsonResponse({'error': 'Set not found'}, status=404)
+
+        items = SetItem.objects.filter(
+            vocabulary_set=vocab_set
+        ).select_related(
+            'definition__entry__vocab'
+        ).prefetch_related('quiz_questions').order_by('display_order', 'id')
+
+        result = []
+        for item in items:
+            vocab = item.definition.entry.vocab
+            ed = vocab.extra_data or {}
+            existing_types = list(
+                item.quiz_questions.values_list('question_type', flat=True)
+            )
+            result.append({
+                'set_item_id': item.id,
+                'word': vocab.word,
+                'reading': ed.get('reading', ''),
+                'meaning': item.definition.meaning,
+                'has_quiz': len(existing_types) > 0,
+                'quiz_types': existing_types,
+            })
+
+        return JsonResponse({'items': result})
+
+    def quiz_generate_api(self, request):
+        """API to generate quiz distractors for a single SetItem and save to DB."""
+        if request.method != 'POST':
+            return JsonResponse({'status': 'error', 'message': 'POST required'}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            set_item_id = data.get('set_item_id')
+            model_name = data.get('model', 'gemini-2.5-pro')
+
+            if not set_item_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'set_item_id is required'
+                }, status=400)
+
+            from .services.quiz_generator import generate_and_save_for_set_item
+            result, error = generate_and_save_for_set_item(set_item_id, model_name=model_name)
+
+            if error:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error,
+                })
+
+            item = SetItem.objects.select_related('definition__entry__vocab').get(pk=set_item_id)
+            return JsonResponse({
+                'status': 'success',
+                'word': item.definition.entry.vocab.word,
+                'questions': result,
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    def quiz_generate_batch_api(self, request):
+        """API to generate quiz distractors for a batch of SetItems."""
+        if request.method != 'POST':
+            return JsonResponse({'status': 'error', 'message': 'POST required'}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            set_item_ids = data.get('set_item_ids', [])
+            model_name = data.get('model', 'gemini-2.5-pro')
+
+            if not set_item_ids:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'set_item_ids is required'
+                }, status=400)
+
+            from .services.quiz_generator import generate_and_save_batch
+            results, errors = generate_and_save_batch(set_item_ids, model_name=model_name)
+
+            return JsonResponse({
+                'status': 'success',
+                'results': results,
+                'errors': errors,
+                'total_saved': len(results),
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     def distribute_jp_view(self, request):
         """Auto-distribute JP words into VocabularySets by lesson."""

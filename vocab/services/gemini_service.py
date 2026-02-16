@@ -5,31 +5,40 @@ import logging
 logger = logging.getLogger(__name__)
 
 class GeminiService:
-    _model = None
+    _models = {}  # cache by model name
+    _configured = False
 
     @classmethod
-    def get_model(cls):
-        if cls._model is None:
+    def _configure(cls):
+        if not cls._configured:
             api_key = settings.GEMINI_API_KEY
             if not api_key:
                 logger.warning("GEMINI_API_KEY is not set.")
-                return None
-            
+                return False
             genai.configure(api_key=api_key)
-            cls._model = genai.GenerativeModel('gemini-1.5-flash')
-        return cls._model
+            cls._configured = True
+        return True
 
     @classmethod
-    def generate_text(cls, prompt):
+    def get_model(cls, model_name=None):
+        model_name = model_name or 'gemini-2.5-pro'
+        if model_name not in cls._models:
+            if not cls._configure():
+                return None
+            cls._models[model_name] = genai.GenerativeModel(model_name)
+        return cls._models[model_name]
+
+    @classmethod
+    def generate_text(cls, prompt, model_name=None):
         """
-        Generates text using the Gemini 1.5 Flash model.
-        Returns the text content or None if generation fails.
+        Generates text using the specified Gemini model.
+        Defaults to gemini-2.5-pro.
         """
         try:
-            model = cls.get_model()
+            model = cls.get_model(model_name)
             if not model:
                 return "Error: API Key not configured."
-            
+
             response = model.generate_content(prompt)
             return response.text
         except Exception as e:

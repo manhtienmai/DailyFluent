@@ -1,0 +1,631 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --border-color: #475569;
+            --accent: #3b82f6;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+        }
+        body { background-color: var(--bg-body) !important; color: var(--text-main) !important; }
+        #content-main { background: transparent; }
+        h1, h2, h3 { color: var(--text-main) !important; }
+
+        .panel {
+            background: var(--bg-panel);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+        .panel-title { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+        select, input[type="text"], input[type="number"] {
+            background: var(--bg-input); color: var(--text-main);
+            border: 1px solid var(--border-color); padding: 7px 10px;
+            border-radius: 6px; font-size: 13px;
+        }
+        select:focus, input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+        select { min-width: 280px; }
+        input[type="number"] { width: 80px; }
+        label { color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .help-text { color: #64748b; font-size: 11px; }
+
+        .btn {
+            padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer;
+            font-weight: 600; font-size: 13px; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--red); color: white; }
+        .btn-ghost { background: var(--bg-input); color: var(--text-muted); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .badge-blue { background: var(--accent); color: white; }
+        .badge-green { background: var(--green); color: white; }
+        .badge-gray { background: var(--bg-input); color: var(--text-muted); }
+
+        /* Params grid */
+        .params-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+        .param-item label { display: block; margin-bottom: 4px; }
+
+        /* Table */
+        .tbl { width: 100%; border-collapse: collapse; }
+        .tbl th { background: var(--bg-input); padding: 8px 10px; text-align: left; font-size: 12px; color: var(--text-muted); border-bottom: 2px solid var(--border-color); }
+        .tbl td { padding: 7px 10px; border-bottom: 1px solid rgba(71,85,105,0.3); font-size: 13px; }
+        .tbl tr:hover { background: rgba(59,130,246,0.04); }
+        .tbl input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+
+        .status-ok { color: #4ade80; font-weight: 700; }
+        .status-no { color: #64748b; }
+        .status-types { font-size: 11px; color: var(--text-muted); }
+
+        /* Set cards */
+        .set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+        .set-card {
+            background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 12px; cursor: pointer; transition: all 0.15s;
+        }
+        .set-card:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
+        .set-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+        .set-card .set-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .set-card .set-stats { font-size: 12px; color: var(--text-muted); }
+
+        /* Log & Progress */
+        .log-box {
+            background: #020617; color: #4ade80; padding: 12px;
+            font-family: 'Consolas', monospace; height: 180px; overflow-y: auto;
+            border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px;
+        }
+        .log-error { color: #ef4444; }
+        .log-warn { color: #f59e0b; }
+        .progress-bar-wrap { background: var(--bg-input); height: 22px; border-radius: 11px; overflow: hidden; margin-top: 12px; }
+        .progress-bar {
+            background: var(--accent); transition: width 0.3s; font-weight: 700;
+            line-height: 22px; text-align: center; color: white; font-size: 11px;
+        }
+
+        /* Result cards */
+        .word-card { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+        .word-card-hdr {
+            background: var(--bg-input); padding: 8px 14px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; user-select: none;
+        }
+        .word-card-hdr:hover { background: #3b4f6b; }
+        .word-card-hdr .wt { font-weight: 700; font-size: 14px; }
+        .word-card-body { padding: 14px; display: none; }
+        .word-card.open .word-card-body { display: block; }
+        .q-type { margin-bottom: 10px; padding: 8px; background: rgba(59,130,246,0.07); border-radius: 6px; border-left: 3px solid var(--accent); }
+        .q-type-label { font-weight: 600; color: var(--accent); font-size: 12px; text-transform: uppercase; margin-bottom: 4px; }
+        .q-ok { color: #4ade80; font-weight: 600; }
+        .q-wrong { color: var(--text-muted); margin-left: 8px; }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='vocab' %}">Vocab</a>
+    &rsaquo; <a href="{% url 'admin:vocab_vocabulary_changelist' %}">Vocabulary</a>
+    &rsaquo; Generate Quiz
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Quiz Distractor Generator</h1>
+
+    <!-- ===== STEP 1: Collection + Params ===== -->
+    <div class="panel">
+        <div class="panel-title">1. Collection &amp; Settings</div>
+        <div class="row">
+            <div>
+                <label>Collection:</label><br>
+                <select id="sel-collection">
+                    <option value="">-- Choose collection --</option>
+                    {% for c in collections %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="params-grid">
+            <div class="param-item">
+                <label>Gemini Model:</label>
+                <select id="sel-model" style="min-width:160px;">
+                    <option value="gemini-2.5-pro" selected>Gemini 2.5 Pro</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                </select>
+            </div>
+            <div class="param-item">
+                <label>Batch Size:</label>
+                <input type="number" id="inp-batch" value="5" min="1" max="20">
+                <span class="help-text">words/request</span>
+            </div>
+            <div class="param-item">
+                <label>Delay:</label>
+                <input type="number" id="inp-delay" value="6" min="1" max="60">
+                <span class="help-text">sec between batches</span>
+            </div>
+            <div class="param-item">
+                <label>Skip existing:</label>
+                <input type="checkbox" id="chk-skip" checked style="width:auto; height:auto; margin-top:6px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STEP 2: Choose Set ===== -->
+    <div class="panel" id="pnl-sets" style="display:none;">
+        <div class="panel-title">2. Choose Set</div>
+        <div class="row" style="margin-bottom: 10px;">
+            <button type="button" id="btn-gen-all" class="btn btn-success" disabled>Generate All Collection</button>
+            <span id="collection-stats" class="help-text"></span>
+        </div>
+        <div class="set-grid" id="set-grid"></div>
+    </div>
+
+    <!-- ===== STEP 3: Words in Set ===== -->
+    <div class="panel" id="pnl-words" style="display:none;">
+        <div class="panel-title">3. Words — <span id="set-title-label"></span></div>
+        <div class="row" style="margin-bottom: 8px;">
+            <button type="button" id="btn-sel-no-quiz" class="btn btn-ghost" style="font-size:12px;">Select Without Quiz</button>
+            <button type="button" id="btn-sel-all" class="btn btn-ghost" style="font-size:12px;">Select All</button>
+            <button type="button" id="btn-desel" class="btn btn-ghost" style="font-size:12px;">Deselect</button>
+            <span style="flex:1;"></span>
+            <button type="button" id="btn-gen-set" class="btn btn-success" disabled>Generate Selected</button>
+            <button type="button" id="btn-stop" class="btn btn-danger" disabled>Stop</button>
+        </div>
+        <div style="max-height: 380px; overflow-y: auto;">
+            <table class="tbl">
+                <thead><tr>
+                    <th style="width:35px;"><input type="checkbox" id="chk-all"></th>
+                    <th>Word</th><th>Reading</th><th>Meaning</th><th style="width:110px;">Status</th>
+                </tr></thead>
+                <tbody id="words-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== Progress ===== -->
+    <div class="panel" id="pnl-progress" style="display:none;">
+        <div class="row">
+            <span id="status-text" style="font-weight:700;">Ready</span>
+            <span style="flex:1;"></span>
+            <span id="progress-nums" class="help-text"></span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div id="progress-bar" class="progress-bar" style="width:0%;">0%</div>
+        </div>
+    </div>
+
+    <!-- ===== Log ===== -->
+    <h3>Log</h3>
+    <div id="log-box" class="log-box"></div>
+
+    <!-- ===== Results ===== -->
+    <div id="pnl-results" style="display:none; margin-top:16px;">
+        <div class="row" style="margin-bottom: 8px;">
+            <h3 style="margin:0;">Results</h3>
+            <span style="flex:1;"></span>
+            <button type="button" id="btn-expand" class="btn btn-ghost" style="font-size:12px;">Expand All</button>
+        </div>
+        <div id="results-cards"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const selCollection = document.getElementById('sel-collection');
+    const selModel = document.getElementById('sel-model');
+    const inpBatch = document.getElementById('inp-batch');
+    const inpDelay = document.getElementById('inp-delay');
+    const chkSkip = document.getElementById('chk-skip');
+    const pnlSets = document.getElementById('pnl-sets');
+    const setGrid = document.getElementById('set-grid');
+    const btnGenAll = document.getElementById('btn-gen-all');
+    const collectionStats = document.getElementById('collection-stats');
+    const pnlWords = document.getElementById('pnl-words');
+    const setTitleLabel = document.getElementById('set-title-label');
+    const wordsTbody = document.getElementById('words-tbody');
+    const chkAll = document.getElementById('chk-all');
+    const btnSelNoQuiz = document.getElementById('btn-sel-no-quiz');
+    const btnSelAll = document.getElementById('btn-sel-all');
+    const btnDesel = document.getElementById('btn-desel');
+    const btnGenSet = document.getElementById('btn-gen-set');
+    const btnStop = document.getElementById('btn-stop');
+    const pnlProgress = document.getElementById('pnl-progress');
+    const statusText = document.getElementById('status-text');
+    const progressNums = document.getElementById('progress-nums');
+    const progressBar = document.getElementById('progress-bar');
+    const logBox = document.getElementById('log-box');
+    const pnlResults = document.getElementById('pnl-results');
+    const resultsCards = document.getElementById('results-cards');
+    const btnExpand = document.getElementById('btn-expand');
+
+    let setsData = [];
+    let wordsData = [];
+    let activeSetId = null;
+    let isRunning = false;
+    let shouldStop = false;
+
+    // Helpers
+    function log(msg, type='info') {
+        const d = document.createElement('div');
+        d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        if (type === 'error') d.className = 'log-error';
+        if (type === 'warn') d.className = 'log-warn';
+        logBox.appendChild(d);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function getCookie(n) {
+        let v = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(n + '=')) v = decodeURIComponent(c.substring(n.length + 1));
+        });
+        return v;
+    }
+
+    function updateGenBtn() {
+        const cnt = wordsTbody.querySelectorAll('input[type="checkbox"]:checked').length;
+        btnGenSet.disabled = cnt === 0 || isRunning;
+        btnGenSet.textContent = `Generate Selected (${cnt})`;
+    }
+
+    function setProgress(current, total) {
+        const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+        progressBar.style.width = pct + '%';
+        progressBar.textContent = pct + '%';
+        progressNums.textContent = `${current} / ${total}`;
+    }
+
+    function setUIRunning(running) {
+        isRunning = running;
+        selCollection.disabled = running;
+        selModel.disabled = running;
+        inpBatch.disabled = running;
+        inpDelay.disabled = running;
+        btnGenAll.disabled = running;
+        btnStop.disabled = !running;
+        btnGenSet.disabled = running;
+        pnlProgress.style.display = running ? 'block' : pnlProgress.style.display;
+        setGrid.querySelectorAll('.set-card').forEach(c => c.style.pointerEvents = running ? 'none' : '');
+    }
+
+    // ===== Load collection sets =====
+    selCollection.addEventListener('change', async () => {
+        const cid = selCollection.value;
+        pnlSets.style.display = 'none';
+        pnlWords.style.display = 'none';
+        setGrid.innerHTML = '';
+        setsData = [];
+        if (!cid) return;
+
+        try {
+            const r = await fetch(`{% url 'admin:vocab_vocabulary_quiz_collection_sets' %}?collection_id=${cid}`);
+            const d = await r.json();
+            setsData = d.sets || [];
+
+            let totalWords = 0, totalWithQuiz = 0;
+            setsData.forEach(s => {
+                totalWords += s.word_count;
+                totalWithQuiz += s.items_with_quiz;
+
+                const card = document.createElement('div');
+                card.className = 'set-card';
+                card.dataset.id = s.id;
+                const pct = s.word_count > 0 ? Math.round((s.items_with_quiz / s.word_count) * 100) : 0;
+                card.innerHTML = `
+                    <div class="set-title">${s.title}</div>
+                    <div class="set-stats">
+                        ${s.word_count} words &middot;
+                        <span class="${s.items_with_quiz === s.word_count ? 'status-ok' : ''}">${s.items_with_quiz}/${s.word_count} quiz</span>
+                        (${pct}%)
+                    </div>
+                `;
+                card.addEventListener('click', () => loadSet(s.id, s.title));
+                setGrid.appendChild(card);
+            });
+
+            const collPct = totalWords > 0 ? Math.round((totalWithQuiz / totalWords) * 100) : 0;
+            collectionStats.textContent = `Total: ${totalWords} words, ${totalWithQuiz} with quiz (${collPct}%)`;
+            btnGenAll.disabled = false;
+            pnlSets.style.display = 'block';
+            log(`Loaded ${setsData.length} sets for collection.`);
+        } catch (e) {
+            log(`Error loading sets: ${e.message}`, 'error');
+        }
+    });
+
+    // ===== Load set words =====
+    async function loadSet(setId, title) {
+        activeSetId = setId;
+        setTitleLabel.textContent = title;
+
+        // Highlight active card
+        setGrid.querySelectorAll('.set-card').forEach(c => c.classList.toggle('active', c.dataset.id == setId));
+
+        try {
+            const r = await fetch(`{% url 'admin:vocab_vocabulary_quiz_load_set' %}?set_id=${setId}`);
+            const d = await r.json();
+            wordsData = d.items || [];
+            wordsTbody.innerHTML = '';
+
+            wordsData.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                const types = item.quiz_types || [];
+                tr.innerHTML = `
+                    <td><input type="checkbox" data-idx="${idx}" data-id="${item.set_item_id}"></td>
+                    <td style="font-weight:700;">${item.word}</td>
+                    <td>${item.reading}</td>
+                    <td>${item.meaning}</td>
+                    <td>${item.has_quiz
+                        ? `<span class="status-ok">&#10003;</span> <span class="status-types">${types.join(', ')}</span>`
+                        : '<span class="status-no">&#10007;</span>'
+                    }</td>
+                `;
+                wordsTbody.appendChild(tr);
+            });
+
+            pnlWords.style.display = 'block';
+            updateGenBtn();
+            log(`Loaded ${wordsData.length} words from "${title}".`);
+        } catch (e) {
+            log(`Error loading words: ${e.message}`, 'error');
+        }
+    }
+
+    // Checkbox handlers
+    chkAll.addEventListener('change', () => {
+        wordsTbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = chkAll.checked);
+        updateGenBtn();
+    });
+    wordsTbody.addEventListener('change', e => { if (e.target.type === 'checkbox') updateGenBtn(); });
+    btnSelNoQuiz.addEventListener('click', () => {
+        wordsData.forEach((item, idx) => {
+            if (!item.has_quiz) {
+                const cb = wordsTbody.querySelector(`input[data-idx="${idx}"]`);
+                if (cb) cb.checked = true;
+            }
+        });
+        updateGenBtn();
+    });
+    btnSelAll.addEventListener('click', () => {
+        wordsTbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+        updateGenBtn();
+    });
+    btnDesel.addEventListener('click', () => {
+        wordsTbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        chkAll.checked = false;
+        updateGenBtn();
+    });
+
+    // ===== Core: process items (batch mode) =====
+    async function processItems(itemIds) {
+        const batchSize = Math.max(1, Math.min(20, parseInt(inpBatch.value) || 5));
+        const delay = Math.max(1, parseInt(inpDelay.value) || 6) * 1000;
+        const model = selModel.value;
+        const skipExisting = chkSkip.checked;
+
+        // Filter out items that already have quiz if skip is on
+        let toProcess = itemIds;
+        if (skipExisting) {
+            toProcess = itemIds.filter(id => {
+                const item = wordsData.find(w => w.set_item_id === id);
+                return item && !item.has_quiz;
+            });
+        }
+
+        if (toProcess.length === 0) {
+            log('No words to process (all already have quiz).', 'warn');
+            return;
+        }
+
+        setUIRunning(true);
+        shouldStop = false;
+        pnlProgress.style.display = 'block';
+        resultsCards.innerHTML = '';
+        pnlResults.style.display = 'none';
+
+        const totalWords = toProcess.length;
+        const totalBatches = Math.ceil(totalWords / batchSize);
+        let processed = 0, success = 0, fail = 0;
+
+        log(`Starting: ${totalWords} words in ${totalBatches} batches (size=${batchSize}, delay=${delay/1000}s, model=${model})`, 'warn');
+
+        for (let b = 0; b < totalBatches; b++) {
+            if (shouldStop) { log('Stopped by user.', 'warn'); break; }
+
+            const batchIds = toProcess.slice(b * batchSize, (b + 1) * batchSize);
+            const batchWords = batchIds.map(id => {
+                const w = wordsData.find(w => w.set_item_id === id);
+                return w ? w.word : `#${id}`;
+            });
+
+            statusText.textContent = `Batch ${b+1}/${totalBatches}: ${batchWords.join(', ')}`;
+
+            try {
+                const url = batchIds.length === 1
+                    ? "{% url 'admin:vocab_vocabulary_quiz_generate_api' %}"
+                    : "{% url 'admin:vocab_vocabulary_quiz_generate_batch_api' %}";
+
+                const body = batchIds.length === 1
+                    ? { set_item_id: batchIds[0], model }
+                    : { set_item_ids: batchIds, model };
+
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify(body),
+                });
+                const data = await resp.json();
+
+                if (batchIds.length === 1) {
+                    // Single item response
+                    if (data.status === 'success') {
+                        log(`[OK] ${data.word}`);
+                        success++;
+                        updateWordStatus(batchIds[0], data.questions);
+                        renderCard(wordsData.find(w => w.set_item_id === batchIds[0]), data.questions);
+                    } else {
+                        log(`[FAIL] ${batchWords[0]}: ${data.message}`, 'error');
+                        fail++;
+                    }
+                } else {
+                    // Batch response
+                    if (data.status === 'success') {
+                        const results = data.results || {};
+                        for (const sid of batchIds) {
+                            const r = results[String(sid)];
+                            if (r) {
+                                log(`[OK] ${r.word}`);
+                                success++;
+                                updateWordStatus(sid, r.questions);
+                                renderCard(wordsData.find(w => w.set_item_id === sid), r.questions);
+                            } else {
+                                fail++;
+                            }
+                        }
+                        if (data.errors && data.errors.length > 0) {
+                            data.errors.forEach(e => log(`[WARN] ${e}`, 'warn'));
+                        }
+                        log(`Batch ${b+1}: saved ${data.total_saved}/${batchIds.length}`);
+                    } else {
+                        log(`[BATCH FAIL] ${data.message}`, 'error');
+                        fail += batchIds.length;
+                    }
+                }
+            } catch (err) {
+                log(`[ERR] Batch ${b+1}: ${err.message}`, 'error');
+                fail += batchIds.length;
+            }
+
+            processed += batchIds.length;
+            setProgress(processed, totalWords);
+            pnlResults.style.display = 'block';
+
+            if (b < totalBatches - 1 && !shouldStop) await sleep(delay);
+        }
+
+        setUIRunning(false);
+        statusText.textContent = `Done. Success: ${success}, Fail: ${fail}`;
+        log(`Finished. Success: ${success}, Fail: ${fail}`, 'warn');
+        updateGenBtn();
+
+        // Refresh collection stats
+        selCollection.dispatchEvent(new Event('change'));
+    }
+
+    function updateWordStatus(setItemId, questions) {
+        const idx = wordsData.findIndex(w => w.set_item_id === setItemId);
+        if (idx === -1) return;
+        const types = Object.keys(questions);
+        wordsData[idx].has_quiz = true;
+        wordsData[idx].quiz_types = types;
+        const row = wordsTbody.querySelector(`input[data-id="${setItemId}"]`);
+        if (row) {
+            const td = row.closest('tr').querySelector('td:last-child');
+            td.innerHTML = `<span class="status-ok">&#10003;</span> <span class="status-types">${types.join(', ')}</span>`;
+            row.checked = false;
+        }
+    }
+
+    // ===== Generate Selected =====
+    btnGenSet.addEventListener('click', () => {
+        const ids = Array.from(wordsTbody.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => parseInt(cb.dataset.id));
+        if (ids.length > 0) processItems(ids);
+    });
+
+    // ===== Generate All Collection =====
+    btnGenAll.addEventListener('click', async () => {
+        if (!confirm(`Generate quiz for ALL words in ALL sets of this collection?\nThis may take a while.`)) return;
+
+        // Collect all set_item_ids from all sets
+        setUIRunning(true);
+        pnlProgress.style.display = 'block';
+        statusText.textContent = 'Loading all sets...';
+        log('Loading all words from collection...', 'warn');
+
+        let allIds = [];
+        for (const s of setsData) {
+            try {
+                const r = await fetch(`{% url 'admin:vocab_vocabulary_quiz_load_set' %}?set_id=${s.id}`);
+                const d = await r.json();
+                const items = d.items || [];
+                items.forEach(item => {
+                    // Store in wordsData for status updates
+                    if (!wordsData.find(w => w.set_item_id === item.set_item_id)) {
+                        wordsData.push(item);
+                    }
+                    allIds.push(item.set_item_id);
+                });
+            } catch (e) {
+                log(`Error loading set ${s.title}: ${e.message}`, 'error');
+            }
+        }
+
+        setUIRunning(false);
+        log(`Total words loaded: ${allIds.length}`, 'warn');
+
+        if (allIds.length > 0) processItems(allIds);
+    });
+
+    // ===== Stop =====
+    btnStop.addEventListener('click', () => {
+        if (isRunning) { shouldStop = true; btnStop.textContent = 'Stopping...'; }
+    });
+
+    // ===== Result cards =====
+    function renderCard(item, questions) {
+        if (!item) return;
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        const hdr = document.createElement('div');
+        hdr.className = 'word-card-hdr';
+        hdr.innerHTML = `<span class="wt">${item.word} (${item.reading}) — ${item.meaning}</span><span>&#9654;</span>`;
+        hdr.addEventListener('click', () => card.classList.toggle('open'));
+        const body = document.createElement('div');
+        body.className = 'word-card-body';
+        [['meaning','Meaning'],['reading','Reading'],['kanji','Kanji']].forEach(([k,l]) => {
+            const q = questions[k];
+            if (!q) return;
+            const d = document.createElement('div');
+            d.className = 'q-type';
+            d.innerHTML = `<div class="q-type-label">${l}</div>
+                <div><span class="q-ok">&#10003; ${q.correct}</span></div>
+                ${q.distractors.map(x => `<div><span class="q-wrong">&#10007; ${x}</span></div>`).join('')}`;
+            body.appendChild(d);
+        });
+        card.appendChild(hdr);
+        card.appendChild(body);
+        resultsCards.appendChild(card);
+    }
+
+    btnExpand.addEventListener('click', () => {
+        const cards = document.querySelectorAll('.word-card');
+        const allOpen = Array.from(cards).every(c => c.classList.contains('open'));
+        cards.forEach(c => allOpen ? c.classList.remove('open') : c.classList.add('open'));
+        btnExpand.textContent = allOpen ? 'Expand All' : 'Collapse All';
+    });
+});
+</script>
+{% endblock %}
