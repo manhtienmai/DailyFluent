@@ -847,12 +847,12 @@ def choukai_book_list(request):
     # Pre-fetch templates/questions for counts
     bk_qs = qs.prefetch_related(
         Prefetch(
-            'templates',
+            'tests',
             queryset=ExamTemplate.objects.filter(is_active=True),
             to_attr='active_templates'
         )
     )
-    
+
     books = []
     for b in bk_qs:
         # Choukai books typically have 1 hidden template
@@ -888,7 +888,7 @@ def choukai_book_detail(request, slug):
     book = get_object_or_404(ExamBook, slug=slug, category=ExamCategory.CHOUKAI, is_active=True)
     
     # Get the template (Choukai books have 1 main template)
-    template = book.templates.filter(is_active=True).first()
+    template = book.tests.filter(is_active=True).first()
     
     questions = []
     mondai_groups = []
