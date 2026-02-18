@@ -181,7 +181,7 @@ function toeicReview() {
 
       let result = {};
       try {
-        const resp = await fetch("{% url 'vocab:api_toeic_review_grade' %}", {
+        const resp = await fetch("{% url 'vocab:api_course_review_grade' %}", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

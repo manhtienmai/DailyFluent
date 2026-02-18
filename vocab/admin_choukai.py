@@ -78,17 +78,22 @@ class ChoukaiToolMixin:
         ]})
 
     def choukai_ghibli_api(self, request):
-        """POST: Ghibli-redraw via Gemini. Returns base64 preview."""
+        """POST: Ghibli generate via Gemini. Image is optional; use 'prompt' field if no image."""
         if request.method != 'POST':
             return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
-        if 'image' not in request.FILES:
-            return JsonResponse({'success': False, 'error': 'No image file'}, status=400)
         try:
-            image_file = request.FILES['image']
-            image_bytes = image_file.read()
-            mime_type = image_file.content_type or 'image/png'
+            image_bytes = None
+            mime_type = 'image/png'
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                image_bytes = image_file.read()
+                mime_type = image_file.content_type or 'image/png'
+
             model_name = request.POST.get('model', 'gemini-2.5-flash-image')
             custom_prompt = request.POST.get('prompt', '').strip()
+
+            if not custom_prompt and not image_bytes:
+                return JsonResponse({'success': False, 'error': 'Need image or prompt'}, status=400)
 
             from .services.gemini_service import GeminiService
             prompt = custom_prompt or (
@@ -105,6 +110,78 @@ class ChoukaiToolMixin:
             import base64
             b64 = base64.b64encode(result_bytes).decode()
             return JsonResponse({'success': True, 'image_b64': b64, 'mime_type': result_mime})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    ANALYZE_SYSTEM_PROMPT = (
+        "Role: You are an AI specialized in Japanese OCR and Art Direction.\n\n"
+        "Task: Analyze the input image, classify it into one of the 3 categories below, "
+        "and return a strict JSON output.\n\n"
+        "---\nCLASSIFICATION LOGIC:\n\n"
+        "1. **Category: \"SCENE_WITH_OPTIONS\"**\n"
+        "   - Condition: Image contains an illustration AND text-based options (A, B, C, D or 1, 2, 3 with Japanese text).\n"
+        "   - Action: Extract the text of the options. Generate a Ghibli-style image prompt based on the illustration.\n\n"
+        "2. **Category: \"SCENE_ONLY\"**\n"
+        "   - Condition: Image contains an illustration. It might have numbers/labels (1, 2, 3...) pointing to things, but NO text options listed.\n"
+        "   - Action: IGNORE the labels/numbers. Focus on the visual scene. Generate a Ghibli-style image prompt. Set options to null.\n\n"
+        "3. **Category: \"TEXT_OPTIONS_ONLY\"**\n"
+        "   - Condition: Image contains only text options (A, B, C, D...). No illustration.\n"
+        "   - Action: Extract the text of the options. Set image prompt to null.\n\n"
+        "---\nINSTRUCTIONS:\n\n"
+        "1. **NO QUESTION EXTRACTION:** Do not extract the main question sentence. Focus ONLY on the option answers.\n"
+        "2. **RUBY/FURIGANA:** For all Japanese text extraction, you MUST preserve the reading using this format: "
+        "`{Kanji}(Furigana)`. Example: `{学生}(がくせい)`.\n"
+        "3. **IMAGE PROMPT (Style Enforced):**\n"
+        "   - Start with: \"Studio Ghibli style anime illustration, high quality, detailed background...\"\n"
+        "   - Describe the scene visually (what is happening, who is there, the setting).\n"
+        "   - Ignore any overlay text or numbers in the prompt description.\n\n"
+        "---\nOUTPUT JSON FORMAT:\n\n"
+        "{\n"
+        "  \"type\": \"SCENE_WITH_OPTIONS\" | \"SCENE_ONLY\" | \"TEXT_OPTIONS_ONLY\",\n"
+        "  \"ghibli_prompt\": \"String (English prompt for image gen) or null\",\n"
+        "  \"data\": {\n"
+        "    \"options\": [\n"
+        "      { \"label\": \"1\", \"content\": \"{日本}(にほん)\" }\n"
+        "    ]\n"
+        "    // Return empty array [] if type is SCENE_ONLY\n"
+        "  }\n"
+        "}\n\n"
+        "Return ONLY the JSON object, no markdown fences."
+    )
+
+    def choukai_analyze_api(self, request):
+        """POST: Classify image via Gemini 2.5 Flash. Returns type, ghibli_prompt, options."""
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+        try:
+            if 'image' not in request.FILES:
+                return JsonResponse({'success': True, 'type': None, 'ghibli_prompt': None, 'data': {'options': []}})
+
+            image_file = request.FILES['image']
+            image_bytes = image_file.read()
+            mime_type = image_file.content_type or 'image/png'
+
+            from .services.gemini_service import GeminiService
+            import re
+
+            raw = GeminiService.generate_with_image(
+                self.ANALYZE_SYSTEM_PROMPT, image_bytes, mime_type, model_name='gemini-2.5-flash'
+            )
+            # Strip code fences if model wraps output
+            clean = raw.strip()
+            m = re.search(r'```(?:json)?\s*([\s\S]*?)```', clean)
+            if m:
+                clean = m.group(1).strip()
+
+            parsed = json.loads(clean)
+            return JsonResponse({
+                'success': True,
+                'type': parsed.get('type'),
+                'ghibli_prompt': parsed.get('ghibli_prompt'),
+                'data': parsed.get('data', {'options': []}),
+            })
+        except json.JSONDecodeError as e:
+            return JsonResponse({'success': False, 'error': f'JSON parse error: {str(e)}'}, status=500)
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
 

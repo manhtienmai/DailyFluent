@@ -19,7 +19,6 @@ urlpatterns = [
     path('sets/<int:pk>/import/', views.import_json_view, name='set_import'),
 
     # Lists
-
     path('english/<str:word>/', views.VocabularyDetailView.as_view(), name='vocabulary_detail'),
 
     path('progress/', views.ProgressView.as_view(), name='progress'),
@@ -28,19 +27,14 @@ urlpatterns = [
     path('phrases/', views.PhraseListView.as_view(), name='phrases'),
     path('my-words/', views.MyWordsView.as_view(), name='my_words'),
 
-    # TOEIC/Course pages
-    path('courses/', views.CourseListView.as_view(), name='course_list'), # Alias/New home
-    path('toeic/', views.CourseListView.as_view(), name='toeic_home'), # Legacy redirect/alias
-    
+    # Course pages
+    path('courses/', views.CourseListView.as_view(), name='course_list'),
     path('courses/<slug:slug>/', views.CourseDetailView.as_view(), name='course_detail'),
     path('courses/<slug:slug>/set/<int:set_number>/', views.CourseSetDetailView.as_view(), name='course_set_detail'),
     path('courses/<slug:slug>/set/<int:set_number>/learn/', views.CourseLearnView.as_view(), name='course_learn'),
-    
-    # Quiz view
-    path('courses/<slug:slug>/set/<int:set_number>/quiz/', views.CourseQuizView.as_view(), name='course_quiz'), 
-    
-    path('toeic/review/', views.ToeicReviewView.as_view(), name='toeic_review'),
-    path('courses/<slug:slug>/review/', views.ToeicReviewView.as_view(), name='course_review'),
+    path('courses/<slug:slug>/set/<int:set_number>/quiz/', views.CourseQuizView.as_view(), name='course_quiz'),
+    path('courses/review/', views.CourseReviewView.as_view(), name='course_review_all'),
+    path('courses/<slug:slug>/review/', views.CourseReviewView.as_view(), name='course_review'),
 
     # Games
     path('games/', views.GamesView.as_view(), name='games'),
@@ -50,14 +44,14 @@ urlpatterns = [
     path('games/fill/', views.GameFillView.as_view(), name='game_fill'),
     path('games/dictation/', views.GameDictationView.as_view(), name='game_dictation'),
 
-    # TOEIC APIs
-    path('api/toeic/learn-result/', views.api_toeic_learn_result, name='api_toeic_learn_result'),
-    path('api/toeic/quiz-result/', views.api_toeic_quiz_result, name='api_toeic_quiz_result'),
-    path('api/toeic/review-grade/', views.api_toeic_review_grade, name='api_toeic_review_grade'),
-    
+    # Course APIs
+    path('api/courses/learn-result/', views.api_course_learn_result, name='api_course_learn_result'),
+    path('api/courses/quiz-result/', views.api_course_quiz_result, name='api_course_quiz_result'),
+    path('api/courses/review-grade/', views.api_course_review_grade, name='api_course_review_grade'),
+
     # Flashcard APIs (unified)
     path('api/flashcard/grade/', views.api_flashcard_grade_english, name='flashcard_grade_english'),
-    
+
     # Game APIs
     path('api/games/buy-life/', views.api_buy_game_life, name='api_buy_game_life'),
 ]

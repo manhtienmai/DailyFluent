@@ -238,7 +238,7 @@ function toeicLearn() {
        else unknownIds.push(id);
 
        try {
-        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+        const resp = await fetch("{% url 'vocab:api_course_learn_result' %}", {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ function toeicLearn() {
              else unknownIds.push(item.id);
         });
 
-        const resp = await fetch("{% url 'vocab:api_toeic_learn_result' %}", {
+        const resp = await fetch("{% url 'vocab:api_course_learn_result' %}", {
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',

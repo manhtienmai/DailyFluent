@@ -60,7 +60,7 @@
         <div class="df-toeic-quiz-ipa" x-text="currentQ?.ipa"></div>
       </template>
 
-      <div class="df-toeic-quiz-prompt" x-text="quizPrompt"></div>
+
 
       <div class="df-toeic-quiz-choices">
         <template x-for="(choice, ci) in (currentQ?.choices || [])" :key="ci">
@@ -90,16 +90,7 @@
             Chính xác!
           </div>
         </template>
-        <template x-if="!isCorrect && answered">
-          <div class="df-toeic-quiz-feedback--wrong">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="15" y1="9" x2="9" y2="15"/>
-              <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-            <span>Đáp án đúng: <strong x-text="currentQ?.correct"></strong></span>
-          </div>
-        </template>
+
         <button type="button" class="df-toeic-btn df-toeic-btn--primary df-quiz-next-btn"
                 @click="nextQuestion()" x-text="currentIndex < questions.length - 1 ? 'Tiếp theo →' : 'Xem kết quả'">
         </button>
@@ -175,12 +166,7 @@ function toeicQuiz() {
     get pct() {
       return this.questions.length ? Math.round(this.score / this.questions.length * 100) : 0;
     },
-    get quizPrompt() {
-      const qt = this.currentQ?.quiz_type;
-      if (qt === 'reading') return 'Chọn cách đọc đúng:';
-      if (qt === 'kanji') return 'Chọn chữ Hán (Kanji) đúng:';
-      return 'Chọn nghĩa đúng:';
-    },
+
 
     init() {
       const raw = document.getElementById('toeic-quiz-data');
@@ -222,7 +208,7 @@ function toeicQuiz() {
     async submitResults() {
       const csrf = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
       try {
-        const resp = await fetch("{% url 'vocab:api_toeic_quiz_result' %}", {
+        const resp = await fetch("{% url 'vocab:api_course_quiz_result' %}", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

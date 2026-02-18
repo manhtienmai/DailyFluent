@@ -444,7 +444,7 @@ class PhraseListView(LoginRequiredMixin, TemplateView):
 # ======================================
 
 class CourseListView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/home.html'
+    template_name = 'vocab/courses/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -631,7 +631,7 @@ class MyWordsView(LoginRequiredMixin, ListView):
         return context
 
 class CourseDetailView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/level_detail.html'
+    template_name = 'vocab/courses/level_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -758,7 +758,7 @@ class CourseDetailView(LoginRequiredMixin, TemplateView):
 
 
 class CourseSetDetailView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/set_detail.html'
+    template_name = 'vocab/courses/set_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -904,7 +904,7 @@ class CourseSetDetailView(LoginRequiredMixin, TemplateView):
         return context
 
 class CourseLearnView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/learn.html'
+    template_name = 'vocab/courses/learn.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1015,7 +1015,7 @@ class CourseLearnView(LoginRequiredMixin, TemplateView):
 
 
 class CourseQuizView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/quiz.html'
+    template_name = 'vocab/courses/quiz.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1188,8 +1188,8 @@ class CourseQuizView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ToeicReviewView(LoginRequiredMixin, TemplateView):
-    template_name = 'vocab/toeic/review.html'
+class CourseReviewView(LoginRequiredMixin, TemplateView):
+    template_name = 'vocab/courses/review.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1282,7 +1282,7 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
             'cards_count': len(cards_data),
             'course': course,
             'is_jp': is_jp,
-            'back_url': reverse('vocab:course_detail', args=[slug]) if slug else reverse('vocab:toeic_home'),
+            'back_url': reverse('vocab:course_detail', args=[slug]) if slug else reverse('vocab:course_list'),
         })
         return context
 
@@ -1294,7 +1294,7 @@ class ToeicReviewView(LoginRequiredMixin, TemplateView):
 @require_POST
 @login_required
 @rate_limit('learn', max_calls=30, period=60)
-def api_toeic_learn_result(request):
+def api_course_learn_result(request):
     """POST: receives set_id, known_ids[], unknown_ids[]. Creates/updates FSRS cards and progress."""
     try:
         data = json.loads(request.body)
@@ -1419,8 +1419,10 @@ def api_toeic_learn_result(request):
 @require_POST
 @login_required
 @rate_limit('quiz', max_calls=30, period=60)
-def api_toeic_quiz_result(request):
-    """POST: receives set_id, score, total, wrong_word_ids[]."""
+def api_course_quiz_result(request):
+    """POST: receives set_id, score, total, wrong_word_ids[].
+    Updates FSRS card states based on quiz performance and recalculates progress.
+    """
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
@@ -1429,33 +1431,72 @@ def api_toeic_quiz_result(request):
     set_id = data.get('set_id')
     score = int(data.get('score', 0))
     total = int(data.get('total', 0))
+    wrong_word_ids = set(data.get('wrong_word_ids', []))
     user = request.user
 
     vocab_set = get_object_or_404(VocabularySet, id=set_id)
 
-    # --- FIX #1: Server-side score validation ---
-    # Clamp score to [0, total] so client cannot fake arbitrary scores
+    # Server-side score validation
     actual_total = vocab_set.items.count()
-    total = min(total, actual_total)  # Cannot claim more questions than exist
-    score = max(0, min(score, total))  # Score bounded by [0, total]
+    total = min(total, actual_total)
+    score = max(0, min(score, total))
+
+    # Validate wrong_word_ids belong to this set
+    valid_vocab_ids = set(
+        vocab_set.items.values_list('definition__entry__vocab_id', flat=True)
+    )
+    wrong_word_ids = wrong_word_ids & valid_vocab_ids
+    correct_word_ids = valid_vocab_ids - wrong_word_ids
 
     with transaction.atomic():
+        # ── Update FSRS cards based on quiz answers ──
+        for vocab_id in valid_vocab_ids:
+            card_state, created = FsrsCardStateEn.objects.get_or_create(
+                user=user, vocab_id=vocab_id,
+                defaults={'card_data': card_data_to_dict(create_new_card_state())}
+            )
+            if vocab_id in correct_word_ids:
+                # Correct answer: rate as 'good' to reinforce memory
+                rating = 'good'
+            else:
+                # Wrong answer: rate as 'again' to schedule for relearning
+                rating = 'again'
+
+            new_card_data, _, due_dt = review_card(card_state.card_data, rating)
+            card_state.card_data = new_card_data
+            card_state.due = due_dt
+            card_state.state = new_card_data.get('state', 0)
+            card_state.last_review = timezone.now()
+            card_state.total_reviews = F('total_reviews') + 1
+            if vocab_id in correct_word_ids:
+                card_state.successful_reviews = F('successful_reviews') + 1
+            card_state.save()
+
+        # ── Recalculate progress from actual FSRS states ──
+        learned_count = FsrsCardStateEn.objects.filter(
+            user=user, vocab_id__in=valid_vocab_ids, state__gte=2
+        ).count()
+
         progress, _ = UserSetProgress.objects.get_or_create(
             user=user, vocabulary_set=vocab_set,
             defaults={'words_total': actual_total}
         )
+
+        progress.words_learned = learned_count
+        progress.words_total = actual_total
 
         # Update best score (as percentage)
         score_pct = round(score / total * 100) if total > 0 else 0
         if score_pct > progress.quiz_best_score:
             progress.quiz_best_score = score_pct
 
-        # FIX #1: Use percentage threshold, not absolute numbers
-        if (total > 0 and score_pct >= 80
-                and progress.status == UserSetProgress.ProgressStatus.IN_PROGRESS):
+        # Mark completed if all words graduated to Review state
+        if learned_count >= actual_total and actual_total > 0:
             progress.status = UserSetProgress.ProgressStatus.COMPLETED
-            progress.completed_at = timezone.now()
-            progress.words_learned = progress.words_total
+            if not progress.completed_at:
+                progress.completed_at = timezone.now()
+        elif progress.status != UserSetProgress.ProgressStatus.COMPLETED:
+            progress.status = UserSetProgress.ProgressStatus.IN_PROGRESS
 
         progress.save()
 
@@ -1499,7 +1540,7 @@ def api_toeic_quiz_result(request):
 @require_POST
 @login_required
 @rate_limit('grade', max_calls=120, period=60)
-def api_toeic_review_grade(request):
+def api_course_review_grade(request):
     """POST: receives vocab_id, rating (again/hard/good/easy). Calls FSRS review via FsrsService."""
     from vocab.services import FsrsService
     

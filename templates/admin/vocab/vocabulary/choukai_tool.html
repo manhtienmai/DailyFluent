@@ -173,6 +173,15 @@ textarea:focus,input[type="text"]:focus{ outline:2px solid var(--accent); border
 /* Inline form */
 .inline-form{display:inline-flex;gap:6px;align-items:center;}
 .inline-form input{min-width:150px!important;} .inline-form select{min-width:70px!important;}
+
+/* Options editor (Panel 2) */
+.opt-row{display:flex;align-items:flex-start;gap:5px;margin-bottom:5px;}
+.opt-label{flex-shrink:0;font-weight:700;color:var(--amber);min-width:18px;font-size:13px;padding-top:5px;text-align:right;}
+.opt-input{flex:1;min-width:0;font-size:12px;padding:4px 7px;font-family:'Noto Sans JP',monospace;}
+.opt-ruby{font-size:13px;line-height:2.2;font-family:'Noto Sans JP',sans-serif;color:var(--text-muted);padding-left:23px;margin-top:-2px;}
+.opt-ruby ruby{font-size:13px;}.opt-ruby rt{font-size:8px;color:var(--accent);}
+.opt-del{flex-shrink:0;width:22px;height:22px;border-radius:4px;background:rgba(239,68,68,.12);color:var(--red);border:none;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;margin-top:3px;transition:background .15s;}
+.opt-del:hover{background:rgba(239,68,68,.3);}
 </style>
 {% endblock %}
 
@@ -232,63 +241,46 @@ textarea:focus,input[type="text"]:focus{ outline:2px solid var(--accent); border
 <!-- ── 4 Panels ── -->
 <div class="grid-2x2">
 
-    <!-- Panel 1: Ghibli Redraw -->
-    <div class="panel panel-1 img-panel" data-panel="ghibli">
+    <!-- Panel 1: Image Analyze + Ghibli -->
+    <div class="panel panel-1">
         <div class="panel-header">
-            <div class="panel-title">🎨 Ghibli Redraw</div>
+            <div class="panel-title">🔍 Image / Ghibli</div>
             <select class="model-select" id="ghibli-model">
                 <option value="gemini-2.5-flash-image">2.5-flash-image</option>
                 <option value="gemini-3-pro-image-preview">3-pro-image</option>
             </select>
         </div>
-        <div class="drop-zone" id="ghibli-drop">
-            <span class="drop-icon">🖼️</span>Drop / paste image
-            <input type="file" accept="image/*" id="ghibli-input">
+        <div class="drop-zone" id="img-drop">
+            <span class="drop-icon">🖼️</span>Drop / paste image (optional)
+            <input type="file" accept="image/*" id="img-input">
         </div>
-        <div class="preview-wrap" id="ghibli-preview-wrap" style="display:none">
-            <img class="preview-img" id="ghibli-preview">
-            <button class="btn-clear" onclick="clearImage('ghibli')" title="Xoa anh">&times;</button>
+        <div class="preview-wrap" id="img-preview-wrap" style="display:none">
+            <img class="preview-img" id="img-preview">
+            <button class="btn-clear" onclick="clearAnalyzeImage()" title="Xoa anh">&times;</button>
         </div>
         <div class="btn-row">
-            <button class="btn btn-primary" id="ghibli-btn" disabled>Redraw</button>
+            <button class="btn btn-primary" id="analyze-btn">Analyze</button>
         </div>
         <div class="preview-wrap" id="ghibli-result-wrap" style="display:none">
             <img class="preview-img" id="ghibli-result">
-            <button class="btn-clear" onclick="clearResult('ghibli')" title="Xoa ket qua">&times;</button>
+            <button class="btn-clear" onclick="clearGhibliResult()" title="Xoa ket qua">&times;</button>
         </div>
-        <div id="ghibli-status"></div>
+        <div id="analyze-status"></div>
         <div class="btn-row" id="ghibli-accept-row" style="display:none">
             <button class="btn btn-accept" id="ghibli-accept">Accept &amp; Upload</button>
         </div>
     </div>
 
-    <!-- Panel 2: OCR -->
-    <div class="panel panel-2 img-panel" data-panel="ocr">
+    <!-- Panel 2: Analysis Result -->
+    <div class="panel panel-2">
         <div class="panel-header">
-            <div class="panel-title">📝 OCR Quiz</div>
-            <select class="model-select" id="ocr-model">
-                <option value="gemini-2.5-flash">2.5-flash</option>
-                <option value="gemini-2.5-pro">2.5-pro</option>
-            </select>
+            <div class="panel-title">📋 Analysis Result</div>
+            <span id="result-type-badge" style="font-size:10px;padding:2px 10px;border-radius:4px;background:var(--bg-input);color:var(--text-muted);font-weight:600;">—</span>
         </div>
-        <div class="drop-zone" id="ocr-drop">
-            <span class="drop-icon">📷</span>Drop / paste screenshot
-            <input type="file" accept="image/*" id="ocr-input">
+        <div id="result-options" style="min-height:60px;">
+            <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">Run Analyze to see results</div>
         </div>
-        <div class="preview-wrap" id="ocr-preview-wrap" style="display:none">
-            <img class="preview-img" id="ocr-preview">
-            <button class="btn-clear" onclick="clearImage('ocr')" title="Xoa anh">&times;</button>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-success" id="ocr-btn" disabled>Extract</button>
-        </div>
-        <div id="ocr-rendered" class="ocr-rendered" style="display:none"></div>
-        <textarea id="ocr-raw" style="display:none;min-height:100px;margin-top:4px;" placeholder="Raw JSON..."></textarea>
-        <div id="ocr-status"></div>
-        <div class="btn-row" id="ocr-actions" style="display:none">
-            <button class="btn btn-ghost" id="ocr-toggle-raw">Raw JSON</button>
-            <button class="btn btn-ghost" onclick="copyText('ocr-raw')">Copy</button>
-        </div>
+        <div id="result-ghibli-prompt" style="display:none;margin-top:8px;"></div>
     </div>
 
     <!-- Panel 3: Translate -->
@@ -357,7 +349,7 @@ textarea:focus,input[type="text"]:focus{ outline:2px solid var(--accent); border
 
 <script>
 const CSRF='{{ csrf_token }}';
-const STATE={ghibli_b64:null,ghibli_mime:null,ghibli_url:null,ocr_questions:[],audio_url:null,activePanel:'ghibli',questions:[],selectedQid:null,parsed_lines:[]};
+const STATE={ghibli_b64:null,ghibli_mime:null,ghibli_url:null,analyze_options:[],analyze_type:null,_lastGhibliPrompt:null,audio_url:null,questions:[],selectedQid:null,parsed_lines:[]};
 
 /* ── Helpers ── */
 function $(id){return document.getElementById(id);}
@@ -367,28 +359,43 @@ function copyText(tid){navigator.clipboard.writeText($(tid).value);}
 function stripCodeFence(s){const m=s.match(/```(?:json|JSON)?\s*([\s\S]*?)```/);return m?m[1].trim():s.trim();}
 function getCorrectAnswer(){return document.querySelector('input[name="correct-answer"]:checked')?.value||'1';}
 function setCorrectAnswer(v){const r=$('ans-'+v);if(r)r.checked=true;}
+function renderRuby(t){
+    return t
+        .replace(/\{([^}]+)\}\(([^)]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>')
+        .replace(/([\u4e00-\u9faf\u3400-\u4dbf]+)\(([ぁ-んァ-ヶー]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>')
+        .replace(/([\u4e00-\u9faf\u3400-\u4dbf]+)（([ぁ-んァ-ヶー]+)）/g,'<ruby>$1<rt>$2</rt></ruby>');
+}
 
-function setupDropZone(dropId,inputId,previewId,btnId,wrapId){
-    const drop=$(dropId),input=$(inputId),preview=$(previewId),btn=$(btnId),wrap=wrapId?$(wrapId):null;
+/* Auto-show/hide answer radio labels based on option count */
+function updateAnswerSelector(count){
+    const n=count>0?count:4;
+    for(let i=1;i<=4;i++){
+        const lbl=document.querySelector(`label[for="ans-${i}"]`);
+        const radio=$('ans-'+i);
+        if(!lbl||!radio)continue;
+        if(i<=n){lbl.style.display='';}
+        else{lbl.style.display='none';if(radio.checked)$('ans-1').checked=true;}
+    }
+}
+
+/* ── Image drop zone setup ── */
+(function setupImageDropZone(){
+    const drop=$('img-drop'),input=$('img-input'),preview=$('img-preview'),wrap=$('img-preview-wrap');
     drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
     drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
     drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'));}});
-    input.addEventListener('change',()=>{if(!input.files.length)return;btn.disabled=false;preview.src=URL.createObjectURL(input.files[0]);if(wrap){wrap.style.display='inline-block';}else{preview.style.display='block';}});
+    input.addEventListener('change',()=>{if(!input.files.length)return;preview.src=URL.createObjectURL(input.files[0]);wrap.style.display='inline-block';});
+})();
+
+function clearAnalyzeImage(){
+    $('img-input').value='';$('img-preview').src='';$('img-preview-wrap').style.display='none';
 }
-function clearImage(panel){
-    const input=$(panel+'-input'),preview=$(panel+'-preview'),wrap=$(panel+'-preview-wrap'),btn=$(panel+'-btn');
-    input.value='';preview.src='';if(wrap)wrap.style.display='none';btn.disabled=true;
-}
-function clearResult(panel){
-    if(panel==='ghibli'){$('ghibli-result').src='';$('ghibli-result-wrap').style.display='none';$('ghibli-accept-row').style.display='none';STATE.ghibli_b64=null;STATE.ghibli_url=null;$('ghibli-status').innerHTML='';}
+function clearGhibliResult(){
+    $('ghibli-result').src='';$('ghibli-result-wrap').style.display='none';$('ghibli-accept-row').style.display='none';
+    STATE.ghibli_b64=null;STATE.ghibli_url=null;$('analyze-status').innerHTML='';
 }
 
-/* ── Active panel ── */
-function setActivePanel(p){STATE.activePanel=p;document.querySelectorAll('.img-panel').forEach(el=>el.classList.remove('active-target'));document.querySelector(`.img-panel[data-panel="${p}"]`)?.classList.add('active-target');}
-document.querySelectorAll('.img-panel').forEach(panel=>{panel.addEventListener('click',e=>{if(e.target.closest('button,select,input,textarea,.ocr-rendered'))return;setActivePanel(panel.dataset.panel);});});
-setActivePanel('ghibli');
-
-/* Global paste → active panel */
+/* Global paste → image input */
 document.addEventListener('paste',e=>{
     const a=document.activeElement;
     if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'||a.isContentEditable))return;
@@ -397,8 +404,7 @@ document.addEventListener('paste',e=>{
         if(item.type.startsWith('image/')){
             e.preventDefault();const file=item.getAsFile();if(!file)return;
             const dt=new DataTransfer();dt.items.add(file);
-            const inputId=STATE.activePanel==='ghibli'?'ghibli-input':'ocr-input';
-            const input=$(inputId);input.files=dt.files;input.dispatchEvent(new Event('change'));
+            $('img-input').files=dt.files;$('img-input').dispatchEvent(new Event('change'));
             return;
         }
     }
@@ -459,9 +465,18 @@ function selectQuestion(qid){
     setCorrectAnswer(q.correct_answer||'1');
     if(q.audio_transcript){$('translate-input').value=q.audio_transcript;$('translate-btn').disabled=false;}
     if(q.audio_transcript_vi){$('translate-result').value=q.audio_transcript_vi;$('translate-result').style.display='block';}
-    /* Restore conversation/speaker data */
     const conv=q.data?.conversation||[];
     if(conv.length){STATE.parsed_lines=conv;$('translate-parsed').innerHTML=`<div class="ocr-rendered" style="max-height:200px;padding:8px;">${renderParsedLines(conv)}</div>`;$('translate-parsed').style.display='block';}else{STATE.parsed_lines=[];$('translate-parsed').style.display='none';}
+    /* Restore options from saved choices */
+    const savedChoices=q.data?.choices||[];
+    STATE.analyze_options=savedChoices.map((c,i)=>({label:c.key||String(i+1),content:c.text||''}));
+    STATE.analyze_type=null;
+    STATE._lastGhibliPrompt=null;
+    renderAnalysisResult(null,STATE.analyze_options,null);
+    updateAnswerSelector(STATE.analyze_options.length);
+    /* Reset ghibli state */
+    STATE.ghibli_b64=null;STATE.ghibli_url=null;
+    $('ghibli-result-wrap').style.display='none';$('ghibli-accept-row').style.display='none';$('analyze-status').innerHTML='';
     updateSaveInfo();
 }
 
@@ -479,23 +494,145 @@ function updateSaveInfo(){
     }
 }
 
-/* ── Panel 1: Ghibli ── */
-setupDropZone('ghibli-drop','ghibli-input','ghibli-preview','ghibli-btn','ghibli-preview-wrap');
+/* ── Panel 2: Analysis Result renderer (editable options) ── */
+const TYPE_STYLE={
+    'SCENE_WITH_OPTIONS':{bg:'rgba(99,102,241,.2)',color:'#a78bfa'},
+    'SCENE_ONLY':{bg:'rgba(52,211,153,.2)',color:'#34d399'},
+    'TEXT_OPTIONS_ONLY':{bg:'rgba(251,191,36,.2)',color:'#fbbf24'},
+};
+function renderAnalysisResult(type,options,ghibliPrompt){
+    /* Type badge */
+    const badge=$('result-type-badge');
+    const s=TYPE_STYLE[type]||{bg:'var(--bg-input)',color:'var(--text-muted)'};
+    badge.style.background=s.bg;badge.style.color=s.color;
+    badge.textContent=type||'—';
 
-async function doGhibli(){
-    const input=$('ghibli-input');if(!input.files.length)return false;
-    const btn=$('ghibli-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> ...';
-    showLoading('ghibli-status','Gemini Ghibli...');STATE.ghibli_b64=null;STATE.ghibli_url=null;
-    const fd=new FormData();fd.append('image',input.files[0]);fd.append('model',$('ghibli-model').value);
+    /* Options editor */
+    const container=$('result-options');
+    let html='<div id="opts-wrap" style="max-height:280px;overflow-y:auto;padding-right:2px;">';
+    if(options&&options.length>0){
+        options.forEach((opt,i)=>{
+            const safe=(opt.content||'').replace(/"/g,'&quot;');
+            html+=`<div class="opt-row">
+                <span class="opt-label">${opt.label}.</span>
+                <div style="flex:1;min-width:0;">
+                    <input class="opt-input" type="text" value="${safe}" data-idx="${i}" placeholder="Japanese text with {漢字}(ふりがな)">
+                    <div class="opt-ruby" id="opt-ruby-${i}">${renderRuby(opt.content||'')}</div>
+                </div>
+                <button class="opt-del" data-idx="${i}" title="Delete">×</button>
+            </div>`;
+        });
+    }else{
+        html+='<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px 0;">No options</div>';
+    }
+    html+='</div>';
+    html+=`<div class="btn-row" style="margin-top:5px;">
+        <button class="btn btn-ghost" id="add-opt-btn" style="font-size:11px;">+ Add Option</button>
+    </div>`;
+    container.innerHTML=html;
+
+    /* Bind option input events */
+    container.querySelectorAll('.opt-input').forEach(input=>{
+        input.addEventListener('input',()=>{
+            const idx=parseInt(input.dataset.idx);
+            STATE.analyze_options[idx].content=input.value;
+            const el=$('opt-ruby-'+idx);
+            if(el)el.innerHTML=renderRuby(input.value);
+        });
+    });
+    container.querySelectorAll('.opt-del').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            const idx=parseInt(btn.dataset.idx);
+            STATE.analyze_options.splice(idx,1);
+            /* Re-number labels */
+            STATE.analyze_options.forEach((o,i)=>{o.label=String(i+1);});
+            renderAnalysisResult(STATE.analyze_type,STATE.analyze_options,STATE._lastGhibliPrompt);
+            updateAnswerSelector(STATE.analyze_options.length);
+        });
+    });
+    $('add-opt-btn')?.addEventListener('click',()=>{
+        STATE.analyze_options.push({label:String(STATE.analyze_options.length+1),content:''});
+        renderAnalysisResult(STATE.analyze_type,STATE.analyze_options,STATE._lastGhibliPrompt);
+        updateAnswerSelector(STATE.analyze_options.length);
+        /* Focus the new input */
+        const inputs=container.querySelectorAll('.opt-input');
+        if(inputs.length)inputs[inputs.length-1].focus();
+    });
+
+    /* Ghibli prompt preview */
+    const promptBox=$('result-ghibli-prompt');
+    if(ghibliPrompt!==undefined)STATE._lastGhibliPrompt=ghibliPrompt||null;
+    if(STATE._lastGhibliPrompt){
+        promptBox.style.display='block';
+        promptBox.innerHTML=`<div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;font-weight:700;">Ghibli Prompt</div><div style="font-size:11px;color:var(--text-main);background:var(--bg-input);border-radius:5px;padding:6px 8px;line-height:1.5;">${STATE._lastGhibliPrompt}</div>`;
+    }else{
+        promptBox.style.display='none';
+    }
+}
+
+/* ── Panel 1: Analyze → classify + auto Ghibli ── */
+async function doGhibliFromPrompt(prompt){
+    STATE.ghibli_b64=null;STATE.ghibli_url=null;
+    const fd=new FormData();
+    fd.append('prompt',prompt);
+    fd.append('model',$('ghibli-model').value);
     try{
         const res=await fetch('{% url "admin:vocab_vocabulary_choukai_ghibli" %}',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
         const data=await res.json();
-        if(data.success){STATE.ghibli_b64=data.image_b64;STATE.ghibli_mime=data.mime_type;$('ghibli-result').src=`data:${data.mime_type};base64,${data.image_b64}`;$('ghibli-result-wrap').style.display='inline-block';$('ghibli-accept-row').style.display='flex';showStatus('ghibli-status','OK! Accept de upload.','success');btn.disabled=false;btn.innerHTML='Redraw';return true;}
-        else{showStatus('ghibli-status',data.error,'error');btn.disabled=false;btn.innerHTML='Redraw';return false;}
-    }catch(e){showStatus('ghibli-status',e.message,'error');btn.disabled=false;btn.innerHTML='Redraw';return false;}
+        if(data.success){
+            STATE.ghibli_b64=data.image_b64;STATE.ghibli_mime=data.mime_type;
+            $('ghibli-result').src=`data:${data.mime_type};base64,${data.image_b64}`;
+            $('ghibli-result-wrap').style.display='inline-block';
+            $('ghibli-accept-row').style.display='flex';
+            showStatus('analyze-status','Done! Accept de upload.','success');
+            return true;
+        }else{
+            showStatus('analyze-status','Ghibli: '+data.error,'error');
+            return false;
+        }
+    }catch(e){showStatus('analyze-status','Ghibli: '+e.message,'error');return false;}
 }
+
+async function doAnalyze(){
+    const input=$('img-input');
+    const btn=$('analyze-btn');
+    btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Analyzing...';
+
+    if(!input.files.length){
+        // No image: reset state, skip API call
+        STATE.analyze_type=null;STATE.analyze_options=[];
+        renderAnalysisResult(null,[],null);
+        showStatus('analyze-status','No image — skipped','success');
+        btn.disabled=false;btn.innerHTML='Analyze';
+        return true;
+    }
+
+    showLoading('analyze-status','Classifying image...');
+    const fd=new FormData();fd.append('image',input.files[0]);
+    try{
+        const res=await fetch('{% url "admin:vocab_vocabulary_choukai_analyze" %}',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
+        const data=await res.json();
+        if(!data.success){showStatus('analyze-status',data.error,'error');btn.disabled=false;btn.innerHTML='Analyze';return false;}
+
+        STATE.analyze_type=data.type;
+        STATE.analyze_options=data.data?.options||[];
+        renderAnalysisResult(data.type,STATE.analyze_options,data.ghibli_prompt);
+        updateAnswerSelector(STATE.analyze_options.length);
+
+        if(data.ghibli_prompt){
+            showLoading('analyze-status',`${data.type} — Generating Ghibli...`);
+            await doGhibliFromPrompt(data.ghibli_prompt);
+        }else{
+            showStatus('analyze-status',`${data.type||'No scene'} — Done`,'success');
+        }
+        btn.disabled=false;btn.innerHTML='Analyze';
+        return true;
+    }catch(e){showStatus('analyze-status',e.message,'error');btn.disabled=false;btn.innerHTML='Analyze';return false;}
+}
+
 async function doGhibliAccept(){
-    if(!STATE.ghibli_b64)return false;const btn=$('ghibli-accept');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> ...';
+    if(!STATE.ghibli_b64)return false;
+    const btn=$('ghibli-accept');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> ...';
     try{
         const byteChars=atob(STATE.ghibli_b64),byteArr=new Uint8Array(byteChars.length);
         for(let i=0;i<byteChars.length;i++)byteArr[i]=byteChars.charCodeAt(i);
@@ -503,46 +640,12 @@ async function doGhibliAccept(){
         const fd=new FormData();fd.append('image',file);
         const res=await fetch('{% url "admin:vocab_vocabulary_upload_image" %}',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
         const data=await res.json();
-        if(data.success||data.url){STATE.ghibli_url=data.url;showStatus('ghibli-status',`<div class="url-display"><input type="text" value="${data.url}" readonly onclick="this.select()"><button class="btn btn-ghost" onclick="navigator.clipboard.writeText('${data.url}')">Copy</button></div>`,'success');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return true;}
-        else{showStatus('ghibli-status',data.error||'Failed','error');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return false;}
-    }catch(e){showStatus('ghibli-status',e.message,'error');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return false;}
+        if(data.success||data.url){STATE.ghibli_url=data.url;showStatus('analyze-status',`<div class="url-display"><input type="text" value="${data.url}" readonly onclick="this.select()"><button class="btn btn-ghost" onclick="navigator.clipboard.writeText('${data.url}')">Copy</button></div>`,'success');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return true;}
+        else{showStatus('analyze-status',data.error||'Failed','error');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return false;}
+    }catch(e){showStatus('analyze-status',e.message,'error');btn.disabled=false;btn.innerHTML='Accept &amp; Upload';return false;}
 }
-$('ghibli-btn').addEventListener('click',doGhibli);
+$('analyze-btn').addEventListener('click',doAnalyze);
 $('ghibli-accept').addEventListener('click',doGhibliAccept);
-
-/* ── Panel 2: OCR ── */
-setupDropZone('ocr-drop','ocr-input','ocr-preview','ocr-btn','ocr-preview-wrap');
-function renderRuby(t){return t.replace(/([\u4e00-\u9faf\u3400-\u4dbf]+)\(([ぁ-んァ-ヶー]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>').replace(/([\u4e00-\u9faf\u3400-\u4dbf]+)（([ぁ-んァ-ヶー]+)）/g,'<ruby>$1<rt>$2</rt></ruby>');}
-function renderOCRQuestions(questions){
-    const c=$('ocr-rendered');c.innerHTML='';
-    questions.forEach((q,i)=>{
-        const b=document.createElement('div');b.className='q-block';b.contentEditable='true';
-        let h=`<span class="q-num">Q${q.number||i+1}.</span> ${renderRuby(q.question_text||'')}`;
-        if(q.image_description)h+=`<br><span style="font-size:10px;color:var(--text-muted);">[${q.image_description}]</span>`;
-        if(q.choices)q.choices.forEach(ch=>{h+=`<span class="choice">${renderRuby(ch)}</span>`;});
-        b.innerHTML=h;c.appendChild(b);
-    });c.style.display='block';
-}
-async function doOCR(){
-    const input=$('ocr-input');if(!input.files.length)return false;
-    const btn=$('ocr-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> ...';showLoading('ocr-status','OCR...');
-    const fd=new FormData();fd.append('image',input.files[0]);fd.append('model',$('ocr-model').value);
-    try{
-        const res=await fetch('{% url "admin:vocab_vocabulary_choukai_ocr" %}',{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
-        const data=await res.json();
-        if(data.success){
-            let raw=data.text;
-            const clean=stripCodeFence(raw);
-            $('ocr-raw').value=clean;
-            try{const p=JSON.parse(clean);STATE.ocr_questions=p.questions||[];renderOCRQuestions(STATE.ocr_questions);}
-            catch{$('ocr-rendered').innerHTML=`<div style="white-space:pre-wrap;font-size:13px;">${renderRuby(clean)}</div>`;$('ocr-rendered').style.display='block';}
-            $('ocr-actions').style.display='flex';showStatus('ocr-status',`${STATE.ocr_questions.length} questions`,'success');
-            btn.disabled=false;btn.innerHTML='Extract';return true;
-        }else{showStatus('ocr-status',data.error,'error');btn.disabled=false;btn.innerHTML='Extract';return false;}
-    }catch(e){showStatus('ocr-status',e.message,'error');btn.disabled=false;btn.innerHTML='Extract';return false;}
-}
-$('ocr-btn').addEventListener('click',doOCR);
-$('ocr-toggle-raw').addEventListener('click',()=>{const r=$('ocr-raw'),b=$('ocr-toggle-raw');if(r.style.display==='none'){r.style.display='block';b.textContent='Hide JSON';}else{r.style.display='none';b.textContent='Raw JSON';}});
 
 /* ── Panel 3: Translate ── */
 const trInput=$('translate-input'),trBtn=$('translate-btn');
@@ -606,7 +709,13 @@ async function doTranslate(){
 trBtn.addEventListener('click',doTranslate);
 
 /* ── Panel 4: Audio ── */
-setupDropZone('audio-drop','audio-input','audio-preview','audio-btn');
+(function setupAudioDropZone(){
+    const drop=$('audio-drop'),input=$('audio-input'),preview=$('audio-preview'),btn=$('audio-btn');
+    drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+    drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+    drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'));}});
+    input.addEventListener('change',()=>{if(!input.files.length)return;btn.disabled=false;preview.src=URL.createObjectURL(input.files[0]);preview.style.display='block';});
+})();
 async function doAudioUpload(){
     const input=$('audio-input');if(!input.files.length)return false;
     const btn=$('audio-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> ...';showLoading('audio-status','Uploading...');
@@ -623,16 +732,15 @@ $('audio-btn').addEventListener('click',doAudioUpload);
 /* ── Save single question ── */
 async function doSave(){
     if(!ctxBook.value)return false;
-    const ocrQ=STATE.ocr_questions[0]||{};
     const payload={
         question_id:STATE.selectedQid||null,
         book_id:ctxBook.value,
         mondai:ctxMondai.value,
         order_in_mondai:parseInt($('ctx-order-in-mondai').value)||1,
-        text:ocrQ.question_text||$('translate-input').value.trim()||'',
+        text:$('translate-input').value.trim()||'',
         text_vi:'',
         correct_answer:getCorrectAnswer(),
-        data:ocrQ.choices?{choices:ocrQ.choices.map((c,i)=>({key:String(i+1),text:c}))}:{},
+        data:STATE.analyze_options.length?{choices:STATE.analyze_options.map(opt=>({key:opt.label,text:opt.content}))}:{},
         audio_transcript:$('translate-input').value.trim(),
         audio_transcript_vi:$('translate-result').value.trim(),
         conversation:STATE.parsed_lines.length?STATE.parsed_lines:[],
@@ -652,43 +760,40 @@ $('save-all-btn').addEventListener('click',async()=>{
     btn.disabled=false;btn.innerHTML='Save to DB';
 });
 
-/* ── Process All: run all 4 panels then save ── */
+/* ── Process All: analyze → (accept ghibli) → translate → audio → save ── */
 $('process-all-btn').addEventListener('click',async()=>{
     if(!ctxBook.value){alert('Chon sach truoc!');return;}
     const btn=$('process-all-btn');btn.disabled=true;
-    const steps=[];
-    const hasGhibliImg=$('ghibli-input').files.length>0;
-    const hasOcrImg=$('ocr-input').files.length>0;
     const hasText=trInput.value.trim().length>0;
     const hasAudio=$('audio-input').files.length>0;
-    const total=(hasGhibliImg?2:0)+(hasOcrImg?1:0)+(hasText?1:0)+(hasAudio?1:0)+1;/*+1 for save*/
+    const total=1+(hasText?1:0)+(hasAudio?1:0)+1; /* analyze + translate? + audio? + save */
     let done=0;
     function updateProgress(){done++;btn.innerHTML=`<span class="spinner"></span> ${done}/${total}`;}
 
     try{
-        /* Panel 1: Ghibli redraw + accept */
-        if(hasGhibliImg){
-            btn.innerHTML=`<span class="spinner"></span> Ghibli...`;
-            const ok=await doGhibli();updateProgress();
-            if(ok){await doGhibliAccept();updateProgress();}
-            else{done++;} /* skip accept if redraw failed */
+        /* Step 1: Analyze image (includes Ghibli generation if scene found) */
+        btn.innerHTML=`<span class="spinner"></span> Analyze...`;
+        await doAnalyze();updateProgress();
+
+        /* Step 1b: Upload Ghibli if generated */
+        if(STATE.ghibli_b64&&!STATE.ghibli_url){
+            btn.innerHTML=`<span class="spinner"></span> Ghibli Upload...`;
+            await doGhibliAccept();
         }
-        /* Panel 2: OCR */
-        if(hasOcrImg){
-            btn.innerHTML=`<span class="spinner"></span> OCR...`;
-            await doOCR();updateProgress();
-        }
-        /* Panel 3: Translate */
+
+        /* Step 2: Translate */
         if(hasText){
             btn.innerHTML=`<span class="spinner"></span> Translate...`;
             await doTranslate();updateProgress();
         }
-        /* Panel 4: Audio upload */
+
+        /* Step 3: Audio upload */
         if(hasAudio){
             btn.innerHTML=`<span class="spinner"></span> Audio...`;
             await doAudioUpload();updateProgress();
         }
-        /* Save */
+
+        /* Step 4: Save */
         btn.innerHTML=`<span class="spinner"></span> Saving...`;
         await doSave();updateProgress();
         btn.innerHTML='Process All';

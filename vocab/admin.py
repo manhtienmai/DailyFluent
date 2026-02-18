@@ -108,6 +108,7 @@ class VocabularyAdmin(ChoukaiToolMixin, nested_admin.NestedModelAdmin):
             # Choukai Tool
             path('choukai-tool/', self.admin_site.admin_view(self.choukai_tool_view), name='vocab_vocabulary_choukai_tool'),
             path('choukai-tool/ghibli-redraw/', self.admin_site.admin_view(self.choukai_ghibli_api), name='vocab_vocabulary_choukai_ghibli'),
+            path('choukai-tool/analyze/', self.admin_site.admin_view(self.choukai_analyze_api), name='vocab_vocabulary_choukai_analyze'),
             path('choukai-tool/ocr-extract/', self.admin_site.admin_view(self.choukai_ocr_api), name='vocab_vocabulary_choukai_ocr'),
             path('choukai-tool/translate/', self.admin_site.admin_view(self.choukai_translate_api), name='vocab_vocabulary_choukai_translate'),
             path('choukai-tool/upload-audio/', self.admin_site.admin_view(self.choukai_upload_audio_api), name='vocab_vocabulary_choukai_upload_audio'),

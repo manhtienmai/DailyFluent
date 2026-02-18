@@ -17,7 +17,7 @@ urlpatterns = [
     path("books/<slug:slug>/", views.book_detail, name="book_detail"),
 
     path("session/<int:session_id>/", views.take_exam, name="take_exam"),
-    path("session/<int:session_id>/toeic/", views.take_toeic_exam, name="take_toeic_exam"),
+    path("session/<int:session_id>/toeic/", views.take_exam, name="take_toeic_exam"),
     path("session/<int:session_id>/result/", views.exam_result, name="exam_result"),
     path("session/<int:session_id>/result/question/<int:question_id>/", views.exam_result_question_detail, name="exam_result_question_detail"),
     path("session/<int:session_id>/redo-wrong/", views.redo_wrong_questions, name="redo_wrong_questions"),
