@@ -12,6 +12,12 @@
   background-color: #eef1f7;
   cursor: pointer;
 }
+[data-theme="dark"] .df-audio-progress-range {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .df-audio-progress-range::-moz-range-track {
+  background-color: rgba(255, 255, 255, 0.12);
+}
 .df-audio-progress-range:focus {
   outline: none;
 }
@@ -61,14 +67,11 @@
   background: transparent;
   padding: 0;
   cursor: pointer;
+  color: #374151;              /* màu icon */
 }
 
-.df-audio-skip-btn {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  color: #374151;              /* màu icon */
+[data-theme="dark"] .df-audio-skip-btn {
+  color: #94a3b8;
 }
 
 .df-skip-icon svg {
@@ -79,6 +82,10 @@
 
 .df-audio-skip-btn:hover {
   color: #111827;              /* hover đậm hơn chút */
+}
+
+[data-theme="dark"] .df-audio-skip-btn:hover {
+  color: #e2e8f0;
 }
 
 
@@ -99,8 +106,15 @@
   cursor: pointer;
   color: #111827;
 }
+[data-theme="dark"] .df-icon-button {
+  color: #94a3b8;
+}
 .df-icon-button:hover {
   background-color: #e5e7eb;
+}
+[data-theme="dark"] .df-icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
 }
 
 
@@ -120,6 +134,11 @@
   transform: translateY(6px);
   pointer-events: none;
   transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+[data-theme="dark"] .df-popover {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* khi mở */
@@ -199,14 +218,24 @@
   cursor: pointer;
   color: #111827;
 }
+[data-theme="dark"] .df-speed-option {
+  color: #94a3b8;
+}
 
 .df-speed-option:hover {
   background-color: #e5edff;   /* nền xanh nhạt khi hover */
+}
+[data-theme="dark"] .df-speed-option:hover {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
 }
 
 .df-speed-option.df-speed-active {
   color: #2563eb;              /* text xanh */
   font-weight: 600;
+}
+[data-theme="dark"] .df-speed-option.df-speed-active {
+  color: #818cf8;
 }
 
 .df-time-display {

@@ -1,25 +1,41 @@
+# ── Core Framework ────────────────────────────────────────────
 Django==5.2.8
+asgiref==3.11.0
+
+# ── Django Extensions ─────────────────────────────────────────
 django-allauth==65.13.1
 django-import-export==4.3.14
+django-nested-admin==4.1.6
 django-tailwind==4.4.1
+djangorestframework==3.15.2
 dj-database-url==3.0.1
-fsrs==6.3.0
 
-gunicorn==23.0.0
-pillow==12.0.0
+# ── Database ──────────────────────────────────────────────────
 psycopg2-binary==2.9.11
 
-pytailwindcss==0.3.0
-python-dateutil==2.9.0.post0
-python-dotenv==1.2.1
-
-whitenoise==6.11.0
-
+# ── Storage & Static Files ────────────────────────────────────
 django-storages[azure]==1.14.6
-qrcode[pil]==7.4.2
-djangorestframework==3.15.2
+whitenoise==6.11.0
+pillow==12.0.0
+
+# ── Server ────────────────────────────────────────────────────
+gunicorn==23.0.0
+
+# ── Environment & Config ──────────────────────────────────────
+python-dotenv==1.2.1
+pytailwindcss==0.3.0
+
+# ── Vocabulary / FSRS ─────────────────────────────────────────
+fsrs==6.3.0
 pykakasi==2.2.1
-django-nested-admin
-beautifulsoup4
-requests
-google-generativeai
+
+# ── AI / External APIs ────────────────────────────────────────
+google-generativeai==0.8.6
+requests==2.32.5
+
+# ── Utilities ─────────────────────────────────────────────────
+beautifulsoup4==4.14.3
+python-dateutil==2.9.0.post0
+python-slugify==8.0.4
+qrcode[pil]==7.4.2
+PyYAML==6.0.3

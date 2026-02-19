@@ -622,6 +622,13 @@
   border-color: rgba(51, 65, 85, 0.7);
 }
 
+/* Player nằm trong header — chiếm phần còn lại của hàng */
+.ck-q-header .ck-card-player {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
 /* Player body */
 .ck-cp-body {
   background: transparent;
@@ -632,7 +639,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.5rem 0.625rem;
+  padding: 0.25rem 0.5rem;
 }
 
 /* Progress bar — inline flex:1 */
@@ -714,8 +721,8 @@
 
 /* Play / Pause */
 .ck-cp-playpause {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -742,28 +749,33 @@
 
 /* Speed button */
 .ck-cp-speed-btn {
-  padding: 0.1875rem 0.5rem;
+  padding: 0.125rem 0.375rem;
   border-radius: 5px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.07);
   cursor: pointer;
   font-size: 0.6875rem;
   font-weight: 700;
   color: #6366f1;
-  min-width: 36px;
+  min-width: 32px;
   text-align: center;
   transition: all 0.15s;
 }
 
 [data-theme="dark"] .ck-cp-speed-btn {
-  background: rgba(71, 85, 105, 0.6);
-  border-color: rgba(148, 163, 184, 0.15);
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.25);
   color: #a5b4fc;
 }
 
 .ck-cp-speed-btn:hover {
-  border-color: rgba(99, 102, 241, 0.3);
-  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+[data-theme="dark"] .ck-cp-speed-btn:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 /* Speed dropdown (opens upward) */
@@ -961,7 +973,7 @@
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   border: 2px solid transparent;
-  background: transparent;
+  background-color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.9375rem;
@@ -973,6 +985,8 @@
 
 [data-theme="dark"] .ck-choice-btn {
   color: #cbd5e1;
+  background-color: rgba(15, 23, 42, 0.5);
+  border-color: rgba(148, 163, 184, 0.08);
 }
 
 .ck-choice-btn:hover:not(.ck-choice--answered) {

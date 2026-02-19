@@ -1,0 +1,90 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}{{ book.title }} | Ngữ pháp JLPT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/grammar.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="mb-6 flex items-center gap-2 text-sm" style="color:var(--text-secondary)">
+  <a href="{% url 'grammar:home' %}" class="hover:underline">Ngữ pháp</a>
+  <span>/</span>
+  <a href="{% url 'grammar:book_list' %}" class="hover:underline">Sách</a>
+  <span>/</span>
+  <span style="color:var(--text-primary)">{{ book.title }}</span>
+</div>
+
+<!-- Header -->
+<div class="flex items-start gap-6 mb-8">
+  {% if book.cover_image %}
+  <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-24 h-32 object-cover rounded-xl shadow-md">
+  {% endif %}
+  <div>
+    <span class="badge-{{ book.level|lower }} text-xs font-bold px-2.5 py-1 rounded-lg inline-block mb-2">
+      JLPT {{ book.level }}
+    </span>
+    <h1 class="text-3xl font-bold grammar-hero-title mb-2">{{ book.title }}</h1>
+    {% if book.description %}
+    <p class="text-sm" style="color:var(--text-secondary)">{{ book.description }}</p>
+    {% endif %}
+    <div class="flex items-center gap-4 mt-3 text-sm" style="color:var(--text-secondary)">
+      <span>📖 {{ points.count }} điểm ngữ pháp</span>
+      <span>📝 {{ exercise_sets.count }} bộ bài tập</span>
+    </div>
+  </div>
+</div>
+
+<!-- Exercise Sets -->
+{% if exercise_sets %}
+<div class="mb-8">
+  <h2 class="text-xl font-bold mb-4" style="color:var(--text-primary)">Bộ bài tập</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {% for es in exercise_sets %}
+    <a href="{% url 'grammar:exercise' es.slug %}"
+       class="flex items-center gap-4 p-4 rounded-xl border transition-all hover:shadow-md"
+       style="background:rgba(255,255,255,0.7); border-color:rgba(0,0,0,0.06)">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+           style="background:rgba(99,102,241,0.1)">📝</div>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold truncate" style="color:var(--text-primary)">{{ es.title }}</p>
+        <p class="text-xs" style="color:var(--text-secondary)">{{ es.question_count }} câu hỏi</p>
+      </div>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+           style="color:var(--text-secondary)">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Grammar Points List -->
+<h2 class="text-xl font-bold mb-4" style="color:var(--text-primary)">Điểm ngữ pháp</h2>
+{% if points %}
+<div class="rounded-2xl overflow-hidden border" style="border-color:rgba(0,0,0,0.06)">
+  {% for point in points %}
+  <a href="{% url 'grammar:point_detail' point.slug %}"
+     class="flex items-center gap-4 p-4 border-b last:border-b-0 transition-colors hover:bg-slate-50"
+     style="border-color:rgba(0,0,0,0.04); background:rgba(255,255,255,0.7)">
+    <span class="text-lg font-bold w-8 text-center" style="color:var(--text-secondary)">{{ point.order }}</span>
+    <div class="flex-1">
+      <p class="font-bold" style="font-family:'Noto Sans JP',sans-serif; color:var(--text-primary)">{{ point.title }}</p>
+      {% if point.meaning_vi %}
+      <p class="text-sm" style="color:var(--text-secondary)">{{ point.meaning_vi }}</p>
+      {% endif %}
+    </div>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+         style="color:var(--text-secondary)">
+      <path d="M9 18l6-6-6-6"/>
+    </svg>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-center py-8" style="color:var(--text-secondary)">Chưa có điểm ngữ pháp nào.</p>
+{% endif %}
+{% endblock %}

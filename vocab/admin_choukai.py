@@ -134,7 +134,7 @@ class ChoukaiToolAPI(View):
             mime_type = image_file.content_type or 'image/png'
 
             raw = GeminiService.generate_with_image(
-                self.ANALYZE_SYSTEM_PROMPT, image_bytes, mime_type, model_name='gemini-2.5-flash'
+                self.ANALYZE_SYSTEM_PROMPT, image_bytes, mime_type, model_name='gemini-2.5-pro'
             )
             
             clean = raw.strip()
@@ -161,7 +161,7 @@ class ChoukaiToolAPI(View):
         try:
             data      = json.loads(request.body)
             text      = data.get('text', '').strip()
-            model_name= data.get('model', 'gemini-2.5-flash')
+            model_name= data.get('model', 'gemini-2.5-pro')
             level     = data.get('level', '').strip().upper() or 'N3'
             mondai    = str(data.get('mondai', '')).strip()
             options   = data.get('options', [])       # [{key, text}, ...]

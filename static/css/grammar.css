@@ -1,0 +1,334 @@
+/* ═══════════════════════════════════════════════════════════
+   Grammar JLPT — Styles
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Level badge colors ────────────────────────────────────── */
+.badge-n5 { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-n4 { background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; }
+.badge-n3 { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-n2 { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+.badge-n1 { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+[data-theme="dark"] .badge-n5 { background: rgba(21,128,61,.2); color: #4ade80; border-color: rgba(21,128,61,.3); }
+[data-theme="dark"] .badge-n4 { background: rgba(15,118,110,.2); color: #2dd4bf; border-color: rgba(15,118,110,.3); }
+[data-theme="dark"] .badge-n3 { background: rgba(29,78,216,.2); color: #60a5fa; border-color: rgba(29,78,216,.3); }
+[data-theme="dark"] .badge-n2 { background: rgba(126,34,206,.2); color: #c084fc; border-color: rgba(126,34,206,.3); }
+[data-theme="dark"] .badge-n1 { background: rgba(180,83,9,.2);  color: #fbbf24; border-color: rgba(180,83,9,.3); }
+
+/* ── Grammar card ──────────────────────────────────────────── */
+.grammar-card {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 16px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.grammar-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(99,102,241,0.12);
+}
+[data-theme="dark"] .grammar-card {
+  background: rgba(30,32,48,0.72);
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Formation block ───────────────────────────────────────── */
+.grammar-formation {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-primary, #1e293b);
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.15);
+  position: relative;
+}
+[data-theme="dark"] .grammar-formation {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.25);
+}
+.grammar-formation mark {
+  background: rgba(20,184,166,0.2);
+  color: #0f766e;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+[data-theme="dark"] .grammar-formation mark {
+  background: rgba(20,184,166,0.25);
+  color: #2dd4bf;
+}
+
+/* ── Example cards ─────────────────────────────────────────── */
+.grammar-example {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .grammar-example {
+  background: rgba(30,32,48,0.5);
+  border-color: rgba(255,255,255,0.06);
+}
+.grammar-example .jp {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-primary, #1e293b);
+}
+.grammar-example .vi {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #64748b);
+  margin-top: 6px;
+}
+.grammar-example .jp mark {
+  background: rgba(20,184,166,0.2);
+  color: #0f766e;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* ── Exercise question card ────────────────────────────────── */
+.exercise-card {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 20px;
+  padding: 32px;
+}
+[data-theme="dark"] .exercise-card {
+  background: rgba(30,32,48,0.8);
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* ── MCQ choice buttons ────────────────────────────────────── */
+.choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: "Noto Sans JP", "Be Vietnam Pro", sans-serif;
+  text-align: left;
+  transition: all 0.15s ease;
+  color: var(--text-primary, #1e293b);
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.04);
+}
+.choice-btn.selected {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.08);
+}
+.choice-btn.correct {
+  border-color: #16a34a;
+  background: rgba(22,163,74,0.08);
+  color: #15803d;
+}
+.choice-btn.incorrect {
+  border-color: #dc2626;
+  background: rgba(220,38,38,0.08);
+  color: #b91c1c;
+}
+.choice-btn:disabled { cursor: default; }
+
+[data-theme="dark"] .choice-btn {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+  color: var(--text-primary, #e2e8f0);
+}
+[data-theme="dark"] .choice-btn.correct { border-color: #4ade80; background: rgba(74,222,128,0.1); color: #4ade80; }
+[data-theme="dark"] .choice-btn.incorrect { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
+
+.choice-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+  border: 1.5px solid rgba(99,102,241,0.25);
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.choice-btn.correct .choice-number {
+  background: rgba(22,163,74,0.15);
+  color: #16a34a;
+  border-color: rgba(22,163,74,0.3);
+}
+.choice-btn.incorrect .choice-number {
+  background: rgba(220,38,38,0.12);
+  color: #dc2626;
+  border-color: rgba(220,38,38,0.3);
+}
+
+/* ── Sentence Order (★) ────────────────────────────────────── */
+.sentence-display {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1.2rem;
+  line-height: 2.2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sentence-prefix, .sentence-suffix {
+  color: var(--text-primary, #1e293b);
+}
+
+/* Blank boxes */
+.blank-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px dashed rgba(99,102,241,0.35);
+  padding: 0 10px;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1rem;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: rgba(99,102,241,0.03);
+  position: relative;
+}
+.blank-box:hover {
+  border-color: rgba(99,102,241,0.6);
+  background: rgba(99,102,241,0.06);
+}
+.blank-box.filled {
+  border-style: solid;
+  border-color: rgba(99,102,241,0.5);
+  background: rgba(99,102,241,0.08);
+  color: var(--text-primary, #1e293b);
+  font-weight: 500;
+}
+.blank-box.star-box {
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.05);
+}
+.blank-box.star-box::after {
+  content: "★";
+  position: absolute;
+  top: -10px;
+  right: -4px;
+  font-size: 10px;
+  color: #f59e0b;
+  line-height: 1;
+}
+.blank-box.star-box.filled { border-color: rgba(245,158,11,0.7); background: rgba(245,158,11,0.1); }
+.blank-box.correct-box { border-color: #16a34a !important; background: rgba(22,163,74,0.1) !important; color: #15803d; border-style: solid !important; }
+.blank-box.incorrect-box { border-color: #dc2626 !important; background: rgba(220,38,38,0.08) !important; color: #b91c1c; border-style: solid !important; }
+
+[data-theme="dark"] .blank-box { border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.05); color: var(--text-secondary, #94a3b8); }
+[data-theme="dark"] .blank-box.filled { color: var(--text-primary, #e2e8f0); }
+[data-theme="dark"] .blank-box.correct-box { border-color: #4ade80 !important; background: rgba(74,222,128,0.1) !important; color: #4ade80; }
+[data-theme="dark"] .blank-box.incorrect-box { border-color: #f87171 !important; background: rgba(248,113,113,0.1) !important; color: #f87171; }
+
+/* Token chips */
+.token-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(99,102,241,0.3);
+  background: rgba(255,255,255,0.7);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 1rem;
+  color: var(--text-primary, #1e293b);
+  cursor: grab;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.token-chip:hover { border-color: rgba(99,102,241,0.6); background: rgba(99,102,241,0.05); transform: translateY(-1px); }
+.token-chip.selected { border-color: #6366f1; background: rgba(99,102,241,0.12); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+.token-chip.used { opacity: 0.3; cursor: default; pointer-events: none; }
+.token-chip:active { cursor: grabbing; }
+
+[data-theme="dark"] .token-chip {
+  background: rgba(30,32,48,0.6);
+  border-color: rgba(99,102,241,0.3);
+  color: var(--text-primary, #e2e8f0);
+}
+[data-theme="dark"] .token-chip.selected { background: rgba(99,102,241,0.2); }
+
+/* ── Explanation card ──────────────────────────────────────── */
+.explanation-card {
+  border-radius: 12px;
+  padding: 16px 20px;
+  background: rgba(241,245,249,0.8);
+  border: 1px solid rgba(0,0,0,0.06);
+  animation: slideDown 0.25s ease;
+}
+[data-theme="dark"] .explanation-card {
+  background: rgba(30,32,48,0.7);
+  border-color: rgba(255,255,255,0.06);
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Progress bar ──────────────────────────────────────────── */
+.exercise-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.exercise-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transition: width 0.4s ease;
+}
+
+/* ── Score ring ────────────────────────────────────────────── */
+.score-ring { transform: rotate(-90deg); }
+.score-ring-track { fill: none; stroke: rgba(0,0,0,0.06); }
+.score-ring-fill  { fill: none; stroke: #6366f1; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+[data-theme="dark"] .score-ring-track { stroke: rgba(255,255,255,0.08); }
+
+/* ── Hero header gradient ─────────────────────────────────── */
+.grammar-hero-title {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #14b8a6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Point title gradient ─────────────────────────────────── */
+.grammar-point-title {
+  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+[data-theme="dark"] .grammar-point-title {
+  background: linear-gradient(135deg, #e2e8f0 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ── Drag-over highlight ──────────────────────────────────── */
+.blank-box.drag-over {
+  border-color: #6366f1 !important;
+  background: rgba(99,102,241,0.12) !important;
+  border-style: solid !important;
+  transform: scale(1.04);
+}

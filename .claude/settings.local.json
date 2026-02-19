@@ -46,7 +46,9 @@
       "Bash(pip install:*)",
       "WebSearch",
       "WebFetch(domain:ai.google.dev)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(pip freeze:*)",
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\grammar\"\" 2>&1 || echo \"Directory may not exist \")"
     ]
   }
 }

@@ -4,7 +4,7 @@
 {% block title %}{{ book.title }} — Luyện nghe | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260219">
+<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260220">
 {% endblock %}
 
 {% block content %}
@@ -161,14 +161,72 @@
       {% for q in group.questions %}
       <div id="ck-q-{{ q.id }}" class="ck-glass ck-question-card" x-data="{ viOpen: false }">
 
-        {# Header #}
+        {# Header: số câu + player cùng hàng #}
         <div class="ck-q-header">
           <span class="ck-q-number ck-q-number--{{ group.key }}">{{ q.num }}</span>
-          <span class="ck-q-mondai-badge ck-q-mondai-badge--{{ group.key }}">{{ group.label }}</span>
-        </div>
 
-        {# Question text (rarely used in Choukai) #}
+          {% if q.audio_url %}
+          <div class="ck-card-player" x-data="{ _src: '{{ q.audio_url }}', showSpeed: false }">
+            <div class="ck-cp-body">
+              <div class="ck-cp-row">
 
+                {# Skip -5 #}
+                <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(-5)" title="-5s">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/></svg>
+                  <span class="ck-cp-skip5">5</span>
+                </button>
+
+                {# Play / Pause #}
+                <button class="ck-cp-btn ck-cp-playpause"
+                        @click="$store.player.src === _src ? $store.player.togglePlay() : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
+                  <svg x-show="$store.player.src !== _src || !$store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M8 5v14l11-7z"/></svg>
+                  <svg x-show="$store.player.src === _src && $store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                </button>
+
+                {# Skip +5 #}
+                <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(5)" title="+5s">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.64-8.36L23 10"/></svg>
+                  <span class="ck-cp-skip5">5</span>
+                </button>
+
+                {# Progress bar #}
+                <div class="ck-cp-progress"
+                     @click="$store.player.src === _src ? $store.player.seek($event) : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
+                  <div class="ck-cp-buf" :style="$store.player.src === _src ? 'width:' + $store.player.bufferedPct + '%' : 'width:0'"></div>
+                  <div class="ck-cp-fill" :style="$store.player.src === _src ? 'width:' + $store.player.progressPct + '%' : 'width:0'"></div>
+                </div>
+
+                {# Time #}
+                <span class="ck-cp-time"
+                      x-text="$store.player.src === _src ? $store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration) : '—'"></span>
+
+                {# Speed #}
+                <div style="position:relative;">
+                  <button class="ck-cp-speed-btn" @click="showSpeed = !showSpeed" x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
+                  <div class="ck-cp-speed-menu" x-show="showSpeed" x-transition @click.outside="showSpeed = false">
+                    <template x-for="s in $store.player.speeds" :key="s">
+                      <button class="ck-cp-speed-opt" :class="$store.player.speed === s ? 'active' : ''" @click="$store.player.setSpeed(s); showSpeed = false" x-text="s + 'x'"></button>
+                    </template>
+                  </div>
+                </div>
+
+                {# Volume #}
+                <div class="ck-cp-vol">
+                  <button class="ck-cp-btn ck-cp-vol-btn" @click="$store.player.toggleMute()" :title="$store.player.muted ? 'Bật âm' : 'Tắt âm'">
+                    <svg x-show="$store.player.muted || $store.player.volume === 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                    <svg x-show="!$store.player.muted && $store.player.volume > 0 && $store.player.volume <= 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    <svg x-show="!$store.player.muted && $store.player.volume > 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  </button>
+                  <input class="ck-cp-vol-slider" type="range" min="0" max="1" step="0.05"
+                         :value="$store.player.muted ? 0 : $store.player.volume"
+                         @input="$store.player.setVolume(parseFloat($event.target.value))">
+                </div>
+
+              </div>{# end controls row #}
+            </div>{# end cp-body #}
+          </div>{# end card-player #}
+          {% endif %}
+        </div>{# end q-header #}
 
         {# Image + Choices layout #}
         <div class="ck-split-layout {% if q.image_url %}ck-split-layout--has-image{% endif %}">
@@ -180,70 +238,6 @@
           {% endif %}
 
           <div class="ck-split-choices">
-
-            {# In-card audio player — sits inside choices column so width matches #}
-            {% if q.audio_url %}
-            <div class="ck-card-player" x-data="{ _src: '{{ q.audio_url }}', showSpeed: false }">
-              <div class="ck-cp-body">
-                <div class="ck-cp-row">
-
-                  {# Skip -5 #}
-                  <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(-5)" title="-5s">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/></svg>
-                    <span class="ck-cp-skip5">5</span>
-                  </button>
-
-                  {# Play / Pause — starts this audio if not active, toggles if active #}
-                  <button class="ck-cp-btn ck-cp-playpause"
-                          @click="$store.player.src === _src ? $store.player.togglePlay() : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
-                    <svg x-show="$store.player.src !== _src || !$store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M8 5v14l11-7z"/></svg>
-                    <svg x-show="$store.player.src === _src && $store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-                  </button>
-
-                  {# Skip +5 #}
-                  <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(5)" title="+5s">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.64-8.36L23 10"/></svg>
-                    <span class="ck-cp-skip5">5</span>
-                  </button>
-
-                  {# Progress bar — inline, flex:1 #}
-                  <div class="ck-cp-progress"
-                       @click="$store.player.src === _src ? $store.player.seek($event) : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
-                    <div class="ck-cp-buf" :style="$store.player.src === _src ? 'width:' + $store.player.bufferedPct + '%' : 'width:0'"></div>
-                    <div class="ck-cp-fill" :style="$store.player.src === _src ? 'width:' + $store.player.progressPct + '%' : 'width:0'"></div>
-                  </div>
-
-                  {# Time #}
-                  <span class="ck-cp-time"
-                        x-text="$store.player.src === _src ? $store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration) : '—'"></span>
-
-                  {# Speed #}
-                  <div style="position:relative;">
-                    <button class="ck-cp-speed-btn" @click="showSpeed = !showSpeed" x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
-                    <div class="ck-cp-speed-menu" x-show="showSpeed" x-transition @click.outside="showSpeed = false">
-                      <template x-for="s in $store.player.speeds" :key="s">
-                        <button class="ck-cp-speed-opt" :class="$store.player.speed === s ? 'active' : ''" @click="$store.player.setSpeed(s); showSpeed = false" x-text="s + 'x'"></button>
-                      </template>
-                    </div>
-                  </div>
-
-                  {# Volume #}
-                  <div class="ck-cp-vol">
-                    <button class="ck-cp-btn ck-cp-vol-btn" @click="$store.player.toggleMute()" :title="$store.player.muted ? 'Bật âm' : 'Tắt âm'">
-                      <svg x-show="$store.player.muted || $store.player.volume === 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-                      <svg x-show="!$store.player.muted && $store.player.volume > 0 && $store.player.volume <= 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                      <svg x-show="!$store.player.muted && $store.player.volume > 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    </button>
-                    <input class="ck-cp-vol-slider" type="range" min="0" max="1" step="0.05"
-                           :value="$store.player.muted ? 0 : $store.player.volume"
-                           @input="$store.player.setVolume(parseFloat($event.target.value))">
-                  </div>
-
-                </div>{# end controls row #}
-              </div>{# end cp-body #}
-            </div>{# end card-player #}
-            {% endif %}
-
             <div class="ck-choices">
               {% for c in q.choices %}
               <button class="ck-choice-btn"

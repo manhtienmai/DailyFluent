@@ -55,6 +55,17 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Đề thi</span>
     </a>
 
+    <a href="{% url 'grammar:home' %}" data-title="Ngữ pháp"
+      class="df-sidebar-item {% if 'grammar' in request.path %}active{% endif %}">
+      <span class="df-sidebar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </span>
+      <span class="df-sidebar-label">Ngữ pháp</span>
+    </a>
+
     <a href="{% url 'exam:choukai_book_list' %}" data-title="Luyện nghe"
       class="df-sidebar-item {% if 'choukai' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-choukai">
