@@ -36,8 +36,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # ===== Tailwind build (chỉnh theo project của bạn) =====
-      # Nếu bạn dùng django-tailwind với theme/static_src:
       - name: Build Tailwind (npm)
         run: |
           if [ -f "theme/static_src/package.json" ]; then
@@ -48,15 +46,6 @@ jobs:
             echo "No theme/static_src/package.json, skipping npm build"
           fi
 
-      # (Optional) Tests (nếu bạn có test chạy được)
-      # - name: Run tests
-      #   env:
-      #     DEBUG: "1"
-      #     SECRET_KEY: "ci"
-      #     DATABASE_URL: "sqlite:///./ci.sqlite3"
-      #   run: |
-      #     python manage.py test
-
       - name: Package artifact
         run: |
           set -euo pipefail
@@ -66,7 +55,6 @@ jobs:
           rm -rf "$STAGE"
           mkdir -p "$STAGE"
 
-          # Copy source to staging (snapshot) to avoid "file changed as we read it"
           rsync -a --delete \
             --exclude=".git" \
             --exclude="venv" \
@@ -83,29 +71,36 @@ jobs:
           tar -C "$STAGE" -czf "$ARTIFACT" .
           echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
 
+      # ===== SSH Agent & Security bypass =====
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VM_SSH_KEY }}
 
+      # Bước này giúp GitHub làm quen với IP mới của server Nhật
       - name: Add VM to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p "${{ secrets.VM_PORT }}" -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
 
+      # ===== Upload với tùy chọn bỏ qua xác thực vân tay server =====
       - name: Upload artifact to VM
         run: |
-          scp -P "${{ secrets.VM_PORT }}" "$ARTIFACT" \
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -P "${{ secrets.VM_PORT }}" "$ARTIFACT" \
             "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/tmp/$(basename "$ARTIFACT")"
 
-      - name: Deploy on VM (extract -> release -> blue/green switch)
+      # ===== Deploy trên VM (Blue/Green switch) =====
+      - name: Deploy on VM
         run: |
-          ssh -p "${{ secrets.VM_PORT }}" "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" 'bash -s' <<'EOF'
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -p "${{ secrets.VM_PORT }}" "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" 'bash -s' <<'EOF'
           set -euo pipefail
 
           APP_DIR="/home/mtmanh/apps/DailyFluent"
           RELEASES_DIR="$APP_DIR/releases"
 
+          # Tìm file vừa upload lên
           ARTIFACT_FILE="$(ls -1t /tmp/dailyfluent_*.tar.gz | head -n1)"
           SHA="$(basename "$ARTIFACT_FILE" | sed -E 's/dailyfluent_([0-9a-f]+)\.tar\.gz/\1/')"
           TS="$(date +%Y%m%d_%H%M%S)"
@@ -114,10 +109,11 @@ jobs:
           mkdir -p "$REL"
           tar -xzf "$ARTIFACT_FILE" -C "$REL"
 
-          # owner
+          # Đảm bảo quyền sở hữu chính xác
           chown -R mtmanh:mtmanh "$REL"
 
-          # run deploy script
+          # Chạy script đổi bản Blue sang Green hoặc ngược lại
+          # Hãy chắc chắn file deploy_bg.sh đã có trên server mới
           HEALTH_PATH=/health "$APP_DIR/deploy_bg.sh" "$REL"
 
           rm -f "$ARTIFACT_FILE"
