@@ -10,8 +10,10 @@
 {% block content %}
 {% csrf_token %}
 
+<script id="grammar-questions-data" type="application/json">{{ questions_json|safe }}</script>
+
 <div x-data="grammarExercise(
-    {{ questions_json }},
+    JSON.parse(document.getElementById('grammar-questions-data').textContent),
     '{% url "grammar:api_submit_exercise" %}',
     {{ exercise_set.pk }}
   )"
