@@ -1516,6 +1516,159 @@
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* ======================================
+     Question Map / Navigator Grid
+     ====================================== */
+  .df-qmap {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--df-radius-lg);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .df-qmap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border-default);
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .df-qmap-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .df-qmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .df-qmap-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .df-qmap-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .df-qmap-legend-dot--correct { background: #10B981; }
+  .df-qmap-legend-dot--wrong   { background: #EF4444; }
+  .df-qmap-legend-dot--skip    { background: #CBD5E1; }
+
+  .df-qmap-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 1.25rem 0;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .df-qmap-tab {
+    padding: 0.3125rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid var(--border-default);
+    background: var(--bg-app-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.12s;
+    line-height: 1.5;
+  }
+
+  .df-qmap-tab:hover {
+    border-color: var(--border-interactive, #6366F1);
+    color: var(--text-primary);
+  }
+
+  .df-qmap-tab.active {
+    background: var(--action-primary, #4F46E5);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .df-qmap-body {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+
+  .df-qmap-group { display: none; }
+  .df-qmap-group.active { display: block; }
+
+  .df-qmap-section-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-bottom: 0.5rem;
+    margin-top: 0.875rem;
+  }
+
+  .df-qmap-section-label:first-child { margin-top: 0; }
+
+  .df-qmap-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .df-qmap-cell {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    position: relative;
+    user-select: none;
+    color: #fff;
+    letter-spacing: -0.02em;
+    border: none;
+    outline: none;
+  }
+
+  .df-qmap-cell:hover {
+    transform: scale(1.2);
+    z-index: 5;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+
+  .df-qmap-cell--correct { background: #10B981; }
+  .df-qmap-cell--correct:hover { background: #059669; }
+
+  .df-qmap-cell--wrong   { background: #EF4444; }
+  .df-qmap-cell--wrong:hover { background: #DC2626; }
+
+  .df-qmap-cell--skip    { background: #CBD5E1; color: #64748B; }
+  .df-qmap-cell--skip:hover { background: #94A3B8; color: #fff; }
+
+  /* Số 3 chữ số → font nhỏ hơn */
+  .df-qmap-cell--sm { font-size: 0.5625rem; }
 </style>
 {% endblock %}
 
@@ -1832,6 +1985,37 @@
     <!-- Table Content -->
     <div id="analysis-table-content" style="padding: 1rem;">
       <div style="text-align: center; padding: 2rem; color: #64748b;">Đang tải dữ liệu...</div>
+    </div>
+  </div>
+
+  <!-- Question Map -->
+  <div class="df-qmap" id="qmap-panel">
+    <div class="df-qmap-header">
+      <div class="df-qmap-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
+        Bản đồ câu hỏi
+      </div>
+      <div class="df-qmap-legend">
+        <span class="df-qmap-legend-item">
+          <span class="df-qmap-legend-dot df-qmap-legend-dot--correct"></span>
+          Đúng (<span id="qmap-count-correct">0</span>)
+        </span>
+        <span class="df-qmap-legend-item">
+          <span class="df-qmap-legend-dot df-qmap-legend-dot--wrong"></span>
+          Sai (<span id="qmap-count-wrong">0</span>)
+        </span>
+        <span class="df-qmap-legend-item">
+          <span class="df-qmap-legend-dot df-qmap-legend-dot--skip"></span>
+          Chưa làm (<span id="qmap-count-skip">0</span>)
+        </span>
+      </div>
+    </div>
+    <div id="qmap-tabs" class="df-qmap-tabs" style="display:none;padding-bottom:0.75rem;"></div>
+    <div class="df-qmap-body" id="qmap-body">
+      <!-- Rendered by JS -->
     </div>
   </div>
 
@@ -2491,6 +2675,166 @@
   if (document.querySelector('.df-toeic-score-display')) {
     setTimeout(animateToeicScores, 200);
   }
+
+  // ============================================================
+  //  QUESTION MAP / NAVIGATOR GRID
+  // ============================================================
+  function renderQuestionMap() {
+    const body = document.getElementById('qmap-body');
+    const tabsEl = document.getElementById('qmap-tabs');
+    if (!body || !answersData.length) return;
+
+    // Đếm tổng
+    let cCorrect = 0, cWrong = 0, cSkip = 0;
+    answersData.forEach(ans => {
+      const sel = ans.raw_answer?.selected_key || '';
+      if (!sel) cSkip++;
+      else if (ans.is_correct) cCorrect++;
+      else cWrong++;
+    });
+    document.getElementById('qmap-count-correct').textContent = cCorrect;
+    document.getElementById('qmap-count-wrong').textContent   = cWrong;
+    document.getElementById('qmap-count-skip').textContent    = cSkip;
+
+    // Xác định nhóm
+    const hasPart   = answersData.some(a => a.question?.toeic_part);
+    const hasMondai = answersData.some(a => a.question?.mondai);
+
+    // Build groups: key → [ans]
+    const groups = {};
+    answersData.forEach(ans => {
+      let key = '__all__';
+      if (hasPart)   key = ans.question?.toeic_part || 'Other';
+      else if (hasMondai) key = String(ans.question?.mondai || '?');
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(ans);
+    });
+
+    const groupKeys = Object.keys(groups).sort();
+    const showTabs  = groupKeys.length > 1;
+
+    // ── Tabs ──
+    if (showTabs) {
+      tabsEl.style.display = 'flex';
+      tabsEl.innerHTML = '';
+
+      // "Tất cả" tab
+      const allBtn = document.createElement('button');
+      allBtn.className = 'df-qmap-tab active';
+      allBtn.textContent = 'Tất cả';
+      allBtn.dataset.group = '__all__';
+      tabsEl.appendChild(allBtn);
+
+      groupKeys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'df-qmap-tab';
+        btn.dataset.group = key;
+        if (hasPart) {
+          const pmap = {L1:'Part 1',L2:'Part 2',L3:'Part 3',L4:'Part 4',R5:'Part 5',R6:'Part 6',R7:'Part 7'};
+          btn.textContent = pmap[key] || key;
+        } else if (hasMondai) {
+          btn.textContent = 'Mondai ' + key;
+        } else {
+          btn.textContent = key;
+        }
+        tabsEl.appendChild(btn);
+      });
+
+      tabsEl.addEventListener('click', e => {
+        const btn = e.target.closest('.df-qmap-tab');
+        if (!btn) return;
+        tabsEl.querySelectorAll('.df-qmap-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const g = btn.dataset.group;
+        body.querySelectorAll('.df-qmap-group').forEach(div => {
+          div.classList.toggle('active', div.dataset.group === g);
+        });
+      });
+    }
+
+    // ── Groups ──
+    body.innerHTML = '';
+
+    // "Tất cả" group — khi có tabs thì cũng cần group này
+    const allGroup = makeGroup('__all__', true);
+    const allGrid = document.createElement('div');
+    allGrid.className = 'df-qmap-grid';
+
+    if (showTabs) {
+      // Trong group "tất cả", chia theo section label nếu cần
+      groupKeys.forEach(key => {
+        if (hasPart || hasMondai) {
+          const lbl = document.createElement('div');
+          lbl.className = 'df-qmap-section-label';
+          lbl.textContent = hasPart
+            ? ({L1:'Listening Part 1',L2:'Part 2',L3:'Part 3',L4:'Part 4',R5:'Reading Part 5',R6:'Part 6',R7:'Part 7'}[key] || key)
+            : ('Mondai ' + key);
+          allGrid.appendChild(lbl);
+        }
+        const subGrid = document.createElement('div');
+        subGrid.className = 'df-qmap-grid';
+        subGrid.style.marginBottom = '0.5rem';
+        groups[key].forEach(ans => subGrid.appendChild(buildQCell(ans)));
+        allGrid.appendChild(subGrid);
+      });
+    } else {
+      answersData.forEach(ans => allGrid.appendChild(buildQCell(ans)));
+    }
+
+    allGroup.appendChild(allGrid);
+    body.appendChild(allGroup);
+
+    // Per-group panels (chỉ khi có tabs)
+    if (showTabs) {
+      groupKeys.forEach(key => {
+        const g = makeGroup(key, false);
+        const grid = document.createElement('div');
+        grid.className = 'df-qmap-grid';
+        groups[key].forEach(ans => grid.appendChild(buildQCell(ans)));
+        g.appendChild(grid);
+        body.appendChild(g);
+      });
+    }
+  }
+
+  function makeGroup(key, isActive) {
+    const div = document.createElement('div');
+    div.className = 'df-qmap-group' + (isActive ? ' active' : '');
+    div.dataset.group = key;
+    return div;
+  }
+
+  function buildQCell(ans) {
+    const q   = ans.question;
+    const sel = ans.raw_answer?.selected_key || '';
+    const isSkipped = !sel;
+    const isCorrect = ans.is_correct;
+
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'df-qmap-cell';
+
+    if (isSkipped)       cell.classList.add('df-qmap-cell--skip');
+    else if (isCorrect)  cell.classList.add('df-qmap-cell--correct');
+    else                 cell.classList.add('df-qmap-cell--wrong');
+
+    const num = q?.order ?? '?';
+    if (String(num).length >= 3) cell.classList.add('df-qmap-cell--sm');
+    cell.textContent = num;
+
+    // Tooltip gọn
+    const selTxt  = isSkipped ? 'Chưa làm' : ('Chọn: ' + numberToLetter(sel));
+    const corrTxt = 'ĐA: ' + numberToLetter(q?.correct_answer || '');
+    cell.title = `Câu ${num} | ${selTxt} | ${corrTxt}`;
+
+    // Click → detail modal
+    if (q?.id) cell.addEventListener('click', () => showQuestionDetail(q.id));
+
+    return cell;
+  }
+
+  // Gọi ngay khi load
+  renderQuestionMap();
 
   // Redo wrong questions button handler
   document.getElementById('btn-redo-wrong')?.addEventListener('click', function () {

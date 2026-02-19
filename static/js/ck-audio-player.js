@@ -11,20 +11,21 @@ document.addEventListener('alpine:init', () => {
   Alpine.store('player', {
     src: '',
     label: '',
-    visible: false,
     playing: false,
     currentTime: 0,
     duration: 0,
     buffered: 0,
     speed: 1,
-    showSpeedMenu: false,
+    volume: 1,
+    muted: false,
     speeds: [0.5, 0.75, 1, 1.25, 1.5, 2],
     _audio: null,
     _raf: null,
 
-    /* Initialise the <audio> element (called once from x-init on the player bar) */
+    /* Initialise the <audio> element (called once from x-init on the main page div) */
     initAudio(audioEl) {
       this._audio = audioEl;
+      audioEl.volume = this.volume;
       audioEl.addEventListener('loadedmetadata', () => {
         this.duration = audioEl.duration || 0;
       });
@@ -94,18 +95,20 @@ document.addEventListener('alpine:init', () => {
     setSpeed(s) {
       this.speed = s;
       if (this._audio) this._audio.playbackRate = s;
-      this.showSpeedMenu = false;
     },
 
-    close() {
+    setVolume(v) {
+      this.volume = parseFloat(v);
+      this.muted = this.volume === 0;
       if (this._audio) {
-        this._audio.pause();
-        this._audio.src = '';
+        this._audio.volume = this.volume;
+        this._audio.muted = this.muted;
       }
-      this.playing = false;
-      this.visible = false;
-      this.src = '';
-      this._stopTick();
+    },
+
+    toggleMute() {
+      this.muted = !this.muted;
+      if (this._audio) this._audio.muted = this.muted;
     },
 
     get progressPct() {

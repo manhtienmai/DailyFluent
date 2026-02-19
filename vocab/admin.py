@@ -16,8 +16,7 @@ from .models import Vocabulary, WordEntry, WordDefinition, ExampleSentence, Voca
 from .utils_scraper import scrape_cambridge
 from .services.jp_import import import_jp_vocab_data, import_jp_vocab_grouped, distribute_jp_vocab
 import nested_admin
-from .admin_choukai import ChoukaiToolMixin
-
+from exam.views import ChoukaiToolMixin
 
 class ExampleSentenceInline(nested_admin.NestedTabularInline):
     """Inline examples under WordDefinition"""
@@ -115,6 +114,7 @@ class VocabularyAdmin(ChoukaiToolMixin, nested_admin.NestedModelAdmin):
             path('choukai-tool/save-question/', self.admin_site.admin_view(self.choukai_save_question_api), name='vocab_vocabulary_choukai_save_question'),
             path('choukai-tool/load-questions/', self.admin_site.admin_view(self.choukai_load_questions_api), name='vocab_vocabulary_choukai_load_questions'),
             path('choukai-tool/create-book/', self.admin_site.admin_view(self.choukai_create_book_api), name='vocab_vocabulary_choukai_create_book'),
+            path('choukai-tool/furigana/', self.admin_site.admin_view(self.choukai_furigana_api), name='vocab_vocabulary_choukai_furigana'),
             # Quiz Generation
             path('quiz-generate/', self.admin_site.admin_view(self.quiz_generate_view), name='vocab_vocabulary_quiz_generate'),
             path('quiz-generate/api/', self.admin_site.admin_view(self.quiz_generate_api), name='vocab_vocabulary_quiz_generate_api'),

@@ -292,10 +292,9 @@ textarea:focus,input[type="text"]:focus{ outline:2px solid var(--accent); border
                 <option value="gemini-2.5-pro">2.5-pro</option>
             </select>
         </div>
-        <textarea id="translate-input" placeholder="Paste Japanese text...&#10;Lines starting with F: or M: will auto-extract speaker." style="min-height:90px;"></textarea>
+        <textarea id="translate-input" placeholder="Paste Japanese transcript..." style="min-height:90px;"></textarea>
         <div class="btn-row">
             <button class="btn btn-amber" id="translate-btn" disabled>Translate</button>
-            <button class="btn btn-ghost" id="translate-parse-btn" title="Parse speakers only">Parse F/M</button>
         </div>
         <div id="translate-parsed" style="display:none;margin-top:6px;"></div>
         <div id="translate-result-rendered" style="display:none;margin-top:6px;"></div>
@@ -349,7 +348,7 @@ textarea:focus,input[type="text"]:focus{ outline:2px solid var(--accent); border
 
 <script>
 const CSRF='{{ csrf_token }}';
-const STATE={ghibli_b64:null,ghibli_mime:null,ghibli_url:null,analyze_options:[],analyze_type:null,_lastGhibliPrompt:null,audio_url:null,questions:[],selectedQid:null,parsed_lines:[]};
+const STATE={ghibli_b64:null,ghibli_mime:null,ghibli_url:null,original_b64:null,original_mime:null,analyze_options:[],analyze_type:null,_lastGhibliPrompt:null,audio_url:null,questions:[],selectedQid:null,parsed_lines:[],optCols:1,explanation:'',question_jp:'',question_vi:''};
 
 /* ── Helpers ── */
 function $(id){return document.getElementById(id);}
@@ -384,11 +383,12 @@ function updateAnswerSelector(count){
     drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
     drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
     drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'));}});
-    input.addEventListener('change',()=>{if(!input.files.length)return;preview.src=URL.createObjectURL(input.files[0]);wrap.style.display='inline-block';});
+    input.addEventListener('change',()=>{if(!input.files.length)return;preview.src=URL.createObjectURL(input.files[0]);wrap.style.display='inline-block';const reader=new FileReader();reader.onload=e=>{STATE.original_b64=e.target.result.split(',')[1];STATE.original_mime=input.files[0].type||'image/png';};reader.readAsDataURL(input.files[0]);});
 })();
 
 function clearAnalyzeImage(){
     $('img-input').value='';$('img-preview').src='';$('img-preview-wrap').style.display='none';
+    STATE.original_b64=null;STATE.original_mime=null;
 }
 function clearGhibliResult(){
     $('ghibli-result').src='';$('ghibli-result-wrap').style.display='none';$('ghibli-accept-row').style.display='none';
@@ -428,6 +428,22 @@ $('new-book-save').addEventListener('click',async()=>{
 /* ── Context: Book → load questions ── */
 const ctxBook=$('ctx-book'),ctxMondai=$('ctx-mondai');
 
+function getBookLevel(){return(ctxBook.selectedOptions[0]?.textContent.match(/\((\w+)\)/)||[])[1]||'';}
+
+function applyN3MondaiDefaults(){
+    if(STATE.selectedQid)return; /* chỉ áp dụng khi tạo mới */
+    if(getBookLevel()!=='N3')return;
+    const mondai=ctxMondai.value;
+    let count=0,cols=1;
+    if(mondai==='3'){count=4;cols=2;}
+    else if(mondai==='4'||mondai==='5'){count=3;cols=1;}
+    if(!count)return;
+    STATE.analyze_options=Array.from({length:count},(_,i)=>({label:String(i+1),content:''}));
+    STATE.optCols=cols;
+    renderAnalysisResult(STATE.analyze_type,STATE.analyze_options,STATE._lastGhibliPrompt);
+    updateAnswerSelector(count);
+}
+
 async function loadQuestions(){
     STATE.questions=[];STATE.selectedQid=null;
     $('q-chips').innerHTML='';$('q-list').style.display='none';
@@ -452,8 +468,8 @@ async function loadQuestions(){
     }
     updateSaveInfo();
 }
-ctxBook.addEventListener('change',loadQuestions);
-ctxMondai.addEventListener('change',loadQuestions);
+ctxBook.addEventListener('change',()=>{loadQuestions();});
+ctxMondai.addEventListener('change',()=>{loadQuestions();applyN3MondaiDefaults();});
 
 function selectQuestion(qid){
     STATE.selectedQid=qid;
@@ -464,18 +480,35 @@ function selectQuestion(qid){
     $('ctx-order-in-mondai').value=q.order_in_mondai||1;
     setCorrectAnswer(q.correct_answer||'1');
     if(q.audio_transcript){$('translate-input').value=q.audio_transcript;$('translate-btn').disabled=false;}
-    if(q.audio_transcript_vi){$('translate-result').value=q.audio_transcript_vi;$('translate-result').style.display='block';}
+    /* Restore explanation + question */
+    STATE.explanation=q.data?.explanation||q.audio_transcript_vi||'';
+    STATE.question_jp=q.data?.question_jp||'';
+    STATE.question_vi=q.data?.question_vi||'';
+    $('translate-result').value=STATE.explanation;
+    $('translate-result').style.display=STATE.explanation?'block':'none';
     const conv=q.data?.conversation||[];
-    if(conv.length){STATE.parsed_lines=conv;$('translate-parsed').innerHTML=`<div class="ocr-rendered" style="max-height:200px;padding:8px;">${renderParsedLines(conv)}</div>`;$('translate-parsed').style.display='block';}else{STATE.parsed_lines=[];$('translate-parsed').style.display='none';}
+    if(conv.length){
+        STATE.parsed_lines=conv;
+        renderTranslateResult();
+    }else{
+        STATE.parsed_lines=[];
+        $('translate-parsed').style.display='none';
+        $('translate-result-rendered').style.display='none';
+    }
     /* Restore options from saved choices */
     const savedChoices=q.data?.choices||[];
     STATE.analyze_options=savedChoices.map((c,i)=>({label:c.key||String(i+1),content:c.text||''}));
     STATE.analyze_type=null;
     STATE._lastGhibliPrompt=null;
+    /* Xác định layout cột cho N3 */
+    {const lv=getBookLevel(),m=String(q.mondai||'');
+    STATE.optCols=(lv==='N3'&&m==='3'&&STATE.analyze_options.length===4)?2:1;}
     renderAnalysisResult(null,STATE.analyze_options,null);
     updateAnswerSelector(STATE.analyze_options.length);
-    /* Reset ghibli state */
+    /* Reset ghibli state — restore image_type from DB so re-save preserves it */
     STATE.ghibli_b64=null;STATE.ghibli_url=null;
+    STATE.analyze_type=q.image_type||null;
+    STATE.original_b64=null;STATE.original_mime=null;
     $('ghibli-result-wrap').style.display='none';$('ghibli-accept-row').style.display='none';$('analyze-status').innerHTML='';
     updateSaveInfo();
 }
@@ -509,8 +542,10 @@ function renderAnalysisResult(type,options,ghibliPrompt){
 
     /* Options editor */
     const container=$('result-options');
+    const useGrid=STATE.optCols===2&&options&&options.length>0;
     let html='<div id="opts-wrap" style="max-height:280px;overflow-y:auto;padding-right:2px;">';
     if(options&&options.length>0){
+        if(useGrid)html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
         options.forEach((opt,i)=>{
             const safe=(opt.content||'').replace(/"/g,'&quot;');
             html+=`<div class="opt-row">
@@ -522,6 +557,7 @@ function renderAnalysisResult(type,options,ghibliPrompt){
                 <button class="opt-del" data-idx="${i}" title="Delete">×</button>
             </div>`;
         });
+        if(useGrid)html+='</div>';
     }else{
         html+='<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px 0;">No options</div>';
     }
@@ -651,14 +687,23 @@ $('ghibli-accept').addEventListener('click',doGhibliAccept);
 const trInput=$('translate-input'),trBtn=$('translate-btn');
 trInput.addEventListener('input',()=>{trBtn.disabled=!trInput.value.trim();});
 
-/* Parse F:/M: speaker tags from text lines */
-function parseSpeakers(rawText){
-    const lines=rawText.split('\n').filter(l=>l.trim());
-    return lines.map(line=>{
-        const m=line.match(/^([FMfm])\s*[:：]\s*(.*)/);
-        if(m)return{speaker:m[1].toUpperCase(),text:m[2].trim()};
-        return{speaker:'',text:line.trim()};
-    });
+/* Loại bỏ phần giải thích cũ từ dữ liệu đầu vào */
+function stripExplanation(rawText){
+    /* Tìm các dấu hiệu bắt đầu của phần giải thích / đáp án cũ */
+    const markers=[
+        /^解説[：:\s]/m, /^〔解説〕/m, /^【解説】/m, /^\[解説\]/m,
+        /^正解[：:\s]/m, /^答え[：:\s]/m, /^解答[：:\s]/m,
+        /^◆?解説/m, /^■解説/m,
+        /* tiếng Việt / tiếng Anh */
+        /^Giải thích[：:\s]/im, /^Explanation[：:\s]/im,
+        /^正解：/m, /^答：/m,
+    ];
+    let cutIdx=rawText.length;
+    for(const pat of markers){
+        const m=rawText.match(pat);
+        if(m&&m.index<cutIdx)cutIdx=m.index;
+    }
+    return rawText.slice(0,cutIdx).trimEnd();
 }
 function renderParsedLines(parsed){
     return parsed.map(p=>{
@@ -667,39 +712,61 @@ function renderParsedLines(parsed){
     }).join('');
 }
 
-$('translate-parse-btn').addEventListener('click',()=>{
-    const text=trInput.value.trim();if(!text)return;
-    STATE.parsed_lines=parseSpeakers(text);
-    $('translate-parsed').innerHTML=`<div class="ocr-rendered" style="max-height:200px;padding:8px;">${renderParsedLines(STATE.parsed_lines)}</div>`;
-    $('translate-parsed').style.display='block';
-    showStatus('translate-status',`${STATE.parsed_lines.length} lines parsed`,'success');
-});
+function renderTranslateResult(){
+    const mondai=ctxMondai.value;
+    let html='<div class="ocr-rendered" style="max-height:360px;padding:8px;">';
+    /* Conversation lines */
+    html+=renderParsedLines(STATE.parsed_lines);
+    /* Mondai 3: thêm câu hỏi */
+    if(mondai==='3'&&STATE.question_jp){
+        html+=`<div style="margin-top:10px;padding:8px 10px;background:rgba(99,102,241,.12);border-radius:6px;border-left:3px solid #818cf8;">`;
+        html+=`<div style="font-size:9px;color:#818cf8;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">質問</div>`;
+        html+=`<div style="font-size:14px;font-family:'Noto Sans JP',sans-serif;line-height:1.9;">${renderRuby(STATE.question_jp)}</div>`;
+        if(STATE.question_vi)html+=`<div style="font-size:12px;color:var(--text-muted);margin-top:3px;">${STATE.question_vi}</div>`;
+        html+=`</div>`;
+    }
+    /* Explanation */
+    if(STATE.explanation){
+        html+=`<div style="margin-top:10px;padding:8px 10px;background:rgba(16,185,129,.08);border-radius:6px;border-left:3px solid #10b981;">`;
+        html+=`<div style="font-size:9px;color:#10b981;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Giải thích đáp án</div>`;
+        html+=`<div style="font-size:12px;color:var(--text-main);line-height:1.7;">${STATE.explanation.replace(/\n/g,'<br>')}</div>`;
+        html+=`</div>`;
+    }
+    html+='</div>';
+    $('translate-result-rendered').innerHTML=html;
+    $('translate-result-rendered').style.display='block';
+    $('translate-parsed').style.display='none';
+    $('translate-actions').style.display='flex';
+}
 
 async function doTranslate(){
-    const text=trInput.value.trim();if(!text)return false;
-    STATE.parsed_lines=parseSpeakers(text);
-    /* Build text with speaker labels for Gemini */
-    const textForAI=STATE.parsed_lines.map(p=>{
-        if(p.speaker)return `[${p.speaker}] ${p.text}`;
-        return p.text;
-    }).join('\n');
+    const rawText=trInput.value.trim();if(!rawText)return false;
+    /* Loại bỏ phần giải thích cũ trước khi gửi */
+    const cleanText=stripExplanation(rawText);
+
     trBtn.disabled=true;trBtn.innerHTML='<span class="spinner"></span> ...';showLoading('translate-status','Translating...');
     try{
-        const bookLevel=(ctxBook.selectedOptions[0]?.textContent.match(/\((\w+)\)/)||[])[1]||'';
-        const res=await fetch('{% url "admin:vocab_vocabulary_choukai_translate" %}',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'},body:JSON.stringify({text:textForAI,model:$('translate-model').value,level:bookLevel})});
+        const bookLevel=getBookLevel();
+        const payload={
+            text:cleanText,
+            model:$('translate-model').value,
+            level:bookLevel,
+            mondai:ctxMondai.value,
+            options:STATE.analyze_options.map(o=>({key:o.label,text:o.content})),
+            correct_answer:getCorrectAnswer(),
+        };
+        const res=await fetch('{% url "admin:vocab_vocabulary_choukai_translate" %}',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'},body:JSON.stringify(payload)});
         const data=await res.json();
         if(data.success){
-            const cleanResult=stripCodeFence(data.result);
-            $('translate-result').value=cleanResult;$('translate-result').style.display='block';
-            /* Render with speaker tags on top, translation below */
-            let html='<div class="ocr-rendered" style="max-height:280px;padding:8px;">';
-            html+=renderParsedLines(STATE.parsed_lines);
-            html+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color);">'+renderRuby(cleanResult.replace(/\n/g,'<br>'))+'</div>';
-            html+='</div>';
-            $('translate-result-rendered').innerHTML=html;
-            $('translate-result-rendered').style.display='block';
-            $('translate-parsed').style.display='none';
-            $('translate-actions').style.display='flex';
+            /* Lưu conversation từ AI (có furigana + text_vi) */
+            STATE.parsed_lines=data.conversation||[];
+            STATE.explanation=data.explanation||'';
+            STATE.question_jp=data.question_jp||'';
+            STATE.question_vi=data.question_vi||'';
+            /* Lưu explanation vào textarea để doSave lấy */
+            $('translate-result').value=STATE.explanation;
+            $('translate-result').style.display=STATE.explanation?'block':'none';
+            renderTranslateResult();
             showStatus('translate-status','Done','success');
             trBtn.disabled=false;trBtn.innerHTML='Translate';return true;
         }
@@ -732,6 +799,7 @@ $('audio-btn').addEventListener('click',doAudioUpload);
 /* ── Save single question ── */
 async function doSave(){
     if(!ctxBook.value)return false;
+    if(!ctxMondai.value){showStatus('save-info','Chon loai cau hoi (mondai) truoc khi luu!','error');return false;}
     const payload={
         question_id:STATE.selectedQid||null,
         book_id:ctxBook.value,
@@ -740,12 +808,20 @@ async function doSave(){
         text:$('translate-input').value.trim()||'',
         text_vi:'',
         correct_answer:getCorrectAnswer(),
-        data:STATE.analyze_options.length?{choices:STATE.analyze_options.map(opt=>({key:opt.label,text:opt.content}))}:{},
+        data:STATE.analyze_options.length?{
+            choices:STATE.analyze_options.map(opt=>({key:opt.label,text:opt.content})),
+            explanation:STATE.explanation||'',
+            question_jp:STATE.question_jp||'',
+            question_vi:STATE.question_vi||'',
+        }:{},
         audio_transcript:$('translate-input').value.trim(),
-        audio_transcript_vi:$('translate-result').value.trim(),
+        audio_transcript_vi:STATE.explanation||$('translate-result').value.trim(),
         conversation:STATE.parsed_lines.length?STATE.parsed_lines:[],
-        image_b64:STATE.ghibli_b64||'',
+        image_b64:STATE.analyze_type!=='TEXT_OPTIONS_ONLY'?(STATE.ghibli_b64||''):'',
         image_mime:STATE.ghibli_mime||'image/png',
+        original_b64:STATE.original_b64||'',
+        original_mime:STATE.original_mime||'image/png',
+        image_type:STATE.analyze_type||'',
         audio_url:STATE.audio_url||'',
     };
     const res=await fetch('{% url "admin:vocab_vocabulary_choukai_save_question" %}',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'},body:JSON.stringify(payload)});

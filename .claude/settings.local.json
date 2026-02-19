@@ -45,7 +45,8 @@
       "Bash(xargs:*)",
       "Bash(pip install:*)",
       "WebSearch",
-      "WebFetch(domain:ai.google.dev)"
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(curl:*)"
     ]
   }
 }

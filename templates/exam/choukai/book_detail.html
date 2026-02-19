@@ -4,29 +4,29 @@
 {% block title %}{{ book.title }} — Luyện nghe | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260216e">
+<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260219">
 {% endblock %}
 
 {% block content %}
-<div class="choukai-page" x-data="choukaiApp()"
-     :class="$store.player.visible ? 'choukai-page--has-player' : ''" x-cloak>
+<div class="choukai-page" x-data="choukaiApp()" x-init="$store.player.initAudio($refs.globalAudio)" x-cloak>
+  <audio x-ref="globalAudio" preload="none" style="display:none;position:absolute;pointer-events:none;"></audio>
   <div class="choukai-container">
 
-    {# ===== BREADCRUMB ===== #}
+    {# ── Breadcrumb ── #}
     <div class="ck-breadcrumb">
       <a href="{% url 'exam:choukai_book_list' %}">Luyện nghe</a>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
       <span>{{ book.title }}</span>
     </div>
 
-    {# ===== BOOK HEADER ===== #}
+    {# ── Book header ── #}
     <div class="ck-glass ck-detail-header">
       <div class="ck-detail-cover">
         {% if book.cover_image %}
           <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
         {% else %}
           <div class="ck-detail-cover-placeholder ck-book-placeholder--{{ book.level|lower }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;opacity:0.4;color:{% if book.level == 'N5' %}#3b82f6{% elif book.level == 'N4' %}#10b981{% elif book.level == 'N3' %}#f97316{% elif book.level == 'N2' %}#ec4899{% else %}#8b5cf6{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;opacity:0.4">
               <path d="M3 18v-6a9 9 0 0118 0v6"/>
               <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
             </svg>
@@ -39,7 +39,7 @@
           <span class="ck-level-badge ck-level-badge--{{ book.level|lower }}">{{ book.level }}</span>
         </div>
         {% if book.description %}
-        <p style="font-size:0.875rem;color:#64748b;margin-top:0.5rem;">{{ book.description }}</p>
+        <p class="ck-book-desc">{{ book.description }}</p>
         {% endif %}
         <div class="ck-detail-stats">
           <div class="ck-detail-stat">
@@ -48,361 +48,341 @@
           </div>
           <div class="ck-detail-stat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            <strong x-text="mondaiData.length"></strong> もんだい
+            <strong>{{ mondai_groups|length }}</strong> もんだい
           </div>
         </div>
       </div>
     </div>
 
-    {# ===== MONDAI TABS ===== #}
-    <div class="ck-glass ck-mondai-tabs">
-      <template x-for="(group, idx) in mondaiData" :key="group.key">
-        <button class="ck-mondai-tab"
-                :class="activeMondai === group.key ? 'ck-mondai-tab--active-' + group.key : ''"
-                @click="activeMondai = group.key">
-          <span x-text="getMondaiLabel(group.key)"></span>
-          <span class="ck-tab-count" x-text="group.count"></span>
-        </button>
-      </template>
-    </div>
-
-    {# ===== PROGRESS ===== #}
-    <div class="ck-glass ck-progress">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="ck-progress-text" x-text="getProgressText()"></span>
-        <span class="ck-progress-text" x-text="getProgressPct() + '%'"></span>
+    {# ── Question Map ── #}
+    {% if mondai_groups %}
+    <div class="ck-glass ck-qmap">
+      {# Header #}
+      <div class="ck-qmap-header">
+        <div class="ck-qmap-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+          Bản đồ câu hỏi
+        </div>
+        <div class="ck-qmap-legend">
+          <span class="ck-qmap-legend-item">
+            <span class="ck-qmap-legend-dot ck-qmap-legend-dot--correct"></span>
+            Đúng (<span x-text="qmapCorrect()">0</span>)
+          </span>
+          <span class="ck-qmap-legend-item">
+            <span class="ck-qmap-legend-dot ck-qmap-legend-dot--wrong"></span>
+            Sai (<span x-text="qmapWrong()">0</span>)
+          </span>
+          <span class="ck-qmap-legend-item">
+            <span class="ck-qmap-legend-dot ck-qmap-legend-dot--pending"></span>
+            Chưa làm (<span x-text="qmapPending()">{{ total_questions }}</span>)
+          </span>
+          <button class="ck-qmap-toggle" @click="qmapCollapsed = !qmapCollapsed">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 :style="qmapCollapsed ? '' : 'transform:rotate(180deg)'">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+            <span x-text="qmapCollapsed ? 'Xem' : 'Thu gọn'">Thu gọn</span>
+          </button>
+        </div>
       </div>
-      <div class="ck-progress-bar">
-        <div class="ck-progress-fill"
-             :class="'ck-progress-fill--' + activeMondai"
-             :style="'width:' + getProgressPct() + '%'"></div>
-      </div>
-    </div>
 
-    {# ===== QUESTION CARDS ===== #}
-    <template x-for="(group, gIdx) in mondaiData" :key="'g-' + group.key">
-      <div x-show="activeMondai === group.key">
-        <template x-for="(q, qIdx) in group.questions" :key="'q-' + q.id">
-          <div class="ck-glass ck-question-card">
-
-            {# Header #}
-            <div class="ck-q-header">
-              <span class="ck-q-number" :class="'ck-q-number--' + group.key"
-                    x-text="q.order_in_mondai || (qIdx + 1)"></span>
-              <span class="ck-q-mondai-badge" :class="'ck-q-mondai-badge--' + group.key"
-                    x-text="getMondaiLabel(group.key)"></span>
-            </div>
-
-            {# ===== INLINE PLAY BUTTON → opens sticky player ===== #}
-            <button class="ck-play-inline" x-show="q.audio_url"
-                    :class="$store.player.src === q.audio_url && $store.player.playing ? 'ck-play-inline--active' : ''"
-                    @click="$store.player.play(q.audio_url, getMondaiLabel(group.key) + ' — Q' + (q.order_in_mondai || qIdx+1))">
-              <template x-if="!($store.player.src === q.audio_url && $store.player.playing)">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              </template>
-              <template x-if="$store.player.src === q.audio_url && $store.player.playing">
-                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-              </template>
-              <span x-text="$store.player.src === q.audio_url && $store.player.playing ? 'Đang phát...' : 'Nghe audio'"></span>
+      {# Grid body — collapsible #}
+      <div class="ck-qmap-body" x-show="!qmapCollapsed" x-transition.opacity.duration.200ms>
+        {% for group in mondai_groups %}
+        <div class="ck-qmap-group">
+          <div class="ck-qmap-group-label ck-qmap-group-label--{{ group.key }}">
+            {{ group.label }} &mdash; {{ group.questions|length }} câu
+          </div>
+          <div class="ck-qmap-grid">
+            {% for q in group.questions %}
+            <button type="button"
+                    class="ck-qmap-cell"
+                    :class="{
+                      'ck-qmap-cell--correct': answered[{{ q.id }}] && answers[{{ q.id }}] === '{{ q.correct }}',
+                      'ck-qmap-cell--wrong':   answered[{{ q.id }}] && answers[{{ q.id }}] !== '{{ q.correct }}',
+                      'ck-qmap-cell--pending': !answered[{{ q.id }}],
+                      'ck-qmap-cell--sm':      {{ q.num }} >= 100
+                    }"
+                    :title="answered[{{ q.id }}]
+                      ? (answers[{{ q.id }}] === '{{ q.correct }}'
+                          ? 'Câu {{ q.num }}: Đúng ✓'
+                          : 'Câu {{ q.num }}: Sai ✗ — ĐA: {{ q.correct }}')
+                      : 'Câu {{ q.num }}: Chưa làm'"
+                    @click="jumpToQuestion('{{ group.key }}', {{ q.id }})">
+              {{ q.num }}
             </button>
-
-            {# Question text #}
-            <div class="ck-q-text" x-show="q.text && !q.text.startsWith('The question text')"
-                 x-text="q.text"></div>
-
-            {# ===== IMAGE + CHOICES side-by-side ===== #}
-            <div class="ck-split-layout" :class="q.image_url ? 'ck-split-layout--has-image' : ''">
-
-              {# Image column #}
-              <div class="ck-split-image" x-show="q.image_url">
-                <img :src="q.image_url" :alt="'Question ' + (qIdx+1)" loading="lazy">
-              </div>
-
-              {# Choices column #}
-              <div class="ck-split-choices">
-                <div class="ck-choices">
-                  <template x-for="(c, cIdx) in (q.choices || [])" :key="'c-' + q.id + '-' + cIdx">
-                    <button class="ck-choice-btn"
-                            :class="{
-                              'ck-choice--selected': getAnswer(q.id) === c.key && !isAnswered(q.id),
-                              'ck-choice--correct': isAnswered(q.id) && c.key === q.correct_answer,
-                              'ck-choice--wrong': isAnswered(q.id) && getAnswer(q.id) === c.key && c.key !== q.correct_answer,
-                              'ck-choice--answered': isAnswered(q.id)
-                            }"
-                            @click="selectChoice(q.id, c.key, q.correct_answer)">
-                      <span class="ck-choice-key" x-text="c.key"></span>
-                      <span class="ck-choice-text ck-ruby"
-                            x-html="c.text_ruby || c.text"></span>
-                    </button>
-                  </template>
-                </div>
-              </div>
-            </div>
-
-            {# Feedback #}
-            <div x-show="isAnswered(q.id)" x-transition>
-              <div class="ck-feedback"
-                   :class="isCorrect(q.id) ? 'ck-feedback--correct' : 'ck-feedback--wrong'">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <template x-if="isCorrect(q.id)">
-                    <path d="M20 6L9 17l-5-5"/>
-                  </template>
-                  <template x-if="!isCorrect(q.id)">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                  </template>
-                </svg>
-                <span x-text="isCorrect(q.id) ? 'Chính xác!' : 'Sai rồi. Đáp án đúng: ' + q.correct_answer"></span>
-              </div>
-
-              {# ===== TRANSCRIPT with ruby + per-line Vietnamese ===== #}
-              <div x-show="q.conversation && q.conversation.length > 0" class="ck-transcript-section">
-
-                <div class="ck-transcript-toolbar">
-                  <button class="ck-transcript-toggle" @click="toggleAllVi(q.id)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
-                      <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                    </svg>
-                    <span x-text="isAllViVisible(q.id) ? 'Ẩn bản dịch' : 'Hiện bản dịch'"></span>
-                  </button>
-                </div>
-
-                <div class="ck-transcript-lines">
-                  <template x-for="(line, lIdx) in q.conversation" :key="'tl-' + q.id + '-' + lIdx">
-                    <div class="ck-transcript-line" @click="toggleLineVi(q.id, lIdx)">
-                      <div class="ck-transcript-line-jp">
-                        <span class="ck-speaker-tag"
-                              x-show="line.speaker && line.speaker !== 'N'"
-                              :class="line.speaker === 'F' ? 'ck-speaker-f' : 'ck-speaker-m'"
-                              x-text="line.speaker"></span>
-                        <span class="ck-narrator-tag" x-show="line.speaker === 'N'">&#x25B6;</span>
-                        {# Show ruby version if available, fallback to plain text #}
-                        <span class="ck-line-text ck-ruby"
-                              x-html="line.text_ruby || line.text"></span>
-                        <svg class="ck-line-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                             x-show="line.text_vi"
-                             :class="isLineViVisible(q.id, lIdx) ? 'ck-line-chevron--open' : ''">
-                          <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                      </div>
-                      <div class="ck-transcript-line-vi"
-                           x-show="line.text_vi && isLineViVisible(q.id, lIdx)"
-                           x-transition
-                           x-text="line.text_vi"></div>
-                    </div>
-                  </template>
-                </div>
-              </div>
-
-            </div>
-
+            {% endfor %}
           </div>
-        </template>
+        </div>
+        {% endfor %}
       </div>
-    </template>
+    </div>
+    {% endif %}
 
-  </div>
-
-  {# ===== GLOBAL STICKY BOTTOM PLAYER ===== #}
-  <div class="ck-sticky-player"
-       :class="$store.player.visible ? '' : 'ck-sticky-player--hidden'"
-       x-init="$store.player.initAudio($refs.globalAudio)">
-
-    <audio x-ref="globalAudio" preload="none"></audio>
-
-    {# Thin progress bar at top #}
-    <div class="ck-sp-progress" @click="$store.player.seek($event)">
-      <div class="ck-sp-buffered" :style="'width:' + $store.player.bufferedPct + '%'"></div>
-      <div class="ck-sp-filled" :style="'width:' + $store.player.progressPct + '%'"></div>
+    {# ── Mondai tabs ── #}
+    {% if mondai_groups %}
+    <div class="ck-glass ck-mondai-tabs">
+      {% for group in mondai_groups %}
+      <button class="ck-mondai-tab"
+              :class="activeMondai === '{{ group.key }}' ? 'ck-mondai-tab--active-{{ group.key }}' : ''"
+              @click="activeMondai = '{{ group.key }}'">
+        <span>{{ group.label }}</span>
+        <span class="ck-tab-count">{{ group.questions|length }}</span>
+      </button>
+      {% endfor %}
     </div>
 
-    {# Controls #}
-    <div class="ck-sp-controls">
-      {# Label #}
-      <span class="ck-sp-label" x-text="$store.player.label"></span>
+    {# ── Per-mondai sections ── #}
+    {% for group in mondai_groups %}
+    {# Embed question IDs so the progress bar can count answered ones #}
+    <div x-show="activeMondai === '{{ group.key }}'"
+         x-data="{ qids: [{% for q in group.questions %}{{ q.id }}{% if not forloop.last %},{% endif %}{% endfor %}] }">
 
-      {# Skip back 5s #}
-      <button class="ck-sp-btn ck-sp-skip" @click="$store.player.skip(-5)" title="-5s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/>
-        </svg>
-        <span class="ck-sp-skip-5">5</span>
-      </button>
-
-      {# Play/Pause #}
-      <button class="ck-sp-btn ck-sp-play" @click="$store.player.togglePlay()">
-        <template x-if="!$store.player.playing">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </template>
-        <template x-if="$store.player.playing">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-        </template>
-      </button>
-
-      {# Skip forward 5s #}
-      <button class="ck-sp-btn ck-sp-skip" @click="$store.player.skip(5)" title="+5s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.64-8.36L23 10"/>
-        </svg>
-        <span class="ck-sp-skip-5">5</span>
-      </button>
-
-      {# Time #}
-      <span class="ck-sp-time"
-            x-text="$store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration)"></span>
-
-      {# Speed #}
-      <div class="ck-sp-speed-wrap">
-        <button class="ck-sp-speed-btn" @click="$store.player.showSpeedMenu = !$store.player.showSpeedMenu"
-                x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
-        <div class="ck-sp-speed-menu" x-show="$store.player.showSpeedMenu" x-transition
-             @click.outside="$store.player.showSpeedMenu = false">
-          <template x-for="s in $store.player.speeds" :key="s">
-            <button class="ck-sp-speed-opt"
-                    :class="$store.player.speed === s ? 'ck-sp-speed-opt--active' : ''"
-                    @click="$store.player.setSpeed(s)"
-                    x-text="s + 'x'"></button>
-          </template>
+      {# Progress bar #}
+      <div class="ck-glass ck-progress">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="ck-progress-text"
+                x-text="qids.filter(id => answered[id]).length + ' / ' + qids.length + ' đã trả lời'"></span>
+          <span class="ck-progress-text"
+                x-text="(qids.length ? Math.round(qids.filter(id => answered[id]).length / qids.length * 100) : 0) + '%'"></span>
+        </div>
+        <div class="ck-progress-bar">
+          <div class="ck-progress-fill ck-progress-fill--{{ group.key }}"
+               :style="'width:' + (qids.length ? Math.round(qids.filter(id => answered[id]).length / qids.length * 100) : 0) + '%'"></div>
         </div>
       </div>
 
-      {# Close #}
-      <button class="ck-sp-btn ck-sp-close" @click="$store.player.close()" title="Đóng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M18 6L6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-  </div>
+      {# Question cards — Django renders HTML, Alpine.js handles answer state only #}
+      {% for q in group.questions %}
+      <div id="ck-q-{{ q.id }}" class="ck-glass ck-question-card" x-data="{ viOpen: false }">
 
-</div>
+        {# Header #}
+        <div class="ck-q-header">
+          <span class="ck-q-number ck-q-number--{{ group.key }}">{{ q.num }}</span>
+          <span class="ck-q-mondai-badge ck-q-mondai-badge--{{ group.key }}">{{ group.label }}</span>
+        </div>
+
+        {# Question text (rarely used in Choukai) #}
+
+
+        {# Image + Choices layout #}
+        <div class="ck-split-layout {% if q.image_url %}ck-split-layout--has-image{% endif %}">
+
+          {% if q.image_url %}
+          <div class="ck-split-image">
+            <img src="{{ q.image_url }}" alt="Q{{ q.num }}" loading="lazy">
+          </div>
+          {% endif %}
+
+          <div class="ck-split-choices">
+
+            {# In-card audio player — sits inside choices column so width matches #}
+            {% if q.audio_url %}
+            <div class="ck-card-player" x-data="{ _src: '{{ q.audio_url }}', showSpeed: false }">
+              <div class="ck-cp-body">
+                <div class="ck-cp-row">
+
+                  {# Skip -5 #}
+                  <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(-5)" title="-5s">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/></svg>
+                    <span class="ck-cp-skip5">5</span>
+                  </button>
+
+                  {# Play / Pause — starts this audio if not active, toggles if active #}
+                  <button class="ck-cp-btn ck-cp-playpause"
+                          @click="$store.player.src === _src ? $store.player.togglePlay() : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
+                    <svg x-show="$store.player.src !== _src || !$store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M8 5v14l11-7z"/></svg>
+                    <svg x-show="$store.player.src === _src && $store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                  </button>
+
+                  {# Skip +5 #}
+                  <button class="ck-cp-btn ck-cp-skip" @click="$store.player.skip(5)" title="+5s">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.64-8.36L23 10"/></svg>
+                    <span class="ck-cp-skip5">5</span>
+                  </button>
+
+                  {# Progress bar — inline, flex:1 #}
+                  <div class="ck-cp-progress"
+                       @click="$store.player.src === _src ? $store.player.seek($event) : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
+                    <div class="ck-cp-buf" :style="$store.player.src === _src ? 'width:' + $store.player.bufferedPct + '%' : 'width:0'"></div>
+                    <div class="ck-cp-fill" :style="$store.player.src === _src ? 'width:' + $store.player.progressPct + '%' : 'width:0'"></div>
+                  </div>
+
+                  {# Time #}
+                  <span class="ck-cp-time"
+                        x-text="$store.player.src === _src ? $store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration) : '—'"></span>
+
+                  {# Speed #}
+                  <div style="position:relative;">
+                    <button class="ck-cp-speed-btn" @click="showSpeed = !showSpeed" x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
+                    <div class="ck-cp-speed-menu" x-show="showSpeed" x-transition @click.outside="showSpeed = false">
+                      <template x-for="s in $store.player.speeds" :key="s">
+                        <button class="ck-cp-speed-opt" :class="$store.player.speed === s ? 'active' : ''" @click="$store.player.setSpeed(s); showSpeed = false" x-text="s + 'x'"></button>
+                      </template>
+                    </div>
+                  </div>
+
+                  {# Volume #}
+                  <div class="ck-cp-vol">
+                    <button class="ck-cp-btn ck-cp-vol-btn" @click="$store.player.toggleMute()" :title="$store.player.muted ? 'Bật âm' : 'Tắt âm'">
+                      <svg x-show="$store.player.muted || $store.player.volume === 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                      <svg x-show="!$store.player.muted && $store.player.volume > 0 && $store.player.volume <= 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                      <svg x-show="!$store.player.muted && $store.player.volume > 0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    </button>
+                    <input class="ck-cp-vol-slider" type="range" min="0" max="1" step="0.05"
+                           :value="$store.player.muted ? 0 : $store.player.volume"
+                           @input="$store.player.setVolume(parseFloat($event.target.value))">
+                  </div>
+
+                </div>{# end controls row #}
+              </div>{# end cp-body #}
+            </div>{# end card-player #}
+            {% endif %}
+
+            <div class="ck-choices">
+              {% for c in q.choices %}
+              <button class="ck-choice-btn"
+                      :class="{
+                        'ck-choice--selected': answers[{{ q.id }}] === '{{ c.key }}' && !answered[{{ q.id }}],
+                        'ck-choice--correct': answered[{{ q.id }}] && '{{ c.key }}' === '{{ q.correct }}',
+                        'ck-choice--wrong':   answered[{{ q.id }}] && answers[{{ q.id }}] === '{{ c.key }}' && '{{ c.key }}' !== '{{ q.correct }}',
+                        'ck-choice--answered': answered[{{ q.id }}]
+                      }"
+                      @click="selectChoice({{ q.id }}, '{{ c.key }}')">
+                <span class="ck-choice-key">{{ c.key }}</span>
+                <span class="ck-choice-text ck-ruby">{{ c.html|safe }}</span>
+              </button>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        {# Feedback + Transcript — shown after answering #}
+        <div x-show="answered[{{ q.id }}]" x-transition>
+
+          {# Correct / Wrong feedback #}
+          <div class="ck-feedback"
+               :class="answers[{{ q.id }}] === '{{ q.correct }}' ? 'ck-feedback--correct' : 'ck-feedback--wrong'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path x-show="answers[{{ q.id }}] === '{{ q.correct }}'" d="M20 6L9 17l-5-5"/>
+              <path x-show="answers[{{ q.id }}] !== '{{ q.correct }}'" d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+            <span x-text="answers[{{ q.id }}] === '{{ q.correct }}' ? 'Chính xác!' : 'Sai rồi. Đáp án đúng: {{ q.correct }}'"></span>
+          </div>
+
+          {# Transcript (conversation lines) #}
+          {% if q.lines %}
+          <div class="ck-transcript-section">
+            <div class="ck-transcript-toolbar">
+              <button class="ck-transcript-toggle" @click="viOpen = !viOpen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                  <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                </svg>
+                <span x-text="viOpen ? 'Ẩn bản dịch' : 'Hiện bản dịch'"></span>
+              </button>
+            </div>
+            <div class="ck-transcript-lines">
+              {% for ln in q.lines %}
+              <div class="ck-transcript-line">
+                <div class="ck-transcript-line-jp">
+                  {% if ln.speaker == 'F' %}
+                    <span class="ck-speaker-tag ck-speaker-f">F</span>
+                  {% elif ln.speaker == 'M' %}
+                    <span class="ck-speaker-tag ck-speaker-m">M</span>
+                  {% elif ln.speaker == 'N' %}
+                    <span class="ck-narrator-tag">&#x25B6;</span>
+                  {% endif %}
+                  <span class="ck-line-text ck-ruby">{{ ln.html|safe }}</span>
+                </div>
+                {% if ln.vi %}
+                <div class="ck-transcript-line-vi" x-show="viOpen" x-transition>{{ ln.vi }}</div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+        </div>{# end x-show answered #}
+
+      </div>{# end question card #}
+      {% endfor %}
+
+    </div>{# end mondai section #}
+    {% endfor %}
+
+    {% else %}
+    <div class="ck-glass" style="padding:2rem;text-align:center;color:#64748b;">
+      Chưa có câu hỏi nào trong sách này.
+    </div>
+    {% endif %}
+
+  </div>{# end choukai-container #}
+
+
+</div>{# end choukai-page #}
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/ck-audio-player.js' %}?v=20260216b"></script>
 <script>
-  const MONDAI_LABELS = {
-    '1': '\u3082\u3093\u3060\u30441 \u8AB2\u984C\u7406\u89E3',
-    '2': '\u3082\u3093\u3060\u30442 \u30DD\u30A4\u30F3\u30C8\u7406\u89E3',
-    '3': '\u3082\u3093\u3060\u30443 \u6982\u8981\u7406\u89E3',
-    '4': '\u3082\u3093\u3060\u30444 \u767A\u8A71\u8868\u73FE',
-    '5': '\u3082\u3093\u3060\u30445 \u5373\u6642\u5FDC\u7B54',
-  };
+const SAVE_URL = '{% url "exam:choukai_save_answer" %}';
+const CSRF = '{{ csrf_token }}';
 
-  const SAVE_URL = '{% url "exam:choukai_save_answer" %}';
-  const CSRF = '{{ csrf_token }}';
+/* Danh sách câu hỏi cho question map stats */
+const CK_QMAP_DATA = [
+  {% for group in mondai_groups %}{% for q in group.questions %}
+  { id: {{ q.id }}, correct: '{{ q.correct }}', mondai: '{{ group.key }}' },
+  {% endfor %}{% endfor %}
+];
 
-  function choukaiApp() {
-    return {
-      mondaiData: [],
-      activeMondai: '',
-      answers: {},
-      answered: {},
-      _viState: {},
+/* Đáp án đã làm từ server (persist qua reload) */
+const _SAVED = {{ initial_answers_json }};
 
-      init() {
-        this.mondaiData = JSON.parse('{{ mondai_data_json|escapejs }}');
-
-        // Pre-initialize reactivity keys for every question
-        for (const group of this.mondaiData) {
-          for (const q of group.questions) {
-            const lineState = {};
-            if (q.conversation) {
-              for (let i = 0; i < q.conversation.length; i++) {
-                lineState[String(i)] = false;
-              }
-            }
-            this._viState[String(q.id)] = { all: false, lines: lineState };
-          }
-        }
-
-        // Restore previous answers from DB
-        const prev = JSON.parse('{{ prev_answers_json|escapejs }}');
-        for (const [qIdStr, ans] of Object.entries(prev)) {
-          const qId = parseInt(qIdStr, 10);
-          this.answers[qId] = ans.selected;
-          this.answered[qId] = true;
-        }
-
-        if (this.mondaiData.length > 0) {
-          this.activeMondai = this.mondaiData[0].key;
-        }
-      },
-
-      getMondaiLabel(key) {
-        return MONDAI_LABELS[key] || ('\u3082\u3093\u3060\u3044' + key);
-      },
-
-      selectChoice(qId, choiceKey) {
-        if (this.answered[qId]) return;
-        this.answers[qId] = choiceKey;
-        this.answered[qId] = true;
-        // Save to DB
-        fetch(SAVE_URL, {
-          method: 'POST',
-          headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question_id: qId, selected_key: choiceKey }),
-        }).catch(() => {});
-      },
-
-      getAnswer(qId) { return this.answers[qId] || null; },
-      isAnswered(qId) { return !!this.answered[qId]; },
-
-      isCorrect(qId) {
-        if (!this.answered[qId]) return false;
-        const group = this.mondaiData.find(g => g.questions.some(q => q.id === qId));
-        if (!group) return false;
-        const q = group.questions.find(q => q.id === qId);
-        return q && this.answers[qId] === q.correct_answer;
-      },
-
-      // ===== TRANSLATION TOGGLE =====
-      _getViState(qId) {
-        const key = String(qId);
-        if (!this._viState[key]) {
-          this._viState[key] = { all: false, lines: {} };
-        }
-        return this._viState[key];
-      },
-
-      toggleAllVi(qId) {
-        const st = this._getViState(qId);
-        const newVal = !st.all;
-        st.all = newVal;
-        for (const k of Object.keys(st.lines)) {
-          st.lines[k] = newVal;
-        }
-      },
-
-      isAllViVisible(qId) {
-        return this._getViState(qId).all;
-      },
-
-      toggleLineVi(qId, lineIdx) {
-        const st = this._getViState(qId);
-        const key = String(lineIdx);
-        st.lines[key] = !st.lines[key];
-        st.all = Object.values(st.lines).every(v => v);
-      },
-
-      isLineViVisible(qId, lineIdx) {
-        return !!this._getViState(qId).lines[String(lineIdx)];
-      },
-
-      getProgressText() {
-        const group = this.mondaiData.find(g => g.key === this.activeMondai);
-        if (!group) return '';
-        const total = group.questions.length;
-        const done = group.questions.filter(q => this.answered[q.id]).length;
-        return done + ' / ' + total + ' \u0111\u00e3 tr\u1ea3 l\u1eddi';
-      },
-
-      getProgressPct() {
-        const group = this.mondaiData.find(g => g.key === this.activeMondai);
-        if (!group || group.questions.length === 0) return 0;
-        const done = group.questions.filter(q => this.answered[q.id]).length;
-        return Math.round(done / group.questions.length * 100);
-      },
-    };
+function choukaiApp() {
+  /* Khởi tạo state từ dữ liệu server */
+  const answered = {};
+  const answers = {};
+  for (const [qid, key] of Object.entries(_SAVED)) {
+    const id = parseInt(qid);
+    if (key) { answered[id] = true; answers[id] = key; }
   }
+
+  return {
+    activeMondai: '{{ first_key }}',
+    answered,
+    answers,
+    qmapCollapsed: false,
+
+    selectChoice(qId, choiceKey) {
+      if (this.answered[qId]) return;
+      this.answers[qId] = choiceKey;
+      this.answered[qId] = true;
+      fetch(SAVE_URL, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question_id: qId, selected_key: choiceKey }),
+      }).catch(() => {});
+    },
+
+    /* ── Question Map helpers ── */
+    qmapCorrect()  { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] === q.correct).length; },
+    qmapWrong()    { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] !== q.correct).length; },
+    qmapPending()  { return CK_QMAP_DATA.filter(q => !this.answered[q.id]).length; },
+
+    jumpToQuestion(mondaiKey, qId) {
+      this.activeMondai = mondaiKey;
+      this.$nextTick(() => {
+        const el = document.getElementById('ck-q-' + qId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    },
+  };
+}
 </script>
 {% endblock %}
