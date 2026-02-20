@@ -61,10 +61,17 @@ class ChoukaiToolAPI(View):
         "Do NOT add furigana that is not shown.\n"
         "- Kana-only words (no furigana shown) are written as plain text. Example: います, ている\n"
         "- Mixed example: {電話}(でんわ)をしています → kanji {電話} has ruby, をしています is plain\n\n"
+        "GHIBLI PROMPT RULES (CRITICAL):\n"
+        "- JLPT listening images often have a black-bordered square or rectangle containing the main illustration.\n"
+        "- For \"ghibli_prompt\": describe ONLY the scene content INSIDE that black border.\n"
+        "- Completely ignore: question numbers, answer option labels (1/2/3/4), text outside the border, "
+        "page layout, background outside the bordered area.\n"
+        "- Describe characters, objects, setting, actions visible within the bordered illustration frame.\n"
+        "- If there is no bordered illustration area, set \"ghibli_prompt\" to null.\n\n"
         "OUTPUT JSON FORMAT:\n"
         "{\n"
         "  \"type\": \"SCENE_WITH_OPTIONS\" | \"SCENE_ONLY\" | \"TEXT_OPTIONS_ONLY\",\n"
-        "  \"ghibli_prompt\": \"English scene description for image generation, or null\",\n"
+        "  \"ghibli_prompt\": \"English scene description of content inside the black-bordered illustration only, or null\",\n"
         "  \"data\": {\n"
         "    \"options\": [\n"
         "      { \"label\": \"1\", \"content\": \"{会議}(かいぎ)をしています\" },\n"
@@ -250,8 +257,17 @@ class ChoukaiToolAPI(View):
             if 'image' in request.FILES:
                 img_bytes = request.FILES['image'].read()
             
-            prompt = request.POST.get('prompt') or "Ghibli style illustration."
-            
+            user_prompt = request.POST.get('prompt') or "A scene from a Japanese listening test illustration."
+            # Prefix instruction: focus only on the content inside the black-bordered frame
+            prefix = (
+                "Generate a Studio Ghibli style illustration. "
+                "If a reference image is provided, reproduce ONLY the scene shown inside the black-bordered "
+                "square or rectangle frame. Do NOT include any text, question numbers, answer labels, "
+                "or any content that appears outside that bordered area. "
+                "Scene to illustrate: "
+            )
+            prompt = prefix + user_prompt
+
             from vocab.services.gemini_service import GeminiService
             res_bytes, mime = GeminiService.generate_image(prompt, ref_image_bytes=img_bytes)
             
