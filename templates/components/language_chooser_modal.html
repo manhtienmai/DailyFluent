@@ -86,6 +86,9 @@ Uses Alpine.js for show/hide logic and localStorage for fast access.
       </svg>
     </button>
 
+    {# Skip Button #}
+    <button @click="skip()" class="lang-modal-skip">Bỏ qua</button>
+
   </div>
 </div>
 
@@ -325,6 +328,24 @@ Uses Alpine.js for show/hide logic and localStorage for fast access.
   width: 18px;
   height: 18px;
 }
+
+.lang-modal-skip {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #64748b);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.lang-modal-skip:hover {
+  color: var(--text-primary, #0f172a);
+}
 </style>
 
 <script>
@@ -334,16 +355,25 @@ function languageChooser() {
     selected: null,
 
     init() {
-      // Only show if no language stored in localStorage and user is authenticated
       const stored = localStorage.getItem('df_study_lang');
       if (!stored) {
-        // Use a small delay so the page renders first
-        this.$nextTick(() => { this.showModal = true; });
+        // Silently sync localStorage from server-side profile (never block UI automatically).
+        const serverLang = '{{ study_language }}';
+        const lang = (serverLang === 'jp' || serverLang === 'en') ? serverLang : 'jp';
+        localStorage.setItem('df_study_lang', lang);
+        // Modal stays hidden; user can pick language from topbar switcher
       }
     },
 
     selectLanguage(lang) {
       this.selected = lang;
+    },
+
+    skip() {
+      // Default to Japanese (primary content language) and close without reloading
+      const lang = this.selected || 'jp';
+      localStorage.setItem('df_study_lang', lang);
+      this.showModal = false;
     },
 
     async confirm() {

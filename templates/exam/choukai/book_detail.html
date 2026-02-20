@@ -137,36 +137,35 @@
       {% endfor %}
     </div>
 
-    {# ── Per-mondai sections ── #}
+    {# ── Per-mondai sections (no nested x-data — all scope from root choukaiApp) ── #}
     {% for group in mondai_groups %}
-    {# Embed question IDs so the progress bar can count answered ones #}
-    <div x-show="activeMondai === '{{ group.key }}'"
-         x-data="{ qids: [{% for q in group.questions %}{{ q.id }}{% if not forloop.last %},{% endif %}{% endfor %}] }">
+    <div x-show="activeMondai === '{{ group.key }}'">
 
-      {# Progress bar #}
+      {# Progress bar — uses mondaiQids from root component #}
       <div class="ck-glass ck-progress">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span class="ck-progress-text"
-                x-text="qids.filter(id => answered[id]).length + ' / ' + qids.length + ' đã trả lời'"></span>
+                x-text="mondaiQids['{{ group.key }}'].filter(id => answered[id]).length + ' / ' + mondaiQids['{{ group.key }}'].length + ' đã trả lời'"></span>
           <span class="ck-progress-text"
-                x-text="(qids.length ? Math.round(qids.filter(id => answered[id]).length / qids.length * 100) : 0) + '%'"></span>
+                x-text="(mondaiQids['{{ group.key }}'].length ? Math.round(mondaiQids['{{ group.key }}'].filter(id => answered[id]).length / mondaiQids['{{ group.key }}'].length * 100) : 0) + '%'"></span>
         </div>
         <div class="ck-progress-bar">
           <div class="ck-progress-fill ck-progress-fill--{{ group.key }}"
-               :style="'width:' + (qids.length ? Math.round(qids.filter(id => answered[id]).length / qids.length * 100) : 0) + '%'"></div>
+               :style="'width:' + (mondaiQids['{{ group.key }}'].length ? Math.round(mondaiQids['{{ group.key }}'].filter(id => answered[id]).length / mondaiQids['{{ group.key }}'].length * 100) : 0) + '%'"></div>
         </div>
       </div>
 
-      {# Question cards — Django renders HTML, Alpine.js handles answer state only #}
+      {# Question cards #}
       {% for q in group.questions %}
-      <div id="ck-q-{{ q.id }}" class="ck-glass ck-question-card" x-data="{ viOpen: false }">
+      <div id="ck-q-{{ q.id }}" class="ck-glass ck-question-card">
 
         {# Header: số câu + player cùng hàng #}
         <div class="ck-q-header">
           <span class="ck-q-number ck-q-number--{{ group.key }}">{{ q.num }}</span>
 
           {% if q.audio_url %}
-          <div class="ck-card-player" x-data="{ _src: '{{ q.audio_url }}', showSpeed: false }">
+          {# Audio player — no nested x-data, _src inlined as literal string #}
+          <div class="ck-card-player">
             <div class="ck-cp-body">
               <div class="ck-cp-row">
 
@@ -178,9 +177,9 @@
 
                 {# Play / Pause #}
                 <button class="ck-cp-btn ck-cp-playpause"
-                        @click="$store.player.src === _src ? $store.player.togglePlay() : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
-                  <svg x-show="$store.player.src !== _src || !$store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M8 5v14l11-7z"/></svg>
-                  <svg x-show="$store.player.src === _src && $store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                        @click="$store.player.src === '{{ q.audio_url }}' ? $store.player.togglePlay() : $store.player.play('{{ q.audio_url }}', '{{ group.label }} · Q{{ q.num }}')">
+                  <svg x-show="$store.player.src !== '{{ q.audio_url }}' || !$store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M8 5v14l11-7z"/></svg>
+                  <svg x-show="$store.player.src === '{{ q.audio_url }}' && $store.player.playing" viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
                 </button>
 
                 {# Skip +5 #}
@@ -191,21 +190,21 @@
 
                 {# Progress bar #}
                 <div class="ck-cp-progress"
-                     @click="$store.player.src === _src ? $store.player.seek($event) : $store.player.play(_src, '{{ group.label }} · Q{{ q.num }}')">
-                  <div class="ck-cp-buf" :style="$store.player.src === _src ? 'width:' + $store.player.bufferedPct + '%' : 'width:0'"></div>
-                  <div class="ck-cp-fill" :style="$store.player.src === _src ? 'width:' + $store.player.progressPct + '%' : 'width:0'"></div>
+                     @click="$store.player.src === '{{ q.audio_url }}' ? $store.player.seek($event) : $store.player.play('{{ q.audio_url }}', '{{ group.label }} · Q{{ q.num }}')">
+                  <div class="ck-cp-buf" :style="$store.player.src === '{{ q.audio_url }}' ? 'width:' + $store.player.bufferedPct + '%' : 'width:0'"></div>
+                  <div class="ck-cp-fill" :style="$store.player.src === '{{ q.audio_url }}' ? 'width:' + $store.player.progressPct + '%' : 'width:0'"></div>
                 </div>
 
                 {# Time #}
                 <span class="ck-cp-time"
-                      x-text="$store.player.src === _src ? $store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration) : '—'"></span>
+                      x-text="$store.player.src === '{{ q.audio_url }}' ? $store.player.fmtTime($store.player.currentTime) + ' / ' + $store.player.fmtTime($store.player.duration) : '—'"></span>
 
-                {# Speed #}
+                {# Speed — showSpeed keyed by question id in root component #}
                 <div style="position:relative;">
-                  <button class="ck-cp-speed-btn" @click="showSpeed = !showSpeed" x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
-                  <div class="ck-cp-speed-menu" x-show="showSpeed" x-transition @click.outside="showSpeed = false">
+                  <button class="ck-cp-speed-btn" @click="showSpeed[{{ q.id }}] = !showSpeed[{{ q.id }}]" x-text="$store.player.speed === 1 ? '1x' : $store.player.speed + 'x'"></button>
+                  <div class="ck-cp-speed-menu" x-show="showSpeed[{{ q.id }}]" x-transition @click.outside="showSpeed[{{ q.id }}] = false">
                     <template x-for="s in $store.player.speeds" :key="s">
-                      <button class="ck-cp-speed-opt" :class="$store.player.speed === s ? 'active' : ''" @click="$store.player.setSpeed(s); showSpeed = false" x-text="s + 'x'"></button>
+                      <button class="ck-cp-speed-opt" :class="$store.player.speed === s ? 'active' : ''" @click="$store.player.setSpeed(s); showSpeed[{{ q.id }}] = false" x-text="s + 'x'"></button>
                     </template>
                   </div>
                 </div>
@@ -269,15 +268,15 @@
             <span x-text="answers[{{ q.id }}] === '{{ q.correct }}' ? 'Chính xác!' : 'Sai rồi. Đáp án đúng: {{ q.correct }}'"></span>
           </div>
 
-          {# Transcript (conversation lines) #}
+          {# Transcript (conversation lines) — viOpen keyed by question id #}
           {% if q.lines %}
           <div class="ck-transcript-section">
             <div class="ck-transcript-toolbar">
-              <button class="ck-transcript-toggle" @click="viOpen = !viOpen">
+              <button class="ck-transcript-toggle" @click="viOpen[{{ q.id }}] = !viOpen[{{ q.id }}]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
                   <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
                 </svg>
-                <span x-text="viOpen ? 'Ẩn bản dịch' : 'Hiện bản dịch'"></span>
+                <span x-text="viOpen[{{ q.id }}] ? 'Ẩn bản dịch' : 'Hiện bản dịch'"></span>
               </button>
             </div>
             <div class="ck-transcript-lines">
@@ -294,7 +293,7 @@
                   <span class="ck-line-text ck-ruby">{{ ln.html|safe }}</span>
                 </div>
                 {% if ln.vi %}
-                <div class="ck-transcript-line-vi" x-show="viOpen" x-transition>{{ ln.vi }}</div>
+                <div class="ck-transcript-line-vi" x-show="viOpen[{{ q.id }}]" x-transition>{{ ln.vi }}</div>
                 {% endif %}
               </div>
               {% endfor %}
@@ -318,7 +317,6 @@
 
   </div>{# end choukai-container #}
 
-
 </div>{# end choukai-page #}
 {% endblock %}
 
@@ -328,10 +326,6 @@
 const SAVE_URL = '{% url "exam:choukai_save_answer" %}';
 const CSRF = '{{ csrf_token }}';
 
-document.addEventListener('alpine:init', () => {
-  Alpine.store('qmap', { collapsed: false });
-});
-
 /* Danh sách câu hỏi cho question map stats */
 const CK_QMAP_DATA = [
   {% for group in mondai_groups %}{% for q in group.questions %}
@@ -340,10 +334,14 @@ const CK_QMAP_DATA = [
 ];
 
 /* Đáp án đã làm từ server (persist qua reload) */
-const _SAVED = {{ initial_answers_json }};
+const _SAVED = {{ initial_answers_json|safe }};
+
+document.addEventListener('alpine:init', () => {
+  Alpine.store('qmap', { collapsed: false });
+});
 
 function choukaiApp() {
-  /* Khởi tạo state từ dữ liệu server */
+  /* Build initial answer state từ server data */
   const answered = {};
   const answers = {};
   for (const [qid, key] of Object.entries(_SAVED)) {
@@ -353,8 +351,17 @@ function choukaiApp() {
 
   return {
     activeMondai: '{{ first_key }}',
-    answered,
+    answered,   /* reactive — no nested x-data scoping issues */
     answers,
+    viOpen: {},      /* { [qId]: bool } — transcript toggle per question */
+    showSpeed: {},   /* { [qId]: bool } — speed menu toggle per question */
+
+    /* mondaiQids: pre-computed for progress bar, avoids nested x-data with qids array */
+    mondaiQids: {
+      {% for group in mondai_groups %}
+      '{{ group.key }}': [{% for q in group.questions %}{{ q.id }}{% if not forloop.last %},{% endif %}{% endfor %}],
+      {% endfor %}
+    },
 
     selectChoice(qId, choiceKey) {
       if (this.answered[qId]) return;
@@ -368,9 +375,9 @@ function choukaiApp() {
     },
 
     /* ── Question Map helpers ── */
-    qmapCorrect()  { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] === q.correct).length; },
-    qmapWrong()    { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] !== q.correct).length; },
-    qmapPending()  { return CK_QMAP_DATA.filter(q => !this.answered[q.id]).length; },
+    qmapCorrect() { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] === q.correct).length; },
+    qmapWrong()   { return CK_QMAP_DATA.filter(q => this.answered[q.id] && this.answers[q.id] !== q.correct).length; },
+    qmapPending() { return CK_QMAP_DATA.filter(q => !this.answered[q.id]).length; },
 
     jumpToQuestion(mondaiKey, qId) {
       this.activeMondai = mondaiKey;

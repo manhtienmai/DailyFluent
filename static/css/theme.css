@@ -98,11 +98,32 @@ article h3 {
   margin-bottom: 0.5rem;
 }
 
-/* Restore form element backgrounds */
-input:not([type="checkbox"]):not([type="radio"]):not([class*="bg-"]):not(.df-otp-input),
-select:not([class*="bg-"]),
-textarea:not([class*="bg-"]) {
+/* Restore form element backgrounds — scoped to known form containers
+   and generic elements without component classes.
+   Tailwind v4 resets these to transparent; we restore white only where needed. */
+.df-form-group input:not([type="checkbox"]):not([type="radio"]),
+.df-form-group select,
+.df-form-group textarea,
+.df-comment-form input,
+.df-comment-form select,
+.df-comment-form textarea,
+.df-feedback-select,
+input:not([type="checkbox"]):not([type="radio"]):not([class]),
+select:not([class]),
+textarea:not([class]) {
   background-color: #fff;
+}
+
+/* Dark mode: form inputs inside known containers */
+[data-theme="dark"] .df-form-group input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] .df-form-group select,
+[data-theme="dark"] .df-form-group textarea,
+[data-theme="dark"] .df-comment-form input,
+[data-theme="dark"] .df-comment-form select,
+[data-theme="dark"] .df-comment-form textarea {
+  background-color: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.2);
 }
 
 /* Auth form inputs use design system variables */
@@ -257,8 +278,23 @@ textarea:not([class*="bg-"]) {
   }
 }
 
-/* Ensure buttons have visible backgrounds when needed */
-button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.df-auth-btn):not(.df-auth-social-btn):not(.df-dictation-btn):not(.df-dictation-tab):not(.df-dictation-settings-btn):not(.df-transcript-nav-btn):not(.df-transcript-play-btn):not(.df-transcript-item-play):not(.df-toeic-question-number):not(.df-toeic-nav-qbtn):not(.df-toeic-part-btn):not(.df-toeic-nav-part-btn):not(.df-toeic-submit-btn):not(.df-toeic-audio-btn):not(.df-toeic-quiz-choice):not(.df-toeic-learn-audio-btn):not(.df-toeic-grade-btn):not(.df-toeic-btn) {
+/*
+   Button background restoration.
+
+   Tailwind v4 resets all button backgrounds to transparent.
+   Instead of forcing #fff on EVERY button and maintaining a huge
+   :not() exclusion list (which breaks every new component),
+   we only restore white on buttons that have NO class attribute,
+   or are inside specific form/action containers.
+
+   Every component should set its own button backgrounds.
+*/
+button:not([class]) {
+  background-color: #fff;
+}
+
+.df-form-actions button:not([class*="bg-"]),
+.df-pagination-btn {
   background-color: #fff;
 }
 
@@ -1235,97 +1271,77 @@ body.df-admin {
 
 /* Simple audio icon for examples (no button, just icon) */
 .df-example-audio-icon {
-  flex-shrink: 0 !important;
-  margin-right: 0.5rem !important;
-  margin-top: 0.125rem !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: rgb(100 116 139) !important;
-  /* slate-500 - màu nhẹ nhàng */
-  transition: color 150ms ease !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(100 116 139);           /* slate-500 */
+  transition: color 150ms ease;
+  visibility: visible;
+  opacity: 1;
 }
 
 .df-example-audio-icon:hover {
-  color: rgb(99 102 241) !important;
-  /* indigo-500 - màu khi hover */
+  color: rgb(99 102 241);            /* indigo-500 */
 }
 
 .df-example-audio-icon.df-audio-btn-playing {
-  color: rgb(99 102 241) !important;
-  /* indigo-500 - màu khi đang phát */
+  color: rgb(99 102 241);            /* indigo-500 */
 }
 
 .df-example-audio-icon-svg {
-  width: 1.25rem !important;
-  /* 20px */
-  height: 1.25rem !important;
-  stroke-width: 2.5 !important;
-  display: block !important;
-  flex-shrink: 0 !important;
-  color: inherit !important;
-  stroke: currentColor !important;
-  fill: none !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: none !important;
-  /* Không block click events */
+  width: 1.25rem;                    /* 20px */
+  height: 1.25rem;
+  stroke-width: 2.5;
+  display: block;
+  flex-shrink: 0;
+  color: inherit;
+  stroke: currentColor;
+  fill: none;
+  pointer-events: none;              /* Không block click events */
 }
 
 /* Legacy styles for backward compatibility */
 .df-example-audio-controls {
-  flex-shrink: 0 !important;
-  margin-right: 0.5rem !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .df-audio-btn-sm {
-  padding: 0.5rem !important;
-  gap: 0 !important;
-  min-width: 2.5rem !important;
-  /* Tăng lên 40px */
-  min-height: 2.5rem !important;
-  width: 2.5rem !important;
-  height: 2.5rem !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: rgb(71 85 105) !important;
-  /* slate-600 - đảm bảo có màu */
-  visibility: visible !important;
-  opacity: 1 !important;
-  background: #fff !important;
-  border: 1.5px solid rgb(203 213 225) !important;
-  /* slate-300 */
-  border-radius: 0.625rem !important;
+  padding: 0.5rem;
+  gap: 0;
+  min-width: 2.5rem;                 /* 40px */
+  min-height: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(71 85 105);             /* slate-600 */
+  background: #fff;
+  border: 1.5px solid rgb(203 213 225); /* slate-300 */
+  border-radius: 0.625rem;
 }
 
 .df-audio-icon-sm {
-  width: 1.5rem !important;
-  /* 24px - tăng từ 18px để dễ nhìn hơn */
-  height: 1.5rem !important;
-  stroke-width: 2.5 !important;
-  display: block !important;
-  flex-shrink: 0 !important;
-  color: rgb(71 85 105) !important;
-  /* slate-600 - màu rõ ràng */
-  stroke: rgb(71 85 105) !important;
-  /* slate-600 - đảm bảo stroke có màu */
-  fill: none !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: none !important;
-  /* Không block click events */
+  width: 1.5rem;                     /* 24px */
+  height: 1.5rem;
+  stroke-width: 2.5;
+  display: block;
+  flex-shrink: 0;
+  color: rgb(71 85 105);             /* slate-600 */
+  stroke: rgb(71 85 105);            /* slate-600 */
+  fill: none;
+  pointer-events: none;              /* Không block click events */
 }
 
 .df-audio-btn-sm .df-audio-label {

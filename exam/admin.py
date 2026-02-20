@@ -33,9 +33,90 @@ from .models import (
 
 @admin.register(ExamBook)
 class ExamBookAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "level", "category", "total_lessons", "is_active")
+    list_display = ("id", "title", "level", "category", "total_lessons", "is_active", "choukai_editor_link")
     list_filter = ("level", "category", "is_active")
     search_fields = ("title", "description")
+
+    def choukai_editor_link(self, obj):
+        from django.utils.html import format_html
+        from exam.models import ExamCategory as EC
+        if obj.category == EC.CHOUKAI:
+            url = reverse('admin:exam_exambook_choukai_editor', args=[obj.pk])
+            return format_html('<a href="{}" class="button">✏️ Editor</a>', url)
+        return "—"
+    choukai_editor_link.short_description = "Choukai Editor"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                '<int:book_id>/choukai-editor/',
+                self.admin_site.admin_view(self.choukai_editor_view),
+                name='exam_exambook_choukai_editor',
+            ),
+        ]
+        return custom + urls
+
+    def choukai_editor_view(self, request, book_id):
+        from exam.models import ExamCategory as EC
+        from exam.views import _MONDAI_LABELS, _ruby, _audio_url
+
+        book = get_object_or_404(ExamBook, pk=book_id, category=EC.CHOUKAI)
+        tpl = book.tests.filter(is_active=True, category=EC.CHOUKAI).first()
+        groups = []
+        editor_data = {}
+
+        if tpl:
+            qs = tpl.questions.order_by("mondai", "order_in_mondai")
+            cur_k, cur_qs = None, []
+            for q in qs:
+                m = q.mondai or "0"
+                if m != cur_k:
+                    if cur_k:
+                        groups.append({"key": cur_k, "label": _MONDAI_LABELS.get(cur_k, cur_k), "questions": cur_qs})
+                    cur_k, cur_qs = m, []
+
+                d = q.data or {}
+                no_image_mondais = {"3", "5"} if book.level == "N3" else set()
+                img_url = "" if m in no_image_mondais or d.get('image_type') == 'TEXT_OPTIONS_ONLY' else (q.image.url if q.image else "")
+                choices_raw = d.get("choices") or d.get("answer_options") or []
+                lines_raw = d.get("conversation") or []
+
+                cur_qs.append({
+                    "id": q.id, "num": q.order_in_mondai, "audio_url": _audio_url(q),
+                    "image_url": img_url, "text": q.text, "correct": q.correct_answer,
+                    "choices": [{"key": str(c.get("number")), "html": _ruby(c.get("text", ""))} for c in choices_raw],
+                    "lines": [{"speaker": l.get("speaker"), "html": _ruby(l.get("text", "")), "vi": l.get("text_vi")} for l in lines_raw],
+                    "mondai": m, "order_in_mondai": q.order_in_mondai,
+                })
+                editor_data[q.id] = {
+                    "question_id": q.id, "mondai": m,
+                    "order_in_mondai": q.order_in_mondai,
+                    "correct_answer": q.correct_answer,
+                    "audio_transcript": q.audio_transcript or "",
+                    "audio_transcript_vi": q.audio_transcript_vi or "",
+                    "image_type": d.get("image_type", ""),
+                    "image_url": q.image.url if q.image else "",
+                    "ghibli_url": d.get("ghibli_image_url", ""),
+                    "choices": [{"number": c.get("number"), "text": c.get("text", "")} for c in choices_raw],
+                    "conversation": [{"speaker": l.get("speaker", ""), "text": l.get("text", ""), "text_vi": l.get("text_vi", "")} for l in lines_raw],
+                }
+
+            if cur_k:
+                groups.append({"key": cur_k, "label": _MONDAI_LABELS.get(cur_k, cur_k), "questions": cur_qs})
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': f'Choukai Editor — {book.title}',
+            'opts': ExamBook._meta,
+            'book': book,
+            'book_id': book.id,
+            'mondai_groups': groups,
+            'total_questions': sum(len(g["questions"]) for g in groups),
+            'first_key': groups[0]["key"] if groups else "",
+            'editor_data_json': json.dumps(editor_data),
+        }
+        return render(request, 'admin/exam/exambook/choukai_editor.html', context)
 
 class ExamQuestionInline(admin.TabularInline):
     model = ExamQuestion

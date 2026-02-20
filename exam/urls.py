@@ -10,7 +10,7 @@ urlpatterns = [
     # CHOUKAI (Listening) — must be before <slug:slug> catch-all
     path("choukai/", views.choukai_book_list, name="choukai_book_list"),
     path("choukai/save-answer/", views.choukai_save_answer, name="choukai_save_answer"),
-    path("choukai/<slug:slug>/", views.choukai_book_detail, name="choukai_book_detail"),
+path("choukai/<slug:slug>/", views.choukai_book_detail, name="choukai_book_detail"),
 
     # BOOKS — must be before <slug:slug> catch-all
     path("books/", views.book_list, name="book_list"),

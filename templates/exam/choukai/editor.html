@@ -1,0 +1,630 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Editor — {{ book.title }} | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260220">
+<link rel="stylesheet" href="{% static 'css/choukai-editor.css' %}?v=20260220">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="choukai-page" x-data="editorApp()" x-cloak>
+  <div class="choukai-container">
+
+    {# ── Breadcrumb ── #}
+    <div class="ck-breadcrumb">
+      <a href="{% url 'exam:choukai_book_list' %}">Luyện nghe</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="{% url 'exam:choukai_book_detail' book.slug %}">{{ book.title }}</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      <span>Editor</span>
+    </div>
+
+    {# ── Book header ── #}
+    <div class="ck-glass ck-detail-header">
+      <div class="ck-detail-cover">
+        {% if book.cover_image %}
+          <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+        {% else %}
+          <div class="ck-detail-cover-placeholder ck-book-placeholder--{{ book.level|lower }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;opacity:0.4">
+              <path d="M3 18v-6a9 9 0 0118 0v6"/>
+              <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
+            </svg>
+          </div>
+        {% endif %}
+      </div>
+      <div class="ck-detail-info">
+        <h1>
+          {{ book.title }}
+          <span class="ck-editor-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editor Mode
+          </span>
+        </h1>
+        <div class="ck-book-meta">
+          <span class="ck-level-badge ck-level-badge--{{ book.level|lower }}">{{ book.level }}</span>
+        </div>
+        <div class="ck-detail-stats">
+          <div class="ck-detail-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01"/></svg>
+            <strong>{{ total_questions }}</strong> câu hỏi
+          </div>
+          <div class="ck-detail-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <strong>{{ mondai_groups|length }}</strong> もんだい
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Mondai tabs ── #}
+    {% if mondai_groups %}
+    <div class="ck-glass ck-mondai-tabs">
+      {% for group in mondai_groups %}
+      <button class="ck-mondai-tab"
+              :class="activeMondai === '{{ group.key }}' ? 'ck-mondai-tab--active-{{ group.key }}' : ''"
+              @click="activeMondai = '{{ group.key }}'">
+        <span>{{ group.label }}</span>
+        <span class="ck-tab-count">{{ group.questions|length }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    {# ── Per-mondai question cards ── #}
+    {% for group in mondai_groups %}
+    <div x-show="activeMondai === '{{ group.key }}'">
+
+      {% for q in group.questions %}
+      <div id="ck-q-{{ q.id }}" class="ck-glass ck-question-card">
+
+        {# Header: số câu + pencil button #}
+        <div class="ck-q-header">
+          <span class="ck-q-number ck-q-number--{{ group.key }}">{{ q.num }}</span>
+          <span style="flex:1;"></span>
+          <button class="ck-q-edit-btn" @click="openEditor({{ q.id }})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Chỉnh sửa
+          </button>
+        </div>
+
+        {# Image + Choices layout #}
+        <div class="ck-split-layout {% if q.image_url %}ck-split-layout--has-image{% endif %}"
+             :id="'ck-card-body-{{ q.id }}'">
+
+          {% if q.image_url %}
+          <div class="ck-split-image" :id="'ck-img-wrap-{{ q.id }}'">
+            <img :src="cardImages[{{ q.id }}] || '{{ q.image_url }}'" alt="Q{{ q.num }}" loading="lazy">
+          </div>
+          {% endif %}
+
+          <div class="ck-split-choices">
+            <div class="ck-choices" :id="'ck-choices-{{ q.id }}'">
+              {% for c in q.choices %}
+              <div class="ck-choice-btn ck-choice--answered" style="cursor:default;">
+                <span class="ck-choice-key">{{ c.key }}</span>
+                <span class="ck-choice-text ck-ruby {% if c.key == q.correct %}ck-choice--correct{% endif %}"
+                      :id="'ck-choice-{{ q.id }}-{{ c.key }}'">{{ c.html|safe }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            <div style="margin-top:8px;font-size:0.8rem;color:#64748b;">
+              Đáp án đúng: <strong :id="'ck-correct-{{ q.id }}'">{{ q.correct }}</strong>
+            </div>
+          </div>
+        </div>
+
+        {# Transcript preview (always visible in editor) #}
+        {% if q.lines %}
+        <div class="ck-transcript-section" :id="'ck-transcript-{{ q.id }}'">
+          <div class="ck-transcript-lines">
+            {% for ln in q.lines %}
+            <div class="ck-transcript-line">
+              <div class="ck-transcript-line-jp">
+                {% if ln.speaker == 'F' %}<span class="ck-speaker-tag ck-speaker-f">F</span>
+                {% elif ln.speaker == 'M' %}<span class="ck-speaker-tag ck-speaker-m">M</span>
+                {% elif ln.speaker == 'N' %}<span class="ck-narrator-tag">&#x25B6;</span>{% endif %}
+                <span class="ck-line-text ck-ruby">{{ ln.html|safe }}</span>
+              </div>
+              {% if ln.vi %}<div class="ck-transcript-line-vi" style="display:block;">{{ ln.vi }}</div>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>{# end question card #}
+      {% endfor %}
+
+    </div>{# end mondai section #}
+    {% endfor %}
+
+    {% else %}
+    <div class="ck-glass" style="padding:2rem;text-align:center;color:#64748b;">
+      Chưa có câu hỏi nào trong sách này.
+    </div>
+    {% endif %}
+
+  </div>{# end choukai-container #}
+
+  {# ═══════════════════════════════════════════════════════ #}
+  {# ── DRAWER ──                                            #}
+  {# ═══════════════════════════════════════════════════════ #}
+
+  {# Overlay #}
+  <div class="ck-drawer-overlay"
+       x-show="drawer.open"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       @click="closeDrawer()"
+       style="display:none;">
+  </div>
+
+  {# Panel #}
+  <div class="ck-drawer" :class="drawer.open ? 'ck-drawer--open' : ''">
+
+    {# Header #}
+    <div class="ck-drawer-header">
+      <div class="ck-drawer-title" x-text="'Câu #' + (drawer.data.order_in_mondai || '?') + ' — もんだい' + (drawer.data.mondai || '?')">Câu</div>
+      <button class="ck-drawer-close" @click="closeDrawer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    {# Tabs #}
+    <div class="ck-drawer-tabs">
+      <button class="ck-drawer-tab" :class="drawer.tab === 'choices' ? 'ck-drawer-tab--active' : ''" @click="drawer.tab = 'choices'">Câu hỏi</button>
+      <button class="ck-drawer-tab" :class="drawer.tab === 'transcript' ? 'ck-drawer-tab--active' : ''" @click="drawer.tab = 'transcript'">Transcript</button>
+      <button class="ck-drawer-tab" :class="drawer.tab === 'image' ? 'ck-drawer-tab--active' : ''" @click="drawer.tab = 'image'">Hình ảnh</button>
+    </div>
+
+    {# Body #}
+    <div class="ck-drawer-body">
+
+      {# ── TAB: CHOICES ── #}
+      <div x-show="drawer.tab === 'choices'">
+
+        {# Mondai / Order #}
+        <div class="ck-meta-row" style="margin-bottom:12px;">
+          <div>
+            <label class="ck-drawer-label">もんだい</label>
+            <select class="ck-drawer-input" x-model="drawer.data.mondai">
+              <option value="1">1 — 課題理解</option>
+              <option value="2">2 — ポイント理解</option>
+              <option value="3">3 — 概要理解</option>
+              <option value="4">4 — 発話表現</option>
+              <option value="5">5 — 即時応答</option>
+            </select>
+          </div>
+          <div>
+            <label class="ck-drawer-label">Thứ tự</label>
+            <input class="ck-drawer-input" type="number" min="1" x-model.number="drawer.data.order_in_mondai">
+          </div>
+        </div>
+
+        <hr class="ck-divider">
+
+        {# Choices list #}
+        <label class="ck-drawer-label" style="margin-bottom:8px;">Lựa chọn</label>
+        <template x-for="(choice, idx) in drawer.data.choices" :key="idx">
+          <div class="ck-choice-row">
+            <div class="ck-choice-num" x-text="choice.number"></div>
+            <input class="ck-drawer-input" x-model="choice.text" :placeholder="'Lựa chọn ' + choice.number">
+            <button class="ck-btn-icon" @click="removeChoice(idx)" title="Xoá">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </template>
+        <button class="ck-btn--add" @click="addChoice()">+ Thêm lựa chọn</button>
+
+        <hr class="ck-divider" style="margin-top:12px;">
+
+        {# Correct answer #}
+        <label class="ck-drawer-label" style="margin-bottom:8px;">Đáp án đúng</label>
+        <div class="ck-correct-group">
+          <template x-for="choice in drawer.data.choices" :key="choice.number">
+            <label class="ck-correct-radio">
+              <input type="radio" :value="String(choice.number)" x-model="drawer.data.correct_answer">
+              <span x-text="choice.number"></span>
+            </label>
+          </template>
+        </div>
+
+      </div>
+
+      {# ── TAB: TRANSCRIPT ── #}
+      <div x-show="drawer.tab === 'transcript'">
+
+        {# Raw textarea + AI button #}
+        <label class="ck-drawer-label">Transcript thô (JP)</label>
+        <textarea class="ck-drawer-input" rows="5" x-model="drawer.rawTranscript"
+                  placeholder="Dán văn bản tiếng Nhật vào đây..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;margin-bottom:14px;">
+          <button class="ck-btn ck-btn--amber ck-btn--sm" @click="aiTranslate()" :disabled="drawer.translating">
+            <template x-if="drawer.translating"><span class="ck-spinner"></span></template>
+            <template x-if="!drawer.translating">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+            </template>
+            AI Dịch & Tách dòng
+          </button>
+          <button class="ck-btn ck-btn--ghost ck-btn--sm" @click="drawer.rawTranscript = ''"
+                  x-show="drawer.rawTranscript">Xoá</button>
+        </div>
+
+        <hr class="ck-divider">
+
+        {# Conversation lines #}
+        <label class="ck-drawer-label" style="margin-bottom:8px;">Hội thoại</label>
+        <template x-for="(line, idx) in drawer.data.conversation" :key="idx">
+          <div class="ck-line-row">
+            <select class="ck-speaker-select" x-model="line.speaker">
+              <option value="F">F</option>
+              <option value="M">M</option>
+              <option value="N">N</option>
+            </select>
+            <div class="ck-line-texts">
+              <input class="ck-drawer-input" x-model="line.text" placeholder="Tiếng Nhật...">
+              <input class="ck-drawer-input" x-model="line.text_vi" placeholder="Bản dịch VI..." style="font-size:0.82rem;">
+            </div>
+            <button class="ck-btn-icon" @click="removeLine(idx)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </template>
+        <button class="ck-btn--add" @click="addLine()">+ Thêm dòng</button>
+
+      </div>
+
+      {# ── TAB: IMAGE ── #}
+      <div x-show="drawer.tab === 'image'">
+
+        {# Current image preview #}
+        <label class="ck-drawer-label">Ảnh hiện tại</label>
+        <div class="ck-image-preview" style="margin-bottom:12px;">
+          <template x-if="drawer.data.image_url">
+            <img :src="drawer.data.image_url" alt="current">
+          </template>
+          <template x-if="!drawer.data.image_url">
+            <span style="color:#94a3b8;font-size:0.82rem;">Không có ảnh</span>
+          </template>
+        </div>
+
+        {# Upload new image #}
+        <label class="ck-drawer-label">Upload ảnh mới</label>
+        <input type="file" accept="image/*" style="margin-bottom:10px;"
+               @change="onImageUpload($event)">
+
+        {# Cropper area #}
+        <div class="ck-cropper-wrap" x-show="drawer.cropSrc" style="margin-bottom:10px;display:none;">
+          <img :src="drawer.cropSrc" x-ref="cropperImg" id="ck-cropper-img">
+        </div>
+        <div x-show="drawer.cropSrc" style="display:flex;gap:8px;margin-bottom:14px;display:none;">
+          <button class="ck-btn ck-btn--ghost ck-btn--sm" @click="doCrop()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.13 1L6 16a2 2 0 002 2h15"/><path d="M1 6.13L16 6a2 2 0 012 2v15"/></svg>
+            Crop & Dùng
+          </button>
+          <button class="ck-btn ck-btn--ghost ck-btn--sm" @click="cancelCrop()">Huỷ</button>
+        </div>
+
+        <hr class="ck-divider">
+
+        {# Ghibli generation #}
+        <label class="ck-drawer-label">Ghibli Generation</label>
+        <input class="ck-drawer-input" x-model="drawer.ghibliPrompt"
+               placeholder="Mô tả cảnh (tiếng Anh)..." style="margin-bottom:8px;">
+        <button class="ck-btn ck-btn--amber" @click="generateGhibli()" :disabled="drawer.generating" style="width:100%;margin-bottom:12px;">
+          <template x-if="drawer.generating"><span class="ck-spinner" style="border-top-color:#b45309;border-color:rgba(180,83,9,0.3);"></span></template>
+          <template x-if="!drawer.generating">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </template>
+          Generate Ghibli
+        </button>
+
+        {# Ghibli preview #}
+        <div class="ck-ghibli-preview" x-show="drawer.ghibliPreview" style="margin-bottom:10px;display:none;">
+          <img :src="drawer.ghibliPreview" alt="Ghibli preview">
+        </div>
+        <button class="ck-btn ck-btn--primary ck-btn--sm" x-show="drawer.ghibliPreview"
+                @click="useGhibliImage()" style="width:100%;display:none;">
+          Dùng ảnh Ghibli này
+        </button>
+
+        {# Ghibli existing URL #}
+        <template x-if="drawer.data.ghibli_url && !drawer.ghibliPreview">
+          <div>
+            <label class="ck-drawer-label" style="margin-top:8px;">Ghibli đã có</label>
+            <div class="ck-ghibli-preview">
+              <img :src="drawer.data.ghibli_url" alt="saved ghibli">
+            </div>
+            <button class="ck-btn ck-btn--amber ck-btn--sm" @click="useExistingGhibli()" style="width:100%;margin-top:8px;">
+              Dùng ảnh Ghibli đã lưu
+            </button>
+          </div>
+        </template>
+
+      </div>
+
+    </div>{# end drawer-body #}
+
+    {# Footer #}
+    <div class="ck-drawer-footer">
+      <button class="ck-btn ck-btn--primary" @click="saveQuestion()" :disabled="drawer.saving">
+        <template x-if="drawer.saving"><span class="ck-spinner"></span></template>
+        <template x-if="!drawer.saving">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </template>
+        Lưu thay đổi
+      </button>
+      <button class="ck-btn ck-btn--ghost" @click="closeDrawer()">Huỷ</button>
+    </div>
+
+  </div>{# end drawer #}
+
+  {# Toast #}
+  <div class="ck-toast" :class="{'ck-toast--visible': toast.visible, 'ck-toast--success': toast.type === 'success', 'ck-toast--error': toast.type === 'error'}"
+       x-text="toast.message"></div>
+
+</div>{# end choukai-page #}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+<script>
+const BOOK_ID   = {{ book_id }};
+const CSRF      = '{{ csrf_token }}';
+const API_SAVE      = '{{ api_urls.save }}';
+const API_TRANSLATE = '{{ api_urls.translate }}';
+const API_GHIBLI    = '{{ api_urls.ghibli }}';
+
+/* All question editor data embedded from Django */
+const EDITOR_DATA = {{ editor_data_json|safe }};
+
+/* ─────────────────────────────────────────────── */
+function editorApp() {
+  return {
+    activeMondai: '{{ first_key }}',
+    cardImages: {},   /* { qId: updated_image_url } — for live card refresh */
+
+    drawer: {
+      open: false,
+      tab: 'choices',
+      qId: null,
+      data: {},            /* working copy of EDITOR_DATA[qId] */
+      rawTranscript: '',
+      translating: false,
+      saving: false,
+      generating: false,
+      cropSrc: '',
+      croppedB64: '',
+      croppedMime: '',
+      ghibliPreview: '',
+      ghibliB64: '',
+      ghibliMime: '',
+      ghibliPrompt: '',
+      _cropperInstance: null,
+    },
+
+    toast: { visible: false, message: '', type: 'success', _timer: null },
+
+    /* ── Open drawer for a question ── */
+    openEditor(qId) {
+      const raw = EDITOR_DATA[qId];
+      if (!raw) return;
+      this.drawer.qId       = qId;
+      this.drawer.data      = JSON.parse(JSON.stringify(raw)); /* deep clone */
+      this.drawer.tab       = 'choices';
+      this.drawer.rawTranscript = '';
+      this.drawer.cropSrc   = '';
+      this.drawer.croppedB64 = '';
+      this.drawer.ghibliPreview = '';
+      this.drawer.ghibliB64 = '';
+      this.drawer.ghibliPrompt = raw.ghibli_url ? '' : '';
+      this.drawer.open      = true;
+      this._destroyCropper();
+    },
+
+    closeDrawer() {
+      this.drawer.open = false;
+      this._destroyCropper();
+    },
+
+    /* ── Choices ── */
+    addChoice() {
+      const next = (this.drawer.data.choices.length + 1);
+      this.drawer.data.choices.push({ number: next, text: '' });
+    },
+
+    removeChoice(idx) {
+      this.drawer.data.choices.splice(idx, 1);
+      /* Renumber */
+      this.drawer.data.choices.forEach((c, i) => { c.number = i + 1; });
+    },
+
+    /* ── Transcript ── */
+    addLine() {
+      this.drawer.data.conversation.push({ speaker: 'F', text: '', text_vi: '' });
+    },
+
+    removeLine(idx) {
+      this.drawer.data.conversation.splice(idx, 1);
+    },
+
+    async aiTranslate() {
+      const text = this.drawer.rawTranscript.trim();
+      if (!text) return;
+      this.drawer.translating = true;
+      try {
+        const res = await fetch(API_TRANSLATE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ text, level: '{{ book.level }}' }),
+        });
+        const json = await res.json();
+        if (json.success && json.conversation) {
+          this.drawer.data.conversation = json.conversation.map(l => ({
+            speaker: l.speaker || 'F',
+            text: l.text || '',
+            text_vi: l.text_vi || '',
+          }));
+          this.showToast('Đã tách & dịch hội thoại', 'success');
+        } else {
+          this.showToast(json.error || 'Dịch thất bại', 'error');
+        }
+      } catch(e) {
+        this.showToast('Lỗi kết nối', 'error');
+      }
+      this.drawer.translating = false;
+    },
+
+    /* ── Image upload & crop ── */
+    onImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.drawer.cropSrc = e.target.result;
+        this.$nextTick(() => { this._initCropper(); });
+      };
+      reader.readAsDataURL(file);
+    },
+
+    _initCropper() {
+      this._destroyCropper();
+      const img = document.getElementById('ck-cropper-img');
+      if (!img) return;
+      this.drawer._cropperInstance = new Cropper(img, {
+        aspectRatio: NaN,
+        viewMode: 1,
+        autoCropArea: 1,
+      });
+    },
+
+    _destroyCropper() {
+      if (this.drawer._cropperInstance) {
+        this.drawer._cropperInstance.destroy();
+        this.drawer._cropperInstance = null;
+      }
+    },
+
+    doCrop() {
+      if (!this.drawer._cropperInstance) return;
+      const canvas = this.drawer._cropperInstance.getCroppedCanvas({ maxWidth: 800, maxHeight: 800 });
+      this.drawer.croppedB64  = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+      this.drawer.croppedMime = 'image/jpeg';
+      this.drawer.cropSrc     = '';
+      this._destroyCropper();
+      this.showToast('Ảnh đã được crop, nhấn Lưu để áp dụng', 'success');
+    },
+
+    cancelCrop() {
+      this.drawer.cropSrc = '';
+      this._destroyCropper();
+    },
+
+    /* ── Ghibli ── */
+    async generateGhibli() {
+      this.drawer.generating = true;
+      this.drawer.ghibliPreview = '';
+      try {
+        const fd = new FormData();
+        fd.append('prompt', this.drawer.ghibliPrompt || 'Ghibli style illustration');
+        /* Attach current image as ref if available */
+        const curImg = this.drawer.data.image_url;
+        if (curImg) {
+          const imgRes = await fetch(curImg);
+          const blob   = await imgRes.blob();
+          fd.append('image', blob, 'ref.jpg');
+        }
+        const res  = await fetch(API_GHIBLI, { method: 'POST', headers: { 'X-CSRFToken': CSRF }, body: fd });
+        const json = await res.json();
+        if (json.success && json.image_b64) {
+          this.drawer.ghibliB64    = json.image_b64;
+          this.drawer.ghibliMime   = json.mime_type || 'image/png';
+          this.drawer.ghibliPreview = `data:${this.drawer.ghibliMime};base64,${json.image_b64}`;
+          this.showToast('Ghibli đã tạo xong!', 'success');
+        } else {
+          this.showToast(json.error || 'Generate thất bại', 'error');
+        }
+      } catch(e) {
+        this.showToast('Lỗi kết nối', 'error');
+      }
+      this.drawer.generating = false;
+    },
+
+    useGhibliImage() {
+      /* Mark the ghibli B64 as the image to save */
+      this.drawer.croppedB64  = this.drawer.ghibliB64;
+      this.drawer.croppedMime = this.drawer.ghibliMime;
+      this.showToast('Sẽ dùng ảnh Ghibli khi nhấn Lưu', 'success');
+    },
+
+    useExistingGhibli() {
+      /* Pull the already-saved ghibli URL as the new image */
+      this.drawer.data.image_url = this.drawer.data.ghibli_url;
+      this.showToast('Sẽ dùng ảnh Ghibli đã lưu khi nhấn Lưu', 'success');
+    },
+
+    /* ── Save ── */
+    async saveQuestion() {
+      if (this.drawer.saving) return;
+      this.drawer.saving = true;
+      const d = this.drawer.data;
+      const payload = {
+        book_id:           BOOK_ID,
+        question_id:       d.question_id,
+        mondai:            d.mondai,
+        order_in_mondai:   d.order_in_mondai,
+        correct_answer:    d.correct_answer,
+        audio_transcript:  d.audio_transcript,
+        audio_transcript_vi: d.audio_transcript_vi,
+        choices:           d.choices,
+        conversation:      d.conversation,
+        image_type:        d.image_type,
+      };
+      if (this.drawer.croppedB64) {
+        payload.image_b64   = this.drawer.croppedB64;
+        payload.image_mime  = this.drawer.croppedMime || 'image/jpeg';
+      }
+      try {
+        const res  = await fetch(API_SAVE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (json.success) {
+          /* Update in-memory data so re-opening drawer shows latest */
+          EDITOR_DATA[d.question_id] = JSON.parse(JSON.stringify(d));
+          /* Live-refresh card image if image was uploaded */
+          if (this.drawer.croppedB64) {
+            this.cardImages[d.question_id] = `data:${this.drawer.croppedMime};base64,${this.drawer.croppedB64}`;
+          }
+          this.showToast('Lưu thành công!', 'success');
+          this.closeDrawer();
+        } else {
+          this.showToast(json.error || 'Lưu thất bại', 'error');
+        }
+      } catch(e) {
+        this.showToast('Lỗi kết nối', 'error');
+      }
+      this.drawer.saving = false;
+    },
+
+    /* ── Toast ── */
+    showToast(message, type = 'success') {
+      if (this.toast._timer) clearTimeout(this.toast._timer);
+      this.toast.message = message;
+      this.toast.type    = type;
+      this.toast.visible = true;
+      this.toast._timer  = setTimeout(() => { this.toast.visible = false; }, 3000);
+    },
+  };
+}
+</script>
+{% endblock %}
