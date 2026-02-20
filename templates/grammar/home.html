@@ -8,77 +8,64 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<div class="mb-8">
-  <h1 class="text-4xl font-bold grammar-hero-title mb-2">文法 Grammar JLPT</h1>
-  <p class="text-sm" style="color:var(--text-secondary)">Học ngữ pháp tiếng Nhật theo cấp độ N5 → N1</p>
-</div>
+<div class="grammar-page-wrapper">
+  <!-- Hero -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold grammar-hero-title mb-1">文法 Grammar JLPT</h1>
+    <p class="text-sm" style="color:var(--text-secondary)">Học ngữ pháp tiếng Nhật theo cấp độ N5 → N1</p>
+  </div>
 
-<!-- Level tabs + Books link -->
-<div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-  <div class="flex items-center gap-2 flex-wrap">
-    <a href="{% url 'grammar:home' %}"
-       class="px-4 py-1.5 rounded-full text-sm font-medium transition-all
-              {% if not active_level %}bg-indigo-600 text-white shadow-sm{% else %}hover:bg-slate-100{% endif %}"
-       style="{% if not active_level %}{% else %}color:var(--text-secondary){% endif %}">
-      Tất cả
+  <!-- Level tabs + Books link -->
+  <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+    <div class="flex items-center gap-2 flex-wrap">
+      <a href="{% url 'grammar:home' %}"
+         class="px-3 py-1.5 rounded-full text-xs font-medium transition-all
+                {% if not active_level %}bg-indigo-600 text-white shadow-sm{% else %}grammar-filter-tab{% endif %}">
+        Tất cả
+      </a>
+      {% for lv in levels %}
+      <a href="{% url 'grammar:home' %}?level={{ lv }}"
+         class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all badge-{{ lv|lower }}
+                {% if active_level == lv %}ring-2 ring-offset-1{% endif %}">
+        {{ lv }}
+      </a>
+      {% endfor %}
+    </div>
+    <a href="{% url 'grammar:book_list' %}"
+       class="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+      </svg>
+      Theo sách
     </a>
-    {% for lv in levels %}
-    <a href="{% url 'grammar:home' %}?level={{ lv }}"
-       class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all badge-{{ lv|lower }}
-              {% if active_level == lv %}ring-2 ring-offset-1{% endif %}">
-      {{ lv }}
+  </div>
+
+  <!-- Grammar Points Grid -->
+  {% if points %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+    {% for point in points %}
+    <a href="{% url 'grammar:point_detail' point.slug %}" class="grammar-card block no-underline">
+      <!-- Tag in top-right corner -->
+      <span class="grammar-card-tag badge-{{ point.level|lower }}">{{ point.level }}</span>
+
+      <!-- Structure (title) -->
+      <h2 class="text-base font-bold pr-12 mb-1" style="font-family:'Noto Sans JP',sans-serif; color:var(--text-primary)">
+        {{ point.title }}
+      </h2>
+
+      <!-- Meaning -->
+      {% if point.meaning_vi %}
+      <p class="text-xs leading-relaxed" style="color:var(--text-secondary)">{{ point.meaning_vi }}</p>
+      {% endif %}
     </a>
     {% endfor %}
   </div>
-  <a href="{% url 'grammar:book_list' %}"
-     class="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
-    </svg>
-    Theo sách
-  </a>
+  {% else %}
+  <div class="text-center py-16" style="color:var(--text-secondary)">
+    <div class="text-5xl mb-4">文</div>
+    <p class="text-lg font-medium">Chưa có điểm ngữ pháp nào.</p>
+    <p class="text-sm mt-1">Hãy thêm nội dung trong admin.</p>
+  </div>
+  {% endif %}
 </div>
-
-<!-- Grammar Points Grid -->
-{% if points %}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  {% for point in points %}
-  <a href="{% url 'grammar:point_detail' point.slug %}" class="grammar-card block no-underline">
-    <div class="flex items-start justify-between mb-3">
-      <span class="badge-{{ point.level|lower }} text-xs font-bold px-2.5 py-1 rounded-lg">
-        JLPT {{ point.level }}
-      </span>
-      {% if progress_map %}
-        {% with prog=progress_map|default:'' %}
-        {% endwith %}
-      {% endif %}
-    </div>
-
-    <h2 class="text-xl font-bold mb-1" style="font-family:'Noto Sans JP',sans-serif; color:var(--text-primary)">
-      {{ point.title }}
-    </h2>
-    {% if point.reading %}
-    <p class="text-xs mb-2" style="color:var(--text-secondary); font-family:'Noto Sans JP',sans-serif">
-      {{ point.reading }}
-    </p>
-    {% endif %}
-    {% if point.meaning_vi %}
-    <p class="text-sm font-medium mb-2" style="color:var(--text-secondary)">{{ point.meaning_vi }}</p>
-    {% endif %}
-    {% if point.formation %}
-    <p class="text-xs px-2 py-1 rounded-md" style="background:rgba(99,102,241,0.06); color:var(--text-secondary); font-family:'Noto Sans JP',sans-serif">
-      {{ point.formation }}
-    </p>
-    {% endif %}
-  </a>
-  {% endfor %}
-</div>
-{% else %}
-<div class="text-center py-16" style="color:var(--text-secondary)">
-  <div class="text-5xl mb-4">文</div>
-  <p class="text-lg font-medium">Chưa có điểm ngữ pháp nào.</p>
-  <p class="text-sm mt-1">Hãy thêm nội dung trong admin.</p>
-</div>
-{% endif %}
 {% endblock %}

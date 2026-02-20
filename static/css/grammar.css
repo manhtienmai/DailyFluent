@@ -2,6 +2,14 @@
    Grammar JLPT — Styles
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Page wrapper ──────────────────────────────────────────── */
+.grammar-page-wrapper {
+  padding: 24px 32px;
+}
+@media (max-width: 768px) {
+  .grammar-page-wrapper { padding: 16px; }
+}
+
 /* ── Level badge colors ────────────────────────────────────── */
 .badge-n5 { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 .badge-n4 { background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; }
@@ -15,23 +23,203 @@
 [data-theme="dark"] .badge-n2 { background: rgba(126,34,206,.2); color: #c084fc; border-color: rgba(126,34,206,.3); }
 [data-theme="dark"] .badge-n1 { background: rgba(180,83,9,.2);  color: #fbbf24; border-color: rgba(180,83,9,.3); }
 
-/* ── Grammar card ──────────────────────────────────────────── */
+/* ── Filter tab dark theme ─────────────────────────────────── */
+.grammar-filter-tab {
+  color: var(--text-secondary, #64748b);
+  background: transparent;
+  transition: all 0.15s ease;
+}
+.grammar-filter-tab:hover {
+  background: rgba(0,0,0,0.05);
+}
+[data-theme="dark"] .grammar-filter-tab:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ── Grammar card (compact) ───────────────────────────────── */
 .grammar-card {
+  position: relative;
   background: rgba(255,255,255,0.72);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 14px 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 .grammar-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(99,102,241,0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(99,102,241,0.12);
 }
 [data-theme="dark"] .grammar-card {
   background: rgba(30,32,48,0.72);
   border-color: rgba(255,255,255,0.08);
+}
+
+/* ── Card tag (small badge in top-right corner) ───────────── */
+.grammar-card-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* ── Detail page reusable blocks ──────────────────────────── */
+.grammar-summary-box {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.12);
+}
+[data-theme="dark"] .grammar-summary-box {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.2);
+}
+
+.grammar-notes-box {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+[data-theme="dark"] .grammar-notes-box {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.25);
+}
+.grammar-notes-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #b45309;
+}
+[data-theme="dark"] .grammar-notes-label {
+  color: #fbbf24;
+}
+
+.grammar-practice-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+[data-theme="dark"] .grammar-practice-card {
+  background: rgba(30,32,48,0.5);
+  border-color: rgba(255,255,255,0.06);
+}
+
+.grammar-nav-border {
+  border-color: rgba(0,0,0,0.06);
+}
+[data-theme="dark"] .grammar-nav-border {
+  border-color: rgba(255,255,255,0.08);
+}
+
+.grammar-exercise-link {
+  border: 1px solid rgba(99,102,241,0.15);
+  transition: all 0.15s ease;
+}
+.grammar-exercise-link:hover {
+  background: rgba(99,102,241,0.06);
+}
+[data-theme="dark"] .grammar-exercise-link:hover {
+  background: rgba(99,102,241,0.15);
+}
+
+.grammar-related-link {
+  transition: all 0.15s ease;
+}
+.grammar-related-link:hover {
+  background: rgba(0,0,0,0.04);
+}
+[data-theme="dark"] .grammar-related-link:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Exercise page — dark theme support ───────────────────── */
+.grammar-back-btn:hover {
+  background: rgba(0,0,0,0.06);
+}
+[data-theme="dark"] .grammar-back-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.grammar-qtype-mcq {
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+}
+[data-theme="dark"] .grammar-qtype-mcq {
+  background: rgba(99,102,241,0.2);
+  color: #a5b4fc;
+}
+
+.grammar-qtype-order {
+  background: rgba(245,158,11,0.1);
+  color: #b45309;
+}
+[data-theme="dark"] .grammar-qtype-order {
+  background: rgba(245,158,11,0.15);
+  color: #fbbf24;
+}
+
+.grammar-result-correct {
+  background: rgba(22,163,74,0.08);
+  color: #15803d;
+}
+[data-theme="dark"] .grammar-result-correct {
+  background: rgba(74,222,128,0.1);
+  color: #4ade80;
+}
+
+.grammar-result-incorrect {
+  background: rgba(220,38,38,0.08);
+  color: #b91c1c;
+}
+[data-theme="dark"] .grammar-result-incorrect {
+  background: rgba(248,113,113,0.1);
+  color: #f87171;
+}
+
+.grammar-btn-outline {
+  border: 1px solid rgba(99,102,241,0.3);
+  color: #6366f1;
+  background: rgba(99,102,241,0.06);
+}
+[data-theme="dark"] .grammar-btn-outline {
+  border-color: rgba(99,102,241,0.4);
+  color: #a5b4fc;
+  background: rgba(99,102,241,0.1);
+}
+
+.grammar-btn-secondary {
+  border: 1px solid rgba(0,0,0,0.1);
+  color: var(--text-secondary, #64748b);
+  background: transparent;
+}
+[data-theme="dark"] .grammar-btn-secondary {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.grammar-remove-btn {
+  background: rgba(100,116,139,0.7);
+}
+.grammar-remove-btn:hover {
+  background: rgba(220,38,38,0.8);
+}
+[data-theme="dark"] .grammar-remove-btn {
+  background: rgba(148,163,184,0.6);
+}
+[data-theme="dark"] .grammar-remove-btn:hover {
+  background: rgba(248,113,113,0.8);
+}
+
+/* ── Exercise progress bar dark ───────────────────────────── */
+[data-theme="dark"] .exercise-progress-bar {
+  background: rgba(255,255,255,0.08);
 }
 
 /* ── Formation block ───────────────────────────────────────── */

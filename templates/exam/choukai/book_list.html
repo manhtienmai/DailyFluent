@@ -4,7 +4,7 @@
 {% block title %}Luyện nghe JLPT | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260216">
+<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260220">
 {% endblock %}
 
 {% block content %}
@@ -13,8 +13,8 @@
 
     {# ===== HERO ===== #}
     <div class="ck-glass ck-hero">
-      <h1 class="ck-hero-title">&#x805E;&#x89E3; Luy&#x1EC7;n nghe JLPT</h1>
-      <p class="ck-hero-sub">Ch&#x1ECD;n s&#xE1;ch v&#xE0; luy&#x1EC7;n nghe theo t&#x1EEB;ng d&#x1EA1;ng &#x3082;&#x3093;&#x3060;&#x3044;</p>
+      <h1 class="ck-hero-title">&#x805E;&#x89E3; Luyện nghe JLPT</h1>
+      <p class="ck-hero-sub">Chọn sách và luyện nghe theo từng dạng もんだい</p>
     </div>
 
     {# ===== LEVEL FILTER ===== #}
@@ -23,7 +23,7 @@
       <div class="ck-level-pills">
         <a href="{% url 'exam:choukai_book_list' %}"
            class="ck-level-pill {% if not selected_level %}ck-level-pill--active-all{% else %}ck-level-pill--default{% endif %}">
-          T&#x1EA5;t c&#x1EA3;
+          Tất cả
         </a>
         {% for lvl in levels %}
         <a href="{% url 'exam:choukai_book_list' %}?level={{ lvl }}"
@@ -38,51 +38,54 @@
     {% if books %}
     <div class="ck-book-grid">
       {% for book in books %}
-      <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}"
-         class="ck-glass ck-book-card ck-book-card--{{ book.level|lower }}">
-
-        {# Accent #}
-        <div class="ck-book-accent ck-book-accent--{{ book.level|lower }}"></div>
-
-        {# Cover #}
-        <div class="ck-book-cover">
+      <div class="ck-card-wrap">
+        {# Cover image area #}
+        <div class="ck-card-cover ck-card-cover--{{ book.level|lower }}">
           {% if book.cover_image %}
-            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+            <div class="ck-card-cover-img" style="background-image:url('{{ book.cover_image.url }}')"></div>
           {% else %}
-            <div class="ck-book-placeholder ck-book-placeholder--{{ book.level|lower }}">
+            <div class="ck-card-cover-placeholder ck-book-placeholder--{{ book.level|lower }}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M3 18v-6a9 9 0 0118 0v6"/>
                 <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
               </svg>
             </div>
           {% endif %}
-        </div>
-
-        {# Body #}
-        <div class="ck-book-body">
-          <div class="ck-book-title">{{ book.title }}</div>
-
-          <div class="ck-book-meta">
-            <span class="ck-level-badge ck-level-badge--{{ book.level|lower }}">{{ book.level }}</span>
-            <span class="ck-qcount">{{ book.question_count }} c&#xE2;u</span>
-          </div>
-
-          {% if book.mondai_tags %}
-          <div class="ck-mondai-tags">
-            {% for m in book.mondai_tags %}
-            <span class="ck-mondai-tag">&#x3082;&#x3093;&#x3060;&#x3044;{{ m }}</span>
-            {% endfor %}
-          </div>
-          {% endif %}
-
-          <span class="ck-book-cta">
-            Luy&#x1EC7;n nghe
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
+          {# Play button overlay #}
+          <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}" class="ck-card-play-btn" aria-label="Luyện nghe">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
             </svg>
-          </span>
+          </a>
         </div>
-      </a>
+
+        {# Card link overlay #}
+        <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}" class="ck-card-link"></a>
+
+        {# Card body with shadow #}
+        <div class="ck-card-body-wrap">
+          <div class="ck-card-body-inner">
+            <h5 class="ck-card-title">{{ book.title }}</h5>
+          </div>
+          <div class="ck-card-footer">
+            <div class="ck-card-footer-level">
+              <span class="ck-level-badge ck-level-badge--{{ book.level|lower }}">{{ book.level }}</span>
+              {% if book.mondai_tags %}
+                {% for m in book.mondai_tags %}
+                <span class="ck-mondai-tag">もんだい{{ m }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="ck-card-footer-stats">
+              <svg class="ck-card-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
+              </svg>
+              <span>{{ book.question_count }} câu</span>
+            </div>
+          </div>
+        </div>
+      </div>
       {% endfor %}
     </div>
     {% else %}
@@ -91,7 +94,7 @@
         <path d="M3 18v-6a9 9 0 0118 0v6"/>
         <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
       </svg>
-      <p>Ch&#x1B0;a c&#xF3; s&#xE1;ch luy&#x1EC7;n nghe n&#xE0;o{% if selected_level %} cho {{ selected_level }}{% endif %}.</p>
+      <p>Chưa có sách luyện nghe nào{% if selected_level %} cho {{ selected_level }}{% endif %}.</p>
     </div>
     {% endif %}
 

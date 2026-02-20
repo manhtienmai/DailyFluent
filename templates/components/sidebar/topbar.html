@@ -69,17 +69,6 @@ Top Bar Component with logo, streak, coins, countdown timer
     </div>
     {% endif %}
 
-    {# Coins #}
-    {% if user.is_authenticated %}
-    <div class="df-topbar-stat df-topbar-coins" title="Xu của bạn">
-      <svg viewBox="0 0 24 24" fill="currentColor" class="df-stat-icon df-coins-icon">
-        <circle cx="12" cy="12" r="10" />
-        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">$</text>
-      </svg>
-      <span class="df-stat-value" id="df-coins-value">{{ user_coins|default:0 }}</span>
-    </div>
-    {% endif %}
-
     {# User Profile - Moved from Sidebar #}
     <div class="df-topbar-user" id="df-sidebar-user-btn" title="Hồ sơ cá nhân">
       <div class="df-topbar-user-avatar">

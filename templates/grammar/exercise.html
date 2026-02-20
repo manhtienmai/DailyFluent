@@ -12,6 +12,7 @@
 
 <script id="grammar-questions-data" type="application/json">{{ questions_json|safe }}</script>
 
+<div class="grammar-page-wrapper">
 <div x-data="grammarExercise(
     JSON.parse(document.getElementById('grammar-questions-data').textContent),
     '{% url "grammar:api_submit_exercise" %}',
@@ -23,7 +24,7 @@
   <!-- ─── Header ───────────────────────────────────────────────── -->
   <div class="flex items-center gap-3 mb-4">
     <a href="{% if exercise_set.grammar_point %}{% url 'grammar:point_detail' exercise_set.grammar_point.slug %}{% else %}{% url 'grammar:home' %}{% endif %}"
-       class="p-2 rounded-lg hover:bg-slate-100 transition-colors" style="color:var(--text-secondary)">
+       class="grammar-back-btn p-2 rounded-lg transition-colors" style="color:var(--text-secondary)">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
@@ -74,7 +75,7 @@
     <div class="space-y-2 mb-6 text-left">
       <template x-for="(ans, i) in answerHistory" :key="i">
         <div class="flex items-start gap-3 p-3 rounded-xl"
-             :class="ans.is_correct ? 'bg-green-50' : 'bg-red-50'">
+             :class="ans.is_correct ? 'grammar-result-correct' : 'grammar-result-incorrect'">
           <span class="text-lg flex-shrink-0" x-text="ans.is_correct ? '✓' : '✗'"></span>
           <p class="text-sm flex-1" style="font-family:'Noto Sans JP',sans-serif"
              x-text="ans.question_text || `Câu ${i+1}`"></p>
@@ -85,14 +86,12 @@
     <!-- Action buttons -->
     <div class="flex items-center justify-center gap-3 flex-wrap">
       <button @click="restart()"
-              class="px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all hover:shadow"
-              style="border-color:rgba(99,102,241,0.3); color:#6366f1; background:rgba(99,102,241,0.06)">
+              class="grammar-btn-outline px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:shadow">
         Làm lại
       </button>
       {% if exercise_set.grammar_point %}
       <a href="{% url 'grammar:point_detail' exercise_set.grammar_point.slug %}"
-         class="px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all hover:shadow"
-         style="border-color:rgba(0,0,0,0.1); color:var(--text-secondary)">
+         class="grammar-btn-secondary px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:shadow">
         Xem ngữ pháp
       </a>
       {% endif %}
@@ -112,7 +111,7 @@
         <!-- Question header -->
         <div class="flex items-center justify-between mb-5">
           <span class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg"
-                :class="current.type === 'MCQ' ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-700'">
+                :class="current.type === 'MCQ' ? 'grammar-qtype-mcq' : 'grammar-qtype-order'">
             <span x-text="current.type === 'MCQ' ? '問 ' + (currentIndex+1) + '  MCQ' : '問 ' + (currentIndex+1) + '  並べ替え ★'"></span>
           </span>
         </div>
@@ -168,14 +167,14 @@
                     @dragleave="onDragLeave($event)"
                     @drop="onDrop(boxIdx, $event)">
                 <span x-show="boxContents[boxIdx] === null" class="select-none"
-                      style="color:rgba(0,0,0,0.2)" x-text="boxIdx + 1"></span>
+                      style="color:var(--text-tertiary, rgba(0,0,0,0.2))" x-text="boxIdx + 1"></span>
                 <span x-show="boxContents[boxIdx] !== null"
                       x-text="current.tokens ? current.tokens[boxContents[boxIdx]] : ''"
                       style="font-family:'Noto Sans JP',sans-serif; font-size:1rem; white-space:nowrap"></span>
                 <!-- Remove button when filled & not answered -->
                 <button x-show="boxContents[boxIdx] !== null && !answered"
                         @click.stop="removeFromBox(boxIdx)"
-                        class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-slate-400 text-white text-xs flex items-center justify-center leading-none hover:bg-red-500 transition-colors"
+                        class="grammar-remove-btn absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-white text-xs flex items-center justify-center leading-none transition-colors"
                         style="font-size:10px; line-height:1">×</button>
               </span>
             </template>
@@ -226,7 +225,7 @@
           <!-- ★ star answer hint -->
           <div x-show="current.type === 'SENTENCE_ORDER' && !answerHistory[answerHistory.length-1]?.is_correct"
                class="explanation-card mb-3 text-sm">
-            <span class="font-semibold text-amber-700">★ の正解: </span>
+            <span class="font-semibold" style="color:var(--status-warning-text, #b45309)">★ の正解: </span>
             <span x-text="current.tokens ? current.tokens[current.correct_order ? current.correct_order[current.star_position-1] : 0] : ''"
                   style="font-family:'Noto Sans JP',sans-serif; font-weight:600; color:#0f766e"></span>
           </div>
@@ -254,6 +253,7 @@
     </template>
   </div>
 
+</div>
 </div>
 {% endblock %}
 
