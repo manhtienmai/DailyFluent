@@ -1,10 +1,10 @@
 /* ============================================
    DailyFluent Design System
-   Semantic Color System - Deep Teal Theme
-   
-   Primary Brand: Deep Teal (#0D9488 / #2DD4BF)
+   Semantic Color System - Indigo / Frosted Crystal Theme
+
+   Primary Brand: Indigo (#6366F1 / #818CF8)
    Accent: Amber (#F59E0B)
-   
+
    WCAG AA Compliant
    ============================================ */
 
@@ -26,6 +26,17 @@
   --_teal-800: #115E59;
   --_teal-900: #134E4A;
   --_teal-950: #042F2E;
+
+  --_indigo-50: #EEF2FF;
+  --_indigo-100: #E0E7FF;
+  --_indigo-200: #C7D2FE;
+  --_indigo-300: #A5B4FC;
+  --_indigo-400: #818CF8;
+  --_indigo-500: #6366F1;
+  --_indigo-600: #4F46E5;
+  --_indigo-700: #4338CA;
+  --_indigo-800: #3730A3;
+  --_indigo-900: #312E81;
 
   --_amber-50: #FFFBEB;
   --_amber-100: #FEF3C7;
@@ -58,7 +69,7 @@
      ---------------------------------------- */
   /* App backgrounds */
   --bg-app: #FFFFFF;
-  --bg-app-subtle: var(--_teal-50);
+  --bg-app-subtle: #F8FAFC;
   --bg-app-muted: #F8FAFC;
 
   /* Surface backgrounds (cards, modals, dropdowns) */
@@ -67,14 +78,14 @@
   --bg-surface-overlay: rgba(255, 255, 255, 0.95);
 
   /* Interactive backgrounds */
-  --bg-interactive: var(--_teal-50);
-  --bg-interactive-hover: var(--_teal-100);
-  --bg-interactive-active: var(--_teal-200);
-  --bg-interactive-selected: var(--_teal-100);
+  --bg-interactive: var(--_indigo-50);
+  --bg-interactive-hover: var(--_indigo-100);
+  --bg-interactive-active: var(--_indigo-100);
+  --bg-interactive-selected: var(--_indigo-100);
 
   /* Inverted (for tooltips, badges on dark) */
-  --bg-inverted: var(--_teal-900);
-  --bg-inverted-subtle: var(--_teal-800);
+  --bg-inverted: var(--_indigo-900);
+  --bg-inverted-subtle: var(--_indigo-800);
 
   /* ----------------------------------------
      SEMANTIC TOKENS - Text
@@ -96,27 +107,27 @@
   --text-inverted-secondary: rgba(255, 255, 255, 0.8);
 
   /* Link text */
-  --text-link: var(--_teal-600);
-  --text-link-hover: var(--_teal-700);
-  --text-link-visited: var(--_teal-800);
+  --text-link: var(--_indigo-600);
+  --text-link-hover: var(--_indigo-700);
+  --text-link-visited: var(--_indigo-800);
 
   /* ----------------------------------------
      SEMANTIC TOKENS - Brand / Action
      ---------------------------------------- */
   /* Primary action (buttons, links, focus rings) */
-  --action-primary: var(--_teal-600);
-  --action-primary-hover: var(--_teal-700);
-  --action-primary-active: var(--_teal-800);
-  --action-primary-subtle: var(--_teal-50);
-  --action-primary-subtle-hover: var(--_teal-100);
+  --action-primary: var(--_indigo-500);
+  --action-primary-hover: var(--_indigo-600);
+  --action-primary-active: var(--_indigo-700);
+  --action-primary-subtle: var(--_indigo-50);
+  --action-primary-subtle-hover: var(--_indigo-100);
 
   /* Primary action text (on primary bg) */
   --action-primary-text: #FFFFFF;
 
   /* Secondary action (outline buttons) */
-  --action-secondary: var(--_teal-600);
-  --action-secondary-hover: var(--_teal-700);
-  --action-secondary-bg-hover: var(--_teal-50);
+  --action-secondary: var(--_indigo-500);
+  --action-secondary-hover: var(--_indigo-600);
+  --action-secondary-bg-hover: var(--_indigo-50);
 
   /* Accent (streak, rewards, highlights) */
   --action-accent: var(--_amber-500);
@@ -157,8 +168,8 @@
   --border-default: #E2E8F0;
   --border-subtle: #F1F5F9;
   --border-strong: #CBD5E1;
-  --border-interactive: var(--_teal-300);
-  --border-focus: var(--_teal-500);
+  --border-interactive: var(--_indigo-300);
+  --border-focus: var(--_indigo-500);
   --border-error: var(--_red-500);
   --border-success: var(--_green-500);
 
@@ -172,7 +183,7 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 
   /* Colored shadows for depth */
-  --shadow-primary: 0 4px 14px 0 rgba(13, 148, 136, 0.25);
+  --shadow-primary: 0 4px 14px 0 rgba(99, 102, 241, 0.25);
   --shadow-accent: 0 4px 14px 0 rgba(245, 158, 11, 0.25);
 
   /* ----------------------------------------
@@ -201,16 +212,16 @@
   --streak-flame-glow: rgba(245, 158, 11, 0.3);
 
   /* XP / Points */
-  --xp-color: var(--_teal-500);
-  --xp-bg: var(--_teal-50);
+  --xp-color: var(--_indigo-500);
+  --xp-bg: var(--_indigo-50);
 
   /* Coins / Currency */
   --coin-color: var(--_amber-500);
   --coin-bg: var(--_amber-50);
 
   /* Progress bars */
-  --progress-track: var(--_teal-100);
-  --progress-fill: var(--_teal-500);
+  --progress-track: var(--_indigo-100);
+  --progress-fill: var(--_indigo-500);
   --progress-fill-success: var(--_green-500);
 
   /* Badges / Achievements */
@@ -233,9 +244,9 @@
   --answer-wrong-border: var(--_red-300);
 
   /* Selected (neutral) */
-  --answer-selected: var(--_teal-500);
-  --answer-selected-bg: var(--_teal-50);
-  --answer-selected-border: var(--_teal-300);
+  --answer-selected: var(--_indigo-500);
+  --answer-selected-bg: var(--_indigo-50);
+  --answer-selected-border: var(--_indigo-300);
 
   /* Highlight (text selection for study) */
   --highlight-yellow: rgba(250, 204, 21, 0.4);
@@ -250,11 +261,11 @@
   /* Sidebar */
   --sidebar-bg: #FFFFFF;
   --sidebar-border: var(--border-default);
-  --sidebar-item-hover: var(--_teal-50);
-  --sidebar-item-active: var(--_teal-100);
-  --sidebar-item-active-border: var(--_teal-500);
+  --sidebar-item-hover: var(--_indigo-50);
+  --sidebar-item-active: var(--_indigo-100);
+  --sidebar-item-active-border: var(--_indigo-500);
   --sidebar-text: var(--text-secondary);
-  --sidebar-text-active: var(--_teal-700);
+  --sidebar-text-active: var(--_indigo-700);
 
   /* Topbar */
   --topbar-bg: #FFFFFF;
@@ -263,7 +274,7 @@
   /* Cards */
   --card-bg: #FFFFFF;
   --card-border: var(--border-default);
-  --card-hover-border: var(--_teal-200);
+  --card-hover-border: var(--_indigo-200);
   --card-shadow: var(--shadow-sm);
   --card-shadow-hover: var(--shadow-md);
 
@@ -305,9 +316,8 @@
   /* ----------------------------------------
      Color Palette Overrides
      ---------------------------------------- */
-  --_teal-adjusted-400: #5EEAD4;
-  /* Slightly desaturated for dark mode */
-  --_teal-adjusted-500: #2DD4BF;
+  --_indigo-adjusted-400: #818CF8;
+  --_indigo-adjusted-300: #A5B4FC;
 
   /* ----------------------------------------
      SEMANTIC TOKENS - Background
@@ -323,14 +333,14 @@
   --bg-surface-overlay: rgba(30, 41, 59, 0.95);
 
   /* Interactive backgrounds */
-  --bg-interactive: rgba(45, 212, 191, 0.1);
-  --bg-interactive-hover: rgba(45, 212, 191, 0.15);
-  --bg-interactive-active: rgba(45, 212, 191, 0.2);
-  --bg-interactive-selected: rgba(45, 212, 191, 0.15);
+  --bg-interactive: rgba(99, 102, 241, 0.1);
+  --bg-interactive-hover: rgba(99, 102, 241, 0.15);
+  --bg-interactive-active: rgba(99, 102, 241, 0.2);
+  --bg-interactive-selected: rgba(99, 102, 241, 0.15);
 
   /* Inverted */
-  --bg-inverted: var(--_teal-100);
-  --bg-inverted-subtle: var(--_teal-200);
+  --bg-inverted: var(--_indigo-100);
+  --bg-inverted-subtle: var(--_indigo-200);
 
   /* ----------------------------------------
      SEMANTIC TOKENS - Text
@@ -343,25 +353,25 @@
   --text-inverted-secondary: rgba(15, 23, 42, 0.8);
 
   /* Links - brighter in dark mode */
-  --text-link: var(--_teal-adjusted-400);
-  --text-link-hover: var(--_teal-300);
-  --text-link-visited: var(--_teal-adjusted-500);
+  --text-link: var(--_indigo-adjusted-400);
+  --text-link-hover: var(--_indigo-adjusted-300);
+  --text-link-visited: var(--_indigo-400);
 
   /* ----------------------------------------
      SEMANTIC TOKENS - Brand / Action
      ---------------------------------------- */
   /* Primary action - brighter for dark mode contrast */
-  --action-primary: var(--_teal-adjusted-500);
-  --action-primary-hover: var(--_teal-adjusted-400);
-  --action-primary-active: var(--_teal-300);
-  --action-primary-subtle: rgba(45, 212, 191, 0.15);
-  --action-primary-subtle-hover: rgba(45, 212, 191, 0.25);
-  --action-primary-text: #0F172A;
+  --action-primary: var(--_indigo-adjusted-400);
+  --action-primary-hover: var(--_indigo-adjusted-300);
+  --action-primary-active: var(--_indigo-200);
+  --action-primary-subtle: rgba(99, 102, 241, 0.15);
+  --action-primary-subtle-hover: rgba(99, 102, 241, 0.25);
+  --action-primary-text: #FFFFFF;
 
   /* Secondary action */
-  --action-secondary: var(--_teal-adjusted-500);
-  --action-secondary-hover: var(--_teal-adjusted-400);
-  --action-secondary-bg-hover: rgba(45, 212, 191, 0.1);
+  --action-secondary: var(--_indigo-adjusted-400);
+  --action-secondary-hover: var(--_indigo-adjusted-300);
+  --action-secondary-bg-hover: rgba(99, 102, 241, 0.1);
 
   /* Accent - slightly brighter */
   --action-accent: #FBBF24;
@@ -403,8 +413,8 @@
   --border-default: #334155;
   --border-subtle: #1E293B;
   --border-strong: #475569;
-  --border-interactive: var(--_teal-adjusted-500);
-  --border-focus: var(--_teal-adjusted-500);
+  --border-interactive: var(--_indigo-adjusted-400);
+  --border-focus: var(--_indigo-adjusted-400);
   --border-error: #F87171;
   --border-success: #4ADE80;
 
@@ -419,7 +429,7 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
 
   /* Colored shadows - more subtle glow effect */
-  --shadow-primary: 0 4px 20px 0 rgba(45, 212, 191, 0.2);
+  --shadow-primary: 0 4px 20px 0 rgba(99, 102, 241, 0.2);
   --shadow-accent: 0 4px 20px 0 rgba(251, 191, 36, 0.2);
 
   /* ----------------------------------------
@@ -446,14 +456,14 @@
   --streak-flame: #FBBF24;
   --streak-flame-glow: rgba(251, 191, 36, 0.4);
 
-  --xp-color: var(--_teal-adjusted-400);
-  --xp-bg: rgba(45, 212, 191, 0.15);
+  --xp-color: var(--_indigo-adjusted-400);
+  --xp-bg: rgba(99, 102, 241, 0.15);
 
   --coin-color: #FBBF24;
   --coin-bg: rgba(251, 191, 36, 0.15);
 
-  --progress-track: rgba(45, 212, 191, 0.2);
-  --progress-fill: var(--_teal-adjusted-500);
+  --progress-track: rgba(99, 102, 241, 0.2);
+  --progress-fill: var(--_indigo-adjusted-400);
   --progress-fill-success: #4ADE80;
 
   /* ----------------------------------------
@@ -467,9 +477,9 @@
   --answer-wrong-bg: rgba(248, 113, 113, 0.15);
   --answer-wrong-border: rgba(248, 113, 113, 0.5);
 
-  --answer-selected: var(--_teal-adjusted-500);
-  --answer-selected-bg: rgba(45, 212, 191, 0.15);
-  --answer-selected-border: rgba(45, 212, 191, 0.5);
+  --answer-selected: var(--_indigo-adjusted-400);
+  --answer-selected-bg: rgba(99, 102, 241, 0.15);
+  --answer-selected-border: rgba(99, 102, 241, 0.5);
 
   /* Highlights - slightly more opaque for dark bg */
   --highlight-yellow: rgba(250, 204, 21, 0.35);
@@ -484,11 +494,11 @@
   /* Sidebar */
   --sidebar-bg: #1E293B;
   --sidebar-border: #334155;
-  --sidebar-item-hover: rgba(45, 212, 191, 0.1);
-  --sidebar-item-active: rgba(45, 212, 191, 0.15);
-  --sidebar-item-active-border: var(--_teal-adjusted-500);
+  --sidebar-item-hover: rgba(99, 102, 241, 0.1);
+  --sidebar-item-active: rgba(99, 102, 241, 0.15);
+  --sidebar-item-active-border: var(--_indigo-adjusted-400);
   --sidebar-text: #94A3B8;
-  --sidebar-text-active: var(--_teal-adjusted-400);
+  --sidebar-text-active: var(--_indigo-adjusted-300);
 
   /* Topbar */
   --topbar-bg: #1E293B;
@@ -497,7 +507,7 @@
   /* Cards */
   --card-bg: #1E293B;
   --card-border: #334155;
-  --card-hover-border: var(--_teal-700);
+  --card-hover-border: var(--_indigo-700);
   --card-shadow: var(--shadow-sm);
   --card-shadow-hover: var(--shadow-md);
 
@@ -505,7 +515,7 @@
   --input-bg: #0F172A;
   --input-border: #334155;
   --input-border-hover: #475569;
-  --input-border-focus: var(--_teal-adjusted-500);
+  --input-border-focus: var(--_indigo-adjusted-400);
   --input-placeholder: #64748B;
 
   /* Buttons */
@@ -521,12 +531,12 @@
   --countdown-bg: linear-gradient(135deg, #0F172A, #1E293B);
   --countdown-segment-bg: #334155;
   --countdown-text: #F1F5F9;
-  --countdown-accent: #2DD4BF;
+  --countdown-accent: #818CF8;
   --countdown-label-text: rgba(241, 245, 249, 0.9);
   --countdown-unit-text: rgba(241, 245, 249, 0.6);
   --countdown-sep-color: rgba(241, 245, 249, 0.35);
   --countdown-divider: rgba(241, 245, 249, 0.15);
-  --countdown-border: rgba(45, 212, 191, 0.2);
+  --countdown-border: rgba(99, 102, 241, 0.2);
 }
 
 

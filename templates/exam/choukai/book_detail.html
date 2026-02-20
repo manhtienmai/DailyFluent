@@ -81,18 +81,18 @@
             <span class="ck-qmap-legend-dot ck-qmap-legend-dot--pending"></span>
             Chưa làm (<span x-text="qmapPending()">{{ total_questions }}</span>)
           </span>
-          <button class="ck-qmap-toggle" @click="qmapCollapsed = !qmapCollapsed">
+          <button class="ck-qmap-toggle" @click="$store.qmap.collapsed = !$store.qmap.collapsed">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 :style="qmapCollapsed ? '' : 'transform:rotate(180deg)'">
+                 :style="$store.qmap.collapsed ? '' : 'transform:rotate(180deg)'">
               <path d="M19 9l-7 7-7-7"/>
             </svg>
-            <span x-text="qmapCollapsed ? 'Xem' : 'Thu gọn'">Thu gọn</span>
+            <span x-text="$store.qmap.collapsed ? 'Xem' : 'Thu gọn'">Thu gọn</span>
           </button>
         </div>
       </div>
 
       {# Grid body — collapsible #}
-      <div class="ck-qmap-body" x-show="!qmapCollapsed" x-transition.opacity.duration.200ms>
+      <div class="ck-qmap-body" x-show="!$store.qmap.collapsed" x-transition.opacity.duration.200ms>
         {% for group in mondai_groups %}
         <div class="ck-qmap-group">
           <div class="ck-qmap-group-label ck-qmap-group-label--{{ group.key }}">
@@ -328,6 +328,10 @@
 const SAVE_URL = '{% url "exam:choukai_save_answer" %}';
 const CSRF = '{{ csrf_token }}';
 
+document.addEventListener('alpine:init', () => {
+  Alpine.store('qmap', { collapsed: false });
+});
+
 /* Danh sách câu hỏi cho question map stats */
 const CK_QMAP_DATA = [
   {% for group in mondai_groups %}{% for q in group.questions %}
@@ -351,7 +355,6 @@ function choukaiApp() {
     activeMondai: '{{ first_key }}',
     answered,
     answers,
-    qmapCollapsed: false,
 
     selectChoice(qId, choiceKey) {
       if (this.answered[qId]) return;

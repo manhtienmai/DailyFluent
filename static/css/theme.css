@@ -1,8 +1,8 @@
 :root {
   /* màu brand chính, chỉnh 1 chỗ là áp toàn site */
-  --df-primary: #0071F9;
-  --df-primary-soft: rgba(0, 113, 249, 0.06);
-  --df-primary-dark: #0056d6;
+  --df-primary: #6366F1;
+  --df-primary-soft: rgba(99, 102, 241, 0.06);
+  --df-primary-dark: #4F46E5;
   --df-header-h: 72px;
 
   /* Layout system - dễ thay đổi ở đây */
@@ -16,17 +16,17 @@
   /* Modern UI Design Tokens */
   /* Gradients */
   --df-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --df-gradient-blue: linear-gradient(135deg, #0071F9 0%, #00c6fb 100%);
+  --df-gradient-blue: linear-gradient(135deg, #6366F1 0%, #8b5cf6 100%);
   --df-gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   --df-gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --df-gradient-sidebar: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%);
+  --df-gradient-sidebar: linear-gradient(180deg, #4338CA 0%, #6366F1 100%);
   --df-gradient-card-bg: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
 
   /* Shadows */
   --df-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --df-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
   --df-shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
-  --df-shadow-glow: 0 0 20px rgba(0, 113, 249, 0.25);
+  --df-shadow-glow: 0 0 20px rgba(99, 102, 241, 0.25);
   --df-shadow-success: 0 4px 15px rgba(16, 185, 129, 0.3);
   --df-shadow-error: 0 4px 15px rgba(239, 68, 68, 0.3);
 
@@ -147,7 +147,7 @@ textarea:not([class*="bg-"]) {
 }
 
 .df-dictation-settings-header {
-  background: linear-gradient(135deg, var(--df-primary) 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--df-primary) 0%, #8b5cf6 100%);
   color: #fff;
   padding: 0.875rem 1.25rem;
   font-weight: 700;
@@ -191,7 +191,7 @@ textarea:not([class*="bg-"]) {
 }
 
 .df-dictation-setting-row:hover {
-  background: rgba(0, 113, 249, 0.04);
+  background: rgba(99, 102, 241, 0.04);
 }
 
 .df-dictation-setting-label {
@@ -229,7 +229,7 @@ textarea:not([class*="bg-"]) {
 .df-dictation-setting-input:focus {
   outline: none;
   border-color: var(--df-primary);
-  box-shadow: 0 0 0 3px rgba(0, 113, 249, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 /* Responsive for smaller screens */
@@ -281,7 +281,7 @@ button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.d
 .df-course-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--df-shadow-card-hover);
-  border-color: rgba(0, 113, 249, 0.2);
+  border-color: rgba(99, 102, 241, 0.2);
 }
 
 .df-course-card-image {
@@ -328,18 +328,18 @@ button:not([class*="bg-"]):not(.df-audio-btn):not(.df-sidebar-toggle-btn):not(.d
   justify-content: center;
   width: 100%;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #0071F9 0%, #00c6fb 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #8b5cf6 100%);
   color: #fff;
   font-size: 0.875rem;
   font-weight: 700;
   border-radius: var(--df-radius-lg);
   transition: var(--df-transition-smooth);
-  box-shadow: 0 4px 15px rgba(0, 113, 249, 0.25);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
 }
 
 .df-course-card-btn:hover {
-  background: linear-gradient(135deg, #0056d6 0%, #0096db 100%);
-  box-shadow: 0 6px 20px rgba(0, 113, 249, 0.35);
+  background: linear-gradient(135deg, #4F46E5 0%, #7c3aed 100%);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   transform: translateY(-1px);
 }
 
@@ -606,7 +606,7 @@ body.df-admin {
   transform: translateY(-50%);
   width: 3rem;
   height: 4rem;
-  background: linear-gradient(135deg, #0071F9 0%, #0056d6 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
   border: none;
   border-radius: 0 0.5rem 0.5rem 0;
   cursor: pointer;
@@ -624,7 +624,7 @@ body.df-admin {
 }
 
 .df-sidebar-toggle-btn:hover {
-  background: linear-gradient(135deg, #0056d6 0%, #0044b3 100%);
+  background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transform: translateY(-50%) translateX(2px);
 }
@@ -851,12 +851,12 @@ body.df-admin {
 }
 
 .df-side-item:hover {
-  background: rgba(0, 113, 249, 0.08);
-  border-left-color: rgba(0, 113, 249, 0.4);
+  background: rgba(99, 102, 241, 0.08);
+  border-left-color: rgba(99, 102, 241, 0.4);
 }
 
 .df-side-item-active {
-  background: rgba(0, 113, 249, 0.10);
+  background: rgba(99, 102, 241, 0.10);
   border-left-color: var(--df-primary);
 }
 
@@ -914,8 +914,8 @@ body.df-admin {
   background-color: rgb(241 245 249);
   /* slate-100 */
   background-image:
-    radial-gradient(circle at 12px 12px, rgba(0, 113, 249, 0.12) 2px, transparent 2px),
-    radial-gradient(circle at 36px 36px, rgba(2, 132, 199, 0.10) 2px, transparent 2px);
+    radial-gradient(circle at 12px 12px, rgba(99, 102, 241, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 36px 36px, rgba(139, 92, 246, 0.10) 2px, transparent 2px);
   background-size: 48px 48px;
 }
 
@@ -992,7 +992,7 @@ body.df-admin {
 
 .df-vocab-card:hover {
   box-shadow: var(--df-shadow-card-hover);
-  border-color: rgba(0, 113, 249, 0.3);
+  border-color: rgba(99, 102, 241, 0.3);
   transform: translateY(-2px);
 }
 
@@ -1094,7 +1094,7 @@ body.df-admin {
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.01em;
-  background: linear-gradient(135deg, #1e3a5f 0%, #0071F9 100%);
+  background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1172,9 +1172,9 @@ body.df-admin {
 }
 
 .df-audio-btn-sm.df-audio-btn-playing {
-  background: rgb(37 99 235) !important;
-  /* blue-600 */
-  border-color: rgb(37 99 235) !important;
+  background: rgb(99 102 241) !important;
+  /* indigo-500 */
+  border-color: rgb(99 102 241) !important;
   color: #fff !important;
 }
 
@@ -1188,7 +1188,7 @@ body.df-admin {
   font-weight: 700;
   color: rgb(30 41 59);
   /* slate-800 - đậm hơn text thường */
-  background: linear-gradient(180deg, transparent 60%, rgba(37, 99, 235, 0.15) 60%);
+  background: linear-gradient(180deg, transparent 60%, rgba(99, 102, 241, 0.15) 60%);
   padding: 0 0.125rem;
   border-radius: 0.125rem;
 }
@@ -1200,17 +1200,17 @@ body.df-admin {
 }
 
 .df-audio-btn.df-audio-btn-playing {
-  background: rgb(37 99 235);
-  /* blue-600 */
-  border-color: rgb(37 99 235);
+  background: rgb(99 102 241);
+  /* indigo-500 */
+  border-color: rgb(99 102 241);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
 }
 
 .df-audio-btn.df-audio-btn-playing:hover {
-  background: rgb(29 78 216);
-  /* blue-700 */
-  border-color: rgb(29 78 216);
+  background: rgb(79 70 229);
+  /* indigo-600 */
+  border-color: rgb(79 70 229);
 }
 
 .df-audio-icon {
@@ -1253,13 +1253,13 @@ body.df-admin {
 }
 
 .df-example-audio-icon:hover {
-  color: rgb(37 99 235) !important;
-  /* blue-600 - màu xanh khi hover */
+  color: rgb(99 102 241) !important;
+  /* indigo-500 - màu khi hover */
 }
 
 .df-example-audio-icon.df-audio-btn-playing {
-  color: rgb(37 99 235) !important;
-  /* blue-600 - màu xanh khi đang phát */
+  color: rgb(99 102 241) !important;
+  /* indigo-500 - màu khi đang phát */
 }
 
 .df-example-audio-icon-svg {
@@ -1378,9 +1378,9 @@ body.df-admin {
 }
 
 .df-switch input:checked+.df-switch-ui {
-  background: rgb(37 99 235);
-  /* blue-600 - màu xanh đậm rõ hơn */
-  border-color: rgb(37 99 235);
+  background: rgb(99 102 241);
+  /* indigo-500 */
+  border-color: rgb(99 102 241);
 }
 
 .df-switch input:checked+.df-switch-ui::after {
@@ -1424,8 +1424,8 @@ body.df-admin {
 }
 
 .df-match-tile:hover {
-  border-color: rgba(0, 113, 249, 0.25);
-  background: rgba(0, 113, 249, 0.04);
+  border-color: rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.04);
 }
 
 .df-match-tile:disabled {
@@ -1452,9 +1452,9 @@ body.df-admin {
 }
 
 .df-match-tile--selected {
-  border-color: rgba(0, 113, 249, 0.55);
-  box-shadow: 0 0 0 3px rgba(0, 113, 249, 0.18);
-  background: rgba(0, 113, 249, 0.05);
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  background: rgba(99, 102, 241, 0.05);
 }
 
 .df-match-tile--matched {
@@ -1524,7 +1524,7 @@ body.df-admin {
 }
 
 .df-section-toggle:focus {
-  outline: 2px solid rgba(0, 113, 249, 0.2);
+  outline: 2px solid rgba(99, 102, 241, 0.2);
   outline-offset: -2px;
   border-radius: 0.5rem;
 }
@@ -2160,7 +2160,7 @@ body.df-admin {
 .df-comment-form textarea:focus {
   outline: none;
   border-color: var(--df-primary);
-  box-shadow: 0 0 0 3px rgba(0, 113, 249, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .df-comment-submit-btn {
@@ -2466,7 +2466,7 @@ body.df-admin {
 .df-form-textarea:focus {
   outline: none;
   border-color: var(--df-primary);
-  box-shadow: 0 0 0 3px rgba(0, 113, 249, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .df-form-textarea {
@@ -2511,19 +2511,19 @@ body.df-admin {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--df-primary) 0%, #00c6fb 100%);
+  background: linear-gradient(135deg, var(--df-primary) 0%, #8b5cf6 100%);
   color: #fff;
   font-weight: 600;
   border: none;
   border-radius: var(--df-radius-md);
   cursor: pointer;
   transition: var(--df-transition-smooth);
-  box-shadow: 0 4px 15px rgba(0, 113, 249, 0.25);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
 }
 
 .df-form-submit-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 113, 249, 0.35);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
 }
 
 /* Responsive */
