@@ -1,0 +1,625 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}Dokkai Editor — {{ template.title }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dokkai.css' %}?v=20260220">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+  #content { padding: 0; }
+  #content-main { padding: 0; }
+  [x-cloak] { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="dokkaiEditor()" x-cloak>
+
+  {# ── Top bar ── #}
+  <div class="dke-admin-header">
+    <a href="{% url 'admin:exam_examtemplate_changelist' %}" class="dke-admin-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Danh sách Template
+    </a>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <h1>
+      {{ template.title }}
+      <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:6px;font-size:0.72rem;background:rgba(16,185,129,0.1);color:#059669;font-weight:700;">
+        Dokkai Editor
+      </span>
+    </h1>
+    <span style="margin-left:auto;font-size:0.82rem;color:#64748b;">
+      {{ total_questions }} câu · {{ template.level }}
+    </span>
+  </div>
+
+  <div class="dke-wrap">
+    <div class="dke-layout">
+
+      {# ═══ SIDEBAR ═══ #}
+      <div class="dke-sidebar">
+        <div class="dke-sidebar-title">Danh sách</div>
+
+        {# Passage item #}
+        {% for passage in passages %}
+        <button class="dke-q-item dke-q-item--passage"
+                :class="activeView === 'passage-{{ passage.id }}' ? 'dke-q-item--active' : ''"
+                @click="activeView = 'passage-{{ passage.id }}'">
+          <span style="font-size:1rem;">📄</span>
+          <span>{{ passage.title|default:"Bài đọc" }}</span>
+        </button>
+        {% endfor %}
+
+        <hr style="border:none;border-top:1px solid rgba(148,163,184,0.15);margin:8px 0;">
+
+        {# Question items #}
+        {% for q in questions %}
+        <button class="dke-q-item"
+                :class="activeView === 'q-{{ q.id }}' ? 'dke-q-item--active' : ''"
+                @click="activeView = 'q-{{ q.id }}'">
+          <span class="dke-q-num">{{ forloop.counter }}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.8rem;">
+            {{ q.text|truncatechars:30|default:"(chưa có text)" }}
+          </span>
+          <template x-if="hasExplanation('{{ q.id }}')">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="#10b981"><circle cx="12" cy="12" r="10"/></svg>
+          </template>
+        </button>
+        {% endfor %}
+      </div>
+
+      {# ═══ WORKSPACE ═══ #}
+      <div>
+
+        {# ── PASSAGE workspace ── #}
+        {% for passage in passages %}
+        <div class="dke-workspace" x-show="activeView === 'passage-{{ passage.id }}'" style="display:none;">
+          <div class="dke-workspace-title">
+            📄 Chỉnh sửa bài đọc — {{ passage.title|default:"Passage" }}
+            <a href="{% url 'admin:exam_readingpassage_change' passage.id %}"
+               target="_blank"
+               style="font-size:0.75rem;color:#6366f1;margin-left:8px;text-decoration:none;">
+              [Admin ↗]
+            </a>
+          </div>
+
+          {# ── FULL ANALYZE (one-shot) ── #}
+          <div style="background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(16,185,129,0.04));border:1px solid rgba(99,102,241,0.18);border-radius:12px;padding:1rem;margin-bottom:1.25rem;">
+            <div style="font-size:0.82rem;font-weight:700;color:#6366f1;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.6rem;">
+              ✨ Phân tích toàn bộ (1 bước)
+            </div>
+            <p style="font-size:0.8rem;color:#64748b;margin:0 0 .75rem;">
+              Upload ảnh → AI trích xuất đoạn văn + câu hỏi + đáp án + từ vựng → lưu tất cả vào DB.
+            </p>
+            <input type="file" accept="image/*" @change="onPassageImageChange($event, '{{ passage.id }}')"
+                   style="margin-bottom:8px;font-size:0.82rem;">
+            <div class="dke-btn-row" style="margin-bottom:10px;">
+              <button class="dke-btn dke-btn--violet"
+                      @click="doFullAnalyze('{{ passage.id }}')"
+                      :disabled="!passageFiles['{{ passage.id }}'] || analyzeLoading['{{ passage.id }}']">
+                <template x-if="analyzeLoading['{{ passage.id }}']">
+                  <span class="dke-spinner dke-spinner--dark"></span>
+                </template>
+                <template x-if="!analyzeLoading['{{ passage.id }}']">
+                  <span>🔍 Phân tích (AI)</span>
+                </template>
+              </button>
+            </div>
+
+            {# Result preview #}
+            <template x-if="analyzeResult['{{ passage.id }}']">
+              <div>
+                <div style="font-size:0.8rem;color:#374151;background:rgba(255,255,255,0.7);border-radius:8px;padding:.6rem .8rem;margin-bottom:.6rem;border:1px solid rgba(148,163,184,0.15);">
+                  <strong style="color:#10b981;">✓ Đã trích xuất:</strong>
+                  <span x-text="(analyzeResult['{{ passage.id }}'].questions||[]).length + ' câu hỏi'"></span>
+                  ·
+                  <span x-text="(analyzeResult['{{ passage.id }}'].bilingual_reading||[]).length + ' câu song ngữ'"></span>
+                </div>
+
+                {# Collapsible question preview #}
+                <button class="dke-btn" style="font-size:0.78rem;padding:4px 10px;margin-bottom:6px;"
+                        @click="analyzePreviewOpen['{{ passage.id }}'] = !analyzePreviewOpen['{{ passage.id }}']">
+                  <span x-text="analyzePreviewOpen['{{ passage.id }}'] ? '▲ Ẩn xem trước' : '▼ Xem trước câu hỏi'"></span>
+                </button>
+
+                <div x-show="analyzePreviewOpen['{{ passage.id }}']" style="margin-bottom:.75rem;">
+                  <template x-for="(q, qi) in (analyzeResult['{{ passage.id }}'].questions || [])" :key="qi">
+                    <div style="background:rgba(248,250,252,0.8);border-radius:8px;padding:.6rem .8rem;margin-bottom:.5rem;border:1px solid rgba(148,163,184,0.12);font-size:0.8rem;">
+                      <div style="font-weight:600;color:#1e293b;margin-bottom:4px;"
+                           x-text="'Q' + (qi+1) + ': ' + q.question_text"></div>
+                      <template x-for="(opt, oi) in (q.options || [])" :key="oi">
+                        <div style="padding:2px 6px;border-radius:4px;margin-bottom:2px;"
+                             :style="opt.startsWith(q.correct_answer+'.') || opt.startsWith(q.correct_answer+' ') ? 'background:rgba(16,185,129,0.1);color:#065f46;font-weight:600;' : 'color:#475569;'"
+                             x-text="opt"></div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+
+                <button class="dke-btn dke-btn--primary"
+                        @click="saveFullAnalysis('{{ passage.id }}')"
+                        :disabled="saveFullLoading['{{ passage.id }}']">
+                  <template x-if="saveFullLoading['{{ passage.id }}']">
+                    <span class="dke-spinner"></span>
+                  </template>
+                  <template x-if="!saveFullLoading['{{ passage.id }}']">
+                    <span>💾 Lưu tất cả vào DB</span>
+                  </template>
+                </button>
+              </div>
+            </template>
+          </div>
+
+          <hr class="dk-divider" style="margin:0 0 1.25rem;">
+
+          {# OCR section (manual fallback) #}
+          <label class="dke-label">2. OCR thủ công (hoặc dán text trực tiếp)</label>
+          <input type="file" accept="image/*" id="ocrFile-{{ passage.id }}"
+                 @change="onPassageImageChange($event, '{{ passage.id }}')"
+                 style="margin-bottom:8px;font-size:0.85rem;">
+          <div class="dke-btn-row" style="margin-bottom:12px;">
+            <button class="dke-btn dke-btn--violet"
+                    @click="doOCR('{{ passage.id }}')"
+                    :disabled="!passageFiles['{{ passage.id }}'] || ocrLoading['{{ passage.id }}']">
+              <template x-if="ocrLoading['{{ passage.id }}']">
+                <span class="dke-spinner dke-spinner--dark"></span>
+              </template>
+              OCR bài đọc
+            </button>
+          </div>
+
+          {# OCR result textarea #}
+          <label class="dke-label">Văn bản (có thể chỉnh sửa trực tiếp)</label>
+          <textarea class="dke-textarea" rows="8"
+                    x-model="passageTexts['{{ passage.id }}']"
+                    :placeholder="'Dán text hoặc dùng OCR từ ảnh...'"
+                    style="margin-bottom:8px;"></textarea>
+
+          {# Preview ruby #}
+          <label class="dke-label">Xem trước (furigana)</label>
+          <div class="dke-passage-preview"
+               x-html="renderRuby(passageTexts['{{ passage.id }}'] || '')"></div>
+
+          <div class="dke-btn-row" style="margin-top:12px;">
+            <button class="dke-btn dke-btn--primary"
+                    @click="savePassageText('{{ passage.id }}')"
+                    :disabled="savePassageLoading['{{ passage.id }}']">
+              <template x-if="savePassageLoading['{{ passage.id }}']">
+                <span class="dke-spinner"></span>
+              </template>
+              Lưu bài đọc
+            </button>
+          </div>
+
+          <hr class="dk-divider" style="margin:1.25rem 0;">
+
+          {# Vocabulary section #}
+          <label class="dke-label">3. Trích xuất từ vựng từ bài đọc</label>
+          <div class="dke-btn-row" style="margin-bottom:12px;">
+            <button class="dke-btn dke-btn--violet"
+                    @click="extractVocab('{{ passage.id }}')"
+                    :disabled="!passageTexts['{{ passage.id }}'] || vocabLoading['{{ passage.id }}']">
+              <template x-if="vocabLoading['{{ passage.id }}']">
+                <span class="dke-spinner dke-spinner--dark"></span>
+              </template>
+              Trích xuất từ vựng (AI)
+            </button>
+          </div>
+
+          {# Vocab preview #}
+          <div x-show="passageVocab['{{ passage.id }}'] && passageVocab['{{ passage.id }}'].length">
+            <table class="dke-vocab-table">
+              <thead>
+                <tr>
+                  <th>Từ</th>
+                  <th>Đọc</th>
+                  <th>Hán Việt</th>
+                  <th>Nghĩa</th>
+                  <th>Loại</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(w, i) in passageVocab['{{ passage.id }}']" :key="i">
+                  <tr>
+                    <td x-text="w.word" style="font-family:'Noto Sans JP',sans-serif;font-weight:600;"></td>
+                    <td x-text="w.reading" style="font-family:'Noto Sans JP',sans-serif;color:#10b981;"></td>
+                    <td x-text="w.han_viet" style="color:#6366f1;font-weight:600;"></td>
+                    <td x-text="w.meaning_vi"></td>
+                    <td x-text="w.type" style="color:#94a3b8;font-size:0.78rem;"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div class="dke-btn-row" style="margin-top:10px;">
+              <button class="dke-btn dke-btn--primary"
+                      @click="saveVocab('{{ passage.id }}')"
+                      :disabled="saveVocabLoading['{{ passage.id }}']">
+                <template x-if="saveVocabLoading['{{ passage.id }}']">
+                  <span class="dke-spinner"></span>
+                </template>
+                Lưu từ vựng
+              </button>
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+
+        {# ── QUESTION workspaces ── #}
+        {% for q in questions %}
+        <div class="dke-workspace" x-show="activeView === 'q-{{ q.id }}'" style="display:none;">
+          <div class="dke-workspace-title">
+            Câu {{ forloop.counter }}: Giải thích đáp án
+            <a href="{% url 'admin:exam_examquestion_change' q.id %}"
+               target="_blank"
+               style="font-size:0.75rem;color:#6366f1;margin-left:8px;text-decoration:none;">
+              [Admin ↗]
+            </a>
+          </div>
+
+          {# Question text + choices readonly display #}
+          <div style="background:rgba(248,250,252,0.6);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid rgba(148,163,184,0.12);">
+            <div style="font-size:0.9rem;font-weight:600;color:#1e293b;font-family:'Noto Sans JP',sans-serif;margin-bottom:0.6rem;">
+              {{ q.text|default:"(chưa có câu hỏi)" }}
+            </div>
+            <div style="font-size:0.82rem;color:#64748b;margin-bottom:4px;">
+              Đáp án đúng: <strong style="color:#10b981;">{{ q.correct_answer }}</strong>
+            </div>
+            {% if q.choices %}
+            <div style="margin-top:0.6rem;">
+              {% for c in q.choices %}
+              <div style="font-size:0.82rem;padding:4px 8px;margin-bottom:4px;border-radius:6px;background:{% if c.key == q.correct_answer %}rgba(16,185,129,0.08){% else %}transparent{% endif %};">
+                <strong>{{ c.key }}.</strong> {{ c.text }}
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          {# Generate explanation button #}
+          <div class="dke-btn-row" style="margin-bottom:12px;">
+            <button class="dke-btn dke-btn--violet"
+                    @click="generateExplanation('{{ q.id }}')"
+                    :disabled="explainLoading['{{ q.id }}']">
+              <template x-if="explainLoading['{{ q.id }}']">
+                <span class="dke-spinner dke-spinner--dark"></span>
+              </template>
+              <template x-if="!explainLoading['{{ q.id }}']">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              </template>
+              Tạo giải thích (AI)
+            </button>
+          </div>
+
+          {# Explanation JSON preview / edit #}
+          <label class="dke-label">JSON giải thích</label>
+          <textarea class="dke-textarea" rows="10"
+                    x-model="explanationJsons['{{ q.id }}']"
+                    style="font-family:monospace;font-size:0.8rem;"></textarea>
+
+          <div class="dke-btn-row" style="margin-top:10px;">
+            <button class="dke-btn dke-btn--primary"
+                    @click="saveExplanation('{{ q.id }}')"
+                    :disabled="saveExplainLoading['{{ q.id }}']">
+              <template x-if="saveExplainLoading['{{ q.id }}']">
+                <span class="dke-spinner"></span>
+              </template>
+              Lưu giải thích
+            </button>
+          </div>
+
+        </div>
+        {% endfor %}
+
+        {# Default empty state #}
+        <div class="dke-workspace" x-show="!activeView" style="display:none;">
+          <div style="text-align:center;padding:2rem;color:#94a3b8;">
+            Chọn bài đọc hoặc câu hỏi ở sidebar để bắt đầu chỉnh sửa.
+          </div>
+        </div>
+
+      </div>{# end workspace area #}
+    </div>{# end dke-layout #}
+  </div>{# end dke-wrap #}
+
+  {# Toast #}
+  <div class="dke-toast"
+       :class="{'dke-toast--visible': toast.visible, 'dke-toast--success': toast.type==='success', 'dke-toast--error': toast.type==='error'}"
+       x-text="toast.message"></div>
+
+</div>{# end x-data #}
+
+<script>
+const CSRF = '{{ csrf_token }}';
+const TEMPLATE_ID = {{ template.id }};
+
+// Pre-load existing data
+const EXISTING_PASSAGE_TEXTS = {
+  {% for passage in passages %}
+  '{{ passage.id }}': {{ passage.text_json|safe }},
+  {% endfor %}
+};
+const EXISTING_VOCAB = {
+  {% for passage in passages %}
+  '{{ passage.id }}': {{ passage.vocab_json|safe }},
+  {% endfor %}
+};
+const EXISTING_EXPLANATIONS = {
+  {% for q in questions %}
+  '{{ q.id }}': {{ q.explanation_json_str|safe }},
+  {% endfor %}
+};
+
+// Question data for AI explain
+const QUESTION_DATA = {
+  {% for q in questions %}
+  '{{ q.id }}': {
+    text: {{ q.text_json|safe }},
+    choices: {{ q.choices_json|safe }},
+    correct_answer: '{{ q.correct_answer }}',
+    passage_id: '{{ q.passage_id|default:"" }}',
+  },
+  {% endfor %}
+};
+
+const PASSAGE_TEXTS_FOR_AI = {
+  {% for passage in passages %}
+  '{{ passage.id }}': {{ passage.text_json|safe }},
+  {% endfor %}
+};
+
+function renderRuby(text) {
+  if (!text) return '';
+  return text.replace(/\{([^}]+)\}\(([^)]+)\)/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+function dokkaiEditor() {
+  // Build initial explanation JSON strings
+  const explJsons = {};
+  for (const [qId, data] of Object.entries(EXISTING_EXPLANATIONS)) {
+    explJsons[qId] = data ? JSON.stringify(data, null, 2) : '';
+  }
+
+  return {
+    activeView: Object.keys(EXISTING_PASSAGE_TEXTS).length > 0
+      ? 'passage-' + Object.keys(EXISTING_PASSAGE_TEXTS)[0]
+      : (Object.keys(QUESTION_DATA).length > 0 ? 'q-' + Object.keys(QUESTION_DATA)[0] : ''),
+
+    passageFiles: {},
+    passageTexts: Object.assign({}, EXISTING_PASSAGE_TEXTS),
+    passageVocab: Object.assign({}, EXISTING_VOCAB),
+
+    ocrLoading: {},
+    vocabLoading: {},
+    savePassageLoading: {},
+    saveVocabLoading: {},
+
+    analyzeLoading: {},
+    analyzeResult: {},
+    analyzePreviewOpen: {},
+    saveFullLoading: {},
+
+    explainLoading: {},
+    explanationJsons: explJsons,
+    saveExplainLoading: {},
+
+    toast: { visible: false, message: '', type: 'success', _timer: null },
+
+    renderRuby,
+
+    hasExplanation(qId) {
+      const v = this.explanationJsons[qId];
+      return v && v.trim().length > 2;
+    },
+
+    onPassageImageChange(event, passageId) {
+      const file = event.target.files[0];
+      if (file) this.passageFiles[passageId] = file;
+    },
+
+    async doFullAnalyze(passageId) {
+      const file = this.passageFiles[passageId];
+      if (!file) return;
+      this.analyzeLoading[passageId] = true;
+      this.analyzeResult[passageId] = null;
+      try {
+        const fd = new FormData();
+        fd.append('image', file);
+        const res = await fetch('/admin/exam/examtemplate/dokkai-analyze-full-api/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': CSRF },
+          body: fd,
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.analyzeResult[passageId] = data.data;
+          // Also populate passage text textarea for review
+          if (data.data.passage && data.data.passage.text) {
+            this.passageTexts[passageId] = data.data.passage.text;
+          }
+          const qCount = (data.data.questions || []).length;
+          this.showToast(`Trích xuất thành công: ${qCount} câu hỏi!`, 'success');
+        } else {
+          this.showToast(data.error || 'Phân tích thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối: ' + e.message, 'error'); }
+      this.analyzeLoading[passageId] = false;
+    },
+
+    async saveFullAnalysis(passageId) {
+      const result = this.analyzeResult[passageId];
+      if (!result) return;
+      this.saveFullLoading[passageId] = true;
+      try {
+        const res = await fetch('/admin/exam/examtemplate/dokkai-save-full-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({
+            passage_id:  passageId,
+            template_id: TEMPLATE_ID,
+            data:        result,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.showToast(`Đã lưu ${data.saved_questions} câu hỏi. Đang tải lại...`, 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          this.showToast(data.error || 'Lưu thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối: ' + e.message, 'error'); }
+      this.saveFullLoading[passageId] = false;
+    },
+
+    async doOCR(passageId) {
+      const file = this.passageFiles[passageId];
+      if (!file) return;
+      this.ocrLoading[passageId] = true;
+      try {
+        const fd = new FormData();
+        fd.append('image', file);
+        fd.append('passage_id', passageId);
+        const res = await fetch('/admin/exam/examtemplate/dokkai-ocr-api/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': CSRF },
+          body: fd,
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.passageTexts[passageId] = data.text;
+          this.showToast('OCR thành công!', 'success');
+        } else {
+          this.showToast(data.error || 'OCR thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.ocrLoading[passageId] = false;
+    },
+
+    async savePassageText(passageId) {
+      this.savePassageLoading[passageId] = true;
+      try {
+        const res = await fetch('/admin/exam/examtemplate/dokkai-save-passage-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ passage_id: passageId, text: this.passageTexts[passageId] || '' }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.showToast('Đã lưu bài đọc!', 'success');
+        } else {
+          this.showToast(data.error || 'Lưu thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.savePassageLoading[passageId] = false;
+    },
+
+    async extractVocab(passageId) {
+      const text = this.passageTexts[passageId];
+      if (!text) return;
+      this.vocabLoading[passageId] = true;
+      try {
+        const res = await fetch('/admin/exam/examtemplate/dokkai-vocab-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ passage_text: text, template_id: TEMPLATE_ID }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.passageVocab[passageId] = data.vocabulary;
+          this.showToast('Đã trích xuất ' + data.vocabulary.length + ' từ!', 'success');
+        } else {
+          this.showToast(data.error || 'Trích xuất thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.vocabLoading[passageId] = false;
+    },
+
+    async saveVocab(passageId) {
+      const vocab = this.passageVocab[passageId];
+      if (!vocab || !vocab.length) return;
+      this.saveVocabLoading[passageId] = true;
+      try {
+        const res = await fetch('/admin/exam/examtemplate/dokkai-save-passage-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ passage_id: passageId, vocabulary: vocab }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.showToast('Đã lưu từ vựng!', 'success');
+        } else {
+          this.showToast(data.error || 'Lưu thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.saveVocabLoading[passageId] = false;
+    },
+
+    async generateExplanation(qId) {
+      const qData = QUESTION_DATA[qId];
+      if (!qData) return;
+      this.explainLoading[qId] = true;
+      try {
+        // Get passage text for context
+        const passageText = qData.passage_id ? (PASSAGE_TEXTS_FOR_AI[qData.passage_id] || '') : '';
+        const res = await fetch('/admin/exam/examtemplate/dokkai-explain-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({
+            question_text: qData.text,
+            choices: qData.choices,
+            correct_answer: qData.correct_answer,
+            passage_text: passageText,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.explanationJsons[qId] = JSON.stringify(data.explanation_json, null, 2);
+          this.showToast('Đã tạo giải thích!', 'success');
+        } else {
+          this.showToast(data.error || 'Tạo giải thích thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.explainLoading[qId] = false;
+    },
+
+    async saveExplanation(qId) {
+      let parsed;
+      try {
+        const raw = (this.explanationJsons[qId] || '').trim();
+        if (!raw) { this.showToast('JSON trống', 'error'); return; }
+        parsed = JSON.parse(raw);
+      } catch(e) {
+        this.showToast('JSON không hợp lệ: ' + e.message, 'error');
+        return;
+      }
+      this.saveExplainLoading[qId] = true;
+      try {
+        const res = await fetch('/admin/exam/examtemplate/dokkai-save-explanation-api/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ question_id: qId, explanation_json: parsed }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          EXISTING_EXPLANATIONS[qId] = parsed;
+          this.showToast('Đã lưu giải thích!', 'success');
+        } else {
+          this.showToast(data.error || 'Lưu thất bại', 'error');
+        }
+      } catch(e) { this.showToast('Lỗi kết nối', 'error'); }
+      this.saveExplainLoading[qId] = false;
+    },
+
+    showToast(message, type = 'success') {
+      if (this.toast._timer) clearTimeout(this.toast._timer);
+      this.toast.message = message;
+      this.toast.type = type;
+      this.toast.visible = true;
+      this.toast._timer = setTimeout(() => { this.toast.visible = false; }, 3000);
+    },
+  };
+}
+</script>
+{% endblock %}

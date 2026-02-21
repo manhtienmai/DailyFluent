@@ -1,0 +1,105 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}Luyện đọc JLPT Dokkai | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dokkai.css' %}?v=20260220">
+{% endblock %}
+
+{% block content %}
+<div class="dk-page">
+  <div class="dk-container">
+
+    {# ── Header ── #}
+    <div class="dk-glass dk-header" style="margin-bottom:1.25rem;">
+      <div class="dk-header-info">
+        <h1>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-4px;margin-right:6px;color:#10b981;">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Luyện đọc JLPT (Dokkai)
+        </h1>
+        <div class="dk-header-meta">
+          <span style="font-size:0.85rem;color:#64748b;">{{ total }} bài đọc</span>
+        </div>
+      </div>
+    </div>
+
+    {# ── Level filter ── #}
+    <div class="dk-glass" style="padding:0.75rem 1.25rem;margin-bottom:1.25rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:0.8rem;color:#64748b;font-weight:600;margin-right:4px;">Cấp độ:</span>
+      <a href="{% url 'exam:dokkai_list' %}"
+         style="padding:4px 12px;border-radius:999px;font-size:0.8rem;font-weight:600;text-decoration:none;
+                {% if not selected_level %}background:rgba(16,185,129,0.15);color:#059669;{% else %}color:#64748b;background:rgba(148,163,184,0.1);{% endif %}">
+        Tất cả
+      </a>
+      {% for lvl in levels %}
+      <a href="?level={{ lvl }}"
+         style="padding:4px 12px;border-radius:999px;font-size:0.8rem;font-weight:600;text-decoration:none;
+                {% if selected_level == lvl %}background:rgba(16,185,129,0.15);color:#059669;{% else %}color:#64748b;background:rgba(148,163,184,0.1);{% endif %}">
+        {{ lvl }}
+      </a>
+      {% endfor %}
+    </div>
+
+    {# ── Template grid ── #}
+    {% if templates %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+      {% for t in templates %}
+      <a href="{% url 'exam:dokkai_practice' slug=t.slug %}"
+         style="text-decoration:none;"
+         class="dk-glass"
+         style="padding:1.25rem 1.5rem;display:block;transition:all 0.2s;cursor:pointer;"
+         onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(16,185,129,0.15)'"
+         onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+          <span class="dk-level-badge dk-level-badge--{{ t.level|lower }}">{{ t.level }}</span>
+          {% if t.reading_format %}
+          <span class="dk-format-tag">{{ t.get_reading_format_display }}</span>
+          {% endif %}
+        </div>
+        <div style="font-size:0.97rem;font-weight:700;color:#1e293b;margin-bottom:0.35rem;line-height:1.4;font-family:'Noto Sans JP',sans-serif;">
+          {{ t.title }}
+        </div>
+        {% if t.dokkai_skill %}
+        <div style="font-size:0.78rem;color:#64748b;">{{ t.dokkai_skill }}</div>
+        {% endif %}
+        <div style="font-size:0.8rem;color:#94a3b8;margin-top:0.5rem;">
+          {{ t.total_questions }} câu hỏi
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {# Pagination #}
+    {% if page_obj.has_other_pages %}
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}"
+         class="dk-section-toggle">← Trước</a>
+      {% endif %}
+      <span style="padding:0.5rem 0.75rem;font-size:0.82rem;color:#64748b;">
+        Trang {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+      </span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if selected_level %}&level={{ selected_level }}{% endif %}"
+         class="dk-section-toggle">Sau →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="dk-glass" style="padding:2.5rem;text-align:center;color:#94a3b8;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 1rem;display:block;opacity:0.4;">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <div style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;">Chưa có bài đọc nào</div>
+      <div style="font-size:0.85rem;">Quay lại sau nhé!</div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

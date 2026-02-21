@@ -53,8 +53,8 @@
 
 /* ========== HERO SECTION ========== */
 .ck-hero {
-  padding: 2rem 2rem 1.5rem;
-  margin-bottom: 1.25rem;
+  padding: 1rem 1.5rem 0.75rem;
+  margin-bottom: 0.75rem;
   position: relative;
   overflow: hidden;
 }
@@ -104,8 +104,8 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -199,6 +199,62 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.25rem;
   padding: 0 0.25rem 2rem;
+  padding-top: 40px;
+}
+
+@media (max-width: 480px) {
+  .ck-book-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding-top: 30px;
+  }
+}
+
+/* ── Outer wrapper: positioning context ───────────────────── */
+.ck-card-outer {
+  position: relative;
+  /* Push content down to make room for the floating image top portion */
+  padding-top: 120px;  /* = 50% of image height (240px / 2) */
+}
+
+/* ── Floating cover image ─────────────────────────────────── */
+.ck-card-cover-float {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 240px;
+  z-index: 3;
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.22));
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.ck-card-outer:hover .ck-card-cover-float {
+  transform: translateX(-50%) translateY(-6px) scale(1.04);
+}
+
+.ck-card-cover-img-float {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.ck-card-cover-placeholder-float {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.ck-card-cover-placeholder-float svg {
+  width: 48px;
+  height: 48px;
+  opacity: 0.4;
 }
 
 /* ── Card wrapper (ez-card style) ──────────────────────────── */
@@ -213,18 +269,23 @@
   box-shadow: 0 2px 12px -4px rgba(0, 0, 0, 0.08);
 }
 
+/* Overlap variant: extra top padding for the protruding image */
+.ck-card-wrap--overlap {
+  padding-top: 120px; /* 50% of image height sits inside */
+}
+
 [data-theme="dark"] .ck-card-wrap {
   background: rgba(30, 41, 59, 0.8);
   border-color: rgba(255, 255, 255, 0.06);
   box-shadow: 0 2px 12px -4px rgba(0, 0, 0, 0.3);
 }
 
-.ck-card-wrap:hover {
+.ck-card-outer:hover .ck-card-wrap {
   transform: translateY(-4px);
   box-shadow: 0 8px 32px -8px rgba(99, 102, 241, 0.2);
 }
 
-[data-theme="dark"] .ck-card-wrap:hover {
+[data-theme="dark"] .ck-card-outer:hover .ck-card-wrap {
   box-shadow: 0 8px 32px -8px rgba(99, 102, 241, 0.3);
 }
 
@@ -1751,4 +1812,19 @@
   .ck-qmap-body {
     padding: 0.625rem 0.875rem 0.875rem;
   }
+}
+
+/* ========== LAZY-LOAD SPINNER ========== */
+.ck-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: ck-spin 0.7s linear infinite;
+}
+
+@keyframes ck-spin {
+  to { transform: rotate(360deg); }
 }

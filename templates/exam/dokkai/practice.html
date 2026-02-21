@@ -1,0 +1,241 @@
+{% extends "layouts/sidebar_layout.html" %}
+{% load static %}
+
+{% block title %}{{ template.title }} — Luyện đọc | DailyFluent{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dokkai.css' %}?v=20260220">
+{% endblock %}
+
+{% block content %}
+<div class="dk-page"
+     x-data="dokkaiPractice({
+       initialAnswers: {{ initial_answers_json|safe }},
+       totalCount: {{ total_count }},
+       submitUrl: '{% url "exam:dokkai_submit" slug=template.slug %}',
+       csrfToken: '{{ csrf_token }}',
+       loginUrl: '{% url "account_login" %}',
+       isAuthenticated: {{ request.user.is_authenticated|lower }},
+     })"
+     x-cloak>
+
+  <div class="dk-container">
+
+    {# ── Breadcrumb ── #}
+    <div class="dk-breadcrumb">
+      <a href="{% url 'exam:dokkai_list' %}">Luyện đọc</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      <span>{{ template.title }}</span>
+    </div>
+
+    {# ── Header ── #}
+    <div class="dk-glass dk-header">
+      <div class="dk-header-info">
+        <h1>{{ template.title }}</h1>
+        <div class="dk-header-meta">
+          <span class="dk-level-badge dk-level-badge--{{ template.level|lower }}">{{ template.level }}</span>
+          {% if template.reading_format %}
+          <span class="dk-format-tag">{{ template.get_reading_format_display }}</span>
+          {% endif %}
+          {% if template.dokkai_skill %}
+          <span style="font-size:0.8rem;color:#64748b;">{{ template.dokkai_skill }}</span>
+          {% endif %}
+          <span style="font-size:0.8rem;color:#64748b;">{{ total_count }} câu</span>
+        </div>
+      </div>
+    </div>
+
+    {# ── Score panel (shown after submit) ── #}
+    <div id="dk-score-panel" x-show="submitted" x-transition style="display:none;">
+      <div class="dk-glass dk-score-panel" style="margin-bottom:1.25rem;">
+        <div class="dk-score-big" x-text="scorePercent() + '%'"></div>
+        <div class="dk-score-label">
+          <span x-text="correctCount + ' / ' + totalCount + ' câu đúng'"></span>
+        </div>
+        <div class="dk-score-bar-wrap">
+          <div class="dk-score-bar">
+            <div class="dk-score-fill" :style="'width:' + scorePercent() + '%'"></div>
+          </div>
+        </div>
+        <div class="dk-rating" x-text="ratingLabel()"></div>
+      </div>
+    </div>
+
+    {# ── 2-column layout ── #}
+    <div class="dk-layout">
+
+      {# ═══ LEFT: Passage ═══ #}
+      <div>
+        {% for passage in passages %}
+        <div class="dk-glass dk-passage-panel" style="margin-bottom:1rem;">
+          <div class="dk-passage-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            {% if passage.title %}{{ passage.title }}{% else %}Bài đọc{% endif %}
+          </div>
+
+          {# Passage images #}
+          {% for img in passage.images.all %}
+          <img src="{{ img.image.url }}" alt="{% if img.caption %}{{ img.caption }}{% else %}Hình ảnh bài đọc{% endif %}" class="dk-passage-image">
+          {% endfor %}
+
+          {% if passage.image %}
+          <img src="{{ passage.image.url }}" alt="Hình ảnh bài đọc" class="dk-passage-image">
+          {% endif %}
+
+          {# Passage text with ruby #}
+          {% if passage.text %}
+          <div class="dk-passage-text">{{ passage.text_html|safe }}</div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="dk-glass" style="padding:1.5rem;color:#64748b;text-align:center;">
+          Chưa có nội dung bài đọc.
+        </div>
+        {% endfor %}
+      </div>
+
+      {# ═══ RIGHT: Questions ═══ #}
+      <div>
+
+        {# Submit area (top) #}
+        <div x-show="!submitted" class="dk-glass dk-submit-area" style="margin-bottom:1rem;">
+          <button class="dk-btn-submit"
+                  @click="submit()"
+                  :disabled="submitting">
+            <template x-if="submitting">
+              <span class="dk-spinner"></span>
+            </template>
+            <template x-if="!submitting">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </template>
+            <span x-text="submitting ? 'Đang nộp...' : 'Nộp bài'"></span>
+          </button>
+          <span class="dk-progress-text">
+            Đã chọn: <span x-text="answeredCount()"></span>/{{ total_count }}
+          </span>
+        </div>
+
+        {# Question cards #}
+        {% for q in questions %}
+        <div id="dk-q-{{ q.id }}" class="dk-glass dk-question-card">
+
+          <div class="dk-q-header">
+            <span class="dk-q-number">{{ forloop.counter }}</span>
+          </div>
+
+          {% if q.text_html %}
+          <div class="dk-q-text" style="margin-bottom:0.5rem;">{{ q.text_html|safe }}</div>
+          {% endif %}
+
+          <div class="dk-choices">
+            {% for c in q.choices %}
+            <button class="dk-choice-btn"
+                    :class="{
+                      'dk-choice--selected': !submitted && isSelected({{ q.id }}, '{{ c.key }}'),
+                      'dk-choice--correct':  submitted && isCorrect({{ q.id }}, '{{ c.key }}', '{{ q.correct_answer }}'),
+                      'dk-choice--wrong':    submitted && isWrong({{ q.id }}, '{{ c.key }}'),
+                      'dk-choice--answered': submitted
+                    }"
+                    @click="selectAnswer({{ q.id }}, '{{ c.key }}')">
+              <span class="dk-choice-key">{{ c.key }}</span>
+              <span class="dk-choice-text">{{ c.text_html|safe }}</span>
+            </button>
+            {% endfor %}
+          </div>
+
+          {# After submit: show feedback #}
+          <div x-show="submitted" x-transition style="display:none;">
+            <template x-if="resultForQuestion({{ q.id }})">
+              <div>
+                <div class="dk-feedback"
+                     :class="results[{{ q.id }}].is_correct ? 'dk-feedback--correct' : 'dk-feedback--wrong'">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path x-show="results[{{ q.id }}].is_correct" d="M20 6L9 17l-5-5"/>
+                    <path x-show="!results[{{ q.id }}].is_correct" d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                  <span x-text="results[{{ q.id }}].is_correct ? 'Chính xác!' : 'Sai rồi. Đáp án đúng: {{ q.correct_answer }}'"></span>
+                </div>
+
+                {# Explanation toggle #}
+                <template x-if="getExplanationSummary({{ q.id }})">
+                  <div>
+                    <button class="dk-explanation-toggle" @click="toggleExplanation({{ q.id }})">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+                      </svg>
+                      <span x-text="showExplanations[{{ q.id }}] ? 'Ẩn giải thích' : 'Xem giải thích'"></span>
+                    </button>
+                    <div class="dk-explanation" x-show="showExplanations[{{ q.id }}]" x-transition style="display:none;">
+                      <div x-text="getExplanationSummary({{ q.id }})"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+        </div>
+        {% empty %}
+        <div class="dk-glass" style="padding:1.5rem;color:#64748b;text-align:center;">
+          Chưa có câu hỏi.
+        </div>
+        {% endfor %}
+
+        {# Submit area (bottom) #}
+        <div x-show="!submitted" class="dk-glass dk-submit-area">
+          <button class="dk-btn-submit"
+                  @click="submit()"
+                  :disabled="submitting">
+            <template x-if="submitting">
+              <span class="dk-spinner"></span>
+            </template>
+            <template x-if="!submitting">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </template>
+            <span x-text="submitting ? 'Đang nộp...' : 'Nộp bài'"></span>
+          </button>
+          <span class="dk-progress-text">
+            Đã chọn: <span x-text="answeredCount()"></span>/{{ total_count }}
+          </span>
+        </div>
+
+        {# Vocab section (shown after submit if vocab exists) #}
+        {% if vocab %}
+        <div x-show="submitted" style="display:none;">
+          <div class="dk-glass dk-vocab-section">
+            <div class="dk-vocab-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+              </svg>
+              Từ vựng trong bài
+              <button class="dk-section-toggle" @click="showVocab = !showVocab" style="margin-left:auto;">
+                <span x-text="showVocab ? 'Thu gọn' : 'Xem từ vựng'"></span>
+              </button>
+            </div>
+            <div x-show="showVocab" x-transition style="display:none;">
+              <div class="dk-vocab-grid">
+                {% for w in vocab %}
+                <div class="dk-vocab-card">
+                  <div class="dk-vocab-word">{{ w.word }}</div>
+                  {% if w.reading %}<div class="dk-vocab-reading">{{ w.reading }}</div>{% endif %}
+                  {% if w.han_viet %}<div class="dk-vocab-han">{{ w.han_viet }}</div>{% endif %}
+                  <div class="dk-vocab-meaning">{{ w.meaning_vi }}</div>
+                  {% if w.type %}<span class="dk-vocab-type">{{ w.type }}</span>{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>{# end right column #}
+    </div>{# end dk-layout #}
+
+  </div>{# end dk-container #}
+</div>{# end dk-page #}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dokkai-practice.js' %}?v=20260220"></script>
+{% endblock %}

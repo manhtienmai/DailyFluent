@@ -4,18 +4,13 @@
 {% block title %}Luyện nghe JLPT | DailyFluent{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260220">
+<link rel="stylesheet" href="{% static 'css/choukai.css' %}?v=20260221">
 {% endblock %}
 
 {% block content %}
 <div class="choukai-page">
   <div class="choukai-container">
 
-    {# ===== HERO ===== #}
-    <div class="ck-glass ck-hero">
-      <h1 class="ck-hero-title">&#x805E;&#x89E3; Luyện nghe JLPT</h1>
-      <p class="ck-hero-sub">Chọn sách và luyện nghe theo từng dạng もんだい</p>
-    </div>
 
     {# ===== LEVEL FILTER ===== #}
     <div class="ck-glass ck-filters">
@@ -38,43 +33,29 @@
     {% if books %}
     <div class="ck-book-grid">
       {% for book in books %}
-      <div class="ck-card-wrap">
-        {# Cover image area #}
-        <div class="ck-card-cover ck-card-cover--{{ book.level|lower }}">
+      <div class="ck-card-outer">
+        {# Cover image — overlaps card top edge #}
+        <div class="ck-card-cover-float">
           {% if book.cover_image %}
-            <div class="ck-card-cover-img" style="background-image:url('{{ book.cover_image.url }}')"></div>
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="ck-card-cover-img-float">
           {% else %}
-            <div class="ck-card-cover-placeholder ck-book-placeholder--{{ book.level|lower }}">
+            <div class="ck-card-cover-placeholder-float ck-book-placeholder--{{ book.level|lower }}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M3 18v-6a9 9 0 0118 0v6"/>
                 <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/>
               </svg>
             </div>
           {% endif %}
-          {# Play button overlay #}
-          <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}" class="ck-card-play-btn" aria-label="Luyện nghe">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </a>
         </div>
 
-        {# Card link overlay #}
-        <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}" class="ck-card-link"></a>
-
-        {# Card body with shadow #}
-        <div class="ck-card-body-wrap">
+        {# Card body below the image #}
+        <a href="{% url 'exam:choukai_book_detail' slug=book.slug %}" class="ck-card-wrap ck-card-wrap--overlap" style="text-decoration:none;display:block">
           <div class="ck-card-body-inner">
             <h5 class="ck-card-title">{{ book.title }}</h5>
           </div>
           <div class="ck-card-footer">
             <div class="ck-card-footer-level">
               <span class="ck-level-badge ck-level-badge--{{ book.level|lower }}">{{ book.level }}</span>
-              {% if book.mondai_tags %}
-                {% for m in book.mondai_tags %}
-                <span class="ck-mondai-tag">もんだい{{ m }}</span>
-                {% endfor %}
-              {% endif %}
             </div>
             <div class="ck-card-footer-stats">
               <svg class="ck-card-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -84,7 +65,7 @@
               <span>{{ book.question_count }} câu</span>
             </div>
           </div>
-        </div>
+        </a>
       </div>
       {% endfor %}
     </div>

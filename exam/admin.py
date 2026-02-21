@@ -178,6 +178,7 @@ class ExamTemplateAdmin(admin.ModelAdmin):
         "reading_time_limit_minutes",
         "time_limit_minutes",
         "is_active",
+        "dokkai_editor_link",
     )
     list_filter = (
         "level",
@@ -227,6 +228,91 @@ class ExamTemplateAdmin(admin.ModelAdmin):
                 level=messages.INFO
             )
     fix_reading_title.short_description = "Fix title: Remove READING_/LISTENING_ prefix if has both parts"
+
+    def dokkai_editor_link(self, obj):
+        from django.utils.html import format_html
+        from exam.models import ExamCategory as EC
+        if obj.category == EC.DOKKAI:
+            url = reverse('admin:exam_examtemplate_dokkai_editor', args=[obj.pk])
+            return format_html('<a href="{}" class="button">📖 Dokkai Editor</a>', url)
+        return "—"
+    dokkai_editor_link.short_description = "Dokkai Editor"
+
+    def dokkai_editor_view(self, request, template_id):
+        from exam.models import ExamCategory as EC
+        from exam.views import _ruby, dokkai_tool_instance
+
+        template = get_object_or_404(ExamTemplate, pk=template_id, category=EC.DOKKAI)
+        passages = list(template.passages.prefetch_related('images').order_by('order'))
+        questions_qs = list(template.questions.select_related('passage').order_by('order'))
+
+        # Prepare passage data for template
+        for p in passages:
+            p.text_json = json.dumps(p.text or '')
+            p.vocab_json = json.dumps(p.data.get('vocabulary', []) if p.data else [])
+
+        # Prepare question data for template
+        questions = []
+        for q in questions_qs:
+            choices_raw = q.data.get('choices', [])
+            # Normalize choices
+            choices = []
+            for c in choices_raw:
+                key = str(c.get('key') or c.get('number') or '')
+                text = c.get('text', '')
+                choices.append({'key': key, 'text': text})
+
+            questions.append({
+                'id': q.id,
+                'text': q.text or '',
+                'text_json': json.dumps(q.text or ''),
+                'correct_answer': q.correct_answer or '',
+                'choices': choices,
+                'choices_json': json.dumps(choices),
+                'explanation_json_str': json.dumps(q.explanation_json or {}),
+                'passage_id': q.passage_id or '',
+            })
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': f'Dokkai Editor — {template.title}',
+            'opts': ExamTemplate._meta,
+            'template': template,
+            'passages': passages,
+            'questions': questions,
+            'total_questions': len(questions),
+        }
+        return render(request, 'admin/exam/examtemplate/dokkai_editor.html', context)
+
+    # ── Proxy methods for Dokkai API ──
+    def dokkai_ocr_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_ocr_api(request)
+
+    def dokkai_explain_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_explain_api(request)
+
+    def dokkai_vocab_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_vocab_api(request)
+
+    def dokkai_save_passage_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_save_passage_api(request)
+
+    def dokkai_save_explanation_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_save_explanation_api(request)
+
+    def dokkai_analyze_full_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_analyze_full_api(request)
+
+    def dokkai_save_full_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_save_full_api(request)
+
     fieldsets = (
         ("Basic Information", {
             "fields": ("book", "title", "slug", "description", "level", "category")
@@ -276,6 +362,47 @@ class ExamTemplateAdmin(admin.ModelAdmin):
                 '<int:template_id>/import-audio/',
                 self.admin_site.admin_view(self.import_audio_view),
                 name='exam_examtemplate_import_audio',
+            ),
+            # ── Dokkai Editor ──
+            path(
+                '<int:template_id>/dokkai-editor/',
+                self.admin_site.admin_view(self.dokkai_editor_view),
+                name='exam_examtemplate_dokkai_editor',
+            ),
+            path(
+                'dokkai-ocr-api/',
+                self.admin_site.admin_view(self.dokkai_ocr_api),
+                name='exam_examtemplate_dokkai_ocr_api',
+            ),
+            path(
+                'dokkai-explain-api/',
+                self.admin_site.admin_view(self.dokkai_explain_api),
+                name='exam_examtemplate_dokkai_explain_api',
+            ),
+            path(
+                'dokkai-vocab-api/',
+                self.admin_site.admin_view(self.dokkai_vocab_api),
+                name='exam_examtemplate_dokkai_vocab_api',
+            ),
+            path(
+                'dokkai-save-passage-api/',
+                self.admin_site.admin_view(self.dokkai_save_passage_api),
+                name='exam_examtemplate_dokkai_save_passage_api',
+            ),
+            path(
+                'dokkai-save-explanation-api/',
+                self.admin_site.admin_view(self.dokkai_save_explanation_api),
+                name='exam_examtemplate_dokkai_save_explanation_api',
+            ),
+            path(
+                'dokkai-analyze-full-api/',
+                self.admin_site.admin_view(self.dokkai_analyze_full_api),
+                name='exam_examtemplate_dokkai_analyze_full_api',
+            ),
+            path(
+                'dokkai-save-full-api/',
+                self.admin_site.admin_view(self.dokkai_save_full_api),
+                name='exam_examtemplate_dokkai_save_full_api',
             ),
         ]
         return custom_urls + urls

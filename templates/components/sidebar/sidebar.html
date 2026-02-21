@@ -92,6 +92,7 @@ Sidebar Navigation Component
 
 
 
+    {% comment "Hidden for now" %}
     <a href="{% url 'shop:list' %}" data-title="Cửa hàng" class="df-sidebar-item {% if 'shop' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-store">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -102,6 +103,7 @@ Sidebar Navigation Component
       </span>
       <span class="df-sidebar-label">Cửa hàng</span>
     </a>
+    {% endcomment %}
 
     <a href="{% url 'streak:overview' %}" data-title="Xếp hạng" class="df-sidebar-item {% if 'streak' in request.path %}active{% endif %}">
       <span class="df-sidebar-icon df-icon-streak">
@@ -124,6 +126,7 @@ Sidebar Navigation Component
       <span class="df-sidebar-label">Góc Cải Tiến</span>
     </a>
 
+    {% comment "Hidden for now" %}
     <a href="#" data-title="Lộ trình học" class="df-sidebar-item">
       <span class="df-sidebar-icon df-icon-roadmap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -134,6 +137,7 @@ Sidebar Navigation Component
       </span>
       <span class="df-sidebar-label">Lộ trình học</span>
     </a>
+    {% endcomment %}
   </nav>
 
   {# Sidebar Toggle (collapse) #}

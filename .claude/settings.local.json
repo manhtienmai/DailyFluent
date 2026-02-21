@@ -48,7 +48,8 @@
       "WebFetch(domain:ai.google.dev)",
       "Bash(curl:*)",
       "Bash(pip freeze:*)",
-      "Bash(ls -la \"E:\\\\DailyFluent\\\\grammar\"\" 2>&1 || echo \"Directory may not exist \")"
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\grammar\"\" 2>&1 || echo \"Directory may not exist \")",
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\templates\\\\exam\\\\dokkai\"\" 2>&1 || echo \"DIRECTORY_NOT_FOUND \")"
     ]
   }
 }

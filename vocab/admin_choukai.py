@@ -172,10 +172,12 @@ class ChoukaiToolAPI(View):
 
             # ── Quy tắc chung ──────────────────────────────────────────────
             SPEAKER_RULE = (
-                "SPEAKER: Set speaker to \"F\" or \"M\" ONLY when the input line starts with "
-                "\"F:\" / \"F：\" / \"M:\" / \"M：\" (uppercase letter immediately followed by colon). "
-                "All other lines MUST have speaker = \"\" (empty string). "
-                "Do NOT infer or guess speakers."
+                "SPEAKER DETECTION — assign per conversation entry:\n"
+                "• 'F:' / 'F：' OR female-role labels (母, 女, 女性, お母さん, 奥さん, 女の人, etc.) → speaker = \"F\"\n"
+                "• 'M:' / 'M：' OR male-role labels (父, 息子, 男, 男性, お父さん, 男の人, etc.) → speaker = \"M\"\n"
+                "• Narrator / context / question lines → speaker = \"\" (empty string)\n"
+                "• Continuation lines (indented with 　 or leading spaces, no new speaker label) "
+                "→ MERGE their text into the PREVIOUS entry (same speaker, same JSON object — append with a space)"
             )
             furigana_scope = "all kanji" if level in ("N5", "N4") else "only uncommon/difficult kanji"
             FURIGANA_RULE = (
@@ -193,15 +195,36 @@ class ChoukaiToolAPI(View):
 You are a JLPT {level} choukai (listening) expert.
 
 The input is a raw transcript of a JLPT Mondai {mondai} listening exercise.
-Structure: the FIRST sentence (often in （）or「」brackets) is the SCENARIO/CONTEXT sentence
-describing who is speaking and what they will be asked about. After that comes the dialogue.
+
+STANDARD JLPT MONDAI {mondai} AUDIO STRUCTURE (always in this exact order):
+  1. INTRO       — situation/context sentence (e.g. 「男の人と女の人が話しています。」)
+  2. QUESTION    — what the examinee must identify (e.g. 「男の人はこの後何をしますか。」)
+                   NOTE: INTRO and QUESTION are sometimes merged into one sentence.
+  3. DIALOGUE    — the actual conversation between speakers (F / M)
+  4. QUESTION REPEATED — the exact same question stated once more at the very end
+
+You MUST reproduce ALL four parts faithfully in the "conversation" array, in that order.
+
+CLEANING RULES — silently REMOVE the following from the output (they are NOT spoken audio):
+  • Answer-option lines (e.g. 「1. …」 「２ …」 「A. …」 or any numbered/lettered list of choices)
+  • Explanations, annotations, commentary (e.g. "答え：2", "解説：...", "ポイント：...", "(正解)", etc.)
+  • Answer labels (e.g. "ĐÁP ÁN：", "Đáp án：", "正解：", "答え：" followed by a number/letter)
+  • Publisher/editorial notes that clearly do not belong to the audio script
+  • Vietnamese translations already embedded in the input (lines in Vietnamese that appear after Japanese lines)
+    → IGNORE them entirely. Translate all Japanese text yourself from scratch.
+
+OUTPUT RULES for each entry in "conversation":
+  • INTRO line:            speaker=""   |  prefix text_vi with "(Bối cảnh) "
+  • QUESTION line:         speaker=""   |  prefix text_vi with "(Câu hỏi) "
+    (If INTRO and QUESTION are merged, output them as ONE entry and prefix text_vi with "(Bối cảnh) (Câu hỏi) ")
+  • DIALOGUE lines:        speaker="F" or "M" — follow SPEAKER_RULE below
+  • QUESTION REPEATED:     speaker=""   |  prefix text_vi with "(Câu hỏi) " — use the same text as QUESTION
 
 TASKS:
-1. Detect the context/scenario sentence. Output it first with speaker="" and
-   prefix its text_vi with "(Bối cảnh) ".
+1. Parse and output all four structural parts in the correct order as described above.
 2. {SPEAKER_RULE}
 3. {FURIGANA_RULE}
-4. Translate every line to Vietnamese (text_vi field).
+4. Translate every line to Vietnamese (text_vi).
 5. Write a DETAILED Vietnamese explanation ("explanation") of why the correct answer is
    option {correct or '?'}. Reference specific lines from the dialogue. Be concrete and precise.
 
@@ -215,9 +238,11 @@ OPTIONS:
 OUTPUT — strict JSON, no markdown:
 {{
   "conversation": [
-    {{"speaker": "", "text": "（context sentence JP）", "text_vi": "(Bối cảnh) Vietnamese..."}},
+    {{"speaker": "", "text": "（intro JP）", "text_vi": "(Bối cảnh) Vietnamese..."}},
+    {{"speaker": "", "text": "（question JP）", "text_vi": "(Câu hỏi) Vietnamese..."}},
     {{"speaker": "F", "text": "...", "text_vi": "..."}},
-    ...
+    {{"speaker": "M", "text": "...", "text_vi": "..."}},
+    {{"speaker": "", "text": "（question JP repeated）", "text_vi": "(Câu hỏi) Vietnamese..."}}
   ],
   "explanation": "Giải thích chi tiết bằng tiếng Việt tại sao đáp án {correct or '?'} là đúng..."
 }}"""
@@ -227,20 +252,29 @@ OUTPUT — strict JSON, no markdown:
 You are a JLPT {level} choukai (listening) expert.
 
 The input is a raw transcript of a JLPT Mondai 3 (概要理解) exercise.
-In Mondai 3: a short conversation or monologue is given, then a QUESTION is asked about
-its overall meaning/topic. The answer choices are provided separately below.
+
+STANDARD JLPT MONDAI 3 AUDIO STRUCTURE (always in this exact order):
+  1. CONVERSATION / MONOLOGUE — the spoken content (may have a brief context sentence first)
+  2. QUESTION — asked once at the very end, about the overall meaning/gist
+
+CLEANING RULES — silently REMOVE from the output:
+  • Answer-option lines (e.g. 「1. …」 「２ …」 「A. …」 or any numbered/lettered list of choices)
+  • Explanations, annotations, or commentary ("答え：", "解説：", "ポイント：", etc.)
+  • Answer labels ("ĐÁP ÁN：", "Đáp án：", "正解：" followed by a number/letter)
+  • Any editorial/publisher notes not part of the actual audio
+  • Vietnamese translations already embedded in the input — IGNORE them, translate Japanese yourself from scratch.
 
 TASKS:
 1. {SPEAKER_RULE}
 2. {FURIGANA_RULE}
-3. Parse the conversation/monologue into the "conversation" array (one entry per line/turn).
-4. Identify and extract the QUESTION sentence (the sentence asking about the overall content —
-   usually the last sentence or the one that ends with か). Put it in "question_jp" and
-   translate to "question_vi".
+3. Faithfully reproduce the conversation/monologue in the "conversation" array (one entry per line/turn).
+4. Identify and extract the QUESTION sentence (usually the final sentence ending with か).
+   Put it in "question_jp" and translate to "question_vi".
+   Do NOT include the question sentence inside the "conversation" array.
 5. Translate every conversation line to Vietnamese (text_vi).
 6. Write a DETAILED Vietnamese explanation ("explanation") of why option {correct or '?'} is
-   the correct answer. Summarise the key points from the conversation that support this choice.
-   Explicitly explain why the other options are wrong if possible.
+   the correct answer. Summarise key points from the conversation that support this choice
+   and explain why the other options are wrong.
 
 INPUT TRANSCRIPT:
 {text}
@@ -266,13 +300,22 @@ OUTPUT — strict JSON, no markdown:
 You are a JLPT {level} choukai expert.
 
 The input is a short transcript of a JLPT Mondai {mondai} ({mondai_name}) exercise.
-These are brief situational dialogues where the examinee must choose the most appropriate
-response/expression.
+
+STANDARD STRUCTURE:
+  • Mondai 4 (発話表現): a situation is described by a narrator, then the examinee chooses the right expression.
+  • Mondai 5 (即時応答): a single prompt/question is spoken; the examinee chooses the best reply.
+
+CLEANING RULES — silently REMOVE from the output:
+  • Answer-option lines (e.g. 「1. …」 「２ …」 「A. …」)
+  • Explanations, annotations, or commentary ("答え：", "解説：", etc.)
+  • Answer labels ("ĐÁP ÁN：", "Đáp án：", "正解：" followed by a number/letter)
+  • Vietnamese translations already embedded in the input — IGNORE them, translate Japanese yourself from scratch.
 
 TASKS:
 1. {SPEAKER_RULE}
 2. {FURIGANA_RULE}
-3. Parse each line into the "conversation" array with translation.
+3. Faithfully reproduce every line of the audio in the "conversation" array with translation.
+   Narrator / situation-description lines: speaker=""
 4. Write a DETAILED Vietnamese explanation ("explanation") of why option {correct or '?'} is
    the correct answer. Explain the situation clearly, why this response/expression is most
    appropriate, and why the other options do not fit.
@@ -297,10 +340,16 @@ OUTPUT — strict JSON, no markdown:
                 prompt = f"""\
 You are a JLPT {level} choukai expert.
 
+CLEANING RULES — silently REMOVE from the output:
+  • Answer-option lines (e.g. 「1. …」 「２ …」 「A. …」)
+  • Explanations, annotations, or commentary ("答え：", "解説：", etc.)
+  • Answer labels ("ĐÁP ÁN：", "Đáp án：", "正解：" followed by a number/letter)
+  • Vietnamese translations already embedded in the input — IGNORE them, translate Japanese yourself from scratch.
+
 TASKS:
 1. {SPEAKER_RULE}
 2. {FURIGANA_RULE}
-3. Parse each line into the "conversation" array with translation.
+3. Faithfully reproduce each line of the audio in the "conversation" array with translation.
 4. Write a DETAILED Vietnamese explanation ("explanation") of why the correct answer is
    option {correct or '?'}.
 
