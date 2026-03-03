@@ -1,0 +1,29 @@
+.ugp { padding: 20px; min-height: 100vh; }
+        .ugp-container { max-width: 560px; margin: 0 auto; }
+        .ugp-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px; }
+        .ugp-breadcrumb a { color: var(--text-tertiary); text-decoration: none; }
+        .ugp-breadcrumb a:hover { text-decoration: underline; }
+        .ugp-breadcrumb .current { color: var(--text-primary); }
+        .ugp-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+        .ugp-desc { font-size: 14px; color: var(--text-tertiary); margin: 0 0 16px; }
+        .ugp-filters { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+        .ugp-filter { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .12s; }
+        .ugp-filter.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border-color: transparent; }
+        .ugp-stats { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .ugp-stat { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 8px; background: var(--bg-surface); border: 1px solid var(--border-default); color: var(--text-secondary); }
+        .ugp-stat.ok { color: #10b981; border-color: rgba(16,185,129,.3); }
+        .ugp-stat.bad { color: #ef4444; border-color: rgba(239,68,68,.3); }
+        .ugp-stat.reset { cursor: pointer; color: var(--text-tertiary); transition: all .12s; }
+        .ugp-stat.reset:hover { color: #ef4444; border-color: rgba(239,68,68,.3); }
+        .ugp-empty { text-align: center; padding: 60px 0; color: var(--text-tertiary); font-size: 14px; }
+
+        @media (max-width: 480px) {
+          .ugp { padding: 12px 8px; }
+          .ugp-title { font-size: 1.2rem; }
+          .ugp-desc { font-size: 13px; margin-bottom: 12px; }
+          .ugp-filters { gap: 5px; margin-bottom: 14px; }
+          .ugp-filter { padding: 5px 12px; font-size: 12px; }
+          .ugp-stats { gap: 6px; }
+          .ugp-stat { font-size: 11px; padding: 3px 8px; }
+          .ugp-empty { padding: 40px 0; }
+        }

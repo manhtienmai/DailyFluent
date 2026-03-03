@@ -196,7 +196,7 @@ class WordEntry(models.Model):
     VD: "record" có 2 entries: noun (/ˈrek.ɚd/) + verb (/rɪˈkɔːrd/).
     """
     vocab = models.ForeignKey(Vocabulary, on_delete=models.CASCADE, related_name='entries')
-    part_of_speech = models.CharField(max_length=50, help_text="noun, verb, adj...")
+    part_of_speech = models.CharField(max_length=50, blank=True, default='', help_text="noun, verb, adj...")
     ipa = models.CharField(max_length=100, blank=True, help_text="Phiên âm (VD: /ˈrek.ɚd/)")
     audio_us = models.CharField(max_length=500, blank=True, help_text="Audio URL (US)")
     audio_uk = models.CharField(max_length=500, blank=True, help_text="Audio URL (UK)")
@@ -511,6 +511,7 @@ class FsrsCardStateEn(models.Model):
     # Stats inferred from review history or FSRS object
     total_reviews = models.PositiveIntegerField(default=0)
     successful_reviews = models.PositiveIntegerField(default=0) # Reviews with rate >= Good
+    last_review_log = models.JSONField(default=dict, blank=True, help_text="Last FSRS review log (rating, elapsed_days, scheduled_days, etc.)")
 
     class Meta:
         unique_together = ('user', 'vocab')

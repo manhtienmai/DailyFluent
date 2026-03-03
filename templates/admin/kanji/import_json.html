@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Import Kanji JSON{% endblock %}
+
+{% block content %}
+<h1>Import Kanji từ file JSON</h1>
+
+<div style="max-width:800px;">
+  <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin-bottom:20px;font-size:.9rem;">
+    <strong>Cấu trúc JSON:</strong>
+    <pre style="margin:8px 0 0;font-size:.8rem;background:#fffbeb;padding:10px;border-radius:4px;overflow:auto;">[
+  {
+    "jlpt_level": "N5",
+    "lesson_id": 1,
+    "topic": "Tên bài học",
+    "kanji_list": [
+      {
+        "character": "日",
+        "han_viet": "Nhật",
+        "onyomi": ["ニチ", "ジツ"],
+        "kunyomi": ["ひ", "-か"],
+        "meaning_vi": "Mặt trời, ngày",
+        "examples": [
+          {"word": "日本", "hiragana": "にほん", "meaning": "Nhật Bản"}
+        ]
+      }
+    ]
+  }
+]</pre>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div style="background:{% if 'error' in m.tags %}#fee2e2{% else %}#dcfce7{% endif %};
+                  border:1px solid {% if 'error' in m.tags %}#fca5a5{% else %}#86efac{% endif %};
+                  border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:.9rem;">
+        {{ m }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+      {{ form.as_table }}
+    </table>
+    <div style="margin-top:20px;">
+      <input type="submit" value="Import" class="default" style="margin-right:10px;">
+      <a href="{% url 'admin:kanji_kanjilesson_changelist' %}" class="button cancel-link">Hủy</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

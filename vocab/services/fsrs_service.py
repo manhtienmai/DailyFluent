@@ -13,14 +13,18 @@ This service encapsulates all FSRS-related logic, ensuring:
 """
 
 import json
+import random
 from datetime import timedelta
 from typing import Optional, Dict, Any, List, Tuple
 
 from django.utils import timezone
 from django.db import models, transaction
-from django.db.models import Q, F
+from django.db.models import Q, F, Count, Exists, OuterRef
 
-from vocab.models import Vocabulary, FsrsCardStateEn, WordDefinition
+from vocab.models import (
+    Vocabulary, FsrsCardStateEn, WordDefinition,
+    UserStudySettings, UserSetProgress, SetItem,
+)
 from vocab.fsrs_bridge import (
     review_card,
     preview_intervals,
@@ -68,13 +72,14 @@ class FsrsService:
         return card_state, created
     
     @staticmethod
-    def get_due_cards(user, limit: int = None) -> models.QuerySet:
+    def get_due_cards(user, limit: int = None, language: str = None) -> models.QuerySet:
         """
-        Get cards that are due for review (Learning + Review + Relearning).
+        Get cards that are due for review (New + Learning + Review + Relearning).
         
         Args:
             user: The user
             limit: Maximum number of cards to return
+            language: Optional language filter ('en', 'jp')
             
         Returns:
             QuerySet of FsrsCardStateEn ordered by due date
@@ -82,11 +87,14 @@ class FsrsService:
         limit = limit or FsrsService.DEFAULT_REVIEW_LIMIT
         now = timezone.now()
         
-        return FsrsCardStateEn.objects.filter(
+        qs = FsrsCardStateEn.objects.filter(
             user=user,
             due__lte=now,
-            state__in=[CARD_STATE_LEARNING, CARD_STATE_REVIEW, CARD_STATE_RELEARNING]
-        ).select_related('vocab').order_by('due')[:limit]
+            state__in=[CARD_STATE_NEW, CARD_STATE_LEARNING, CARD_STATE_REVIEW, CARD_STATE_RELEARNING]
+        ).select_related('vocab')
+        if language:
+            qs = qs.filter(vocab__language=language)
+        return qs.order_by('due')[:limit]
     
     @staticmethod
     def get_learning_cards(user) -> models.QuerySet:
@@ -103,6 +111,7 @@ class FsrsService:
     def get_new_vocabs(user, language: str = 'english', limit: int = None) -> models.QuerySet:
         """
         Get vocabulary items that the user has never studied (no FsrsCardStateEn).
+        Prioritizes words from user's in-progress sets before falling back to random.
         
         Args:
             user: The user
@@ -114,50 +123,72 @@ class FsrsService:
         """
         limit = limit or FsrsService.DEFAULT_NEW_LIMIT
         
-        # Get vocab IDs that already have a card state for this user
-        existing_vocab_ids = FsrsCardStateEn.objects.filter(
-            user=user
-        ).values_list('vocab_id', flat=True)
+        # Check daily limit
+        settings, _ = UserStudySettings.objects.get_or_create(user=user)
+        settings.reset_daily_counts_if_needed()
+        remaining_new = max(0, settings.new_cards_per_day - settings.new_cards_today)
+        limit = min(limit, remaining_new)
+        if limit <= 0:
+            return Vocabulary.objects.none()
         
-        return Vocabulary.objects.filter(
-            language=language
-        ).exclude(
-            id__in=existing_vocab_ids
-        ).select_related().order_by('?')[:limit]
+        # Base filter: vocabs user has NOT studied yet
+        unstudied = Vocabulary.objects.annotate(
+            has_card=Exists(
+                FsrsCardStateEn.objects.filter(user=user, vocab=OuterRef('pk'))
+            )
+        ).filter(has_card=False, language=language)
+        
+        # Priority: words from user's in-progress sets
+        in_progress_set_ids = UserSetProgress.objects.filter(
+            user=user, status='in_progress'
+        ).values_list('vocabulary_set_id', flat=True)
+        
+        if not in_progress_set_ids:
+            return Vocabulary.objects.none()
+        
+        priority_vocab_ids = SetItem.objects.filter(
+            vocabulary_set_id__in=in_progress_set_ids
+        ).values_list('definition__entry__vocab_id', flat=True).distinct()
+        
+        priority_ids = list(
+            unstudied.filter(id__in=priority_vocab_ids)
+            .values_list('id', flat=True)[:limit]
+        )
+        if not priority_ids:
+            return Vocabulary.objects.none()
+        return Vocabulary.objects.filter(id__in=priority_ids)
     
     @staticmethod
     def get_session_stats(user) -> Dict[str, int]:
         """
         Get counts for learning, review, and new cards.
+        Uses a single aggregate query for efficiency.
         
         Returns:
             Dict with 'learning_count', 'review_count', 'new_count'
         """
         now = timezone.now()
         
-        learning_count = FsrsCardStateEn.objects.filter(
-            user=user,
-            state__in=[CARD_STATE_LEARNING, CARD_STATE_RELEARNING],
-            due__lte=now
-        ).count()
+        # Single aggregate query for learning + review counts
+        stats = FsrsCardStateEn.objects.filter(
+            user=user, due__lte=now
+        ).aggregate(
+            learning_count=Count('id', filter=Q(
+                state__in=[CARD_STATE_LEARNING, CARD_STATE_RELEARNING]
+            )),
+            review_count=Count('id', filter=Q(state=CARD_STATE_REVIEW)),
+        )
         
-        review_count = FsrsCardStateEn.objects.filter(
-            user=user,
-            state=CARD_STATE_REVIEW,
-            due__lte=now
-        ).count()
-        
-        # New cards = vocab without any card state
-        # This is expensive, so we cap it
-        new_count = Vocabulary.objects.filter(
-            language='english'
-        ).exclude(
-            id__in=FsrsCardStateEn.objects.filter(user=user).values_list('vocab_id', flat=True)
-        ).count()
+        # New cards count — use Exists subquery
+        new_count = Vocabulary.objects.annotate(
+            has_card=Exists(
+                FsrsCardStateEn.objects.filter(user=user, vocab=OuterRef('pk'))
+            )
+        ).filter(has_card=False, language='english').count()
         
         return {
-            'learning_count': learning_count,
-            'review_count': review_count,
+            'learning_count': stats['learning_count'],
+            'review_count': stats['review_count'],
             'new_count': min(new_count, 999),  # Cap display
         }
     
@@ -206,6 +237,8 @@ class FsrsService:
                 except FsrsCardStateEn.DoesNotExist:
                     return {'success': False, 'error': 'Card state not found'}
 
+            was_new = card_state.state == CARD_STATE_NEW
+
             # Perform FSRS review (returns dict now, not string)
             new_card_data, review_log_data, due_dt = review_card(
                 card_state.card_data,
@@ -217,6 +250,7 @@ class FsrsService:
             card_state.due = due_dt
             card_state.state = new_card_data.get('state', 0)
             card_state.last_review = timezone.now()
+            card_state.last_review_log = review_log_data  # Issue #6: save review log
 
             # Atomic counter increments via F() to prevent race conditions
             card_state.total_reviews = F('total_reviews') + 1
@@ -226,6 +260,31 @@ class FsrsService:
 
             # Refresh to get actual counter values after F() expression
             card_state.refresh_from_db()
+
+            # Issue #1: Increment daily counters
+            settings, _ = UserStudySettings.objects.get_or_create(user=user)
+            settings.reset_daily_counts_if_needed()
+            if was_new:
+                settings.new_cards_today = F('new_cards_today') + 1
+            settings.reviews_today = F('reviews_today') + 1
+            settings.last_study_date = timezone.localdate()
+            settings.save(update_fields=['new_cards_today', 'reviews_today', 'last_study_date'])
+
+            # Issue #5: Update UserSetProgress if vocab belongs to any user's in-progress sets
+            if was_new or rating in ('good', 'easy'):
+                user_set_ids = UserSetProgress.objects.filter(
+                    user=user, status='in_progress'
+                ).values_list('vocabulary_set_id', flat=True)
+                if user_set_ids:
+                    matching_sets = SetItem.objects.filter(
+                        vocabulary_set_id__in=user_set_ids,
+                        definition__entry__vocab=vocab
+                    ).values_list('vocabulary_set_id', flat=True).distinct()
+                    if matching_sets:
+                        UserSetProgress.objects.filter(
+                            user=user,
+                            vocabulary_set_id__in=matching_sets
+                        ).update(words_learned=F('words_learned') + 1)
 
         # Calculate requeue info (outside transaction — read-only)
         requeue = should_requeue_in_session(new_card_data, due_dt)
@@ -272,6 +331,7 @@ class FsrsService:
         if card_state and card_state.card_data:
             intervals = preview_intervals(card_state.card_data)
         
+        extra = vocab.extra_data or {}
         return {
             # IDs
             'id': vocab.id,
@@ -282,19 +342,28 @@ class FsrsService:
             'card_state': card_state_value,
             'intervals': intervals,
             
-            # Content (consistent keys for JS)
+            # Content — Issue #3: include aliases matching frontend expectations
+            'word': vocab.word,
             'en_word': vocab.word,
-            'term': vocab.word,  # Alias for compatibility
+            'term': vocab.word,
+            
+            'reading': extra.get('reading', '') or (entry.ipa if entry else ''),
             'phonetic': entry.ipa if entry else '',
-            'ipa': entry.ipa if entry else '',  # Alias
+            'ipa': entry.ipa if entry else '',
             'pos': entry.part_of_speech if entry else '',
             
+            'meaning': definition.meaning if definition else '',
             'vi_meaning': definition.meaning if definition else '',
-            'definition': definition.meaning if definition else '',  # Alias
-            'en_definition': '',  # Could add English definition if available
+            'definition': definition.meaning if definition else '',
+            'en_definition': '',
             
+            'sino_vi': extra.get('han_viet', ''),
+            'language': vocab.language,
+            
+            'example_text': definition.example_sentence if definition else '',
             'example_en': definition.example_sentence if definition else '',
-            'example': definition.example_sentence if definition else '',  # Alias
+            'example': definition.example_sentence if definition else '',
+            'example_translation': definition.example_trans if definition else '',
             'example_vi': definition.example_trans if definition else '',
             
             # Audio
@@ -318,12 +387,30 @@ class FsrsService:
         """
         cards = []
         
-        # 1. Get due cards (Learning + Review + Relearning)
-        due_cards = FsrsService.get_due_cards(user, limit=review_limit)
+        # 1. Get due cards — prefetch entries+definitions to avoid N+1
+        due_cards = FsrsService.get_due_cards(user, limit=review_limit, language=language)
+        # Prefetch vocab entries and definitions in batch
+        vocab_ids = [cs.vocab_id for cs in due_cards]
+        from vocab.models import WordEntry
+        entries_map = {}  # vocab_id -> (entry, definition)
+        if vocab_ids:
+            for entry in WordEntry.objects.filter(
+                vocab_id__in=vocab_ids
+            ).select_related('vocab').prefetch_related('definitions'):
+                if entry.vocab_id not in entries_map:
+                    defn = entry.definitions.all()[:1]
+                    entries_map[entry.vocab_id] = (entry, defn[0] if defn else None)
+        
         for card_state in due_cards:
             vocab = card_state.vocab
+            entry_data = entries_map.get(vocab.id)
+            if entry_data:
+                entry, definition = entry_data
+            else:
+                entry, definition = None, None
             cards.append(FsrsService.format_card_for_ui(
                 vocab=vocab,
+                definition=definition,
                 card_state=card_state
             ))
         

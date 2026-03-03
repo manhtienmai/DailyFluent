@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -124,7 +126,7 @@ class Payment(models.Model):
             defaults={
                 'plan': self.plan,
                 'start_date': timezone.now().date(),
-                'end_date': timezone.now().date() + timezone.timedelta(days=self.plan.duration_days),
+                'end_date': timezone.now().date() + timedelta(days=self.plan.duration_days),
                 'is_active': True,
             }
         )
@@ -133,11 +135,11 @@ class Payment(models.Model):
             # Nếu đã có subscription, gia hạn thêm
             if subscription.is_active:
                 # Gia hạn từ ngày kết thúc hiện tại
-                subscription.end_date += timezone.timedelta(days=self.plan.duration_days)
+                subscription.end_date += timedelta(days=self.plan.duration_days)
             else:
                 # Bắt đầu lại từ hôm nay
                 subscription.start_date = timezone.now().date()
-                subscription.end_date = timezone.now().date() + timezone.timedelta(days=self.plan.duration_days)
+                subscription.end_date = timezone.now().date() + timedelta(days=self.plan.duration_days)
                 subscription.is_active = True
             subscription.plan = self.plan
             subscription.save()

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.db.models import Count
-from django.db.models.functions import TruncDate
+from django.db.models import Count, Max, Min
+from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from django.utils.html import format_html
 from django.urls import path
@@ -160,31 +160,79 @@ class AnalyticsDashboard:
         )
         
         # ========================================
+        # Hourly Views Today
+        # ========================================
+        hourly_data = (
+            PageView.objects
+            .filter(timestamp__date=today)
+            .annotate(hour=TruncHour('timestamp'))
+            .values('hour')
+            .annotate(views=Count('id'), visitors=Count('ip_address', distinct=True))
+            .order_by('hour')
+        )
+
+        hourly_labels = []
+        hourly_views_data = []
+        hourly_visitors_data = []
+        for item in hourly_data:
+            local_hour = timezone.localtime(item['hour'])
+            hourly_labels.append(local_hour.strftime('%H:00'))
+            hourly_views_data.append(item['views'])
+            hourly_visitors_data.append(item['visitors'])
+
+        # Peak hour today
+        peak_hour = None
+        if hourly_data:
+            peak = max(hourly_data, key=lambda x: x['views'])
+            local_peak = timezone.localtime(peak['hour'])
+            peak_hour = local_peak.strftime('%H:00')
+
+        # Active now (views in last 30 minutes)
+        active_now = PageView.objects.filter(
+            timestamp__gte=timezone.now() - timedelta(minutes=30)
+        ).values('ip_address').distinct().count()
+
+        # ========================================
         # Browser / Device / OS Stats
         # ========================================
-        browser_stats = (
+        browser_qs = list(
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
             .values('browser')
             .annotate(count=Count('id'))
-            .order_by('-count')[:5]
+            .order_by('-count')[:6]
         )
-        
-        device_stats = (
+        total_browser = sum(s['count'] for s in browser_qs) or 1
+        browser_stats = [
+            {**s, 'pct': round(s['count'] / total_browser * 100)}
+            for s in browser_qs
+        ]
+
+        device_qs = list(
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
             .values('device')
             .annotate(count=Count('id'))
             .order_by('-count')
         )
-        
-        os_stats = (
+        total_device = sum(s['count'] for s in device_qs) or 1
+        device_stats = [
+            {**s, 'pct': round(s['count'] / total_device * 100)}
+            for s in device_qs
+        ]
+
+        os_qs = list(
             PageView.objects
             .filter(timestamp__date__gte=last_7_days)
             .values('os')
             .annotate(count=Count('id'))
-            .order_by('-count')[:5]
+            .order_by('-count')[:6]
         )
+        total_os = sum(s['count'] for s in os_qs) or 1
+        os_stats = [
+            {**s, 'pct': round(s['count'] / total_os * 100)}
+            for s in os_qs
+        ]
         
         # ========================================
         # Additional Stats (from other models)
@@ -233,6 +281,12 @@ class AnalyticsDashboard:
             'total_views_week': total_views_week,
             'chart_labels': chart_labels,
             'chart_data': chart_data,
+            # Hourly data
+            'hourly_labels': hourly_labels,
+            'hourly_views_data': hourly_views_data,
+            'hourly_visitors_data': hourly_visitors_data,
+            'peak_hour': peak_hour,
+            'active_now': active_now,
             # User stats
             'total_users': total_users,
             'users_today': users_today,

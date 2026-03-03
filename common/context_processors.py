@@ -83,7 +83,7 @@ def navigation_items(request):
         },
         {
             'name': 'Từ vựng',
-            'url_name': 'vocab:list',
+            'url_name': 'vocab:set_list',
             'icon': None,
         },
         {

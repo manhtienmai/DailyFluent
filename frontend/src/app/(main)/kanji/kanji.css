@@ -1,0 +1,313 @@
+/* ── Kanji Levels Page ── Premium Redesign ── */
+
+/* ── Stagger animation ── */
+@keyframes kj-card-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes kj-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kj-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.kj-page {
+  min-height: 100vh;
+  background: var(--bg-primary, #ffffff);
+  padding: 0 0 60px;
+}
+
+/* ── Page Title ── */
+.kj-title {
+  text-align: center;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-primary, #1a1a1a);
+  padding: 28px 0 8px;
+  margin: 0;
+  letter-spacing: 0.02em;
+  animation: kj-fade-in 0.4s ease;
+}
+
+/* ── Level Tabs ── */
+.kj-tabs {
+  display: flex;
+  gap: 0;
+  justify-content: center;
+  padding: 0 24px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.kj-tabs::-webkit-scrollbar { display: none; }
+
+.kj-tab {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-tertiary, #9ca3af);
+  background: transparent;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.25s, border-color 0.25s, transform 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.kj-tab:hover {
+  color: var(--text-secondary, #6b7280);
+  transform: translateY(-1px);
+}
+.kj-tab:active {
+  transform: translateY(0);
+}
+
+.kj-tab--active {
+  color: var(--text-primary, #1a1a1a);
+  border-bottom-color: #6366f1;
+}
+
+.kj-tab-count {
+  font-weight: 500;
+  opacity: 0.4;
+  margin-left: 5px;
+  font-size: 0.72rem;
+}
+
+/* ── Lesson Section ── */
+.kj-lessons {
+  padding: 0 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: kj-fade-in 0.3s ease;
+}
+
+.kj-lesson {
+  padding: 20px 0 18px;
+  border-bottom: 1px solid var(--border-subtle, #f0f0f0);
+}
+.kj-lesson:last-child { border-bottom: none; }
+
+/* ── Lesson Header ── */
+.kj-lesson-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kj-lesson-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0 0 2px;
+}
+
+.kj-lesson-topic {
+  font-size: 0.78rem;
+  color: var(--text-tertiary, #9ca3af);
+  margin: 0 0 12px;
+  font-weight: 400;
+}
+
+/* Quiz Link — gradient pill with shimmer */
+.kj-quiz-link {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.25s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+.kj-quiz-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: kj-shimmer 2.5s linear infinite;
+  pointer-events: none;
+}
+.kj-quiz-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+.kj-quiz-link:active { transform: translateY(0); }
+
+/* ── Kanji Grid ── */
+.kj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+
+/* ── Kanji Card — Premium hover ── */
+.kj-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 84px;
+  border-radius: 14px;
+  background: var(--bg-primary, #ffffff);
+  border: 1.5px solid var(--border-default, #e5e7eb);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  opacity: 0;
+  animation: kj-card-in 0.35s ease forwards;
+}
+
+/* Stagger: CSS custom property set inline */
+.kj-card:nth-child(1)  { animation-delay: 0ms; }
+.kj-card:nth-child(2)  { animation-delay: 20ms; }
+.kj-card:nth-child(3)  { animation-delay: 40ms; }
+.kj-card:nth-child(4)  { animation-delay: 60ms; }
+.kj-card:nth-child(5)  { animation-delay: 80ms; }
+.kj-card:nth-child(6)  { animation-delay: 100ms; }
+.kj-card:nth-child(7)  { animation-delay: 120ms; }
+.kj-card:nth-child(8)  { animation-delay: 140ms; }
+.kj-card:nth-child(9)  { animation-delay: 160ms; }
+.kj-card:nth-child(10) { animation-delay: 180ms; }
+.kj-card:nth-child(n+11) { animation-delay: 200ms; }
+
+.kj-card:hover {
+  border-color: #a5b4fc;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.12), 0 2px 6px rgba(0,0,0,0.04);
+  transform: translateY(-3px) scale(1.04);
+  z-index: 2;
+}
+.kj-card:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* Focus visible for accessibility */
+.kj-card:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.kj-card--learned { border-color: #10b981; }
+.kj-card--learned:hover { border-color: #34d399; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15); }
+.kj-card--in-progress { border-color: #f59e0b; }
+.kj-card--in-progress:hover { border-color: #fbbf24; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.15); }
+
+/* ── Progress Bar inside Card ── */
+.kj-progress-bar {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 55%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle, #e5e7eb);
+  overflow: hidden;
+}
+
+.kj-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #f59e0b, #fb923c);
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kj-progress-fill--mastered {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* ── Kanji Character ── */
+.kj-char {
+  font-family: var(--font-jp-user, 'Noto Sans JP'), 'Hiragino Kaku Gothic Pro', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: var(--text-primary, #1a1a1a);
+  transition: color 0.2s;
+}
+.kj-card:hover .kj-char { color: #6366f1; }
+
+/* ── Hán Việt label ── */
+.kj-sino {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-tertiary, #9ca3af);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  text-align: center;
+  transition: color 0.2s;
+}
+.kj-card:hover .kj-sino { color: var(--text-secondary, #6b7280); }
+
+
+/* ── Dark Mode ── */
+:root[data-theme="dark"] .kj-card { border-color: var(--border-default, #374151); }
+:root[data-theme="dark"] .kj-card:hover { border-color: #818cf8; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15); }
+:root[data-theme="dark"] .kj-card:active { box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+:root[data-theme="dark"] .kj-card:hover .kj-char { color: #a5b4fc; }
+:root[data-theme="dark"] .kj-card--in-progress { border-color: #d97706; }
+:root[data-theme="dark"] .kj-card--learned { border-color: #059669; }
+:root[data-theme="dark"] .kj-progress-bar { background: rgba(255,255,255,0.1); }
+:root[data-theme="dark"] .kj-tab--active { border-bottom-color: #818cf8; }
+:root[data-theme="dark"] .kj-quiz-link { box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); }
+
+/* ── Empty / Loading States ── */
+.kj-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+.kj-empty {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--text-tertiary, #9ca3af);
+  font-size: 0.9rem;
+}
+
+.kj-empty-lesson {
+  font-size: 0.82rem;
+  color: var(--text-quaternary, #94a3b8);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .kj-lessons { padding: 0 16px; }
+  .kj-tabs { padding: 0 16px; justify-content: flex-start; }
+  .kj-tab { padding: 10px 14px; font-size: 0.8rem; }
+  .kj-grid { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+  .kj-card { height: 78px; border-radius: 12px; }
+  .kj-char { font-size: 1.35rem; margin-bottom: 3px; }
+  .kj-sino { font-size: 0.58rem; }
+  .kj-title { font-size: 1.25rem; padding: 18px 0 6px; }
+  .kj-lesson-title { font-size: 1rem; }
+  .kj-lesson { padding: 16px 0 14px; }
+}

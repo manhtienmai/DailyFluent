@@ -1,0 +1,100 @@
+@keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .ebook-card {
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 20px;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .ebook-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25),
+            0 0 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .ebook-card-cover {
+          height: 220px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .ebook-card-cover::after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.4),
+            transparent
+          );
+        }
+
+        .ebook-card-body {
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+        }
+
+        .ebook-card-title {
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.35rem;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .ebook-card-author {
+          font-size: 0.82rem;
+          color: var(--text-tertiary);
+          margin-bottom: 0.5rem;
+        }
+
+        .ebook-card-desc {
+          font-size: 0.82rem;
+          color: var(--text-secondary);
+          line-height: 1.5;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin-bottom: 1rem;
+          flex: 1;
+        }
+
+        .ebook-card-btn {
+          display: block;
+          text-align: center;
+          padding: 0.7rem 1rem;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          color: white;
+          font-weight: 700;
+          font-size: 0.9rem;
+          text-decoration: none;
+          transition: all 0.25s ease;
+          margin-top: auto;
+        }
+
+        .ebook-card-btn:hover {
+          background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+          box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+          transform: translateY(-2px);
+        }

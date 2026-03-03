@@ -49,7 +49,9 @@
       "Bash(curl:*)",
       "Bash(pip freeze:*)",
       "Bash(ls -la \"E:\\\\DailyFluent\\\\grammar\"\" 2>&1 || echo \"Directory may not exist \")",
-      "Bash(ls -la \"E:\\\\DailyFluent\\\\templates\\\\exam\\\\dokkai\"\" 2>&1 || echo \"DIRECTORY_NOT_FOUND \")"
+      "Bash(ls -la \"E:\\\\DailyFluent\\\\templates\\\\exam\\\\dokkai\"\" 2>&1 || echo \"DIRECTORY_NOT_FOUND \")",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:kanjivg.tagaini.net)"
     ]
   }
 }

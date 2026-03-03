@@ -1,0 +1,3 @@
+.fc-page { min-height: 100vh; padding: 24px; background: var(--bg-surface); }
+        .fc-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 20px; box-shadow: 0 4px 24px -4px rgba(99,102,241,.1); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }

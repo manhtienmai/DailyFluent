@@ -286,3 +286,33 @@ class GrammarQuestionAnswer(models.Model):
 
     def __str__(self):
         return f"{'✓' if self.is_correct else '✗'} – Q#{self.question_id}"
+
+
+class FsrsCardStateGrammar(models.Model):
+    """
+    FSRS card state for grammar flashcards.
+    Same pattern as FsrsCardStateEn but linked to GrammarPoint.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fsrs_states_grammar')
+    grammar_point = models.ForeignKey(GrammarPoint, on_delete=models.CASCADE, related_name='fsrs_states')
+
+    # FSRS core data (JSON dump of FSRS Card object)
+    card_data = models.JSONField(default=dict)
+
+    # Denormalized fields for faster querying
+    state = models.IntegerField(default=0, db_index=True, help_text="0=New, 1=Learning, 2=Review, 3=Relearning")
+    due = models.DateTimeField(null=True, blank=True, db_index=True)
+    last_review = models.DateTimeField(null=True, blank=True)
+
+    # Stats
+    total_reviews = models.PositiveIntegerField(default=0)
+    successful_reviews = models.PositiveIntegerField(default=0)
+    last_review_log = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'grammar_point')
+        verbose_name = "FSRS Card State (Grammar)"
+        verbose_name_plural = "FSRS Card States (Grammar)"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.grammar_point.title} (State: {self.state})"

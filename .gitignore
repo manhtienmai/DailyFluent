@@ -17,3 +17,5 @@ media/
 
 # Documentation
 docs/
+.claude/
+node_modules

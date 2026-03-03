@@ -1,0 +1,128 @@
+[
+  {
+    "id": "vocab_1",
+    "original_number": 1,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "男性", "reading": "だんせい"},
+    "meanings": {"han_viet": "NAM TÍNH", "vietnamese": "đàn ông, nam giới"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_2",
+    "original_number": 2,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "女性", "reading": "じょせい"},
+    "meanings": {"han_viet": "NỮ TÍNH", "vietnamese": "phụ nữ, nữ giới"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_3",
+    "original_number": 3,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "高齢", "reading": "こうれい"},
+    "meanings": {"han_viet": "CAO LINH", "vietnamese": "cao tuổi"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_4",
+    "original_number": 4,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "年上", "reading": "としうえ"},
+    "meanings": {"han_viet": "NIÊN THƯỢNG", "vietnamese": "Lớn (tuổi) hơn"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_5",
+    "original_number": 5,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "目上", "reading": "めうえ"},
+    "meanings": {"han_viet": "MỤC THƯỢNG", "vietnamese": "bề trên, người trên mình"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_6",
+    "original_number": 6,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "先輩", "reading": "せんぱい"},
+    "meanings": {"han_viet": "TIÊN BỐI", "vietnamese": "tiền bối, đàn anh"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_7",
+    "original_number": 7,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "後輩", "reading": "こうはい"},
+    "meanings": {"han_viet": "HẬU BỐI", "vietnamese": "hậu bối, đàn em"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_8",
+    "original_number": 8,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "上司", "reading": "じょうし"},
+    "meanings": {"han_viet": "THƯỢNG TI", "vietnamese": "cấp trên"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_9",
+    "original_number": 9,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "相手", "reading": "あいて"},
+    "meanings": {"han_viet": "TƯƠNG THỦ", "vietnamese": "Đối phương, đối tác, đối thủ"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_10",
+    "original_number": 10,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "知り合い", "reading": "しりあい"},
+    "meanings": {"han_viet": "TRI HỢP", "vietnamese": "người quen"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_11",
+    "original_number": 11,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "友人", "reading": "ゆうじん"},
+    "meanings": {"han_viet": "HỮU NHÂN", "vietnamese": "bạn bè, bạn thân"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_12",
+    "original_number": 12,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "仲", "reading": "なか"},
+    "meanings": {"han_viet": "TRỌNG", "vietnamese": "quan hệ"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_13",
+    "original_number": 13,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "生年月日", "reading": "せいねんがっぴ"},
+    "meanings": {"han_viet": "SANH NIÊN NGUYỆT NHẬT", "vietnamese": "ngày tháng năm sinh"},
+    "part_of_speech": "noun",
+    "examples": []
+  },
+  {
+    "id": "vocab_14",
+    "original_number": 14,
+    "metadata": {"lesson": "Từ vựng N2 - Chủ đề Quan hệ con người"},
+    "word_info": {"kanji": "誕生", "reading": "たんじょう"},
+    "meanings": {"han_viet": "ĐẢN SANH", "vietnamese": "ra đời, bắt nguồn"},
+    "part_of_speech": "noun",
+    "examples": []
+  }
+]

@@ -1,0 +1,477 @@
+{
+  "exam_slug": "e-so-1-tieng-anh-vao-lop-10",
+  "items": [
+    {
+      "type": "vocab_flashcard",
+      "source_q": 10,
+      "front": "opportunity",
+      "front_ipa": "/ˌɑː.pɚˈtuː.nə.t̬i/",
+      "back": "cơ hội (n)",
+      "example": "It will be a good opportunity for you to improve your English.",
+      "example_vi": "Đó sẽ là cơ hội tốt để bạn cải thiện tiếng Anh."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 11,
+      "front": "traffic",
+      "front_ipa": "/ˈtræf.ɪk/",
+      "back": "giao thông (n)",
+      "example": "Traffic in big cities is controlled by red, yellow, and green lights.",
+      "example_vi": "Giao thông ở các thành phố lớn được điều khiển bởi đèn đỏ, vàng, xanh."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 13,
+      "front": "eco-friendly",
+      "front_ipa": "/ˌiː.koʊˈfrend.li/",
+      "back": "thân thiện với môi trường (adj)",
+      "example": "Join our eco-friendly tour to explore the Mekong Delta.",
+      "example_vi": "Hãy tham gia tour du lịch thân thiện môi trường để khám phá Đồng bằng sông Cửu Long."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 14,
+      "front": "observe",
+      "front_ipa": "/əbˈzɝːv/",
+      "back": "quan sát (v)",
+      "example": "Observe the daily life of the people on the river.",
+      "example_vi": "Quan sát cuộc sống hàng ngày của người dân trên sông."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 19,
+      "front": "clean",
+      "front_ipa": "/kliːn/",
+      "back": "sạch sẽ (adj)",
+      "example": "Singapore is a very clean city.",
+      "example_vi": "Singapore là một thành phố rất sạch sẽ."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 20,
+      "front": "high-rise",
+      "front_ipa": "/ˈhaɪ.raɪz/",
+      "back": "cao tầng (adj)",
+      "example": "Most of the people live in high-rise flats.",
+      "example_vi": "Hầu hết mọi người sống trong các chung cư cao tầng."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 24,
+      "front": "reasonable",
+      "front_ipa": "/ˈriː.zən.ə.bəl/",
+      "back": "hợp lý, phải chăng (adj)",
+      "example": "The prices are quite reasonable.",
+      "example_vi": "Giá cả khá hợp lý."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 36,
+      "front": "reduce",
+      "front_ipa": "/rɪˈduːs/",
+      "back": "giảm (v) ≠ increase",
+      "example": "Recycling helps to reduce waste and save resources.",
+      "example_vi": "Tái chế giúp giảm rác thải và tiết kiệm tài nguyên."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 33,
+      "front": "stable",
+      "front_ipa": "/ˈsteɪ.bəl/",
+      "back": "ổn định (adj) ≈ sustainable",
+      "example": "Trees help to keep the climate stable.",
+      "example_vi": "Cây xanh giúp giữ khí hậu ổn định."
+    },
+    {
+      "type": "vocab_flashcard",
+      "source_q": 15,
+      "front": "weaving",
+      "front_ipa": "/ˈwiː.vɪŋ/",
+      "back": "dệt (n/adj)",
+      "example": "Learn about local people's weaving skills.",
+      "example_vi": "Tìm hiểu về kỹ năng dệt của người dân địa phương."
+    },
+
+    {
+      "type": "pronunciation_ipa",
+      "source_q": 1,
+      "instruction": "Chọn từ có phần gạch chân phát âm KHÁC với 3 từ còn lại.",
+      "words": [
+        {"word": "home", "ipa": "/hoʊm/", "underline": "o", "sound": "/oʊ/"},
+        {"word": "hot", "ipa": "/hɑːt/", "underline": "o", "sound": "/ɑː/"},
+        {"word": "cost", "ipa": "/kɑːst/", "underline": "o", "sound": "/ɑː/"},
+        {"word": "job", "ipa": "/dʒɑːb/", "underline": "o", "sound": "/ɑː/"}
+      ],
+      "correct_answer": "A",
+      "rule": "Nguyên âm 'o'",
+      "explanation": "'home' — 'o' phát âm /oʊ/ (cấu trúc o + phụ âm + e câm). 'hot', 'cost', 'job' đều phát âm /ɑː/."
+    },
+    {
+      "type": "pronunciation_ipa",
+      "source_q": 1,
+      "instruction": "Chọn từ có phần gạch chân phát âm KHÁC với 3 từ còn lại.",
+      "words": [
+        {"word": "nose", "ipa": "/noʊz/", "underline": "o", "sound": "/oʊ/"},
+        {"word": "close", "ipa": "/kloʊz/", "underline": "o", "sound": "/oʊ/"},
+        {"word": "gone", "ipa": "/ɡɑːn/", "underline": "o", "sound": "/ɑː/"},
+        {"word": "hope", "ipa": "/hoʊp/", "underline": "o", "sound": "/oʊ/"}
+      ],
+      "correct_answer": "C",
+      "rule": "Nguyên âm 'o'",
+      "explanation": "'gone' — 'o' phát âm /ɑː/ (ngoại lệ, không theo quy tắc o+e câm). 'nose', 'close', 'hope' đều là /oʊ/."
+    },
+    {
+      "type": "pronunciation_ipa",
+      "source_q": 2,
+      "instruction": "Chọn từ có phần gạch chân phát âm KHÁC với 3 từ còn lại.",
+      "words": [
+        {"word": "school", "ipa": "/skuːl/", "underline": "ch", "sound": "/k/"},
+        {"word": "chicken", "ipa": "/ˈtʃɪk.ɪn/", "underline": "ch", "sound": "/tʃ/"},
+        {"word": "church", "ipa": "/tʃɝːtʃ/", "underline": "ch", "sound": "/tʃ/"},
+        {"word": "cheese", "ipa": "/tʃiːz/", "underline": "ch", "sound": "/tʃ/"}
+      ],
+      "correct_answer": "A",
+      "rule": "Phụ âm 'ch'",
+      "explanation": "'school' — 'ch' phát âm /k/ (từ gốc Hy Lạp). 'chicken', 'church', 'cheese' đều phát âm /tʃ/ (từ Anglo-Saxon)."
+    },
+    {
+      "type": "pronunciation_ipa",
+      "source_q": 2,
+      "instruction": "Chọn từ có phần gạch chân phát âm KHÁC với 3 từ còn lại.",
+      "words": [
+        {"word": "stomach", "ipa": "/ˈstʌm.ək/", "underline": "ch", "sound": "/k/"},
+        {"word": "character", "ipa": "/ˈker.ək.tɚ/", "underline": "ch", "sound": "/k/"},
+        {"word": "choice", "ipa": "/tʃɔɪs/", "underline": "ch", "sound": "/tʃ/"},
+        {"word": "Christmas", "ipa": "/ˈkrɪs.məs/", "underline": "ch", "sound": "/k/"}
+      ],
+      "correct_answer": "C",
+      "rule": "Phụ âm 'ch'",
+      "explanation": "'choice' — 'ch' phát âm /tʃ/. 'stomach', 'character', 'Christmas' đều có 'ch' phát âm /k/ (gốc Hy Lạp/Latin)."
+    },
+
+    {
+      "type": "stress_drill",
+      "source_q": 3,
+      "instruction": "Chọn từ có trọng âm khác với 3 từ còn lại.",
+      "words": [
+        {"word": "believe", "ipa": "/bɪˈliːv/", "stress_pos": 2},
+        {"word": "receive", "ipa": "/rɪˈsiːv/", "stress_pos": 2},
+        {"word": "market", "ipa": "/ˈmɑːr.kɪt/", "stress_pos": 1},
+        {"word": "begin", "ipa": "/bɪˈɡɪn/", "stress_pos": 2}
+      ],
+      "correct_answer": "C",
+      "rule": "Danh từ vs Động từ 2 âm tiết",
+      "explanation": "'market' là DANH TỪ → nhấn âm 1 /ˈmɑːr.kɪt/. 'believe', 'receive', 'begin' là ĐỘNG TỪ → nhấn âm 2."
+    },
+    {
+      "type": "stress_drill",
+      "source_q": 3,
+      "instruction": "Chọn từ có trọng âm khác với 3 từ còn lại.",
+      "words": [
+        {"word": "forget", "ipa": "/fɚˈɡet/", "stress_pos": 2},
+        {"word": "allow", "ipa": "/əˈlaʊ/", "stress_pos": 2},
+        {"word": "flower", "ipa": "/ˈflaʊ.ɚ/", "stress_pos": 1},
+        {"word": "decide", "ipa": "/dɪˈsaɪd/", "stress_pos": 2}
+      ],
+      "correct_answer": "C",
+      "rule": "Danh từ vs Động từ 2 âm tiết",
+      "explanation": "'flower' là DANH TỪ → nhấn âm 1. 'forget', 'allow', 'decide' là ĐỘNG TỪ → nhấn âm 2."
+    },
+    {
+      "type": "stress_drill",
+      "source_q": 4,
+      "instruction": "Chọn từ có trọng âm khác với 3 từ còn lại.",
+      "words": [
+        {"word": "education", "ipa": "/ˌedʒ.əˈkeɪ.ʃən/", "stress_pos": 3},
+        {"word": "information", "ipa": "/ˌɪn.fɚˈmeɪ.ʃən/", "stress_pos": 3},
+        {"word": "beautiful", "ipa": "/ˈbjuː.t̬ɪ.fəl/", "stress_pos": 1},
+        {"word": "population", "ipa": "/ˌpɑː.pjəˈleɪ.ʃən/", "stress_pos": 3}
+      ],
+      "correct_answer": "C",
+      "rule": "Quy tắc đuôi -tion",
+      "explanation": "Từ đuôi -tion → trọng âm rơi vào âm tiết NGAY TRƯỚC -tion: edu'cation, infor'mation, popu'lation. 'beautiful' không có đuôi -tion, nhấn âm 1."
+    },
+    {
+      "type": "stress_drill",
+      "source_q": 4,
+      "instruction": "Chọn từ có trọng âm khác với 3 từ còn lại.",
+      "words": [
+        {"word": "electric", "ipa": "/ɪˈlek.trɪk/", "stress_pos": 2},
+        {"word": "fantastic", "ipa": "/fænˈtæs.tɪk/", "stress_pos": 2},
+        {"word": "politics", "ipa": "/ˈpɑː.lə.tɪks/", "stress_pos": 1},
+        {"word": "romantic", "ipa": "/roʊˈmæn.tɪk/", "stress_pos": 2}
+      ],
+      "correct_answer": "C",
+      "rule": "Quy tắc đuôi -ic",
+      "explanation": "Từ đuôi -ic → trọng âm rơi vào âm tiết NGAY TRƯỚC -ic: e'lectric, fan'tastic, ro'mantic. 'politics' là ngoại lệ, nhấn âm 1."
+    },
+
+    {
+      "type": "grammar_drill",
+      "source_q": 5,
+      "rule": "Thì quá khứ đơn (dấu hiệu: last, yesterday, ago)",
+      "question": "She _______ to the park with her friends last Sunday.",
+      "choices": [
+        {"key": "A", "text": "goes"},
+        {"key": "B", "text": "went"},
+        {"key": "C", "text": "has gone"},
+        {"key": "D", "text": "go"}
+      ],
+      "correct_answer": "B",
+      "explanation": "'last Sunday' → quá khứ đơn. go → went (bất quy tắc)."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 6,
+      "rule": "Câu hỏi đuôi (Tag Question)",
+      "question": "She lives in Ha Noi, _______?",
+      "choices": [
+        {"key": "A", "text": "does she"},
+        {"key": "B", "text": "is she"},
+        {"key": "C", "text": "doesn't she"},
+        {"key": "D", "text": "isn't she"}
+      ],
+      "correct_answer": "C",
+      "explanation": "Câu chính: 'lives' (hiện tại đơn, khẳng định) → tag phủ định 'doesn't she'."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 7,
+      "rule": "So sánh hơn (adj dài: more + adj + than)",
+      "question": "This book is _______ than that one.",
+      "choices": [
+        {"key": "A", "text": "more interesting"},
+        {"key": "B", "text": "the most interesting"},
+        {"key": "C", "text": "as interesting"},
+        {"key": "D", "text": "interestinger"}
+      ],
+      "correct_answer": "A",
+      "explanation": "'than' → so sánh hơn. 'interesting' (4 âm tiết) → more interesting."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 8,
+      "rule": "Cấu trúc: advise / ask / tell sb (not) to V",
+      "question": "My mother told me _______ too much time on video games.",
+      "choices": [
+        {"key": "A", "text": "not to spend"},
+        {"key": "B", "text": "not spending"},
+        {"key": "C", "text": "to not spend"},
+        {"key": "D", "text": "not spend"}
+      ],
+      "correct_answer": "A",
+      "explanation": "tell sb (not) to do sth. 'not' đặt TRƯỚC 'to': told me not to spend."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 9,
+      "rule": "Mệnh đề quan hệ không xác định (sau dấu phẩy → who/which, KHÔNG dùng that)",
+      "question": "My sister, _______ is a doctor, works at a hospital.",
+      "choices": [
+        {"key": "A", "text": "who"},
+        {"key": "B", "text": "that"},
+        {"key": "C", "text": "whom"},
+        {"key": "D", "text": "whose"}
+      ],
+      "correct_answer": "A",
+      "explanation": "Sau dấu phẩy → mệnh đề không xác định → dùng 'who' (chủ ngữ, chỉ người). KHÔNG dùng 'that'."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 23,
+      "rule": "Giới từ cố định: famous FOR, interested IN, good AT",
+      "question": "Viet Nam is famous _______ its beautiful beaches.",
+      "choices": [
+        {"key": "A", "text": "for"},
+        {"key": "B", "text": "in"},
+        {"key": "C", "text": "of"},
+        {"key": "D", "text": "at"}
+      ],
+      "correct_answer": "A",
+      "explanation": "be famous for = nổi tiếng về/vì. Cụm giới từ cố định."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 16,
+      "rule": "Câu bị động (S + be + V3/ed + by O)",
+      "question": "These cakes _______ by my grandmother every weekend.",
+      "choices": [
+        {"key": "A", "text": "make"},
+        {"key": "B", "text": "are made"},
+        {"key": "C", "text": "made"},
+        {"key": "D", "text": "are making"}
+      ],
+      "correct_answer": "B",
+      "explanation": "'by my grandmother' → bị động. 'every weekend' → hiện tại đơn. → are made."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 21,
+      "rule": "Lượng từ: lots of / a lot of / many / much",
+      "question": "There are _______ students in the library today.",
+      "choices": [
+        {"key": "A", "text": "much"},
+        {"key": "B", "text": "lots of"},
+        {"key": "C", "text": "a few of"},
+        {"key": "D", "text": "lot"}
+      ],
+      "correct_answer": "B",
+      "explanation": "'students' = danh từ đếm được số nhiều → 'lots of'. 'much' dùng cho không đếm được. 'lot' cần 'a lot of'."
+    },
+    {
+      "type": "grammar_drill",
+      "source_q": 28,
+      "rule": "Cấu trúc: spend + time + V-ing (KHÔNG dùng to V)",
+      "question": "He spends 3 hours _______ English every day.",
+      "choices": [
+        {"key": "A", "text": "to learn"},
+        {"key": "B", "text": "learning"},
+        {"key": "C", "text": "for learning"},
+        {"key": "D", "text": "learn"}
+      ],
+      "correct_answer": "B",
+      "explanation": "spend + time + V-ing. He spends 3 hours learning. KHÔNG dùng 'to learn' hay 'for learning'."
+    },
+
+    {
+      "type": "match_collocation",
+      "source_q": null,
+      "instruction": "Nối từ ở cột trái với từ phù hợp ở cột phải.",
+      "pairs": [
+        {"left": "famous", "right": "for"},
+        {"left": "interested", "right": "in"},
+        {"left": "good", "right": "at"},
+        {"left": "worried", "right": "about"},
+        {"left": "different", "right": "from"}
+      ],
+      "distractors": ["on", "to"]
+    },
+    {
+      "type": "match_collocation",
+      "source_q": null,
+      "instruction": "Nối tính từ với danh từ thường đi kèm.",
+      "pairs": [
+        {"left": "high-rise", "right": "flats"},
+        {"left": "reasonable", "right": "prices"},
+        {"left": "eco-friendly", "right": "tour"},
+        {"left": "daily", "right": "life"},
+        {"left": "traditional", "right": "foods"}
+      ],
+      "distractors": ["rivers", "mountains"]
+    },
+
+    {
+      "type": "fill_in_blank",
+      "source_q": 22,
+      "question": "In my class, there _______ 40 students.",
+      "choices": [
+        {"key": "A", "text": "is"},
+        {"key": "B", "text": "are"},
+        {"key": "C", "text": "was"},
+        {"key": "D", "text": "were"}
+      ],
+      "correct_answer": "B",
+      "explanation": "'40 students' (số nhiều) + mô tả hiện tại → there are."
+    },
+    {
+      "type": "fill_in_blank",
+      "source_q": 10,
+      "question": "If you study hard, it will be a good _______ to get a scholarship.",
+      "choices": [
+        {"key": "A", "text": "chance"},
+        {"key": "B", "text": "opportunity"},
+        {"key": "C", "text": "possibility"},
+        {"key": "D", "text": "advantage"}
+      ],
+      "correct_answer": "B",
+      "explanation": "'a good opportunity to do sth' = cơ hội tốt để làm gì. Collocation chuẩn."
+    },
+    {
+      "type": "fill_in_blank",
+      "source_q": 11,
+      "question": "_______ on this road is very heavy during rush hours.",
+      "choices": [
+        {"key": "A", "text": "Traffic"},
+        {"key": "B", "text": "Transport"},
+        {"key": "C", "text": "Travel"},
+        {"key": "D", "text": "Vehicle"}
+      ],
+      "correct_answer": "A",
+      "explanation": "'Traffic' = lưu lượng giao thông. 'heavy traffic' = giao thông đông đúc."
+    },
+    {
+      "type": "fill_in_blank",
+      "source_q": 15,
+      "question": "She has excellent _______ skills and can make beautiful fabric.",
+      "choices": [
+        {"key": "A", "text": "weave"},
+        {"key": "B", "text": "weaving"},
+        {"key": "C", "text": "woven"},
+        {"key": "D", "text": "wove"}
+      ],
+      "correct_answer": "B",
+      "explanation": "V-ing + noun (tính từ): weaving skills, swimming pool, reading habits."
+    },
+
+    {
+      "type": "sentence_transform",
+      "source_q": 25,
+      "instruction": "Chọn câu đồng nghĩa với câu gốc.",
+      "original": "\"What time does the movie start?\" she asked me.",
+      "keyword": "asked",
+      "choices": [
+        {"key": "A", "text": "She asked me what time the movie started."},
+        {"key": "B", "text": "She asked me what time did the movie start."},
+        {"key": "C", "text": "She asked me what time does the movie start."},
+        {"key": "D", "text": "She asked me if the movie started."}
+      ],
+      "correct_answer": "A",
+      "explanation": "Tường thuật câu hỏi Wh-: S + asked + Wh + S + V (lùi thì). Không đảo ngữ. 'starts' → 'started'."
+    },
+    {
+      "type": "sentence_transform",
+      "source_q": 26,
+      "instruction": "Chọn câu đồng nghĩa với câu gốc.",
+      "original": "It's three years since I last visited my grandparents.",
+      "keyword": "for",
+      "choices": [
+        {"key": "A", "text": "I haven't visited my grandparents for three years."},
+        {"key": "B", "text": "I haven't visited my grandparents since three years."},
+        {"key": "C", "text": "I didn't visit my grandparents for three years."},
+        {"key": "D", "text": "I haven't visit my grandparents for three years."}
+      ],
+      "correct_answer": "A",
+      "explanation": "'It's + time + since...' = 'haven't + V3 + for + time'. Dùng 'for' + khoảng thời gian. 'visited' là V3 đúng."
+    },
+    {
+      "type": "sentence_transform",
+      "source_q": 27,
+      "instruction": "Chọn câu đúng từ các từ gợi ý.",
+      "original": "climate change / cause / many / problem / environment",
+      "keyword": "cause",
+      "choices": [
+        {"key": "A", "text": "Climate change causes many problems for the environment."},
+        {"key": "B", "text": "Climate change cause many problems for the environment."},
+        {"key": "C", "text": "Climate change is caused many problems for the environment."},
+        {"key": "D", "text": "Climate change causing many problems for the environment."}
+      ],
+      "correct_answer": "A",
+      "explanation": "'Climate change' = chủ ngữ số ít → 'causes' (thêm s). Chủ động vì climate change là tác nhân gây ra vấn đề."
+    },
+    {
+      "type": "sentence_transform",
+      "source_q": 28,
+      "instruction": "Chọn câu đồng nghĩa.",
+      "original": "She started to learn French 5 years ago.",
+      "keyword": "has learned",
+      "choices": [
+        {"key": "A", "text": "She has learned French for 5 years."},
+        {"key": "B", "text": "She has learned French since 5 years."},
+        {"key": "C", "text": "She learned French for 5 years."},
+        {"key": "D", "text": "She has learned French 5 years ago."}
+      ],
+      "correct_answer": "A",
+      "explanation": "'started + time ago' → 'has + V3 + for + time'. Dùng hiện tại hoàn thành + 'for'."
+    }
+  ]
+}

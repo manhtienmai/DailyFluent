@@ -56,3 +56,23 @@ class PopularPage(models.Model):
 
     def __str__(self):
         return f"{self.path}: {self.views} views on {self.date}"
+
+
+class GeminiTokenUsage(models.Model):
+    """Track Gemini API token usage per call."""
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    model_name = models.CharField(max_length=100, db_index=True)
+    method = models.CharField(max_length=50)  # generate_text, generate_with_image, generate_image
+    prompt_tokens = models.PositiveIntegerField(default=0)
+    completion_tokens = models.PositiveIntegerField(default=0)
+    total_tokens = models.PositiveIntegerField(default=0)
+    caller = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        ordering = ["-timestamp"]
+        indexes = [
+            models.Index(fields=["timestamp"]),
+        ]
+
+    def __str__(self):
+        return f"{self.model_name} | {self.total_tokens} tokens | {self.timestamp}"

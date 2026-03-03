@@ -1,728 +1,1113 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block title %}Thống kê tổng hợp | Admin{% endblock %}
+{% block title %}Dashboard Thống kê | Admin{% endblock %}
 
 {% block extrahead %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  .analytics-dashboard {
-    padding: 20px;
-  }
-  
-  .analytics-header {
-    margin-bottom: 24px;
-  }
-  
-  .analytics-header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--df-text, #1a1a1a);
-    margin-bottom: 8px;
-  }
-  
-  .analytics-header p {
-    color: var(--df-muted, #666);
-    font-size: 14px;
-  }
-  
-  /* Section Headers */
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    margin-top: 32px;
-  }
-  
-  .section-header:first-child {
-    margin-top: 0;
-  }
-  
-  .section-header h2 {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--df-text, #1a1a1a);
-    margin: 0;
-  }
-  
-  .section-header .badge {
-    padding: 4px 10px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 12px;
-    text-transform: uppercase;
-  }
-  
-  /* Stats Grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .stat-card {
-    background: var(--df-panel, #fff);
-    border: 1px solid var(--df-border, #e0e0e0);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  .stat-card--primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: #fff;
-  }
-  
-  .stat-card--primary .stat-label {
-    color: rgba(255,255,255,0.8);
-  }
-  
-  .stat-card--success {
-    background: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
-    border: none;
-    color: #fff;
-  }
-  
-  .stat-card--success .stat-label {
-    color: rgba(255,255,255,0.8);
-  }
-  
-  .stat-card--warning {
-    background: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
-    border: none;
-    color: #fff;
-  }
-  
-  .stat-card--warning .stat-label {
-    color: rgba(255,255,255,0.8);
-  }
-  
-  .stat-value {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 4px;
-    color: var(--df-text, #1a1a1a);
-  }
-  
-  .stat-card--primary .stat-value,
-  .stat-card--success .stat-value,
-  .stat-card--warning .stat-value {
-    color: #fff;
-  }
-  
-  .stat-label {
-    font-size: 12px;
-    color: var(--df-muted, #666);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-  
-  .stat-change {
-    font-size: 11px;
-    margin-top: 6px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    display: inline-block;
-  }
-  
-  .stat-change--up {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10B981;
-  }
-  
-  .stat-change--down {
-    background: rgba(239, 68, 68, 0.15);
-    color: #EF4444;
-  }
-  
-  /* Charts */
-  .chart-section {
-    background: var(--df-panel, #fff);
-    border: 1px solid var(--df-border, #e0e0e0);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .chart-section h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--df-text, #1a1a1a);
-    margin-bottom: 16px;
-  }
-  
-  .two-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  
-  @media (max-width: 900px) {
-    .two-column {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  /* Tables */
-  .table-section {
-    background: var(--df-panel, #fff);
-    border: 1px solid var(--df-border, #e0e0e0);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .table-section h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--df-text, #1a1a1a);
-    margin-bottom: 16px;
-  }
-  
-  .analytics-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  
-  .analytics-table th,
-  .analytics-table td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--df-border, #eee);
-    color: var(--df-text, #1a1a1a);
-  }
-  
-  .analytics-table th {
-    font-weight: 600;
-    color: var(--df-muted, #666);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .analytics-table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .analytics-table tr:hover td {
-    background: rgba(102, 126, 234, 0.05);
-  }
-  
-  .analytics-table .path {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: 'SF Mono', Monaco, Consolas, monospace;
-    font-size: 12px;
-  }
-  
-  .analytics-table .views {
-    font-weight: 700;
-    color: #667eea;
-  }
-  
-  .analytics-table .user-email {
-    font-size: 12px;
-    color: var(--df-muted, #666);
-  }
-  
-  .analytics-table .date-cell {
-    font-size: 12px;
-    color: var(--df-muted, #666);
-  }
-  
-  /* Device Stats */
-  .device-stats {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  
-  .device-stat {
-    background: rgba(102, 126, 234, 0.1);
-    padding: 16px 24px;
-    border-radius: 12px;
-    text-align: center;
-    min-width: 100px;
-    border: 1px solid var(--df-border, transparent);
-    transition: transform 0.2s;
-  }
-  
-  .device-stat:hover {
-    transform: scale(1.05);
-  }
-  
-  .device-stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #667eea;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  
-  .device-stat-label {
-    font-size: 11px;
-    color: var(--df-muted, #666);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  
-  .empty-data {
-    color: var(--df-muted, #999);
-    text-align: center;
-    padding: 24px;
-    font-style: italic;
-  }
-  
-  /* User Avatar */
-  .user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-  
-  .user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+/* ============================================================
+   DASHBOARD ROOT VARIABLES
+   ============================================================ */
+:root {
+  --dash-blue:    #6366F1;
+  --dash-purple:  #8B5CF6;
+  --dash-pink:    #EC4899;
+  --dash-cyan:    #06B6D4;
+  --dash-green:   #10B981;
+  --dash-amber:   #F59E0B;
+  --dash-red:     #EF4444;
+  --dash-indigo:  #4F46E5;
 
-  /* Dark mode */
-  @media (prefers-color-scheme: dark) {
-    .stat-card {
-      background: var(--df-panel);
-      border-color: var(--df-border);
-    }
-    
-    .stat-value {
-      color: var(--df-text);
-    }
-    
-    .chart-section,
-    .table-section {
-      background: var(--df-panel);
-      border-color: var(--df-border);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    
-    .chart-section h3,
-    .table-section h3 {
-      color: var(--df-text);
-    }
-    
-    .analytics-table th,
-    .analytics-table td {
-      border-color: var(--df-border);
-      color: var(--df-text);
-    }
-    
-    .analytics-table tr:hover td {
-      background: rgba(102, 126, 234, 0.1);
-    }
-    
-    .device-stat {
-      background: rgba(102, 126, 234, 0.15);
-      border-color: var(--df-border);
-    }
-    
-    .section-header h2 {
-      color: var(--df-text);
-    }
+  --g-blue:   linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  --g-green:  linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --g-amber:  linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  --g-pink:   linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+  --g-cyan:   linear-gradient(135deg, #06B6D4 0%, #6366F1 100%);
+  --g-teal:   linear-gradient(135deg, #14B8A6 0%, #10B981 100%);
+}
+
+/* ============================================================
+   WRAPPER
+   ============================================================ */
+.db {
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.db-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.db-header__title {
+  font-size: 26px;
+  font-weight: 800;
+  background: var(--g-blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.db-header__sub {
+  font-size: 13px;
+  color: var(--df-muted, #64748b);
+}
+
+.db-header__refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--g-blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.db-header__refresh:hover { opacity: 0.9; transform: translateY(-1px); color: #fff; }
+
+/* Live badge */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #10B981;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  background: #10B981;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+/* ============================================================
+   SECTION TITLE
+   ============================================================ */
+.db-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 32px 0 16px;
+}
+.db-section:first-of-type { margin-top: 0; }
+.db-section__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--df-text, #0f172a);
+}
+.db-section__chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.chip-blue   { background: rgba(99,102,241,0.12); color: #6366F1; }
+.chip-green  { background: rgba(16,185,129,0.12); color: #10B981; }
+.chip-amber  { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.chip-pink   { background: rgba(236,72,153,0.12); color: #EC4899; }
+
+/* ============================================================
+   HERO KPI GRID  (4 big cards at top)
+   ============================================================ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+  border-radius: 18px;
+  padding: 22px 20px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.18); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 110px; height: 110px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; left: -10px;
+  width: 80px; height: 80px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 50%;
+}
+
+.kpi-card--blue   { background: var(--g-blue); }
+.kpi-card--green  { background: var(--g-green); }
+.kpi-card--amber  { background: var(--g-amber); }
+.kpi-card--pink   { background: var(--g-pink); }
+
+.kpi-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+.kpi-value {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 1;
+}
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  position: relative;
+  z-index: 1;
+}
+.kpi-sub {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ============================================================
+   MINI STAT ROW  (smaller cards)
+   ============================================================ */
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mini-card {
+  background: var(--df-panel, #fff);
+  border: 1px solid var(--df-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.mini-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+.mini-card__icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.icon-blue   { background: rgba(99,102,241,0.1); }
+.icon-green  { background: rgba(16,185,129,0.1); }
+.icon-amber  { background: rgba(245,158,11,0.1); }
+.icon-pink   { background: rgba(236,72,153,0.1); }
+.icon-cyan   { background: rgba(6,182,212,0.1); }
+.icon-purple { background: rgba(139,92,246,0.1); }
+
+.mini-card__value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--df-text, #0f172a);
+  line-height: 1.1;
+}
+.mini-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--df-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 3px;
+}
+
+/* ============================================================
+   PANELS (cards for charts / tables)
+   ============================================================ */
+.panel {
+  background: var(--df-panel, #fff);
+  border: 1px solid var(--df-border, #e2e8f0);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.panel__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--df-text, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(99,102,241,0.1);
+  color: #6366F1;
+}
+
+/* ============================================================
+   GRID LAYOUTS
+   ============================================================ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.grid-5-7 {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1000px) {
+  .grid-2, .grid-3, .grid-5-7 { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dash-table th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--df-muted, #64748b);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--df-border, #e2e8f0);
+  text-align: left;
+  white-space: nowrap;
+}
+.dash-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--df-border, #f1f5f9);
+  color: var(--df-text, #0f172a);
+  vertical-align: middle;
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tbody tr { transition: background 0.15s; }
+.dash-table tbody tr:hover td { background: rgba(99,102,241,0.04); }
+
+/* ============================================================
+   USER ROW
+   ============================================================ */
+.u-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.u-avatar {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px; color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.u-name { font-weight: 600; font-size: 13px; }
+.u-email { font-size: 11px; color: var(--df-muted, #64748b); margin-top: 1px; }
+.u-time { font-size: 11px; color: var(--df-muted, #64748b); white-space: nowrap; }
+
+/* Avatar colors */
+.av-0 { background: linear-gradient(135deg,#6366F1,#8B5CF6); }
+.av-1 { background: linear-gradient(135deg,#10B981,#06B6D4); }
+.av-2 { background: linear-gradient(135deg,#F59E0B,#EF4444); }
+.av-3 { background: linear-gradient(135deg,#EC4899,#8B5CF6); }
+.av-4 { background: linear-gradient(135deg,#06B6D4,#6366F1); }
+
+/* ============================================================
+   RANK BADGE
+   ============================================================ */
+.rank-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 8px;
+  font-size: 11px; font-weight: 800;
+  flex-shrink: 0;
+}
+.rank-1 { background: linear-gradient(135deg,#F59E0B,#F97316); color: #fff; }
+.rank-2 { background: linear-gradient(135deg,#94A3B8,#64748B); color: #fff; }
+.rank-3 { background: linear-gradient(135deg,#D97706,#92400E); color: #fff; }
+.rank-n { background: rgba(99,102,241,0.1); color: #6366F1; }
+
+.page-path {
+  max-width: 220px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: var(--df-text, #334155);
+}
+.page-views {
+  font-weight: 800; font-size: 14px;
+  color: #6366F1;
+}
+
+/* ============================================================
+   PROGRESS BAR STATS
+   ============================================================ */
+.progress-list { display: flex; flex-direction: column; gap: 12px; }
+
+.progress-item__head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 5px;
+}
+.progress-item__name {
+  font-size: 13px; font-weight: 600;
+  color: var(--df-text, #0f172a);
+  display: flex; align-items: center; gap: 6px;
+}
+.progress-item__count {
+  font-size: 12px; font-weight: 700;
+  color: var(--df-muted, #64748b);
+}
+.progress-bar-bg {
+  height: 7px; border-radius: 10px;
+  background: var(--df-border, #e2e8f0);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.pb-blue   { background: var(--g-blue); }
+.pb-green  { background: var(--g-green); }
+.pb-amber  { background: var(--g-amber); }
+.pb-pink   { background: var(--g-pink); }
+.pb-cyan   { background: var(--g-cyan); }
+.pb-teal   { background: var(--g-teal); }
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs {
+  display: flex; gap: 4px;
+  background: var(--df-border, #f1f5f9);
+  padding: 3px;
+  border-radius: 10px;
+}
+.tab-btn {
+  padding: 5px 14px;
+  border: none; background: none;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  color: var(--df-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: var(--df-panel, #fff);
+  color: #6366F1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+  text-align: center; padding: 32px;
+  color: var(--df-muted, #94a3b8);
+  font-size: 13px;
+}
+.empty-state__icon { font-size: 32px; margin-bottom: 8px; }
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  .mini-card, .panel {
+    background: var(--df-panel);
+    border-color: var(--df-border);
   }
+  .mini-card__value, .panel__title, .db-section__title,
+  .u-name, .progress-item__name, .page-path, .dash-table td {
+    color: var(--df-text);
+  }
+  .tabs { background: rgba(255,255,255,0.07); }
+  .tab-btn.active { background: rgba(255,255,255,0.12); }
+  .progress-bar-bg { background: rgba(255,255,255,0.1); }
+  .dash-table th { border-color: var(--df-border); }
+  .dash-table td { border-color: rgba(255,255,255,0.06); }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="analytics-dashboard">
-  <div class="analytics-header">
-    <h1>📊 Thống kê tổng hợp</h1>
-    <p>Tổng quan về hoạt động website và người dùng</p>
-  </div>
-  
-  <!-- User Registration Stats -->
-  <div class="section-header">
-    <h2>👥 Người dùng đăng ký</h2>
-    <span class="badge">Realtime</span>
-  </div>
-  
-  <div class="stats-grid">
-    <div class="stat-card stat-card--success">
-      <div class="stat-value">{{ total_users|default:0 }}</div>
-      <div class="stat-label">Tổng người dùng</div>
-      {% if user_growth %}
-      <div class="stat-change {% if user_growth > 0 %}stat-change--up{% elif user_growth < 0 %}stat-change--down{% endif %}">
-        {{ user_growth_str }} so với hôm qua
+<div class="db">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <div class="db-header">
+    <div>
+      <div class="db-header__title">📊 Dashboard Thống kê</div>
+      <div class="db-header__sub" style="display:flex;align-items:center;gap:10px;margin-top:5px;">
+        <span>Cập nhật: <strong>{% now "d/m/Y H:i" %}</strong></span>
+        <span class="live-badge"><span class="live-dot"></span>Live</span>
       </div>
-      {% endif %}
     </div>
-    <div class="stat-card stat-card--primary">
-      <div class="stat-value">{{ users_today|default:0 }}</div>
-      <div class="stat-label">Đăng ký hôm nay</div>
+    <a href="." class="db-header__refresh">↻ Làm mới</a>
+  </div>
+
+  <!-- ============================================================
+       HERO KPI — 4 BIG CARDS
+       ============================================================ -->
+  <div class="kpi-grid">
+    <!-- Visitors hôm nay -->
+    <div class="kpi-card kpi-card--blue">
+      <span class="kpi-icon">👥</span>
+      <div class="kpi-value" data-count="{{ today_visitors|default:0 }}">{{ today_visitors|default:0 }}</div>
+      <div class="kpi-label">Khách truy cập hôm nay</div>
+      <div class="kpi-sub">
+        {% if active_now %}
+        <span class="kpi-badge">🟢 {{ active_now }} đang online</span>
+        {% endif %}
+        {% if peak_hour %}<span style="opacity:0.8;">Cao nhất: {{ peak_hour }}</span>{% endif %}
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ users_yesterday|default:0 }}</div>
-      <div class="stat-label">Hôm qua</div>
+
+    <!-- Lượt xem hôm nay -->
+    <div class="kpi-card kpi-card--green">
+      <span class="kpi-icon">👁️</span>
+      <div class="kpi-value" data-count="{{ today_views|default:0 }}">{{ today_views|default:0 }}</div>
+      <div class="kpi-label">Lượt xem hôm nay</div>
+      <div class="kpi-sub">
+        <span class="kpi-badge">📅 7 ngày: {{ total_views_week|default:0 }}</span>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ users_week|default:0 }}</div>
-      <div class="stat-label">7 ngày qua</div>
+
+    <!-- Đăng ký hôm nay -->
+    <div class="kpi-card kpi-card--amber">
+      <span class="kpi-icon">🆕</span>
+      <div class="kpi-value" data-count="{{ users_today|default:0 }}">{{ users_today|default:0 }}</div>
+      <div class="kpi-label">Đăng ký hôm nay</div>
+      <div class="kpi-sub">
+        {% if user_growth > 0 %}
+        <span class="kpi-badge">↑ +{{ user_growth }} so với hôm qua</span>
+        {% elif user_growth < 0 %}
+        <span class="kpi-badge">↓ {{ user_growth }} so với hôm qua</span>
+        {% else %}
+        <span class="kpi-badge">= Bằng hôm qua</span>
+        {% endif %}
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ users_month|default:0 }}</div>
-      <div class="stat-label">30 ngày qua</div>
+
+    <!-- Tổng user -->
+    <div class="kpi-card kpi-card--pink">
+      <span class="kpi-icon">🏆</span>
+      <div class="kpi-value" data-count="{{ total_users|default:0 }}">{{ total_users|default:0 }}</div>
+      <div class="kpi-label">Tổng người dùng</div>
+      <div class="kpi-sub">
+        <span class="kpi-badge">📆 30 ngày: +{{ users_month|default:0 }}</span>
+      </div>
     </div>
   </div>
-  
-  <div class="two-column">
-    <!-- User Registration Chart -->
-    <div class="chart-section">
-      <h3>📈 Đăng ký mới (7 ngày)</h3>
-      <canvas id="userChart" height="120"></canvas>
+
+  <!-- ============================================================
+       MINI STATS ROW
+       ============================================================ -->
+  <div class="mini-grid" style="margin-bottom:28px;">
+    <div class="mini-card">
+      <div class="mini-card__icon icon-blue">🔐</div>
+      <div class="mini-card__value">{{ today_users|default:0 }}</div>
+      <div class="mini-card__label">User đăng nhập</div>
     </div>
-    
-    <!-- Recent Users -->
-    <div class="table-section">
-      <h3>🆕 Người dùng mới nhất</h3>
-      <table class="analytics-table">
+    <div class="mini-card">
+      <div class="mini-card__icon icon-green">📅</div>
+      <div class="mini-card__value">{{ users_yesterday|default:0 }}</div>
+      <div class="mini-card__label">Đăng ký hôm qua</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-amber">📈</div>
+      <div class="mini-card__value">{{ users_week|default:0 }}</div>
+      <div class="mini-card__label">User mới 7 ngày</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-cyan">🌐</div>
+      <div class="mini-card__value">{{ total_views_week|default:0 }}</div>
+      <div class="mini-card__label">Lượt xem 7 ngày</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-purple">📊</div>
+      <div class="mini-card__value">{{ total_views_month|default:0 }}</div>
+      <div class="mini-card__label">Lượt xem 30 ngày</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-pink">♾️</div>
+      <div class="mini-card__value">{{ total_views|default:0 }}</div>
+      <div class="mini-card__label">Tổng lượt xem</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SECTION: LỊCH SỬ TRUY CẬP HÔM NAY
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">⏱️ Lịch sử truy cập hôm nay</div>
+    <span class="db-section__chip chip-blue">Theo giờ</span>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel__head">
+      <div class="panel__title">
+        📉 Biểu đồ truy cập theo giờ
+        {% if peak_hour %}<span class="panel__badge">Cao nhất: {{ peak_hour }}</span>{% endif %}
+      </div>
+      <div class="live-badge"><span class="live-dot"></span>Hôm nay</div>
+    </div>
+    {% if hourly_labels %}
+    <canvas id="hourlyChart" height="90"></canvas>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state__icon">📭</div>
+      Chưa có lượt truy cập hôm nay
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ============================================================
+       SECTION: NGƯỜI DÙNG MỚI
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">👤 Người dùng mới</div>
+    <span class="db-section__chip chip-green">Realtime</span>
+  </div>
+
+  <div class="grid-5-7" style="margin-bottom:20px;">
+    <!-- Biểu đồ đăng ký 7 ngày -->
+    <div class="panel">
+      <div class="panel__head">
+        <div class="panel__title">📅 Đăng ký 7 ngày qua</div>
+      </div>
+      <canvas id="userChart" height="200"></canvas>
+    </div>
+
+    <!-- Danh sách user mới nhất -->
+    <div class="panel">
+      <div class="panel__head">
+        <div class="panel__title">🆕 Người dùng mới nhất</div>
+        <span class="panel__badge">{{ recent_users|length }} gần nhất</span>
+      </div>
+      <table class="dash-table">
         <thead>
           <tr>
             <th>Người dùng</th>
-            <th>Ngày đăng ký</th>
+            <th style="text-align:right;">Ngày đăng ký</th>
           </tr>
         </thead>
         <tbody>
           {% for user in recent_users %}
           <tr>
             <td>
-              <div class="user-row">
-                <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
+              <div class="u-row">
+                <div class="u-avatar {% cycle 'av-0' 'av-1' 'av-2' 'av-3' 'av-4' %}">
+                  {{ user.username|slice:":2"|upper }}
+                </div>
                 <div>
-                  <div>{{ user.username }}</div>
-                  <div class="user-email">{{ user.email }}</div>
+                  <div class="u-name">{{ user.username }}</div>
+                  <div class="u-email">{{ user.email }}</div>
                 </div>
               </div>
             </td>
-            <td class="date-cell">{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+            <td style="text-align:right;">
+              <div class="u-time">{{ user.date_joined|date:"d/m/Y" }}</div>
+              <div class="u-time" style="color:#6366F1;">{{ user.date_joined|date:"H:i" }}</div>
+            </td>
           </tr>
           {% empty %}
-          <tr>
-            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
-          </tr>
+          <tr><td colspan="2"><div class="empty-state"><div class="empty-state__icon">👻</div>Chưa có dữ liệu</div></td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-  
-  <!-- Page View Stats -->
-  <div class="section-header">
-    <h2>👀 Lượt xem trang</h2>
+
+  <!-- ============================================================
+       SECTION: LƯỢT XEM TRANG
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">👀 Lượt xem trang</div>
+    <span class="db-section__chip chip-amber">7 ngày</span>
   </div>
-  
-  <div class="stats-grid">
-    <div class="stat-card stat-card--warning">
-      <div class="stat-value">{{ today_views|default:0 }}</div>
-      <div class="stat-label">Lượt xem hôm nay</div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel__head">
+      <div class="panel__title">📈 Xu hướng lượt xem 7 ngày</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ today_visitors|default:0 }}</div>
-      <div class="stat-label">Khách hôm nay</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ today_users|default:0 }}</div>
-      <div class="stat-label">User đăng nhập</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ total_views_week|default:0 }}</div>
-      <div class="stat-label">7 ngày qua</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ total_views_month|default:0 }}</div>
-      <div class="stat-label">30 ngày qua</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ total_views|default:0 }}</div>
-      <div class="stat-label">Tổng tất cả</div>
-    </div>
-  </div>
-  
-  <!-- Views Chart -->
-  <div class="chart-section">
-    <h3>📈 Lượt xem (7 ngày)</h3>
     <canvas id="viewsChart" height="80"></canvas>
   </div>
-  
-  {% if total_exams or total_vocab or total_feedback %}
-  <!-- Additional Stats -->
-  <div class="section-header">
-    <h2>📚 Thống kê nội dung</h2>
+
+  <!-- ============================================================
+       SECTION: TRANG PHỔ BIẾN
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">🔥 Trang phổ biến</div>
+    <span class="db-section__chip chip-pink">Top 10</span>
   </div>
-  
-  <div class="stats-grid">
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel__head">
+      <div class="panel__title">📄 Trang được xem nhiều nhất</div>
+      <div class="tabs" id="pagesTabs">
+        <button class="tab-btn active" onclick="switchTab('today')">Hôm nay</button>
+        <button class="tab-btn" onclick="switchTab('week')">Tuần này</button>
+      </div>
+    </div>
+
+    <!-- Tab Hôm nay -->
+    <div class="tab-content active" id="tab-today">
+      <table class="dash-table">
+        <thead><tr><th>#</th><th>Đường dẫn</th><th style="text-align:right;">Lượt xem</th></tr></thead>
+        <tbody>
+          {% for page in top_pages_today %}
+          <tr>
+            <td>
+              <span class="rank-badge {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">
+                {{ forloop.counter }}
+              </span>
+            </td>
+            <td><span class="page-path" title="{{ page.path }}">{{ page.path }}</span></td>
+            <td style="text-align:right;"><span class="page-views">{{ page.views }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3"><div class="empty-state"><div class="empty-state__icon">📭</div>Chưa có lượt xem hôm nay</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab Tuần này -->
+    <div class="tab-content" id="tab-week">
+      <table class="dash-table">
+        <thead><tr><th>#</th><th>Đường dẫn</th><th style="text-align:right;">Lượt xem</th></tr></thead>
+        <tbody>
+          {% for page in top_pages_week %}
+          <tr>
+            <td>
+              <span class="rank-badge {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">
+                {{ forloop.counter }}
+              </span>
+            </td>
+            <td><span class="page-path" title="{{ page.path }}">{{ page.path }}</span></td>
+            <td style="text-align:right;"><span class="page-views">{{ page.views }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3"><div class="empty-state"><div class="empty-state__icon">📭</div>Chưa có dữ liệu</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if total_exams or total_vocab or total_feedback %}
+  <!-- ============================================================
+       SECTION: THỐNG KÊ NỘI DUNG
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">📚 Thống kê nội dung</div>
+    <span class="db-section__chip chip-blue">Tổng quan</span>
+  </div>
+  <div class="mini-grid" style="margin-bottom:28px;">
     {% if total_vocab %}
-    <div class="stat-card stat-card--primary">
-      <div class="stat-value">{{ total_vocab }}</div>
-      <div class="stat-label">Tổng từ vựng</div>
-      {% if vocab_today %}
-      <div class="stat-change stat-change--up">+{{ vocab_today }} hôm nay</div>
-      {% endif %}
+    <div class="mini-card">
+      <div class="mini-card__icon icon-blue">📖</div>
+      <div class="mini-card__value">{{ total_vocab }}</div>
+      <div class="mini-card__label">Tổng từ vựng{% if vocab_today %} (+{{ vocab_today }}){% endif %}</div>
     </div>
     {% endif %}
     {% if total_vocab_sets %}
-    <div class="stat-card">
-      <div class="stat-value">{{ total_vocab_sets }}</div>
-      <div class="stat-label">Bộ từ vựng</div>
-    </div>
-    {% endif %}
-    {% if vocab_week %}
-    <div class="stat-card">
-      <div class="stat-value">{{ vocab_week }}</div>
-      <div class="stat-label">Từ mới tuần này</div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-purple">📂</div>
+      <div class="mini-card__value">{{ total_vocab_sets }}</div>
+      <div class="mini-card__label">Bộ từ vựng</div>
     </div>
     {% endif %}
     {% if total_exams %}
-    <div class="stat-card stat-card--success">
-      <div class="stat-value">{{ total_exams }}</div>
-      <div class="stat-label">Đề thi</div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-green">📝</div>
+      <div class="mini-card__value">{{ total_exams }}</div>
+      <div class="mini-card__label">Đề thi</div>
     </div>
     {% endif %}
     {% if total_attempts %}
-    <div class="stat-card">
-      <div class="stat-value">{{ total_attempts }}</div>
-      <div class="stat-label">Lượt làm bài</div>
-    </div>
-    {% endif %}
-    {% if attempts_week %}
-    <div class="stat-card">
-      <div class="stat-value">{{ attempts_week }}</div>
-      <div class="stat-label">Làm bài tuần này</div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-cyan">✅</div>
+      <div class="mini-card__value">{{ total_attempts }}</div>
+      <div class="mini-card__label">Lượt làm bài{% if attempts_week %} (+{{ attempts_week }}/tuần){% endif %}</div>
     </div>
     {% endif %}
     {% if total_feedback %}
-    <div class="stat-card">
-      <div class="stat-value">{{ total_feedback }}</div>
-      <div class="stat-label">Phản hồi</div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-amber">💬</div>
+      <div class="mini-card__value">{{ total_feedback }}</div>
+      <div class="mini-card__label">Phản hồi</div>
     </div>
     {% endif %}
     {% if feedback_pending %}
-    <div class="stat-card stat-card--warning">
-      <div class="stat-value">{{ feedback_pending }}</div>
-      <div class="stat-label">Chờ xử lý</div>
+    <div class="mini-card">
+      <div class="mini-card__icon icon-pink">⏳</div>
+      <div class="mini-card__value" style="color:#EF4444;">{{ feedback_pending }}</div>
+      <div class="mini-card__label">Chờ xử lý</div>
     </div>
     {% endif %}
   </div>
   {% endif %}
-  
-  <!-- Top Pages -->
-  <div class="section-header">
-    <h2>🔥 Trang phổ biến</h2>
+
+  <!-- ============================================================
+       SECTION: THIẾT BỊ & TRÌNH DUYỆT
+       ============================================================ -->
+  <div class="db-section">
+    <div class="db-section__title">🌐 Thiết bị & Trình duyệt</div>
+    <span class="db-section__chip chip-pink">7 ngày</span>
   </div>
-  
-  <div class="two-column">
-    <div class="table-section">
-      <h3>Hôm nay</h3>
-      <table class="analytics-table">
-        <thead>
-          <tr>
-            <th>Đường dẫn</th>
-            <th style="text-align: right;">Lượt xem</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for page in top_pages_today %}
-          <tr>
-            <td class="path" title="{{ page.path }}">{{ page.path }}</td>
-            <td class="views" style="text-align: right;">{{ page.views }}</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="table-section">
-      <h3>Tuần này</h3>
-      <table class="analytics-table">
-        <thead>
-          <tr>
-            <th>Đường dẫn</th>
-            <th style="text-align: right;">Lượt xem</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for page in top_pages_week %}
-          <tr>
-            <td class="path" title="{{ page.path }}">{{ page.path }}</td>
-            <td class="views" style="text-align: right;">{{ page.views }}</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="2" class="empty-data">Chưa có dữ liệu</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-  
-  <!-- Device & Browser Stats -->
-  <div class="section-header">
-    <h2>🌐 Thiết bị & Trình duyệt</h2>
-  </div>
-  
-  <div class="two-column" style="margin-bottom: 24px;">
-    <div class="table-section">
-      <h3>Trình duyệt (7 ngày)</h3>
-      <div class="device-stats">
+
+  <div class="grid-3" style="margin-bottom:32px;">
+    <!-- Trình duyệt -->
+    <div class="panel">
+      <div class="panel__head">
+        <div class="panel__title">🌏 Trình duyệt</div>
+      </div>
+      <div class="progress-list">
         {% for stat in browser_stats %}
-        <div class="device-stat">
-          <div class="device-stat-value">{{ stat.count }}</div>
-          <div class="device-stat-label">{{ stat.browser }}</div>
+        <div>
+          <div class="progress-item__head">
+            <div class="progress-item__name">
+              {% if stat.browser == "Chrome" %}🟢
+              {% elif stat.browser == "Firefox" %}🦊
+              {% elif stat.browser == "Safari" %}🧭
+              {% elif stat.browser == "Edge" %}🔵
+              {% else %}🌐{% endif %}
+              {{ stat.browser|default:"Unknown" }}
+            </div>
+            <div class="progress-item__count">{{ stat.count }} ({{ stat.pct }}%)</div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill {% cycle 'pb-blue' 'pb-green' 'pb-amber' 'pb-pink' 'pb-cyan' 'pb-teal' as b_colors %}" style="width:{{ stat.pct }}%"></div>
+          </div>
         </div>
         {% empty %}
-        <p class="empty-data">Chưa có dữ liệu</p>
+        <div class="empty-state"><div class="empty-state__icon">🌐</div>Chưa có dữ liệu</div>
         {% endfor %}
       </div>
     </div>
-    
-    <div class="table-section">
-      <h3>Thiết bị (7 ngày)</h3>
-      <div class="device-stats">
+
+    <!-- Thiết bị -->
+    <div class="panel">
+      <div class="panel__head">
+        <div class="panel__title">📱 Thiết bị</div>
+      </div>
+      <div class="progress-list">
         {% for stat in device_stats %}
-        <div class="device-stat">
-          <div class="device-stat-value">{{ stat.count }}</div>
-          <div class="device-stat-label">{{ stat.device }}</div>
+        <div>
+          <div class="progress-item__head">
+            <div class="progress-item__name">
+              {% if stat.device == "Desktop" %}🖥️
+              {% elif stat.device == "Mobile" %}📱
+              {% elif stat.device == "Tablet" %}📟
+              {% else %}❓{% endif %}
+              {{ stat.device|default:"Unknown" }}
+            </div>
+            <div class="progress-item__count">{{ stat.count }} ({{ stat.pct }}%)</div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill {% cycle 'pb-blue' 'pb-green' 'pb-amber' as d_colors %}" style="width:{{ stat.pct }}%"></div>
+          </div>
         </div>
         {% empty %}
-        <p class="empty-data">Chưa có dữ liệu</p>
+        <div class="empty-state"><div class="empty-state__icon">📱</div>Chưa có dữ liệu</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Hệ điều hành -->
+    <div class="panel">
+      <div class="panel__head">
+        <div class="panel__title">💻 Hệ điều hành</div>
+      </div>
+      <div class="progress-list">
+        {% for stat in os_stats %}
+        <div>
+          <div class="progress-item__head">
+            <div class="progress-item__name">
+              {% if stat.os == "Windows" %}🪟
+              {% elif stat.os == "macOS" or stat.os == "Mac OS X" %}🍎
+              {% elif stat.os == "iOS" %}📱
+              {% elif stat.os == "Android" %}🤖
+              {% elif stat.os == "Linux" %}🐧
+              {% else %}💻{% endif %}
+              {{ stat.os|default:"Unknown" }}
+            </div>
+            <div class="progress-item__count">{{ stat.count }} ({{ stat.pct }}%)</div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill {% cycle 'pb-pink' 'pb-cyan' 'pb-teal' 'pb-blue' 'pb-amber' as o_colors %}" style="width:{{ stat.pct }}%"></div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state"><div class="empty-state__icon">💻</div>Chưa có dữ liệu</div>
         {% endfor %}
       </div>
     </div>
   </div>
-  
-  <div class="table-section">
-    <h3>💻 Hệ điều hành (7 ngày)</h3>
-    <div class="device-stats">
-      {% for stat in os_stats %}
-      <div class="device-stat">
-        <div class="device-stat-value">{{ stat.count }}</div>
-        <div class="device-stat-label">{{ stat.os }}</div>
-      </div>
-      {% empty %}
-      <p class="empty-data">Chưa có dữ liệu</p>
-      {% endfor %}
-    </div>
-  </div>
-</div>
+
+</div><!-- /db -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const textColor = isDark ? '#f1f5f9' : '#1a1a1a';
-  const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
-  
-  // User Registration Chart
-  const userCtx = document.getElementById('userChart').getContext('2d');
-  new Chart(userCtx, {
-    type: 'bar',
-    data: {
-      labels: {{ user_chart_labels|safe }},
-      datasets: [{
-        label: 'Đăng ký mới',
-        data: {{ user_chart_data|safe }},
-        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-        borderColor: '#10B981',
-        borderWidth: 2,
-        borderRadius: 8,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { display: false }
+  const textColor  = isDark ? '#cbd5e1' : '#475569';
+  const gridColor  = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+  /* ----------------------------------------------------------
+     COUNT-UP ANIMATION
+     ---------------------------------------------------------- */
+  document.querySelectorAll('.kpi-value[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count, 10) || 0;
+    if (!target) return;
+    const duration = 1200;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.round(current).toLocaleString('vi-VN');
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  });
+
+  /* ----------------------------------------------------------
+     CHART DEFAULTS
+     ---------------------------------------------------------- */
+  Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  Chart.defaults.font.size = 12;
+
+  function makeGradient(ctx, color1, color2) {
+    const g = ctx.createLinearGradient(0, 0, 0, 300);
+    g.addColorStop(0, color1);
+    g.addColorStop(1, color2);
+    return g;
+  }
+
+  /* ----------------------------------------------------------
+     HOURLY CHART (today)
+     ---------------------------------------------------------- */
+  const hourlyEl = document.getElementById('hourlyChart');
+  if (hourlyEl) {
+    const ctx = hourlyEl.getContext('2d');
+    const gradViews    = makeGradient(ctx, 'rgba(99,102,241,0.6)', 'rgba(99,102,241,0.0)');
+    const gradVisitors = makeGradient(ctx, 'rgba(16,185,129,0.5)', 'rgba(16,185,129,0.0)');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ hourly_labels|safe }},
+        datasets: [
+          {
+            label: 'Lượt xem',
+            data: {{ hourly_views_data|safe }},
+            borderColor: '#6366F1',
+            backgroundColor: gradViews,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#6366F1',
+            pointBorderColor: isDark ? '#1e293b' : '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+          },
+          {
+            label: 'Khách (IP)',
+            data: {{ hourly_visitors_data|safe }},
+            borderColor: '#10B981',
+            backgroundColor: gradVisitors,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: isDark ? '#1e293b' : '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+          }
+        ]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { precision: 0, color: textColor },
-          grid: { color: gridColor }
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { color: textColor, usePointStyle: true, pointStyleWidth: 10 }
+          },
+          tooltip: { backgroundColor: isDark ? '#1e293b' : '#fff', titleColor: isDark ? '#f1f5f9' : '#0f172a', bodyColor: textColor, borderColor: isDark ? '#334155' : '#e2e8f0', borderWidth: 1, padding: 10 }
         },
-        x: {
-          ticks: { color: textColor },
-          grid: { display: false }
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0, color: textColor }, grid: { color: gridColor } },
+          x: { ticks: { color: textColor }, grid: { display: false } }
         }
       }
-    }
-  });
-  
-  // Page Views Chart
-  const viewsCtx = document.getElementById('viewsChart').getContext('2d');
-  new Chart(viewsCtx, {
-    type: 'line',
-    data: {
-      labels: {{ chart_labels|safe }},
-      datasets: [{
-        label: 'Lượt xem',
-        data: {{ chart_data|safe }},
-        borderColor: '#667eea',
-        backgroundColor: isDark ? 'rgba(102, 126, 234, 0.2)' : 'rgba(102, 126, 234, 0.1)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 3,
-        pointBackgroundColor: '#667eea',
-        pointBorderColor: isDark ? '#1e293b' : '#fff',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { display: false }
+    });
+  }
+
+  /* ----------------------------------------------------------
+     USER REGISTRATION CHART (7 days)
+     ---------------------------------------------------------- */
+  const userEl = document.getElementById('userChart');
+  if (userEl) {
+    const ctx = userEl.getContext('2d');
+    const grad = makeGradient(ctx, 'rgba(16,185,129,0.8)', 'rgba(6,182,212,0.8)');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{ user_chart_labels|safe }},
+        datasets: [{
+          label: 'Đăng ký mới',
+          data: {{ user_chart_data|safe }},
+          backgroundColor: grad,
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { precision: 0, color: textColor },
-          grid: { color: gridColor }
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: isDark ? '#1e293b' : '#fff', titleColor: isDark ? '#f1f5f9' : '#0f172a', bodyColor: textColor, borderColor: isDark ? '#334155' : '#e2e8f0', borderWidth: 1, padding: 10 }
         },
-        x: {
-          ticks: { color: textColor },
-          grid: { color: gridColor }
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0, color: textColor }, grid: { color: gridColor } },
+          x: { ticks: { color: textColor }, grid: { display: false } }
         }
       }
-    }
-  });
+    });
+  }
+
+  /* ----------------------------------------------------------
+     VIEWS TREND CHART (7 days)
+     ---------------------------------------------------------- */
+  const viewsEl = document.getElementById('viewsChart');
+  if (viewsEl) {
+    const ctx = viewsEl.getContext('2d');
+    const grad = makeGradient(ctx, 'rgba(99,102,241,0.4)', 'rgba(99,102,241,0.0)');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+          label: 'Lượt xem',
+          data: {{ chart_data|safe }},
+          borderColor: '#6366F1',
+          backgroundColor: grad,
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3,
+          pointBackgroundColor: '#6366F1',
+          pointBorderColor: isDark ? '#1e293b' : '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: isDark ? '#1e293b' : '#fff', titleColor: isDark ? '#f1f5f9' : '#0f172a', bodyColor: textColor, borderColor: isDark ? '#334155' : '#e2e8f0', borderWidth: 1, padding: 10 }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0, color: textColor }, grid: { color: gridColor } },
+          x: { ticks: { color: textColor }, grid: { color: gridColor } }
+        }
+      }
+    });
+  }
 });
+
+/* ----------------------------------------------------------
+   TAB SWITCHING
+   ---------------------------------------------------------- */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
 </script>
 {% endblock %}

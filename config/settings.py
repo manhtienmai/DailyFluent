@@ -120,7 +120,10 @@ INSTALLED_APPS = [
     'analytics',
     'shop',
     'placement',
+    'ebook',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -128,6 +131,7 @@ TAILWIND_APP_NAME = 'theme'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -147,6 +151,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+APPEND_SLASH = False
 
 TEMPLATES = [
     {
@@ -275,6 +280,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760 # 10MB
 
+# ── Cache ────────────────────────────────────────────────────
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "dailyfluent-cache",
+        "TIMEOUT": 1800,  # 30 minutes default
+        "OPTIONS": {
+            "MAX_ENTRIES": 500,
+        },
+    }
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -311,3 +328,46 @@ LOGGING = {
 
 # Google Gemini API
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+
+# Google Cloud Text-to-Speech API
+GOOGLE_TTS_API_KEY = os.getenv('GOOGLE_TTS_API_KEY', '')
+
+# ── CORS (Next.js frontend) ────────────────────────────────
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if o.strip()
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# ── JWT (simplejwt) ─────────────────────────────────────────
+from datetime import timedelta  # noqa: E402
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,     # Issue new refresh on each refresh
+    "BLACKLIST_AFTER_ROTATION": False,  # No blacklist needed (cookie-only)
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

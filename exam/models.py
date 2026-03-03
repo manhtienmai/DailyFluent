@@ -11,6 +11,7 @@ class ExamLevel(models.TextChoices):
     N2 = "N2", "JLPT N2"
     N1 = "N1", "JLPT N1"
     TOEIC = "TOEIC", "TOEIC"
+    EN10 = "EN10", "English Lớp 10"
 
 
 class ExamCategory(models.TextChoices):
@@ -22,6 +23,7 @@ class ExamCategory(models.TextChoices):
     LISTENING = "LISTENING", "TOEIC Listening"
     READING = "READING", "TOEIC Reading"
     TOEIC_FULL = "TOEIC_FULL", "TOEIC Full Test"
+    ENGLISH = "ENGLISH", "English Practice"
 
 
 class ExamGroupType(models.TextChoices):
@@ -211,6 +213,12 @@ class ExamTemplate(models.Model):
 
     # Active / hide
     is_active = models.BooleanField(default=True)
+
+    # Public access (no VIP required)
+    is_public = models.BooleanField(
+        default=False,
+        help_text="True = mở cho tất cả, False = chỉ VIP mới truy cập được.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -721,3 +729,41 @@ class ExamComment(models.Model):
     
     def __str__(self):
         return f"{self.user.username} – {self.template.title} ({self.created_at.strftime('%Y-%m-%d')})"
+
+
+class ExamReviewResult(models.Model):
+    """Stores a user's review quiz result for one quiz type of one exam."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="exam_review_results",
+    )
+    template = models.ForeignKey(
+        ExamTemplate,
+        on_delete=models.CASCADE,
+        related_name="review_results",
+    )
+    quiz_type = models.CharField(
+        max_length=30,
+        help_text="e.g. vocab_flashcard, grammar_drill, stress_drill",
+    )
+    correct_count = models.PositiveIntegerField(default=0)
+    total_count = models.PositiveIntegerField(default=0)
+    answers_json = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Detailed answers: {'0': 'B', '1': 'A', ...}",
+    )
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+        indexes = [
+            models.Index(fields=["user", "template", "quiz_type"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} – {self.template.title} [{self.quiz_type}] {self.correct_count}/{self.total_count}"
+

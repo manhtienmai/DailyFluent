@@ -6,7 +6,10 @@ from core.views import health
 from django.conf import settings
 from django.conf.urls.static import static
 from exam.views import choukai_tool_instance # <-- Import instance này
+from config.api import api
+
 urlpatterns = [
+    path("api/v1/", api.urls),
     # Analytics dashboard must come before admin to avoid catch-all
     path("", include("analytics.urls", namespace="analytics")),
     path('admin/', admin.site.urls),

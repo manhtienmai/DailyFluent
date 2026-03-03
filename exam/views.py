@@ -632,28 +632,7 @@ def choukai_book_list(request):
 
 
 _MONDAI_LABELS = {'1': 'もんだい1 課題理解', '2': 'もんだい2 ポイント理解', '3': 'もんだい3 概要理解', '4': 'もんだい4 発話表現', '5': 'もんだい5 即時応答'}
-def _ruby(text):
-    if not text:
-        return ''
-    # Format 1 (analyze API): {漢字}(かな)  →  <ruby>漢字<rt>かな</rt></ruby>
-    text = re.sub(r'\{([^}]+)\}\(([^)]+)\)', r'<ruby>\1<rt>\2</rt></ruby>', text)
-    # Format 2 (translate API): 漢字{かな}  →  <ruby>漢字<rt>かな</rt></ruby>
-    # Base: chỉ kanji + số (những gì cần furigana); reading trong {} là hiragana/katakana
-    text = re.sub(
-        r'([\u4e00-\u9fff\u3400-\u4dbf\uff10-\uff190-9]+)'
-        r'\{([\u3040-\u309f\u30a0-\u30ff]+)\}',
-        r'<ruby>\1<rt>\2</rt></ruby>',
-        text
-    )
-    return text
-def _audio_url(q):
-    if not q.audio:
-        return ''
-    # Fix: nếu DB lưu full URL (do import script lưu sai), trả về thẳng, tránh double URL
-    name = q.audio.name or ''
-    if name.startswith('http'):
-        return name
-    return q.audio.url
+from exam.utils import ruby_to_html as _ruby, audio_url as _audio_url
 
 def choukai_book_detail(request, slug):
     book = get_object_or_404(ExamBook, slug=slug, category=ExamCategory.CHOUKAI)
@@ -941,6 +920,56 @@ class DokkaiToolAPI(View):
         "STRICT JSON array only. No other text."
     )
 
+    TRANSLATE_PROMPT_TEMPLATE = (
+        "Bạn là giáo viên tiếng Nhật chuyên luyện thi JLPT.\n"
+        "Nhiệm vụ: Tách đoạn văn tiếng Nhật bên dưới thành từng câu trọn vẹn, "
+        "dịch mỗi câu sang tiếng Việt sát nghĩa và tự nhiên.\n\n"
+        "QUY TẮC:\n"
+        "- Tách câu tại dấu chấm 。hoặc dấu xuống dòng ý nghĩa.\n"
+        "- KHÔNG dùng <br> trong câu tiếng Nhật (giữ liền mạch).\n"
+        "- Giữ nguyên <ruby><rt></rt></ruby> nếu có.\n"
+        "- Với mỗi câu, trích xuất 2-4 từ vựng quan trọng (N3-N1).\n\n"
+        "ĐOẠN VĂN:\n{passage_text}\n\n"
+        "TRẢ VỀ JSON (KHÔNG markdown, KHÔNG trailing comma):\n"
+        '{{\n'
+        '  "bilingual_reading": [\n'
+        '    {{\n'
+        '      "japanese_sentence": "Câu JP liền mạch",\n'
+        '      "vietnamese_translation": "Nghĩa tiếng Việt",\n'
+        '      "vocabulary": [\n'
+        '        {{"kanji": "漢字", "hiragana": "かんじ", "meaning": "chữ Hán"}}\n'
+        '      ]\n'
+        '    }}\n'
+        '  ]\n'
+        '}}'
+    )
+
+    @csrf_exempt
+    def dokkai_translate_api(self, request):
+        """POST: Translate passage text sentence-by-sentence."""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+        try:
+            d = json.loads(request.body)
+            passage_text = d.get('passage_text', '').strip()
+            if not passage_text:
+                return JsonResponse({'success': False, 'error': 'No passage text'}, status=400)
+
+            prompt = self.TRANSLATE_PROMPT_TEMPLATE.format(
+                passage_text=passage_text[:3000]
+            )
+
+            from vocab.services.gemini_service import GeminiService
+            raw = GeminiService.generate_text(prompt, model_name='gemini-2.0-flash')
+            result = _clean_json(raw)
+            bilingual = result.get('bilingual_reading', [])
+
+            return JsonResponse({'success': True, 'bilingual_reading': bilingual})
+        except json.JSONDecodeError as e:
+            return JsonResponse({'success': False, 'error': f'JSON parse error: {str(e)}'}, status=500)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
     @csrf_exempt
     def dokkai_ocr_api(self, request):
         if request.method != 'POST':
@@ -1037,6 +1066,11 @@ class DokkaiToolAPI(View):
             if 'vocabulary' in d:
                 data = passage.data or {}
                 data['vocabulary'] = d['vocabulary']
+                passage.data = data
+
+            if 'bilingual_reading' in d:
+                data = passage.data or {}
+                data['bilingual_reading'] = d['bilingual_reading']
                 passage.data = data
 
             passage.save()

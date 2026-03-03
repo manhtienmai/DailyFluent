@@ -313,6 +313,10 @@ class ExamTemplateAdmin(admin.ModelAdmin):
         from exam.views import dokkai_tool_instance
         return dokkai_tool_instance.dokkai_save_full_api(request)
 
+    def dokkai_translate_api(self, request):
+        from exam.views import dokkai_tool_instance
+        return dokkai_tool_instance.dokkai_translate_api(request)
+
     fieldsets = (
         ("Basic Information", {
             "fields": ("book", "title", "slug", "description", "level", "category")
@@ -403,6 +407,11 @@ class ExamTemplateAdmin(admin.ModelAdmin):
                 'dokkai-save-full-api/',
                 self.admin_site.admin_view(self.dokkai_save_full_api),
                 name='exam_examtemplate_dokkai_save_full_api',
+            ),
+            path(
+                'dokkai-translate-api/',
+                self.admin_site.admin_view(self.dokkai_translate_api),
+                name='exam_examtemplate_dokkai_translate_api',
             ),
         ]
         return custom_urls + urls
