@@ -9,13 +9,32 @@ venv/
 # Django build
 staticfiles/
 media/
+db_full.json
 
-.bat
 # IDE / editor
 .vscode/
 .idea/
 
 # Documentation
 docs/
+
+# AI agents / tools
 .claude/
-node_modules
+.agents/
+
+# Node
+node_modules/
+
+# Scripts
+*.bat
+
+# Misc
+-Force/
+
+# Flutter / Dart (mobile app)
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.idea/
+mobile/*.iml

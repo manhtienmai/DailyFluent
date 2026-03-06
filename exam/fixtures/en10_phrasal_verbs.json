@@ -1,0 +1,145 @@
+{
+  "verbs": [
+    {
+      "id": 1,
+      "verb": "turn off",
+      "meaning": "Tắt (thiết bị, đèn, nước…)",
+      "meaningEn": "to stop a device or machine from working",
+      "example": "Please turn off the lights before you leave.",
+      "exampleVi": "Hãy tắt đèn trước khi bạn rời đi.",
+      "emoji": "💡"
+    },
+    {
+      "id": 2,
+      "verb": "look after",
+      "meaning": "Chăm sóc, trông nom",
+      "meaningEn": "to take care of someone or something",
+      "example": "She looks after her younger brother every day.",
+      "exampleVi": "Cô ấy chăm sóc em trai mỗi ngày.",
+      "emoji": "🤲"
+    },
+    {
+      "id": 3,
+      "verb": "look up",
+      "meaning": "Tra cứu (từ điển, thông tin)",
+      "meaningEn": "to search for information in a book or online",
+      "example": "I need to look up this word in the dictionary.",
+      "exampleVi": "Tôi cần tra từ này trong từ điển.",
+      "emoji": "🔍"
+    },
+    {
+      "id": 4,
+      "verb": "look for",
+      "meaning": "Tìm kiếm",
+      "meaningEn": "to try to find something or someone",
+      "example": "Are you looking for your keys?",
+      "exampleVi": "Bạn đang tìm chìa khóa à?",
+      "emoji": "🔎"
+    }
+  ],
+  "fill_sentences": [
+    {
+      "sentence": "Can you ___ the baby while I go shopping?",
+      "answer": "look after",
+      "hint": "chăm sóc"
+    },
+    {
+      "sentence": "Don't forget to ___ the TV before bed.",
+      "answer": "turn off",
+      "hint": "tắt"
+    },
+    {
+      "sentence": "I'll ___ the meaning of this word online.",
+      "answer": "look up",
+      "hint": "tra cứu"
+    },
+    {
+      "sentence": "She's been ___ her lost cat all morning.",
+      "answer": "looking for",
+      "hint": "tìm kiếm"
+    },
+    {
+      "sentence": "Who will ___ the children tonight?",
+      "answer": "look after",
+      "hint": "trông nom"
+    },
+    {
+      "sentence": "Please ___ your phone during the exam.",
+      "answer": "turn off",
+      "hint": "tắt"
+    },
+    {
+      "sentence": "You should ___ the recipe on the internet.",
+      "answer": "look up",
+      "hint": "tra"
+    },
+    {
+      "sentence": "What are you ___ in this drawer?",
+      "answer": "looking for",
+      "hint": "tìm"
+    }
+  ],
+  "quiz_questions": [
+    {
+      "question": "\"Please ___ the lights when you leave the room.\"",
+      "options": [
+        "look up",
+        "turn off",
+        "look for",
+        "look after"
+      ],
+      "correct": 1
+    },
+    {
+      "question": "\"She ___ her grandmother every weekend.\"",
+      "options": [
+        "turns off",
+        "looks up",
+        "looks after",
+        "looks for"
+      ],
+      "correct": 2
+    },
+    {
+      "question": "\"I need to ___ this word. I don't know what it means.\"",
+      "options": [
+        "look after",
+        "turn off",
+        "look for",
+        "look up"
+      ],
+      "correct": 3
+    },
+    {
+      "question": "\"He's been ___ a new job for months.\"",
+      "options": [
+        "turning off",
+        "looking up",
+        "looking after",
+        "looking for"
+      ],
+      "correct": 3
+    },
+    {
+      "question": "\"Tắt máy tính\" means:",
+      "options": [
+        "look up the computer",
+        "look after the computer",
+        "turn off the computer",
+        "look for the computer"
+      ],
+      "correct": 2
+    },
+    {
+      "question": "\"Tra từ điển\" means:",
+      "options": [
+        "turn off the dictionary",
+        "look for the dictionary",
+        "look after the dictionary",
+        "look up in the dictionary"
+      ],
+      "correct": 3
+    }
+  ],
+  "title": "Phrasal Verbs"
+}

@@ -126,6 +126,14 @@
         .kd-btn-study::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.2) 50%, transparent 100%); background-size: 200% 100%; animation: kd-btn-shimmer 2.5s linear infinite; pointer-events: none; }
         .kd-btn-study:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,.35); }
         .kd-btn-study:active { transform: translateY(0) scale(0.98); }
+
+        /* ── Vocab Actions Row ── */
+        .kd-vocab-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .kd-vocab-actions .kd-btn-study { flex: 1; margin-top: 0; }
+        .kd-btn-remove { flex: 0 0 auto; padding: 10px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #ef4444, #f87171); color: #fff; font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .25s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 2px 8px rgba(239,68,68,.2); }
+        .kd-btn-remove:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,.3); background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .kd-btn-remove:active { transform: translateY(0) scale(0.98); }
+
         .kd-study-msg { text-align: center; font-size: .82rem; color: #6366f1; margin: 8px 0 0; font-weight: 500; animation: kd-fade-in .3s ease; }
 
         /* ── Vocab link ── */

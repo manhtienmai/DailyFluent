@@ -1,0 +1,298 @@
+{
+  "jlpt_level": "N3",
+  "lesson_id": 2,
+  "topic": "Chính trị & Quyết định",
+  "kanji_list": [
+    {
+      "character": "薬",
+      "han_viet": "Dược",
+      "onyomi": ["ヤク"],
+      "kunyomi": ["くすり"],
+      "meaning_vi": "Thuốc, dược phẩm",
+      "formation": "Hình thanh: 艹(ý: cỏ) + 楽(âm: ラク/ヤク, vui) → cỏ làm cho vui (khỏe) → thuốc",
+      "examples": [
+        {"word": "薬", "hiragana": "くすり", "meaning": "Thuốc", "jlpt": "N4"},
+        {"word": "薬局", "hiragana": "やっきょく", "meaning": "Hiệu thuốc", "jlpt": "N3"},
+        {"word": "薬品", "hiragana": "やくひん", "meaning": "Dược phẩm", "jlpt": "N3"},
+        {"word": "薬指", "hiragana": "くすりゆび", "meaning": "Ngón áp út", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "便",
+      "han_viet": "Tiện",
+      "onyomi": ["ベン", "ビン"],
+      "kunyomi": ["たより"],
+      "meaning_vi": "Thuận tiện, tin tức, chuyến",
+      "formation": "Hội ý: 亻(người) + 更(thay đổi) → người thay đổi cho tiện → thuận tiện",
+      "examples": [
+        {"word": "便利", "hiragana": "べんり", "meaning": "Thuận tiện", "jlpt": "N4"},
+        {"word": "郵便", "hiragana": "ゆうびん", "meaning": "Bưu điện", "jlpt": "N4"},
+        {"word": "便り", "hiragana": "たより", "meaning": "Tin tức, thư", "jlpt": "N3"},
+        {"word": "不便", "hiragana": "ふべん", "meaning": "Bất tiện", "jlpt": "N3"},
+        {"word": "便所", "hiragana": "べんじょ", "meaning": "Nhà vệ sinh", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "遠",
+      "han_viet": "Viễn",
+      "onyomi": ["エン"],
+      "kunyomi": ["とおい"],
+      "meaning_vi": "Xa, viễn, lâu dài",
+      "formation": "Hình thanh: 辶(ý: đi) + 袁(âm: エン, áo dài) → đi xa → xa, viễn",
+      "examples": [
+        {"word": "遠い", "hiragana": "とおい", "meaning": "Xa", "jlpt": "N5"},
+        {"word": "遠足", "hiragana": "えんそく", "meaning": "Dã ngoại", "jlpt": "N3"},
+        {"word": "永遠", "hiragana": "えいえん", "meaning": "Vĩnh viễn", "jlpt": "N2"},
+        {"word": "遠慮", "hiragana": "えんりょ", "meaning": "Khách sáo, e dè", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "暗",
+      "han_viet": "Ám",
+      "onyomi": ["アン"],
+      "kunyomi": ["くらい"],
+      "meaning_vi": "Tối, tối tăm, ngầm",
+      "formation": "Hình thanh: 日(ý: mặt trời) + 音(âm: アン/オン, âm thanh) → mặt trời bị che → tối",
+      "examples": [
+        {"word": "暗い", "hiragana": "くらい", "meaning": "Tối", "jlpt": "N4"},
+        {"word": "暗記", "hiragana": "あんき", "meaning": "Học thuộc lòng", "jlpt": "N3"},
+        {"word": "暗号", "hiragana": "あんごう", "meaning": "Mật mã", "jlpt": "N2"},
+        {"word": "暗殺", "hiragana": "あんさつ", "meaning": "Ám sát", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "洗",
+      "han_viet": "Tẩy",
+      "onyomi": ["セン"],
+      "kunyomi": ["あらう"],
+      "meaning_vi": "Rửa, giặt, tẩy",
+      "formation": "Hình thanh: 氵(ý: nước) + 先(âm: セン, trước) → dùng nước rửa sạch → rửa, tẩy",
+      "examples": [
+        {"word": "洗う", "hiragana": "あらう", "meaning": "Rửa", "jlpt": "N5"},
+        {"word": "洗濯", "hiragana": "せんたく", "meaning": "Giặt giũ", "jlpt": "N4"},
+        {"word": "洗面", "hiragana": "せんめん", "meaning": "Rửa mặt", "jlpt": "N3"},
+        {"word": "洗剤", "hiragana": "せんざい", "meaning": "Chất tẩy rửa", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "寒",
+      "han_viet": "Hàn",
+      "onyomi": ["カン"],
+      "kunyomi": ["さむい"],
+      "meaning_vi": "Lạnh, rét",
+      "formation": "Hội ý: 宀(nhà) + 人(người) + 茻(cỏ) + 冫(băng) → người trong nhà vẫn lạnh → rét, lạnh",
+      "examples": [
+        {"word": "寒い", "hiragana": "さむい", "meaning": "Lạnh", "jlpt": "N5"},
+        {"word": "寒波", "hiragana": "かんぱ", "meaning": "Đợt rét", "jlpt": "N2"},
+        {"word": "寒暖", "hiragana": "かんだん", "meaning": "Nóng lạnh", "jlpt": "N2"},
+        {"word": "寒気", "hiragana": "さむけ", "meaning": "Ớn lạnh", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "議",
+      "han_viet": "Nghị",
+      "onyomi": ["ギ"],
+      "kunyomi": [],
+      "meaning_vi": "Bàn bạc, nghị luận",
+      "formation": "Hình thanh: 言(ý: lời) + 義(âm: ギ, nghĩa) → bàn luận về đạo nghĩa → nghị luận",
+      "examples": [
+        {"word": "会議", "hiragana": "かいぎ", "meaning": "Cuộc họp", "jlpt": "N4"},
+        {"word": "議論", "hiragana": "ぎろん", "meaning": "Tranh luận", "jlpt": "N3"},
+        {"word": "議員", "hiragana": "ぎいん", "meaning": "Nghị viên", "jlpt": "N3"},
+        {"word": "議会", "hiragana": "ぎかい", "meaning": "Quốc hội", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "連",
+      "han_viet": "Liên",
+      "onyomi": ["レン"],
+      "kunyomi": ["つれる", "つらなる", "つらねる"],
+      "meaning_vi": "Liên kết, liên tục, dẫn đi",
+      "formation": "Hình thanh: 辶(ý: đi) + 車(âm: シャ, xe) → xe đi nối nhau → liên tục",
+      "examples": [
+        {"word": "連れる", "hiragana": "つれる", "meaning": "Dẫn theo", "jlpt": "N4"},
+        {"word": "連絡", "hiragana": "れんらく", "meaning": "Liên lạc", "jlpt": "N4"},
+        {"word": "連続", "hiragana": "れんぞく", "meaning": "Liên tục", "jlpt": "N3"},
+        {"word": "関連", "hiragana": "かんれん", "meaning": "Liên quan", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "対",
+      "han_viet": "Đối",
+      "onyomi": ["タイ", "ツイ"],
+      "kunyomi": [],
+      "meaning_vi": "Đối diện, đối với, cặp đôi",
+      "formation": "Hình thanh: 文(âm: ブン, văn) + 寸(ý: tay) → tay đối mặt → đối, đối diện",
+      "examples": [
+        {"word": "反対", "hiragana": "はんたい", "meaning": "Phản đối", "jlpt": "N4"},
+        {"word": "対する", "hiragana": "たいする", "meaning": "Đối với", "jlpt": "N3"},
+        {"word": "対象", "hiragana": "たいしょう", "meaning": "Đối tượng", "jlpt": "N3"},
+        {"word": "対策", "hiragana": "たいさく", "meaning": "Đối sách, biện pháp", "jlpt": "N2"},
+        {"word": "絶対", "hiragana": "ぜったい", "meaning": "Tuyệt đối", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "部",
+      "han_viet": "Bộ",
+      "onyomi": ["ブ", "ベ"],
+      "kunyomi": [],
+      "meaning_vi": "Bộ phận, phòng ban, bộ",
+      "formation": "Hình thanh: 咅(âm: ブ, chia) + 阝(ý: làng) → chia làng thành phần → bộ phận",
+      "examples": [
+        {"word": "部屋", "hiragana": "へや", "meaning": "Phòng", "jlpt": "N5"},
+        {"word": "全部", "hiragana": "ぜんぶ", "meaning": "Tất cả", "jlpt": "N4"},
+        {"word": "部分", "hiragana": "ぶぶん", "meaning": "Bộ phận", "jlpt": "N3"},
+        {"word": "部門", "hiragana": "ぶもん", "meaning": "Bộ môn", "jlpt": "N3"},
+        {"word": "部長", "hiragana": "ぶちょう", "meaning": "Trưởng phòng", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "内",
+      "han_viet": "Nội",
+      "onyomi": ["ナイ"],
+      "kunyomi": ["うち"],
+      "meaning_vi": "Trong, bên trong, nội",
+      "formation": "Hội ý: 冂(bao quanh) + 入(vào) → vào bên trong → trong, nội",
+      "examples": [
+        {"word": "内", "hiragana": "うち", "meaning": "Bên trong", "jlpt": "N4"},
+        {"word": "国内", "hiragana": "こくない", "meaning": "Trong nước", "jlpt": "N3"},
+        {"word": "案内", "hiragana": "あんない", "meaning": "Hướng dẫn", "jlpt": "N4"},
+        {"word": "市内", "hiragana": "しない", "meaning": "Trong thành phố", "jlpt": "N3"},
+        {"word": "内容", "hiragana": "ないよう", "meaning": "Nội dung", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "相",
+      "han_viet": "Tương",
+      "onyomi": ["ソウ", "ショウ"],
+      "kunyomi": ["あい"],
+      "meaning_vi": "Lẫn nhau, tướng mạo, thủ tướng",
+      "formation": "Hội ý: 木(cây) + 目(mắt) → mắt nhìn cây → quan sát, tương hỗ",
+      "examples": [
+        {"word": "相手", "hiragana": "あいて", "meaning": "Đối phương", "jlpt": "N3"},
+        {"word": "首相", "hiragana": "しゅしょう", "meaning": "Thủ tướng", "jlpt": "N3"},
+        {"word": "相談", "hiragana": "そうだん", "meaning": "Bàn bạc", "jlpt": "N4"},
+        {"word": "相当", "hiragana": "そうとう", "meaning": "Tương đương", "jlpt": "N2"},
+        {"word": "相互", "hiragana": "そうご", "meaning": "Tương hỗ", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "定",
+      "han_viet": "Định",
+      "onyomi": ["テイ", "ジョウ"],
+      "kunyomi": ["さだめる", "さだまる", "さだか"],
+      "meaning_vi": "Quyết định, ổn định, cố định",
+      "formation": "Hội ý: 宀(nhà) + 正(đúng) → đúng đắn trong nhà → ổn định, xác định",
+      "examples": [
+        {"word": "予定", "hiragana": "よてい", "meaning": "Kế hoạch, dự định", "jlpt": "N4"},
+        {"word": "決定", "hiragana": "けってい", "meaning": "Quyết định", "jlpt": "N3"},
+        {"word": "安定", "hiragana": "あんてい", "meaning": "Ổn định", "jlpt": "N3"},
+        {"word": "定める", "hiragana": "さだめる", "meaning": "Ấn định", "jlpt": "N2"},
+        {"word": "定期", "hiragana": "ていき", "meaning": "Định kỳ", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "選",
+      "han_viet": "Tuyển",
+      "onyomi": ["セン"],
+      "kunyomi": ["えらぶ", "よる"],
+      "meaning_vi": "Chọn, tuyển chọn, bầu",
+      "formation": "Hình thanh: 辶(ý: đi) + 巽(âm: セン, thuận) → đi chọn lựa → tuyển chọn",
+      "examples": [
+        {"word": "選ぶ", "hiragana": "えらぶ", "meaning": "Chọn", "jlpt": "N4"},
+        {"word": "選手", "hiragana": "せんしゅ", "meaning": "Vận động viên", "jlpt": "N3"},
+        {"word": "選挙", "hiragana": "せんきょ", "meaning": "Bầu cử", "jlpt": "N3"},
+        {"word": "選択", "hiragana": "せんたく", "meaning": "Lựa chọn", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "米",
+      "han_viet": "Mễ",
+      "onyomi": ["ベイ", "マイ"],
+      "kunyomi": ["こめ"],
+      "meaning_vi": "Gạo, Mỹ (nước)",
+      "formation": "Tượng hình: Hình ảnh bông lúa tỏa ra 6 hạt → gạo",
+      "examples": [
+        {"word": "米", "hiragana": "こめ", "meaning": "Gạo", "jlpt": "N4"},
+        {"word": "米国", "hiragana": "べいこく", "meaning": "Nước Mỹ", "jlpt": "N3"},
+        {"word": "白米", "hiragana": "はくまい", "meaning": "Gạo trắng", "jlpt": "N3"},
+        {"word": "米粒", "hiragana": "こめつぶ", "meaning": "Hạt gạo", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "実",
+      "han_viet": "Thực",
+      "onyomi": ["ジツ"],
+      "kunyomi": ["み", "みのる"],
+      "meaning_vi": "Thực, sự thật, quả, trái",
+      "formation": "Hội ý: 宀(nhà) + 貫(xâu tiền) → nhà đầy của cải → thực, đầy đủ",
+      "examples": [
+        {"word": "実は", "hiragana": "じつは", "meaning": "Thực ra", "jlpt": "N3"},
+        {"word": "現実", "hiragana": "げんじつ", "meaning": "Hiện thực", "jlpt": "N3"},
+        {"word": "事実", "hiragana": "じじつ", "meaning": "Sự thật", "jlpt": "N3"},
+        {"word": "実行", "hiragana": "じっこう", "meaning": "Thực hiện", "jlpt": "N3"},
+        {"word": "実験", "hiragana": "じっけん", "meaning": "Thí nghiệm", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "関",
+      "han_viet": "Quan",
+      "onyomi": ["カン"],
+      "kunyomi": ["かかわる", "せき"],
+      "meaning_vi": "Quan hệ, liên quan, cửa ải",
+      "formation": "Hình thanh: 門(ý: cửa) + 关(âm: カン, then cửa) → cửa có then → cửa ải, quan hệ",
+      "examples": [
+        {"word": "関係", "hiragana": "かんけい", "meaning": "Quan hệ", "jlpt": "N3"},
+        {"word": "関心", "hiragana": "かんしん", "meaning": "Quan tâm", "jlpt": "N3"},
+        {"word": "関する", "hiragana": "かんする", "meaning": "Liên quan đến", "jlpt": "N3"},
+        {"word": "関連", "hiragana": "かんれん", "meaning": "Liên quan", "jlpt": "N2"},
+        {"word": "機関", "hiragana": "きかん", "meaning": "Cơ quan", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "決",
+      "han_viet": "Quyết",
+      "onyomi": ["ケツ"],
+      "kunyomi": ["きめる", "きまる"],
+      "meaning_vi": "Quyết, quyết định",
+      "formation": "Hình thanh: 氵(ý: nước) + 夬(âm: ケツ, cắt) → nước cắt đứt → quyết đoán",
+      "examples": [
+        {"word": "決める", "hiragana": "きめる", "meaning": "Quyết định", "jlpt": "N4"},
+        {"word": "決まる", "hiragana": "きまる", "meaning": "Được quyết định", "jlpt": "N4"},
+        {"word": "決定", "hiragana": "けってい", "meaning": "Quyết định", "jlpt": "N3"},
+        {"word": "解決", "hiragana": "かいけつ", "meaning": "Giải quyết", "jlpt": "N3"},
+        {"word": "決心", "hiragana": "けっしん", "meaning": "Quyết tâm", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "全",
+      "han_viet": "Toàn",
+      "onyomi": ["ゼン"],
+      "kunyomi": ["まったく", "すべて"],
+      "meaning_vi": "Toàn bộ, tất cả, hoàn toàn",
+      "formation": "Hội ý: 入(vào) + 王(vua) → vua thâu tóm tất cả → toàn bộ",
+      "examples": [
+        {"word": "全部", "hiragana": "ぜんぶ", "meaning": "Tất cả", "jlpt": "N4"},
+        {"word": "全体", "hiragana": "ぜんたい", "meaning": "Toàn thể", "jlpt": "N3"},
+        {"word": "全く", "hiragana": "まったく", "meaning": "Hoàn toàn", "jlpt": "N3"},
+        {"word": "安全", "hiragana": "あんぜん", "meaning": "An toàn", "jlpt": "N4"},
+        {"word": "全員", "hiragana": "ぜんいん", "meaning": "Toàn viên", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "表",
+      "han_viet": "Biểu",
+      "onyomi": ["ヒョウ"],
+      "kunyomi": ["おもて", "あらわす", "あらわれる"],
+      "meaning_vi": "Biểu hiện, bảng, mặt ngoài",
+      "formation": "Hội ý: 衣(áo) + 毛(lông) → mặt ngoài áo có lông → bề ngoài, biểu hiện",
+      "examples": [
+        {"word": "表", "hiragana": "おもて", "meaning": "Mặt ngoài", "jlpt": "N3"},
+        {"word": "表す", "hiragana": "あらわす", "meaning": "Biểu hiện, thể hiện", "jlpt": "N3"},
+        {"word": "発表", "hiragana": "はっぴょう", "meaning": "Phát biểu", "jlpt": "N3"},
+        {"word": "表現", "hiragana": "ひょうげん", "meaning": "Biểu hiện", "jlpt": "N3"},
+        {"word": "代表", "hiragana": "だいひょう", "meaning": "Đại biểu", "jlpt": "N3"}
+      ]
+    }
+  ]
+}

@@ -21,15 +21,72 @@
 }
 
 /* ── Page Title ── */
+.kj-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 16px 8px;
+  flex-wrap: wrap;
+}
+
 .kj-title {
   text-align: center;
   font-size: 1.55rem;
   font-weight: 700;
   color: var(--text-primary, #1a1a1a);
-  padding: 28px 0 8px;
+  padding: 0;
   margin: 0;
   letter-spacing: 0.02em;
   animation: kj-fade-in 0.4s ease;
+}
+
+/* ── Bulk Study Button ── */
+.kj-add-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.kj-add-all-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+.kj-add-all-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.kj-add-all-btn--loading {
+  animation: kj-shimmer 1.5s infinite;
+  background-size: 200% 100%;
+}
+
+/* ── Study Feedback Message ── */
+.kj-study-msg {
+  text-align: center;
+  padding: 8px 16px;
+  margin: 4px auto 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-secondary, #555);
+  animation: kj-fade-in 0.3s ease;
+}
+
+[data-theme="dark"] .kj-add-all-btn {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+[data-theme="dark"] .kj-add-all-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca, #6d28d9);
 }
 
 /* ── Level Tabs ── */
@@ -219,8 +276,8 @@
   left: 50%;
   transform: translateX(-50%);
   width: 55%;
-  height: 3px;
-  border-radius: 2px;
+  height: 5px;
+  border-radius: 3px;
   background: var(--border-subtle, #e5e7eb);
   overflow: hidden;
 }

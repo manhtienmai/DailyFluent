@@ -11,6 +11,8 @@ router = Router()
 @router.get("/flashcards")
 def grammar_flashcards(request, level: str = None):
     """Get grammar flashcard session (FSRS-based)."""
+    if not request.user or not request.user.is_authenticated:
+        return {"cards": [], "stats": {"total": 0, "learning": 0, "review": 0, "new": 0}}
     from grammar.grammar_fsrs_service import GrammarFsrsService
     cards, stats = GrammarFsrsService.get_flashcard_session(
         user=request.user,

@@ -35,6 +35,8 @@ import {
   CrownFilled,
   SoundOutlined,
   LockOutlined,
+  BarChartOutlined,
+  ScheduleOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -94,6 +96,15 @@ const MENU_ITEMS: MenuItem[] = [
 
   {
     type: "group",
+    label: "Giáo viên",
+    children: [
+      item(<Link href="/admin/teacher-dashboard">Dashboard GV</Link>, "/admin/teacher-dashboard", ci(BarChartOutlined, "#10b981")),
+      item(<Link href="/admin/assignments">Giao bài tập</Link>, "/admin/assignments", ci(ScheduleOutlined, "#f59e0b")),
+    ],
+  },
+
+  {
+    type: "group",
     label: "Quản lý",
     children: [
       item(<Link href="/admin/courses">Khoá học</Link>, "/admin/courses", ci(ReadOutlined, "#6366f1")),
@@ -122,6 +133,7 @@ const ALL_KEYS = [
   "/admin/vocab/tts",
   "/admin/kanji", "/admin/kanji/quiz-generate",
   "/admin/grammar", "/admin/videos", "/admin/books", "/admin/courses",
+  "/admin/teacher-dashboard", "/admin/assignments",
   "/admin/placement", "/admin/users", "/admin/vip", "/admin/exams", "/admin/payment", "/admin/wallet",
   "/admin/feedback", "/admin/shop",
 ];

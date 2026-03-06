@@ -121,6 +121,7 @@ INSTALLED_APPS = [
     'shop',
     'placement',
     'ebook',
+    'notifications',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',

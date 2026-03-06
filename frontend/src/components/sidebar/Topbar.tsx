@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/lib/auth";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { useState, useEffect, useCallback } from "react";
 
 export default function Topbar() {
@@ -12,29 +13,7 @@ export default function Topbar() {
   const userName = user?.first_name || user?.username || "Khách";
   const userAvatar = user?.avatar_url;
 
-  // Language switcher
-  const [lang, setLang] = useState<"jp" | "en">("jp");
-  useEffect(() => {
-    const saved = localStorage.getItem("df_study_lang");
-    if (saved === "en" || saved === "jp") setLang(saved);
-  }, []);
 
-  const handleLangToggle = useCallback(async () => {
-    const newLang = lang === "jp" ? "en" : "jp";
-    setLang(newLang);
-    localStorage.setItem("df_study_lang", newLang);
-    try {
-      await fetch("/api/set-language/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ language: newLang }),
-      });
-    } catch (e) {
-      console.warn("Failed to save language:", e);
-    }
-    window.location.reload();
-  }, [lang]);
 
   // Countdown timer
   const [countdown, setCountdown] = useState({ d: "00", h: "00", m: "00", s: "00" });
@@ -104,21 +83,6 @@ export default function Topbar() {
           <span className="df-countdown-unit">s</span>
         </div>
 
-        {/* Language Switcher */}
-        <div className="df-lang-switcher" title="Chuyển ngôn ngữ học">
-          <button
-            onClick={handleLangToggle}
-            className={`df-lang-toggle ${lang === "jp" ? "df-lang-jp-active" : "df-lang-en-active"}`}
-          >
-            <span className={`df-lang-opt df-lang-opt-jp ${lang === "jp" ? "df-lang-opt-active" : ""}`}>
-              <span className="df-lang-label">JLPT</span>
-            </span>
-            <span className={`df-lang-opt df-lang-opt-en ${lang === "en" ? "df-lang-opt-active" : ""}`}>
-              <span className="df-lang-label">TOEIC</span>
-            </span>
-          </button>
-        </div>
-
         {/* Streak */}
         <div className="df-topbar-stat df-topbar-streak" title="Chuỗi ngày học">
           <svg viewBox="0 0 24 24" fill="currentColor" className="df-stat-icon df-streak-icon">
@@ -127,7 +91,10 @@ export default function Topbar() {
           <span className="df-stat-value">0</span>
         </div>
 
-        {/* User Profile */}
+        {/* Notifications */}
+        <NotificationBell />
+
+        {/* User Profile (hidden on mobile) */}
         <div className="df-topbar-user" onClick={openUserModal} title="Hồ sơ cá nhân">
           <div className="df-topbar-user-avatar">
             {userAvatar ? (

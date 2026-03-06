@@ -1,0 +1,300 @@
+[
+  {
+    "jlpt_level": "N2",
+    "lesson_id": 7,
+    "topic": "Đồ vật & Tổ chức",
+    "kanji_list": [
+      {
+        "character": "刷",
+        "han_viet": "Loát",
+        "onyomi": ["サツ"],
+        "kunyomi": ["する"],
+        "meaning_vi": "In ấn, đánh (răng)",
+        "formation": "Hội ý: 尸(thân hình) + 巾(vải) + 刂(dao). Dùng dao khắc bản in, dùng vải lau → in ấn, chà rửa.",
+        "examples": [
+          {"word": "印刷", "hiragana": "いんさつ", "meaning": "In ấn", "jlpt": "N2"},
+          {"word": "歯ブラシ", "hiragana": "はブラシ", "meaning": "Bàn chải đánh răng", "jlpt": "N3"},
+          {"word": "刷新", "hiragana": "さっしん", "meaning": "Canh tân, đổi mới", "jlpt": "N1"},
+          {"word": "刷る", "hiragana": "する", "meaning": "In", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "湯",
+        "han_viet": "Thang",
+        "onyomi": ["トウ"],
+        "kunyomi": ["ゆ"],
+        "meaning_vi": "Nước nóng, nước sôi",
+        "formation": "Hình thanh: 氵(ý: nước) + 昜(âm: トウ, mặt trời mọc). Nước được mặt trời đun nóng → nước nóng, nước sôi.",
+        "examples": [
+          {"word": "お湯", "hiragana": "おゆ", "meaning": "Nước nóng", "jlpt": "N4"},
+          {"word": "銭湯", "hiragana": "せんとう", "meaning": "Nhà tắm công cộng", "jlpt": "N2"},
+          {"word": "湯気", "hiragana": "ゆげ", "meaning": "Hơi nước", "jlpt": "N2"},
+          {"word": "熱湯", "hiragana": "ねっとう", "meaning": "Nước sôi", "jlpt": "N2"},
+          {"word": "湯船", "hiragana": "ゆぶね", "meaning": "Bồn tắm", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "孫",
+        "han_viet": "Tôn",
+        "onyomi": ["ソン"],
+        "kunyomi": ["まご"],
+        "meaning_vi": "Cháu, con cháu",
+        "formation": "Hội ý: 子(con) + 系(nối tiếp). Con nối tiếp từ đời con → cháu. Tôn = cháu nối dõi.",
+        "examples": [
+          {"word": "孫", "hiragana": "まご", "meaning": "Cháu", "jlpt": "N3"},
+          {"word": "子孫", "hiragana": "しそん", "meaning": "Con cháu, hậu duệ", "jlpt": "N2"},
+          {"word": "孫娘", "hiragana": "まごむすめ", "meaning": "Cháu gái", "jlpt": "N2"},
+          {"word": "孫息子", "hiragana": "まごむすこ", "meaning": "Cháu trai", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "毒",
+        "han_viet": "Độc",
+        "onyomi": ["ドク"],
+        "kunyomi": [],
+        "meaning_vi": "Chất độc, đầu độc",
+        "formation": "Hội ý: 母(mẹ) biến thể + 毋(đừng). Thứ mà mẹ dặn đừng đụng vào → chất độc. Mẹo: cây cỏ 生 mọc trên đất mà bị cấm → cỏ độc.",
+        "examples": [
+          {"word": "毒", "hiragana": "どく", "meaning": "Chất độc", "jlpt": "N3"},
+          {"word": "中毒", "hiragana": "ちゅうどく", "meaning": "Trúng độc, nghiện", "jlpt": "N2"},
+          {"word": "毒薬", "hiragana": "どくやく", "meaning": "Thuốc độc", "jlpt": "N2"},
+          {"word": "消毒", "hiragana": "しょうどく", "meaning": "Khử trùng", "jlpt": "N2"},
+          {"word": "有毒", "hiragana": "ゆうどく", "meaning": "Có độc", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "氷",
+        "han_viet": "Băng",
+        "onyomi": ["ヒョウ"],
+        "kunyomi": ["こおり", "ひ"],
+        "meaning_vi": "Băng, nước đá",
+        "formation": "Chỉ sự: 水(nước) + dấu chấm bên trái chỉ sự đông cứng. Nước đông lại thành đá → băng.",
+        "examples": [
+          {"word": "氷", "hiragana": "こおり", "meaning": "Nước đá, băng", "jlpt": "N3"},
+          {"word": "氷山", "hiragana": "ひょうざん", "meaning": "Núi băng", "jlpt": "N2"},
+          {"word": "氷河", "hiragana": "ひょうが", "meaning": "Sông băng", "jlpt": "N1"},
+          {"word": "かき氷", "hiragana": "かきごおり", "meaning": "Đá bào", "jlpt": "N3"}
+        ]
+      },
+      {
+        "character": "拾",
+        "han_viet": "Thập",
+        "onyomi": ["シュウ", "ジュウ"],
+        "kunyomi": ["ひろう"],
+        "meaning_vi": "Nhặt, lượm",
+        "formation": "Hình thanh: 扌(ý: tay) + 合(âm: シュウ, hợp lại). Tay nhặt đồ gom lại → lượm, nhặt.",
+        "examples": [
+          {"word": "拾う", "hiragana": "ひろう", "meaning": "Nhặt, lượm", "jlpt": "N3"},
+          {"word": "拾得", "hiragana": "しゅうとく", "meaning": "Nhặt được", "jlpt": "N1"},
+          {"word": "拾い物", "hiragana": "ひろいもの", "meaning": "Đồ nhặt được, món hời", "jlpt": "N2"},
+          {"word": "収拾", "hiragana": "しゅうしゅう", "meaning": "Thu dọn, giải quyết", "jlpt": "N1"}
+        ]
+      },
+      {
+        "character": "粉",
+        "han_viet": "Phấn",
+        "onyomi": ["フン"],
+        "kunyomi": ["こ", "こな"],
+        "meaning_vi": "Bột, phấn",
+        "formation": "Hình thanh: 米(ý: gạo) + 分(âm: フン, chia ra). Gạo được chia nhỏ thành bột → bột, phấn.",
+        "examples": [
+          {"word": "小麦粉", "hiragana": "こむぎこ", "meaning": "Bột mì", "jlpt": "N3"},
+          {"word": "粉", "hiragana": "こな", "meaning": "Bột", "jlpt": "N3"},
+          {"word": "花粉", "hiragana": "かふん", "meaning": "Phấn hoa", "jlpt": "N2"},
+          {"word": "粉末", "hiragana": "ふんまつ", "meaning": "Bột mịn", "jlpt": "N1"},
+          {"word": "粉ミルク", "hiragana": "こなミルク", "meaning": "Sữa bột", "jlpt": "N3"}
+        ]
+      },
+      {
+        "character": "糸",
+        "han_viet": "Mịch",
+        "onyomi": ["シ"],
+        "kunyomi": ["いと"],
+        "meaning_vi": "Sợi chỉ, sợi tơ",
+        "formation": "Tượng hình: Hình ảnh cuộn tơ xoắn lại. Bộ 糸 là bộ thủ cực phổ biến, xuất hiện trong: 紙(chỉ=giấy), 線(tuyến=dây), 組(tổ=nhóm), 経(kinh=kinh doanh), 練(luyện=luyện tập), 緑(lục=xanh).",
+        "examples": [
+          {"word": "糸", "hiragana": "いと", "meaning": "Sợi chỉ", "jlpt": "N3"},
+          {"word": "毛糸", "hiragana": "けいと", "meaning": "Sợi len", "jlpt": "N3"},
+          {"word": "糸口", "hiragana": "いとぐち", "meaning": "Đầu mối, manh mối", "jlpt": "N2"},
+          {"word": "絹糸", "hiragana": "きぬいと", "meaning": "Tơ lụa", "jlpt": "N1"}
+        ]
+      },
+      {
+        "character": "灯",
+        "han_viet": "Đăng",
+        "onyomi": ["トウ", "チン"],
+        "kunyomi": ["ひ", "あかり"],
+        "meaning_vi": "Đèn, đăng",
+        "formation": "Hình thanh: 火(ý: lửa) + 丁(âm: トウ, đinh). Lửa đóng trên cọc → đèn. Đăng = đèn chiếu sáng.",
+        "examples": [
+          {"word": "電灯", "hiragana": "でんとう", "meaning": "Đèn điện", "jlpt": "N3"},
+          {"word": "灯台", "hiragana": "とうだい", "meaning": "Hải đăng", "jlpt": "N2"},
+          {"word": "灯り", "hiragana": "あかり", "meaning": "Ánh sáng, đèn", "jlpt": "N3"},
+          {"word": "灯油", "hiragana": "とうゆ", "meaning": "Dầu hỏa", "jlpt": "N2"},
+          {"word": "街灯", "hiragana": "がいとう", "meaning": "Đèn đường", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "麦",
+        "han_viet": "Mạch",
+        "onyomi": ["バク"],
+        "kunyomi": ["むぎ"],
+        "meaning_vi": "Lúa mạch, lúa mì",
+        "formation": "Tượng hình: Phần trên là bông lúa, dưới là rễ/chân đi. Cây lúa mạch có rễ sâu → lúa mạch. Liên hệ: mạch nha (麦芽).",
+        "examples": [
+          {"word": "小麦", "hiragana": "こむぎ", "meaning": "Lúa mì", "jlpt": "N3"},
+          {"word": "麦茶", "hiragana": "むぎちゃ", "meaning": "Trà lúa mạch", "jlpt": "N3"},
+          {"word": "麦畑", "hiragana": "むぎばたけ", "meaning": "Cánh đồng lúa mì", "jlpt": "N2"},
+          {"word": "大麦", "hiragana": "おおむぎ", "meaning": "Lúa đại mạch", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "鼻",
+        "han_viet": "Tị",
+        "onyomi": ["ビ"],
+        "kunyomi": ["はな"],
+        "meaning_vi": "Mũi",
+        "formation": "Hội ý: 自(tự, bản thân – gốc là hình cái mũi) + 田(ruộng) + 丌(đế). Phần tự chỉ vào mũi (vì người Nhật/Trung chỉ mũi để nói 'tôi') → mũi.",
+        "examples": [
+          {"word": "鼻", "hiragana": "はな", "meaning": "Mũi", "jlpt": "N4"},
+          {"word": "鼻水", "hiragana": "はなみず", "meaning": "Nước mũi", "jlpt": "N3"},
+          {"word": "鼻血", "hiragana": "はなぢ", "meaning": "Chảy máu mũi", "jlpt": "N3"},
+          {"word": "耳鼻科", "hiragana": "じびか", "meaning": "Khoa tai mũi họng", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "胃",
+        "han_viet": "Vị",
+        "onyomi": ["イ"],
+        "kunyomi": [],
+        "meaning_vi": "Dạ dày",
+        "formation": "Hội ý: 田(ruộng, hình cái túi) + 月(thịt/cơ thể). Cái túi trong cơ thể chứa thức ăn → dạ dày.",
+        "examples": [
+          {"word": "胃", "hiragana": "い", "meaning": "Dạ dày", "jlpt": "N3"},
+          {"word": "胃腸", "hiragana": "いちょう", "meaning": "Dạ dày ruột", "jlpt": "N2"},
+          {"word": "胃薬", "hiragana": "いぐすり", "meaning": "Thuốc dạ dày", "jlpt": "N3"},
+          {"word": "胃炎", "hiragana": "いえん", "meaning": "Viêm dạ dày", "jlpt": "N2"},
+          {"word": "胃痛", "hiragana": "いつう", "meaning": "Đau dạ dày", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "貝",
+        "han_viet": "Bối",
+        "onyomi": [],
+        "kunyomi": ["かい"],
+        "meaning_vi": "Vỏ sò, con sò",
+        "formation": "Tượng hình: Hình ảnh con sò mở hai vỏ. Bộ 貝 là bộ thủ cực quan trọng, liên quan đến TIỀN (xưa dùng vỏ sò làm tiền): 買(mua), 売(bán), 貨(hàng hóa), 費(phí), 資(vốn), 賞(thưởng).",
+        "examples": [
+          {"word": "貝", "hiragana": "かい", "meaning": "Con sò, vỏ sò", "jlpt": "N3"},
+          {"word": "貝殻", "hiragana": "かいがら", "meaning": "Vỏ sò", "jlpt": "N2"},
+          {"word": "貝柱", "hiragana": "かいばしら", "meaning": "Cồi sò", "jlpt": "N2"},
+          {"word": "巻き貝", "hiragana": "まきがい", "meaning": "Ốc xoắn", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "皿",
+        "han_viet": "Mãnh",
+        "onyomi": [],
+        "kunyomi": ["さら"],
+        "meaning_vi": "Đĩa, bát",
+        "formation": "Tượng hình: Hình ảnh cái đĩa/bát nhìn từ trên xuống. Bộ 皿 xuất hiện trong: 盛(thịnh=đầy), 監(giám=giám sát), 盗(đạo=ăn trộm), 温(ôn=ấm).",
+        "examples": [
+          {"word": "皿", "hiragana": "さら", "meaning": "Cái đĩa", "jlpt": "N4"},
+          {"word": "灰皿", "hiragana": "はいざら", "meaning": "Gạt tàn", "jlpt": "N3"},
+          {"word": "小皿", "hiragana": "こざら", "meaning": "Đĩa nhỏ", "jlpt": "N3"},
+          {"word": "大皿", "hiragana": "おおざら", "meaning": "Đĩa lớn", "jlpt": "N3"},
+          {"word": "受け皿", "hiragana": "うけざら", "meaning": "Đĩa lót, nơi tiếp nhận", "jlpt": "N1"}
+        ]
+      },
+      {
+        "character": "党",
+        "han_viet": "Đảng",
+        "onyomi": ["トウ"],
+        "kunyomi": ["なかま", "むら"],
+        "meaning_vi": "Đảng, đảng phái",
+        "formation": "Hình thanh: 尚(âm gần トウ, cao thượng) + 黒→儿(chân người). Nhóm người cùng lý tưởng cao thượng đứng cùng nhau → đảng phái.",
+        "examples": [
+          {"word": "政党", "hiragana": "せいとう", "meaning": "Chính đảng", "jlpt": "N2"},
+          {"word": "党員", "hiragana": "とういん", "meaning": "Đảng viên", "jlpt": "N2"},
+          {"word": "野党", "hiragana": "やとう", "meaning": "Đảng đối lập", "jlpt": "N2"},
+          {"word": "与党", "hiragana": "よとう", "meaning": "Đảng cầm quyền", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "総",
+        "han_viet": "Tổng",
+        "onyomi": ["ソウ"],
+        "kunyomi": [],
+        "meaning_vi": "Tổng, tổng cộng",
+        "formation": "Hình thanh: 糸(ý: sợi tơ, gom lại) + 総(âm: ソウ). Gom tất cả sợi tơ lại → tổng hợp, tổng cộng.",
+        "examples": [
+          {"word": "総合", "hiragana": "そうごう", "meaning": "Tổng hợp", "jlpt": "N2"},
+          {"word": "総理", "hiragana": "そうり", "meaning": "Tổng lý, thủ tướng", "jlpt": "N2"},
+          {"word": "総額", "hiragana": "そうがく", "meaning": "Tổng số tiền", "jlpt": "N2"},
+          {"word": "総務", "hiragana": "そうむ", "meaning": "Tổng vụ", "jlpt": "N1"},
+          {"word": "総選挙", "hiragana": "そうせんきょ", "meaning": "Tổng tuyển cử", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "領",
+        "han_viet": "Lĩnh",
+        "onyomi": ["リョウ"],
+        "kunyomi": [],
+        "meaning_vi": "Lãnh thổ, thống lĩnh, lĩnh vực",
+        "formation": "Hình thanh: 令(âm: リョウ, lệnh) + 頁(đầu). Người đứng đầu ra lệnh → thống lĩnh, lãnh đạo. Nhóm âm 令→レイ/リョウ: 領(lĩnh), 冷(lãnh=lạnh), 齢(linh=tuổi).",
+        "examples": [
+          {"word": "大統領", "hiragana": "だいとうりょう", "meaning": "Tổng thống", "jlpt": "N2"},
+          {"word": "領土", "hiragana": "りょうど", "meaning": "Lãnh thổ", "jlpt": "N2"},
+          {"word": "領域", "hiragana": "りょういき", "meaning": "Lĩnh vực", "jlpt": "N2"},
+          {"word": "要領", "hiragana": "ようりょう", "meaning": "Yếu lĩnh, điểm chính", "jlpt": "N1"},
+          {"word": "領収書", "hiragana": "りょうしゅうしょ", "meaning": "Hóa đơn", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "設",
+        "han_viet": "Thiết",
+        "onyomi": ["セツ"],
+        "kunyomi": ["もうける"],
+        "meaning_vi": "Thiết lập, kiến thiết",
+        "formation": "Hình thanh: 言(ý: lời nói, kế hoạch) + 殳(âm: セツ, vũ khí/hành động). Lập kế hoạch rồi thực hiện → thiết lập, xây dựng.",
+        "examples": [
+          {"word": "設計", "hiragana": "せっけい", "meaning": "Thiết kế", "jlpt": "N2"},
+          {"word": "建設", "hiragana": "けんせつ", "meaning": "Kiến thiết, xây dựng", "jlpt": "N2"},
+          {"word": "設備", "hiragana": "せつび", "meaning": "Thiết bị", "jlpt": "N2"},
+          {"word": "設置", "hiragana": "せっち", "meaning": "Thiết trí, lắp đặt", "jlpt": "N2"},
+          {"word": "設ける", "hiragana": "もうける", "meaning": "Thiết lập, tạo ra", "jlpt": "N2"}
+        ]
+      },
+      {
+        "character": "査",
+        "han_viet": "Tra",
+        "onyomi": ["サ"],
+        "kunyomi": [],
+        "meaning_vi": "Điều tra, tra cứu",
+        "formation": "Hội ý: 木(cây) + 且(chồng lên). Xếp chồng gỗ lên kiểm tra → tra xét. Mở rộng: điều tra, nghiên cứu.",
+        "examples": [
+          {"word": "調査", "hiragana": "ちょうさ", "meaning": "Điều tra", "jlpt": "N2"},
+          {"word": "検査", "hiragana": "けんさ", "meaning": "Kiểm tra", "jlpt": "N2"},
+          {"word": "捜査", "hiragana": "そうさ", "meaning": "Sưu tra, điều tra", "jlpt": "N2"},
+          {"word": "審査", "hiragana": "しんさ", "meaning": "Thẩm tra", "jlpt": "N2"},
+          {"word": "査定", "hiragana": "さてい", "meaning": "Tra định, thẩm định", "jlpt": "N1"}
+        ]
+      },
+      {
+        "character": "団",
+        "han_viet": "Đoàn",
+        "onyomi": ["ダン", "トン"],
+        "kunyomi": ["かたまり"],
+        "meaning_vi": "Đoàn thể, đoàn kết",
+        "formation": "Hội ý: 囗(vây quanh) + 寸(đo lường, quy tắc). Nhóm người trong khuôn phép → đoàn thể, tổ chức.",
+        "examples": [
+          {"word": "団体", "hiragana": "だんたい", "meaning": "Đoàn thể", "jlpt": "N2"},
+          {"word": "集団", "hiragana": "しゅうだん", "meaning": "Tập đoàn, nhóm", "jlpt": "N2"},
+          {"word": "団地", "hiragana": "だんち", "meaning": "Khu chung cư", "jlpt": "N2"},
+          {"word": "布団", "hiragana": "ふとん", "meaning": "Chăn nệm Nhật", "jlpt": "N4"},
+          {"word": "団結", "hiragana": "だんけつ", "meaning": "Đoàn kết", "jlpt": "N2"}
+        ]
+      }
+    ]
+  }
+]

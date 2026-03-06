@@ -361,7 +361,7 @@ export default function BunpouFlashcardPage() {
                   {currentCard.grammar_structure && (
                     <div className="bfc-section">
                       <div className="bfc-section-label">構造</div>
-                      <div className="bfc-formation">{currentCard.grammar_structure}</div>
+                      <div className="bfc-formation">{currentCard.grammar_structure.replace(/\|/g, '\n')}</div>
                     </div>
                   )}
                   {currentCard.grammar_meaning && (

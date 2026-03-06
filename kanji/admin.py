@@ -276,6 +276,7 @@ def _import_kanji_json(data: list, replace: bool = True) -> dict:
                         'reading': ex.get('hiragana', ''),
                         'meaning': ex.get('meaning', ''),
                         'priority': priority,
+                        'jlpt_level': ex.get('jlpt', ''),
                     },
                 )
                 if created:

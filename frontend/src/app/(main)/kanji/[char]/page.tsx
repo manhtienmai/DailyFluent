@@ -496,27 +496,50 @@ export default function KanjiDetailPage() {
                       })}
                     </div>
                     {selectedVocab.size > 0 && (
-                      <button
-                        className="kd-btn-study"
-                        onClick={async () => {
-                          setStudyMsg(null);
-                          try {
-                            const res = await fetch("/api/v1/kanji/vocab/add-to-study", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ kanji_vocab_ids: [...selectedVocab] }),
-                            });
-                            if (!res.ok) throw new Error("Lỗi");
-                            const result = await res.json();
-                            setStudyMsg(`Đã thêm ${result.added} từ${result.already ? `, ${result.already} từ đã có` : ""}`);
-                            setSelectedVocab(new Set());
-                          } catch {
-                            setStudyMsg("Có lỗi xảy ra. Vui lòng đăng nhập.");
-                          }
-                        }}
-                      >
-                        📚 Thêm {selectedVocab.size} từ vào học
-                      </button>
+                      <div className="kd-vocab-actions">
+                        <button
+                          className="kd-btn-study"
+                          onClick={async () => {
+                            setStudyMsg(null);
+                            try {
+                              const res = await fetch("/api/v1/kanji/vocab/add-to-study", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ kanji_vocab_ids: [...selectedVocab] }),
+                              });
+                              if (!res.ok) throw new Error("Lỗi");
+                              const result = await res.json();
+                              setStudyMsg(`Đã thêm ${result.added} từ${result.already ? `, ${result.already} từ đã có` : ""}`);
+                              setSelectedVocab(new Set());
+                            } catch {
+                              setStudyMsg("Có lỗi xảy ra. Vui lòng đăng nhập.");
+                            }
+                          }}
+                        >
+                          📚 Thêm {selectedVocab.size} từ vào học
+                        </button>
+                        <button
+                          className="kd-btn-remove"
+                          onClick={async () => {
+                            setStudyMsg(null);
+                            try {
+                              const res = await fetch("/api/v1/kanji/vocab/remove-from-study", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ kanji_vocab_ids: [...selectedVocab] }),
+                              });
+                              if (!res.ok) throw new Error("Lỗi");
+                              const result = await res.json();
+                              setStudyMsg(`🗑️ Đã xóa ${result.removed} từ khỏi bộ học`);
+                              setSelectedVocab(new Set());
+                            } catch {
+                              setStudyMsg("Có lỗi xảy ra. Vui lòng đăng nhập.");
+                            }
+                          }}
+                        >
+                          🗑️ Xóa {selectedVocab.size} từ
+                        </button>
+                      </div>
                     )}
                     {studyMsg && <p className="kd-study-msg">{studyMsg}</p>}
                   </>

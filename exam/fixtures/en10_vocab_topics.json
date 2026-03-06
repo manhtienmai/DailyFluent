@@ -1,0 +1,1883 @@
+[
+  {
+    "slug": "education",
+    "title": "Education",
+    "title_vi": "Giáo dục",
+    "emoji": "🎓",
+    "order": 1,
+    "words": [
+      {
+        "word": "compulsory",
+        "pos": "adjective",
+        "ipa": "/kəmˈpʌlsəri/",
+        "meaning": "bắt buộc"
+      },
+      {
+        "word": "subject",
+        "pos": "noun",
+        "ipa": "/ˈsʌbdʒɪkt/",
+        "meaning": "môn học"
+      },
+      {
+        "word": "revise",
+        "pos": "verb",
+        "ipa": "/rɪˈvaɪz/",
+        "meaning": "ôn tập"
+      },
+      {
+        "word": "examination",
+        "pos": "noun",
+        "ipa": "/ɪɡˌzæmɪˈneɪʃn/",
+        "meaning": "kỳ thi"
+      },
+      {
+        "word": "attend",
+        "pos": "verb",
+        "ipa": "/əˈtend/",
+        "meaning": "tham dự"
+      },
+      {
+        "word": "homework",
+        "pos": "noun",
+        "ipa": "/ˈhəʊmwɜːk/",
+        "meaning": "bài tập về nhà"
+      },
+      {
+        "word": "timetable",
+        "pos": "noun",
+        "ipa": "/ˈtaɪmteɪbl/",
+        "meaning": "thời khóa biểu"
+      },
+      {
+        "word": "graduate",
+        "pos": "verb",
+        "ipa": "/ˈɡrædʒueɪt/",
+        "meaning": "tốt nghiệp"
+      },
+      {
+        "word": "academic",
+        "pos": "adjective",
+        "ipa": "/ˌækəˈdemɪk/",
+        "meaning": "học thuật"
+      },
+      {
+        "word": "principal",
+        "pos": "noun",
+        "ipa": "/ˈprɪnsəpl/",
+        "meaning": "hiệu trưởng"
+      },
+      {
+        "word": "uniform",
+        "pos": "noun",
+        "ipa": "/ˈjuːnɪfɔːm/",
+        "meaning": "đồng phục"
+      },
+      {
+        "word": "semester",
+        "pos": "noun",
+        "ipa": "/sɪˈmestə(r)/",
+        "meaning": "học kỳ"
+      },
+      {
+        "word": "certificate",
+        "pos": "noun",
+        "ipa": "/səˈtɪfɪkət/",
+        "meaning": "chứng chỉ"
+      },
+      {
+        "word": "assignment",
+        "pos": "noun",
+        "ipa": "/əˈsaɪnmənt/",
+        "meaning": "bài tập lớn"
+      },
+      {
+        "word": "knowledge",
+        "pos": "noun",
+        "ipa": "/ˈnɒlɪdʒ/",
+        "meaning": "kiến thức"
+      }
+    ]
+  },
+  {
+    "slug": "environment",
+    "title": "Environment",
+    "title_vi": "Môi trường",
+    "emoji": "🌍",
+    "order": 2,
+    "words": [
+      {
+        "word": "pollution",
+        "pos": "noun",
+        "ipa": "/pəˈluːʃn/",
+        "meaning": "ô nhiễm"
+      },
+      {
+        "word": "recycle",
+        "pos": "verb",
+        "ipa": "/ˌriːˈsaɪkl/",
+        "meaning": "tái chế"
+      },
+      {
+        "word": "global warming",
+        "pos": "noun",
+        "ipa": "/ˌɡləʊbl ˈwɔːmɪŋ/",
+        "meaning": "sự nóng lên toàn cầu"
+      },
+      {
+        "word": "deforestation",
+        "pos": "noun",
+        "ipa": "/ˌdiːˌfɒrɪˈsteɪʃn/",
+        "meaning": "nạn phá rừng"
+      },
+      {
+        "word": "conserve",
+        "pos": "verb",
+        "ipa": "/kənˈsɜːv/",
+        "meaning": "bảo tồn"
+      },
+      {
+        "word": "waste",
+        "pos": "noun",
+        "ipa": "/weɪst/",
+        "meaning": "rác thải"
+      },
+      {
+        "word": "renewable",
+        "pos": "adjective",
+        "ipa": "/rɪˈnjuːəbl/",
+        "meaning": "có thể tái tạo"
+      },
+      {
+        "word": "environment",
+        "pos": "noun",
+        "ipa": "/ɪnˈvaɪrənmənt/",
+        "meaning": "môi trường"
+      },
+      {
+        "word": "protect",
+        "pos": "verb",
+        "ipa": "/prəˈtekt/",
+        "meaning": "bảo vệ"
+      },
+      {
+        "word": "biodegradable",
+        "pos": "adjective",
+        "ipa": "/ˌbaɪəʊdɪˈɡreɪdəbl/",
+        "meaning": "phân hủy sinh học"
+      },
+      {
+        "word": "natural disaster",
+        "pos": "noun",
+        "ipa": "/ˌnætʃrəl dɪˈzɑːstə(r)/",
+        "meaning": "thảm họa thiên nhiên"
+      },
+      {
+        "word": "eco-friendly",
+        "pos": "adjective",
+        "ipa": "/ˌiːkəʊ ˈfrendli/",
+        "meaning": "thân thiện môi trường"
+      },
+      {
+        "word": "carbon footprint",
+        "pos": "noun",
+        "ipa": "/ˌkɑːbən ˈfʊtprɪnt/",
+        "meaning": "lượng khí thải carbon"
+      },
+      {
+        "word": "ozone layer",
+        "pos": "noun",
+        "ipa": "/ˈəʊzəʊn ˈleɪə(r)/",
+        "meaning": "tầng ozon"
+      },
+      {
+        "word": "habitat",
+        "pos": "noun",
+        "ipa": "/ˈhæbɪtæt/",
+        "meaning": "môi trường sống"
+      }
+    ]
+  },
+  {
+    "slug": "health",
+    "title": "Health",
+    "title_vi": "Sức khỏe",
+    "emoji": "🏥",
+    "order": 3,
+    "words": [
+      {
+        "word": "disease",
+        "pos": "noun",
+        "ipa": "/dɪˈziːz/",
+        "meaning": "bệnh tật"
+      },
+      {
+        "word": "symptom",
+        "pos": "noun",
+        "ipa": "/ˈsɪmptəm/",
+        "meaning": "triệu chứng"
+      },
+      {
+        "word": "treatment",
+        "pos": "noun",
+        "ipa": "/ˈtriːtmənt/",
+        "meaning": "sự điều trị"
+      },
+      {
+        "word": "exercise",
+        "pos": "noun",
+        "ipa": "/ˈeksəsaɪz/",
+        "meaning": "bài tập thể dục"
+      },
+      {
+        "word": "healthy",
+        "pos": "adjective",
+        "ipa": "/ˈhelθi/",
+        "meaning": "khỏe mạnh"
+      },
+      {
+        "word": "patient",
+        "pos": "noun",
+        "ipa": "/ˈpeɪʃnt/",
+        "meaning": "bệnh nhân"
+      },
+      {
+        "word": "vaccine",
+        "pos": "noun",
+        "ipa": "/ˈvæksiːn/",
+        "meaning": "vắc-xin"
+      },
+      {
+        "word": "infection",
+        "pos": "noun",
+        "ipa": "/ɪnˈfekʃn/",
+        "meaning": "sự nhiễm trùng"
+      },
+      {
+        "word": "medicine",
+        "pos": "noun",
+        "ipa": "/ˈmedsn/",
+        "meaning": "thuốc"
+      },
+      {
+        "word": "operation",
+        "pos": "noun",
+        "ipa": "/ˌɒpəˈreɪʃn/",
+        "meaning": "cuộc phẫu thuật"
+      },
+      {
+        "word": "fever",
+        "pos": "noun",
+        "ipa": "/ˈfiːvə(r)/",
+        "meaning": "sốt"
+      },
+      {
+        "word": "flu",
+        "pos": "noun",
+        "ipa": "/fluː/",
+        "meaning": "cúm"
+      },
+      {
+        "word": "headache",
+        "pos": "noun",
+        "ipa": "/ˈhedeɪk/",
+        "meaning": "đau đầu"
+      },
+      {
+        "word": "nurse",
+        "pos": "noun",
+        "ipa": "/nɜːs/",
+        "meaning": "y tá"
+      },
+      {
+        "word": "recovery",
+        "pos": "noun",
+        "ipa": "/rɪˈkʌvəri/",
+        "meaning": "sự hồi phục"
+      }
+    ]
+  },
+  {
+    "slug": "technology",
+    "title": "Technology",
+    "title_vi": "Công nghệ",
+    "emoji": "💻",
+    "order": 4,
+    "words": [
+      {
+        "word": "internet",
+        "pos": "noun",
+        "ipa": "/ˈɪntənet/",
+        "meaning": "internet"
+      },
+      {
+        "word": "software",
+        "pos": "noun",
+        "ipa": "/ˈsɒftweə(r)/",
+        "meaning": "phần mềm"
+      },
+      {
+        "word": "hardware",
+        "pos": "noun",
+        "ipa": "/ˈhɑːdweə(r)/",
+        "meaning": "phần cứng"
+      },
+      {
+        "word": "computer",
+        "pos": "noun",
+        "ipa": "/kəmˈpjuːtə(r)/",
+        "meaning": "máy tính"
+      },
+      {
+        "word": "screen",
+        "pos": "noun",
+        "ipa": "/skriːn/",
+        "meaning": "màn hình"
+      },
+      {
+        "word": "smartphone",
+        "pos": "noun",
+        "ipa": "/ˈsmɑːtfəʊn/",
+        "meaning": "điện thoại thông minh"
+      },
+      {
+        "word": "application",
+        "pos": "noun",
+        "ipa": "/ˌæplɪˈkeɪʃn/",
+        "meaning": "ứng dụng"
+      },
+      {
+        "word": "website",
+        "pos": "noun",
+        "ipa": "/ˈwebsaɪt/",
+        "meaning": "trang web"
+      },
+      {
+        "word": "download",
+        "pos": "verb",
+        "ipa": "/ˈdaʊnləʊd/",
+        "meaning": "tải xuống"
+      },
+      {
+        "word": "upload",
+        "pos": "verb",
+        "ipa": "/ˈʌpləʊd/",
+        "meaning": "tải lên"
+      },
+      {
+        "word": "password",
+        "pos": "noun",
+        "ipa": "/ˈpɑːswɜːd/",
+        "meaning": "mật khẩu"
+      },
+      {
+        "word": "virus",
+        "pos": "noun",
+        "ipa": "/ˈvaɪrəs/",
+        "meaning": "vi-rút máy tính"
+      },
+      {
+        "word": "log in",
+        "pos": "verb",
+        "ipa": "/lɒɡ ɪn/",
+        "meaning": "đăng nhập"
+      },
+      {
+        "word": "account",
+        "pos": "noun",
+        "ipa": "/əˈkaʊnt/",
+        "meaning": "tài khoản"
+      },
+      {
+        "word": "update",
+        "pos": "verb",
+        "ipa": "/ʌpˈdeɪt/",
+        "meaning": "cập nhật"
+      }
+    ]
+  },
+  {
+    "slug": "travel",
+    "title": "Travel",
+    "title_vi": "Du lịch",
+    "emoji": "✈️",
+    "order": 5,
+    "words": [
+      {
+        "word": "passport",
+        "pos": "noun",
+        "ipa": "/ˈpɑːspɔːt/",
+        "meaning": "hộ chiếu"
+      },
+      {
+        "word": "visa",
+        "pos": "noun",
+        "ipa": "/ˈviːzə/",
+        "meaning": "thị thực"
+      },
+      {
+        "word": "luggage",
+        "pos": "noun",
+        "ipa": "/ˈlʌɡɪdʒ/",
+        "meaning": "hành lý"
+      },
+      {
+        "word": "tourist",
+        "pos": "noun",
+        "ipa": "/ˈtʊərɪst/",
+        "meaning": "khách du lịch"
+      },
+      {
+        "word": "destination",
+        "pos": "noun",
+        "ipa": "/ˌdestɪˈneɪʃn/",
+        "meaning": "điểm đến"
+      },
+      {
+        "word": "journey",
+        "pos": "noun",
+        "ipa": "/ˈdʒɜːni/",
+        "meaning": "hành trình"
+      },
+      {
+        "word": "map",
+        "pos": "noun",
+        "ipa": "/mæp/",
+        "meaning": "bản đồ"
+      },
+      {
+        "word": "guide",
+        "pos": "noun",
+        "ipa": "/ɡaɪd/",
+        "meaning": "hướng dẫn viên"
+      },
+      {
+        "word": "flight",
+        "pos": "noun",
+        "ipa": "/flaɪt/",
+        "meaning": "chuyến bay"
+      },
+      {
+        "word": "airport",
+        "pos": "noun",
+        "ipa": "/ˈeəpɔːt/",
+        "meaning": "sân bay"
+      },
+      {
+        "word": "ticket",
+        "pos": "noun",
+        "ipa": "/ˈtɪkɪt/",
+        "meaning": "vé"
+      },
+      {
+        "word": "book",
+        "pos": "verb",
+        "ipa": "/bʊk/",
+        "meaning": "đặt (vé, phòng...)"
+      },
+      {
+        "word": "reservation",
+        "pos": "noun",
+        "ipa": "/ˌrezəˈveɪʃn/",
+        "meaning": "đặt chỗ"
+      },
+      {
+        "word": "sightseeing",
+        "pos": "noun",
+        "ipa": "/ˈsaɪtsiːɪŋ/",
+        "meaning": "tham quan"
+      },
+      {
+        "word": "adventure",
+        "pos": "noun",
+        "ipa": "/ədˈventʃə(r)/",
+        "meaning": "chuyến phiêu lưu"
+      }
+    ]
+  },
+  {
+    "slug": "family",
+    "title": "Family",
+    "title_vi": "Gia đình",
+    "emoji": "👨‍👩‍👧‍👦",
+    "order": 6,
+    "words": [
+      {
+        "word": "father",
+        "pos": "noun",
+        "ipa": "/ˈfɑːðə(r)/",
+        "meaning": "cha"
+      },
+      {
+        "word": "mother",
+        "pos": "noun",
+        "ipa": "/ˈmʌðə(r)/",
+        "meaning": "mẹ"
+      },
+      {
+        "word": "brother",
+        "pos": "noun",
+        "ipa": "/ˈbrʌðə(r)/",
+        "meaning": "anh/em trai"
+      },
+      {
+        "word": "sister",
+        "pos": "noun",
+        "ipa": "/ˈsɪstə(r)/",
+        "meaning": "chị/em gái"
+      },
+      {
+        "word": "uncle",
+        "pos": "noun",
+        "ipa": "/ˈʌŋkl/",
+        "meaning": "chú/cậu/bác trai"
+      },
+      {
+        "word": "aunt",
+        "pos": "noun",
+        "ipa": "/ɑːnt/",
+        "meaning": "cô/dì/bác gái"
+      },
+      {
+        "word": "cousin",
+        "pos": "noun",
+        "ipa": "/ˈkʌzn/",
+        "meaning": "anh chị em họ"
+      },
+      {
+        "word": "grandparents",
+        "pos": "noun",
+        "ipa": "/ˈɡrænpeərənts/",
+        "meaning": "ông bà"
+      },
+      {
+        "word": "husband",
+        "pos": "noun",
+        "ipa": "/ˈhʌzbənd/",
+        "meaning": "chồng"
+      },
+      {
+        "word": "wife",
+        "pos": "noun",
+        "ipa": "/waɪf/",
+        "meaning": "vợ"
+      },
+      {
+        "word": "nephew",
+        "pos": "noun",
+        "ipa": "/ˈnefjuː/",
+        "meaning": "cháu trai"
+      },
+      {
+        "word": "niece",
+        "pos": "noun",
+        "ipa": "/niːs/",
+        "meaning": "cháu gái"
+      },
+      {
+        "word": "parents",
+        "pos": "noun",
+        "ipa": "/ˈpeərənts/",
+        "meaning": "cha mẹ"
+      },
+      {
+        "word": "children",
+        "pos": "noun",
+        "ipa": "/ˈtʃɪldrən/",
+        "meaning": "con cái"
+      },
+      {
+        "word": "twins",
+        "pos": "noun",
+        "ipa": "/twɪnz/",
+        "meaning": "sinh đôi"
+      }
+    ]
+  },
+  {
+    "slug": "house",
+    "title": "House",
+    "title_vi": "Nhà ở",
+    "emoji": "🏠",
+    "order": 7,
+    "words": [
+      {
+        "word": "house",
+        "pos": "noun",
+        "ipa": "/haʊs/",
+        "meaning": "ngôi nhà"
+      },
+      {
+        "word": "apartment",
+        "pos": "noun",
+        "ipa": "/əˈpɑːtmənt/",
+        "meaning": "căn hộ"
+      },
+      {
+        "word": "kitchen",
+        "pos": "noun",
+        "ipa": "/ˈkɪtʃɪn/",
+        "meaning": "nhà bếp"
+      },
+      {
+        "word": "bedroom",
+        "pos": "noun",
+        "ipa": "/ˈbedruːm/",
+        "meaning": "phòng ngủ"
+      },
+      {
+        "word": "living room",
+        "pos": "noun",
+        "ipa": "/ˈlɪvɪŋ ruːm/",
+        "meaning": "phòng khách"
+      },
+      {
+        "word": "bathroom",
+        "pos": "noun",
+        "ipa": "/ˈbɑːθruːm/",
+        "meaning": "phòng tắm"
+      },
+      {
+        "word": "balcony",
+        "pos": "noun",
+        "ipa": "/ˈbælkəni/",
+        "meaning": "ban công"
+      },
+      {
+        "word": "garage",
+        "pos": "noun",
+        "ipa": "/ˈɡærɑːʒ/",
+        "meaning": "nhà để xe"
+      },
+      {
+        "word": "garden",
+        "pos": "noun",
+        "ipa": "/ˈɡɑːdn/",
+        "meaning": "vườn"
+      },
+      {
+        "word": "floor",
+        "pos": "noun",
+        "ipa": "/flɔː(r)/",
+        "meaning": "sàn nhà, tầng nhà"
+      },
+      {
+        "word": "roof",
+        "pos": "noun",
+        "ipa": "/ruːf/",
+        "meaning": "mái nhà"
+      },
+      {
+        "word": "stairs",
+        "pos": "noun",
+        "ipa": "/steəz/",
+        "meaning": "cầu thang"
+      },
+      {
+        "word": "door",
+        "pos": "noun",
+        "ipa": "/dɔː(r)/",
+        "meaning": "cửa"
+      },
+      {
+        "word": "window",
+        "pos": "noun",
+        "ipa": "/ˈwɪndəʊ/",
+        "meaning": "cửa sổ"
+      },
+      {
+        "word": "furniture",
+        "pos": "noun",
+        "ipa": "/ˈfɜːnɪtʃə(r)/",
+        "meaning": "nội thất"
+      }
+    ]
+  },
+  {
+    "slug": "weather",
+    "title": "Weather",
+    "title_vi": "Thời tiết",
+    "emoji": "🌤️",
+    "order": 8,
+    "words": [
+      {
+        "word": "sunny",
+        "pos": "adjective",
+        "ipa": "/ˈsʌni/",
+        "meaning": "nắng"
+      },
+      {
+        "word": "rainy",
+        "pos": "adjective",
+        "ipa": "/ˈreɪni/",
+        "meaning": "mưa"
+      },
+      {
+        "word": "cloudy",
+        "pos": "adjective",
+        "ipa": "/ˈklaʊdi/",
+        "meaning": "nhiều mây"
+      },
+      {
+        "word": "windy",
+        "pos": "adjective",
+        "ipa": "/ˈwɪndi/",
+        "meaning": "nhiều gió"
+      },
+      {
+        "word": "stormy",
+        "pos": "adjective",
+        "ipa": "/ˈstɔːmi/",
+        "meaning": "giông bão"
+      },
+      {
+        "word": "foggy",
+        "pos": "adjective",
+        "ipa": "/ˈfɒɡi/",
+        "meaning": "sương mù"
+      },
+      {
+        "word": "snowy",
+        "pos": "adjective",
+        "ipa": "/ˈsnəʊi/",
+        "meaning": "có tuyết"
+      },
+      {
+        "word": "hot",
+        "pos": "adjective",
+        "ipa": "/hɒt/",
+        "meaning": "nóng"
+      },
+      {
+        "word": "cold",
+        "pos": "adjective",
+        "ipa": "/kəʊld/",
+        "meaning": "lạnh"
+      },
+      {
+        "word": "temperature",
+        "pos": "noun",
+        "ipa": "/ˈtemprətʃə(r)/",
+        "meaning": "nhiệt độ"
+      },
+      {
+        "word": "forecast",
+        "pos": "noun",
+        "ipa": "/ˈfɔːkɑːst/",
+        "meaning": "dự báo thời tiết"
+      },
+      {
+        "word": "thunder",
+        "pos": "noun",
+        "ipa": "/ˈθʌndə(r)/",
+        "meaning": "sấm"
+      },
+      {
+        "word": "lightning",
+        "pos": "noun",
+        "ipa": "/ˈlaɪtnɪŋ/",
+        "meaning": "tia chớp"
+      },
+      {
+        "word": "humid",
+        "pos": "adjective",
+        "ipa": "/ˈhjuːmɪd/",
+        "meaning": "ẩm ướt"
+      },
+      {
+        "word": "dry",
+        "pos": "adjective",
+        "ipa": "/draɪ/",
+        "meaning": "khô ráo"
+      }
+    ]
+  },
+  {
+    "slug": "sports",
+    "title": "Sports",
+    "title_vi": "Thể thao",
+    "emoji": "⚽",
+    "order": 9,
+    "words": [
+      {
+        "word": "football",
+        "pos": "noun",
+        "ipa": "/ˈfʊtbɔːl/",
+        "meaning": "bóng đá"
+      },
+      {
+        "word": "basketball",
+        "pos": "noun",
+        "ipa": "/ˈbɑːskɪtbɔːl/",
+        "meaning": "bóng rổ"
+      },
+      {
+        "word": "volleyball",
+        "pos": "noun",
+        "ipa": "/ˈvɒlibɔːl/",
+        "meaning": "bóng chuyền"
+      },
+      {
+        "word": "tennis",
+        "pos": "noun",
+        "ipa": "/ˈtenɪs/",
+        "meaning": "quần vợt"
+      },
+      {
+        "word": "badminton",
+        "pos": "noun",
+        "ipa": "/ˈbædmɪntən/",
+        "meaning": "cầu lông"
+      },
+      {
+        "word": "swimming",
+        "pos": "noun",
+        "ipa": "/ˈswɪmɪŋ/",
+        "meaning": "bơi lội"
+      },
+      {
+        "word": "running",
+        "pos": "noun",
+        "ipa": "/ˈrʌnɪŋ/",
+        "meaning": "chạy"
+      },
+      {
+        "word": "cycling",
+        "pos": "noun",
+        "ipa": "/ˈsaɪklɪŋ/",
+        "meaning": "đạp xe"
+      },
+      {
+        "word": "player",
+        "pos": "noun",
+        "ipa": "/ˈpleɪə(r)/",
+        "meaning": "người chơi"
+      },
+      {
+        "word": "coach",
+        "pos": "noun",
+        "ipa": "/kəʊtʃ/",
+        "meaning": "huấn luyện viên"
+      },
+      {
+        "word": "match",
+        "pos": "noun",
+        "ipa": "/mætʃ/",
+        "meaning": "trận đấu"
+      },
+      {
+        "word": "team",
+        "pos": "noun",
+        "ipa": "/tiːm/",
+        "meaning": "đội"
+      },
+      {
+        "word": "win",
+        "pos": "verb",
+        "ipa": "/wɪn/",
+        "meaning": "thắng"
+      },
+      {
+        "word": "lose",
+        "pos": "verb",
+        "ipa": "/luːz/",
+        "meaning": "thua"
+      },
+      {
+        "word": "score",
+        "pos": "noun",
+        "ipa": "/skɔː(r)/",
+        "meaning": "tỉ số, ghi bàn"
+      }
+    ]
+  },
+  {
+    "slug": "jobs",
+    "title": "Jobs",
+    "title_vi": "Nghề nghiệp",
+    "emoji": "👔",
+    "order": 10,
+    "words": [
+      {
+        "word": "teacher",
+        "pos": "noun",
+        "ipa": "/ˈtiːtʃə(r)/",
+        "meaning": "giáo viên"
+      },
+      {
+        "word": "doctor",
+        "pos": "noun",
+        "ipa": "/ˈdɒktə(r)/",
+        "meaning": "bác sĩ"
+      },
+      {
+        "word": "engineer",
+        "pos": "noun",
+        "ipa": "/ˌendʒɪˈnɪə(r)/",
+        "meaning": "kỹ sư"
+      },
+      {
+        "word": "nurse",
+        "pos": "noun",
+        "ipa": "/nɜːs/",
+        "meaning": "y tá"
+      },
+      {
+        "word": "pilot",
+        "pos": "noun",
+        "ipa": "/ˈpaɪlət/",
+        "meaning": "phi công"
+      },
+      {
+        "word": "police officer",
+        "pos": "noun",
+        "ipa": "/pəˈliːs ɒfɪsə(r)/",
+        "meaning": "cảnh sát"
+      },
+      {
+        "word": "firefighter",
+        "pos": "noun",
+        "ipa": "/ˈfaɪəfaɪtə(r)/",
+        "meaning": "lính cứu hỏa"
+      },
+      {
+        "word": "lawyer",
+        "pos": "noun",
+        "ipa": "/ˈlɔːjə(r)/",
+        "meaning": "luật sư"
+      },
+      {
+        "word": "worker",
+        "pos": "noun",
+        "ipa": "/ˈwɜːkə(r)/",
+        "meaning": "công nhân"
+      },
+      {
+        "word": "farmer",
+        "pos": "noun",
+        "ipa": "/ˈfɑːmə(r)/",
+        "meaning": "nông dân"
+      },
+      {
+        "word": "chef",
+        "pos": "noun",
+        "ipa": "/ʃef/",
+        "meaning": "đầu bếp"
+      },
+      {
+        "word": "driver",
+        "pos": "noun",
+        "ipa": "/ˈdraɪvə(r)/",
+        "meaning": "tài xế"
+      },
+      {
+        "word": "artist",
+        "pos": "noun",
+        "ipa": "/ˈɑːtɪst/",
+        "meaning": "họa sĩ"
+      },
+      {
+        "word": "singer",
+        "pos": "noun",
+        "ipa": "/ˈsɪŋə(r)/",
+        "meaning": "ca sĩ"
+      },
+      {
+        "word": "businessman",
+        "pos": "noun",
+        "ipa": "/ˈbɪznəsmən/",
+        "meaning": "doanh nhân"
+      }
+    ]
+  },
+  {
+    "slug": "shopping",
+    "title": "Shopping",
+    "title_vi": "Mua sắm",
+    "emoji": "🛒",
+    "order": 11,
+    "words": [
+      {
+        "word": "shop",
+        "pos": "noun",
+        "ipa": "/ʃɒp/",
+        "meaning": "cửa hàng"
+      },
+      {
+        "word": "mall",
+        "pos": "noun",
+        "ipa": "/mɔːl/",
+        "meaning": "trung tâm thương mại"
+      },
+      {
+        "word": "cashier",
+        "pos": "noun",
+        "ipa": "/kæˈʃɪə(r)/",
+        "meaning": "thu ngân"
+      },
+      {
+        "word": "customer",
+        "pos": "noun",
+        "ipa": "/ˈkʌstəmə(r)/",
+        "meaning": "khách hàng"
+      },
+      {
+        "word": "price",
+        "pos": "noun",
+        "ipa": "/praɪs/",
+        "meaning": "giá cả"
+      },
+      {
+        "word": "discount",
+        "pos": "noun",
+        "ipa": "/ˈdɪskaʊnt/",
+        "meaning": "giảm giá"
+      },
+      {
+        "word": "sale",
+        "pos": "noun",
+        "ipa": "/seɪl/",
+        "meaning": "đợt giảm giá"
+      },
+      {
+        "word": "receipt",
+        "pos": "noun",
+        "ipa": "/rɪˈsiːt/",
+        "meaning": "hóa đơn"
+      },
+      {
+        "word": "buy",
+        "pos": "verb",
+        "ipa": "/baɪ/",
+        "meaning": "mua"
+      },
+      {
+        "word": "sell",
+        "pos": "verb",
+        "ipa": "/sel/",
+        "meaning": "bán"
+      },
+      {
+        "word": "product",
+        "pos": "noun",
+        "ipa": "/ˈprɒdʌkt/",
+        "meaning": "sản phẩm"
+      },
+      {
+        "word": "brand",
+        "pos": "noun",
+        "ipa": "/brænd/",
+        "meaning": "thương hiệu"
+      },
+      {
+        "word": "change",
+        "pos": "noun",
+        "ipa": "/tʃeɪndʒ/",
+        "meaning": "tiền thối lại"
+      },
+      {
+        "word": "expensive",
+        "pos": "adjective",
+        "ipa": "/ɪkˈspensɪv/",
+        "meaning": "đắt đỏ"
+      },
+      {
+        "word": "cheap",
+        "pos": "adjective",
+        "ipa": "/tʃiːp/",
+        "meaning": "rẻ tiền"
+      }
+    ]
+  },
+  {
+    "slug": "transportation",
+    "title": "Transportation",
+    "title_vi": "Giao thông",
+    "emoji": "🚗",
+    "order": 12,
+    "words": [
+      {
+        "word": "car",
+        "pos": "noun",
+        "ipa": "/kɑː(r)/",
+        "meaning": "xe ô tô"
+      },
+      {
+        "word": "bus",
+        "pos": "noun",
+        "ipa": "/bʌs/",
+        "meaning": "xe buýt"
+      },
+      {
+        "word": "bike",
+        "pos": "noun",
+        "ipa": "/baɪk/",
+        "meaning": "xe đạp"
+      },
+      {
+        "word": "motorbike",
+        "pos": "noun",
+        "ipa": "/ˈməʊtəbaɪk/",
+        "meaning": "xe máy"
+      },
+      {
+        "word": "train",
+        "pos": "noun",
+        "ipa": "/treɪn/",
+        "meaning": "tàu hỏa"
+      },
+      {
+        "word": "plane",
+        "pos": "noun",
+        "ipa": "/pleɪn/",
+        "meaning": "máy bay"
+      },
+      {
+        "word": "boat",
+        "pos": "noun",
+        "ipa": "/bəʊt/",
+        "meaning": "thuyền"
+      },
+      {
+        "word": "taxi",
+        "pos": "noun",
+        "ipa": "/ˈtæksi/",
+        "meaning": "xe taxi"
+      },
+      {
+        "word": "traffic",
+        "pos": "noun",
+        "ipa": "/ˈtræfɪk/",
+        "meaning": "giao thông"
+      },
+      {
+        "word": "road",
+        "pos": "noun",
+        "ipa": "/rəʊd/",
+        "meaning": "con đường"
+      },
+      {
+        "word": "accident",
+        "pos": "noun",
+        "ipa": "/ˈæksɪdənt/",
+        "meaning": "tai nạn"
+      },
+      {
+        "word": "stop",
+        "pos": "verb",
+        "ipa": "/stɒp/",
+        "meaning": "dừng lại"
+      },
+      {
+        "word": "speed",
+        "pos": "noun",
+        "ipa": "/spiːd/",
+        "meaning": "tốc độ"
+      },
+      {
+        "word": "helmet",
+        "pos": "noun",
+        "ipa": "/ˈhelmɪt/",
+        "meaning": "mũ bảo hiểm"
+      },
+      {
+        "word": "pedestrian",
+        "pos": "noun",
+        "ipa": "/pəˈdestriən/",
+        "meaning": "người đi bộ"
+      }
+    ]
+  },
+  {
+    "slug": "arts-entertainment",
+    "title": "Arts & Entertainment",
+    "title_vi": "Nghệ thuật & Giải trí",
+    "emoji": "🎭",
+    "order": 13,
+    "words": [
+      {
+        "word": "concert",
+        "pos": "noun",
+        "ipa": "/ˈkɒnsət/",
+        "meaning": "buổi hòa nhạc"
+      },
+      {
+        "word": "musician",
+        "pos": "noun",
+        "ipa": "/mjuˈzɪʃən/",
+        "meaning": "nhạc sĩ"
+      },
+      {
+        "word": "painting",
+        "pos": "noun",
+        "ipa": "/ˈpeɪntɪŋ/",
+        "meaning": "bức tranh"
+      },
+      {
+        "word": "sculpture",
+        "pos": "noun",
+        "ipa": "/ˈskʌlptʃə(r)/",
+        "meaning": "tác phẩm điêu khắc"
+      },
+      {
+        "word": "performance",
+        "pos": "noun",
+        "ipa": "/pəˈfɔːməns/",
+        "meaning": "buổi biểu diễn"
+      },
+      {
+        "word": "gallery",
+        "pos": "noun",
+        "ipa": "/ˈɡæləri/",
+        "meaning": "phòng trưng bày"
+      },
+      {
+        "word": "actor",
+        "pos": "noun",
+        "ipa": "/ˈæktə(r)/",
+        "meaning": "diễn viên nam"
+      },
+      {
+        "word": "actress",
+        "pos": "noun",
+        "ipa": "/ˈæktrəs/",
+        "meaning": "diễn viên nữ"
+      },
+      {
+        "word": "audience",
+        "pos": "noun",
+        "ipa": "/ˈɔːdiəns/",
+        "meaning": "khán giả"
+      },
+      {
+        "word": "stage",
+        "pos": "noun",
+        "ipa": "/steɪdʒ/",
+        "meaning": "sân khấu"
+      },
+      {
+        "word": "movie",
+        "pos": "noun",
+        "ipa": "/ˈmuːvi/",
+        "meaning": "bộ phim"
+      },
+      {
+        "word": "director",
+        "pos": "noun",
+        "ipa": "/dəˈrektə(r)/",
+        "meaning": "đạo diễn"
+      },
+      {
+        "word": "musical",
+        "pos": "noun",
+        "ipa": "/ˈmjuːzɪkl/",
+        "meaning": "nhạc kịch"
+      },
+      {
+        "word": "comedy",
+        "pos": "noun",
+        "ipa": "/ˈkɒmədi/",
+        "meaning": "hài kịch"
+      },
+      {
+        "word": "festival",
+        "pos": "noun",
+        "ipa": "/ˈfestɪvl/",
+        "meaning": "lễ hội"
+      }
+    ]
+  },
+  {
+    "slug": "crime-law",
+    "title": "Crime & Law",
+    "title_vi": "Tội phạm & Luật pháp",
+    "emoji": "⚖️",
+    "order": 14,
+    "words": [
+      {
+        "word": "crime",
+        "pos": "noun",
+        "ipa": "/kraɪm/",
+        "meaning": "tội phạm"
+      },
+      {
+        "word": "criminal",
+        "pos": "noun",
+        "ipa": "/ˈkrɪmɪnəl/",
+        "meaning": "tội phạm (người)"
+      },
+      {
+        "word": "police",
+        "pos": "noun",
+        "ipa": "/pəˈliːs/",
+        "meaning": "cảnh sát"
+      },
+      {
+        "word": "prison",
+        "pos": "noun",
+        "ipa": "/ˈprɪz.ən/",
+        "meaning": "nhà tù"
+      },
+      {
+        "word": "thief",
+        "pos": "noun",
+        "ipa": "/θiːf/",
+        "meaning": "kẻ trộm"
+      },
+      {
+        "word": "robbery",
+        "pos": "noun",
+        "ipa": "/ˈrɒbəri/",
+        "meaning": "vụ cướp"
+      },
+      {
+        "word": "murder",
+        "pos": "noun",
+        "ipa": "/ˈmɜː.dər/",
+        "meaning": "vụ giết người"
+      },
+      {
+        "word": "law",
+        "pos": "noun",
+        "ipa": "/lɔː/",
+        "meaning": "luật pháp"
+      },
+      {
+        "word": "lawyer",
+        "pos": "noun",
+        "ipa": "/ˈlɔɪ.ər/",
+        "meaning": "luật sư"
+      },
+      {
+        "word": "court",
+        "pos": "noun",
+        "ipa": "/kɔːt/",
+        "meaning": "tòa án"
+      },
+      {
+        "word": "suspect",
+        "pos": "noun",
+        "ipa": "/səˈspekt/",
+        "meaning": "nghi phạm"
+      },
+      {
+        "word": "arrest",
+        "pos": "verb",
+        "ipa": "/əˈrest/",
+        "meaning": "bắt giữ"
+      },
+      {
+        "word": "witness",
+        "pos": "noun",
+        "ipa": "/ˈwɪt.nəs/",
+        "meaning": "nhân chứng"
+      },
+      {
+        "word": "guilty",
+        "pos": "adjective",
+        "ipa": "/ˈɡɪlti/",
+        "meaning": "có tội"
+      },
+      {
+        "word": "innocent",
+        "pos": "adjective",
+        "ipa": "/ˈɪnəsənt/",
+        "meaning": "vô tội"
+      }
+    ]
+  },
+  {
+    "slug": "natural-disasters",
+    "title": "Natural Disasters",
+    "title_vi": "Thiên tai",
+    "emoji": "🌋",
+    "order": 15,
+    "words": [
+      {
+        "word": "earthquake",
+        "pos": "noun",
+        "ipa": "/ˈɜːθ.kweɪk/",
+        "meaning": "động đất"
+      },
+      {
+        "word": "flood",
+        "pos": "noun",
+        "ipa": "/flʌd/",
+        "meaning": "lũ lụt"
+      },
+      {
+        "word": "drought",
+        "pos": "noun",
+        "ipa": "/draʊt/",
+        "meaning": "hạn hán"
+      },
+      {
+        "word": "tsunami",
+        "pos": "noun",
+        "ipa": "/tsuːˈnɑː.mi/",
+        "meaning": "sóng thần"
+      },
+      {
+        "word": "storm",
+        "pos": "noun",
+        "ipa": "/stɔːm/",
+        "meaning": "bão"
+      },
+      {
+        "word": "tornado",
+        "pos": "noun",
+        "ipa": "/tɔːˈneɪ.dəʊ/",
+        "meaning": "lốc xoáy"
+      },
+      {
+        "word": "hurricane",
+        "pos": "noun",
+        "ipa": "/ˈhʌrɪkən/",
+        "meaning": "bão lớn"
+      },
+      {
+        "word": "wildfire",
+        "pos": "noun",
+        "ipa": "/ˈwaɪld.faɪər/",
+        "meaning": "cháy rừng"
+      },
+      {
+        "word": "volcano",
+        "pos": "noun",
+        "ipa": "/vɒlˈkeɪ.nəʊ/",
+        "meaning": "núi lửa"
+      },
+      {
+        "word": "eruption",
+        "pos": "noun",
+        "ipa": "/ɪˈrʌp.ʃən/",
+        "meaning": "sự phun trào"
+      },
+      {
+        "word": "landslide",
+        "pos": "noun",
+        "ipa": "/ˈlænd.slaɪd/",
+        "meaning": "sạt lở đất"
+      },
+      {
+        "word": "damage",
+        "pos": "noun",
+        "ipa": "/ˈdæm.ɪdʒ/",
+        "meaning": "thiệt hại"
+      },
+      {
+        "word": "rescue",
+        "pos": "verb",
+        "ipa": "/ˈres.kjuː/",
+        "meaning": "cứu hộ"
+      },
+      {
+        "word": "evacuate",
+        "pos": "verb",
+        "ipa": "/ɪˈvæk.ju.eɪt/",
+        "meaning": "sơ tán"
+      },
+      {
+        "word": "disaster",
+        "pos": "noun",
+        "ipa": "/dɪˈzæs.tɚ/",
+        "meaning": "thảm họa"
+      }
+    ]
+  },
+  {
+    "slug": "daily-activities",
+    "title": "Daily Activities",
+    "title_vi": "Hoạt động hằng ngày",
+    "emoji": "📅",
+    "order": 16,
+    "words": [
+      {
+        "word": "wake up",
+        "pos": "verb",
+        "ipa": "/weɪk ʌp/",
+        "meaning": "thức dậy"
+      },
+      {
+        "word": "brush teeth",
+        "pos": "verb",
+        "ipa": "/brʌʃ tiːθ/",
+        "meaning": "đánh răng"
+      },
+      {
+        "word": "take a shower",
+        "pos": "verb",
+        "ipa": "/teɪk ə ˈʃaʊər/",
+        "meaning": "tắm vòi sen"
+      },
+      {
+        "word": "get dressed",
+        "pos": "verb",
+        "ipa": "/ɡet drest/",
+        "meaning": "mặc quần áo"
+      },
+      {
+        "word": "have breakfast",
+        "pos": "verb",
+        "ipa": "/hæv ˈbrekfəst/",
+        "meaning": "ăn sáng"
+      },
+      {
+        "word": "go to school",
+        "pos": "verb",
+        "ipa": "/ɡəʊ tə skuːl/",
+        "meaning": "đến trường"
+      },
+      {
+        "word": "do homework",
+        "pos": "verb",
+        "ipa": "/duː ˈhəʊmwɜːk/",
+        "meaning": "làm bài tập về nhà"
+      },
+      {
+        "word": "watch TV",
+        "pos": "verb",
+        "ipa": "/wɒtʃ ˌtiːˈviː/",
+        "meaning": "xem tivi"
+      },
+      {
+        "word": "read books",
+        "pos": "verb",
+        "ipa": "/riːd bʊks/",
+        "meaning": "đọc sách"
+      },
+      {
+        "word": "play games",
+        "pos": "verb",
+        "ipa": "/pleɪ ɡeɪmz/",
+        "meaning": "chơi trò chơi"
+      },
+      {
+        "word": "help parents",
+        "pos": "verb",
+        "ipa": "/help ˈpeərənts/",
+        "meaning": "giúp bố mẹ"
+      },
+      {
+        "word": "do the dishes",
+        "pos": "verb",
+        "ipa": "/duː ðə ˈdɪʃɪz/",
+        "meaning": "rửa bát"
+      },
+      {
+        "word": "go to bed",
+        "pos": "verb",
+        "ipa": "/ɡəʊ tə bed/",
+        "meaning": "đi ngủ"
+      },
+      {
+        "word": "take a nap",
+        "pos": "verb",
+        "ipa": "/teɪk ə næp/",
+        "meaning": "ngủ trưa"
+      },
+      {
+        "word": "clean the house",
+        "pos": "verb",
+        "ipa": "/kliːn ðə haʊs/",
+        "meaning": "dọn nhà"
+      }
+    ]
+  },
+  {
+    "slug": "culture-festivals",
+    "title": "Culture & Festivals",
+    "title_vi": "Văn hóa & Lễ hội",
+    "emoji": "🏮",
+    "order": 17,
+    "words": [
+      {
+        "word": "culture",
+        "pos": "noun",
+        "ipa": "/ˈkʌltʃə(r)/",
+        "meaning": "văn hóa"
+      },
+      {
+        "word": "tradition",
+        "pos": "noun",
+        "ipa": "/trəˈdɪʃn/",
+        "meaning": "truyền thống"
+      },
+      {
+        "word": "festival",
+        "pos": "noun",
+        "ipa": "/ˈfestɪvl/",
+        "meaning": "lễ hội"
+      },
+      {
+        "word": "custom",
+        "pos": "noun",
+        "ipa": "/ˈkʌstəm/",
+        "meaning": "phong tục"
+      },
+      {
+        "word": "celebration",
+        "pos": "noun",
+        "ipa": "/ˌselɪˈbreɪʃn/",
+        "meaning": "sự kỷ niệm"
+      },
+      {
+        "word": "Tet holiday",
+        "pos": "noun",
+        "ipa": "/tet ˈhɒlədeɪ/",
+        "meaning": "Tết Nguyên Đán"
+      },
+      {
+        "word": "Mid-Autumn Festival",
+        "pos": "noun",
+        "ipa": "/mɪd ˈɔːtəm ˈfestɪvl/",
+        "meaning": "Tết Trung Thu"
+      },
+      {
+        "word": "ancestor",
+        "pos": "noun",
+        "ipa": "/ˈænsestə(r)/",
+        "meaning": "tổ tiên"
+      },
+      {
+        "word": "ritual",
+        "pos": "noun",
+        "ipa": "/ˈrɪtʃuəl/",
+        "meaning": "nghi lễ"
+      },
+      {
+        "word": "parade",
+        "pos": "noun",
+        "ipa": "/pəˈreɪd/",
+        "meaning": "diễu hành"
+      },
+      {
+        "word": "lantern",
+        "pos": "noun",
+        "ipa": "/ˈlæntən/",
+        "meaning": "đèn lồng"
+      },
+      {
+        "word": "firework",
+        "pos": "noun",
+        "ipa": "/ˈfaɪəwɜːk/",
+        "meaning": "pháo hoa"
+      },
+      {
+        "word": "costume",
+        "pos": "noun",
+        "ipa": "/ˈkɒstjuːm/",
+        "meaning": "trang phục"
+      },
+      {
+        "word": "folklore",
+        "pos": "noun",
+        "ipa": "/ˈfəʊklɔː(r)/",
+        "meaning": "văn hóa dân gian"
+      },
+      {
+        "word": "ceremony",
+        "pos": "noun",
+        "ipa": "/ˈserəməni/",
+        "meaning": "nghi thức"
+      }
+    ]
+  },
+  {
+    "slug": "communication",
+    "title": "Communication & Relationships",
+    "title_vi": "Giao tiếp & Quan hệ",
+    "emoji": "💬",
+    "order": 18,
+    "words": [
+      {
+        "word": "communicate",
+        "pos": "verb",
+        "ipa": "/kəˈmjuːnɪkeɪt/",
+        "meaning": "giao tiếp"
+      },
+      {
+        "word": "message",
+        "pos": "noun",
+        "ipa": "/ˈmesɪdʒ/",
+        "meaning": "tin nhắn"
+      },
+      {
+        "word": "conversation",
+        "pos": "noun",
+        "ipa": "/ˌkɒnvəˈseɪʃn/",
+        "meaning": "cuộc trò chuyện"
+      },
+      {
+        "word": "friend",
+        "pos": "noun",
+        "ipa": "/frend/",
+        "meaning": "bạn bè"
+      },
+      {
+        "word": "argument",
+        "pos": "noun",
+        "ipa": "/ˈɑːɡjumənt/",
+        "meaning": "cuộc tranh cãi"
+      },
+      {
+        "word": "support",
+        "pos": "noun",
+        "ipa": "/səˈpɔːt/",
+        "meaning": "sự ủng hộ"
+      },
+      {
+        "word": "opinion",
+        "pos": "noun",
+        "ipa": "/əˈpɪnjən/",
+        "meaning": "ý kiến"
+      },
+      {
+        "word": "agreement",
+        "pos": "noun",
+        "ipa": "/əˈɡriːmənt/",
+        "meaning": "sự đồng thuận"
+      },
+      {
+        "word": "promise",
+        "pos": "noun",
+        "ipa": "/ˈprɒmɪs/",
+        "meaning": "lời hứa"
+      },
+      {
+        "word": "trust",
+        "pos": "noun",
+        "ipa": "/trʌst/",
+        "meaning": "lòng tin"
+      },
+      {
+        "word": "respect",
+        "pos": "noun",
+        "ipa": "/rɪˈspekt/",
+        "meaning": "sự tôn trọng"
+      },
+      {
+        "word": "contact",
+        "pos": "noun",
+        "ipa": "/ˈkɒntækt/",
+        "meaning": "liên lạc"
+      },
+      {
+        "word": "relationship",
+        "pos": "noun",
+        "ipa": "/rɪˈleɪʃnʃɪp/",
+        "meaning": "mối quan hệ"
+      },
+      {
+        "word": "express",
+        "pos": "verb",
+        "ipa": "/ɪkˈspres/",
+        "meaning": "bày tỏ"
+      },
+      {
+        "word": "family",
+        "pos": "noun",
+        "ipa": "/ˈfæməli/",
+        "meaning": "gia đình"
+      }
+    ]
+  },
+  {
+    "slug": "life-skills",
+    "title": "Life Skills",
+    "title_vi": "Kỹ năng sống",
+    "emoji": "🧠",
+    "order": 19,
+    "words": [
+      {
+        "word": "teamwork",
+        "pos": "noun",
+        "ipa": "/ˈtiːmwɜːk/",
+        "meaning": "làm việc nhóm"
+      },
+      {
+        "word": "communication",
+        "pos": "noun",
+        "ipa": "/kəˌmjuːnɪˈkeɪʃn/",
+        "meaning": "giao tiếp"
+      },
+      {
+        "word": "problem-solving",
+        "pos": "noun",
+        "ipa": "/ˈprɒbləm ˌsɒlvɪŋ/",
+        "meaning": "giải quyết vấn đề"
+      },
+      {
+        "word": "decision",
+        "pos": "noun",
+        "ipa": "/dɪˈsɪʒn/",
+        "meaning": "quyết định"
+      },
+      {
+        "word": "confidence",
+        "pos": "noun",
+        "ipa": "/ˈkɒnfɪdəns/",
+        "meaning": "sự tự tin"
+      },
+      {
+        "word": "responsibility",
+        "pos": "noun",
+        "ipa": "/rɪˌspɒnsəˈbɪləti/",
+        "meaning": "trách nhiệm"
+      },
+      {
+        "word": "planning",
+        "pos": "noun",
+        "ipa": "/ˈplænɪŋ/",
+        "meaning": "lập kế hoạch"
+      },
+      {
+        "word": "time management",
+        "pos": "noun",
+        "ipa": "/taɪm ˈmænɪdʒmənt/",
+        "meaning": "quản lý thời gian"
+      },
+      {
+        "word": "creativity",
+        "pos": "noun",
+        "ipa": "/ˌkriːeɪˈtɪvəti/",
+        "meaning": "sáng tạo"
+      },
+      {
+        "word": "adaptability",
+        "pos": "noun",
+        "ipa": "/əˌdæptəˈbɪləti/",
+        "meaning": "khả năng thích nghi"
+      },
+      {
+        "word": "self-control",
+        "pos": "noun",
+        "ipa": "/ˌself kənˈtrəʊl/",
+        "meaning": "tự kiểm soát"
+      },
+      {
+        "word": "empathy",
+        "pos": "noun",
+        "ipa": "/ˈempəθi/",
+        "meaning": "sự thấu cảm"
+      },
+      {
+        "word": "leadership",
+        "pos": "noun",
+        "ipa": "/ˈliːdəʃɪp/",
+        "meaning": "khả năng lãnh đạo"
+      },
+      {
+        "word": "negotiation",
+        "pos": "noun",
+        "ipa": "/nɪˌɡəʊʃiˈeɪʃn/",
+        "meaning": "đàm phán"
+      },
+      {
+        "word": "goal-setting",
+        "pos": "noun",
+        "ipa": "/ˈɡəʊl ˌsetɪŋ/",
+        "meaning": "đặt mục tiêu"
+      }
+    ]
+  }
+]

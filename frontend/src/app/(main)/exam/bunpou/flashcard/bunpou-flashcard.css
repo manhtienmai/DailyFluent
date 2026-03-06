@@ -44,9 +44,9 @@
         }
         .bfc-empty-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(30,41,59,.2); }
 
-        .bfc-card-perspective { width: 100%; max-width: 480px; perspective: 1000px; cursor: pointer; }
+        .bfc-card-perspective { width: 100%; max-width: 600px; perspective: 1000px; cursor: pointer; }
         .bfc-card {
-          position: relative; width: 100%; min-height: 280px;
+          position: relative; width: 100%; min-height: 340px;
           transition: transform .5s cubic-bezier(.4,0,.2,1);
           transform-style: preserve-3d;
         }
@@ -97,7 +97,8 @@
         .bfc-formation {
           font-size: 13px; color: #0d9488; font-weight: 600;
           font-family: var(--font-jp);
-          background: rgba(13,148,136,.06); padding: 6px 10px; border-radius: 6px;
+          background: rgba(13,148,136,.06); padding: 8px 12px; border-radius: 6px;
+          white-space: pre-line; line-height: 1.8;
         }
         .bfc-meaning { font-size: 15px; font-weight: 600; color: #10b981; line-height: 1.4; }
         .bfc-note {

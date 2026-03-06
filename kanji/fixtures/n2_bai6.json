@@ -1,0 +1,303 @@
+[
+  {
+    "jlpt_level": "N2",
+    "lesson_id": 6,
+    "topic": "Sinh hoạt & Môi trường",
+    "kanji_list": [
+      {
+        "character": "訓",
+        "han_viet": "Huấn",
+        "onyomi": ["クン"],
+        "kunyomi": [],
+        "meaning_vi": "Huấn luyện, lời dạy",
+        "formation": "Hình thanh: 言(ý: lời nói) + 川(âm: クン, dòng sông). Lời nói chảy đều như dòng sông → lời dạy bảo, huấn thị.",
+        "examples": [
+          {"word": "訓練", "hiragana": "くんれん", "meaning": "Huấn luyện"},
+          {"word": "教訓", "hiragana": "きょうくん", "meaning": "Bài học, giáo huấn"},
+          {"word": "訓読み", "hiragana": "くんよみ", "meaning": "Cách đọc kun (tiếng Nhật gốc)"},
+          {"word": "特訓", "hiragana": "とっくん", "meaning": "Đặc huấn, luyện tập đặc biệt"},
+          {"word": "訓示", "hiragana": "くんじ", "meaning": "Huấn thị"}
+        ]
+      },
+      {
+        "character": "浴",
+        "han_viet": "Dục",
+        "onyomi": ["ヨク"],
+        "kunyomi": ["あびる", "あびせる"],
+        "meaning_vi": "Tắm, dội nước",
+        "formation": "Hình thanh: 氵(ý: nước) + 谷(âm: ヨク, thung lũng). Nước từ khe núi đổ xuống người → tắm rửa.",
+        "examples": [
+          {"word": "入浴", "hiragana": "にゅうよく", "meaning": "Nhập dục, tắm"},
+          {"word": "浴びる", "hiragana": "あびる", "meaning": "Dội, tắm"},
+          {"word": "浴室", "hiragana": "よくしつ", "meaning": "Phòng tắm"},
+          {"word": "海水浴", "hiragana": "かいすいよく", "meaning": "Tắm biển"},
+          {"word": "日光浴", "hiragana": "にっこうよく", "meaning": "Tắm nắng"}
+        ]
+      },
+      {
+        "character": "童",
+        "han_viet": "Đồng",
+        "onyomi": ["ドウ"],
+        "kunyomi": ["わらわ", "わらべ"],
+        "meaning_vi": "Nhi đồng, trẻ em",
+        "formation": "Hội ý: 立(đứng) + 里(làng). Đứa trẻ đứng ở làng quê → nhi đồng, trẻ nhỏ ngây thơ.",
+        "examples": [
+          {"word": "児童", "hiragana": "じどう", "meaning": "Nhi đồng"},
+          {"word": "童話", "hiragana": "どうわ", "meaning": "Truyện cổ tích"},
+          {"word": "童謡", "hiragana": "どうよう", "meaning": "Bài hát thiếu nhi"},
+          {"word": "童心", "hiragana": "どうしん", "meaning": "Lòng trẻ thơ"},
+          {"word": "童顔", "hiragana": "どうがん", "meaning": "Gương mặt trẻ thơ"}
+        ]
+      },
+      {
+        "character": "塩",
+        "han_viet": "Diêm",
+        "onyomi": ["エン"],
+        "kunyomi": ["しお"],
+        "meaning_vi": "Muối",
+        "formation": "Hình thanh: 土(ý: đất) + 監(âm: エン, giám sát). Chất kết tinh từ đất ven biển → muối. Muối xưa là mặt hàng quý, cần giám sát.",
+        "examples": [
+          {"word": "塩", "hiragana": "しお", "meaning": "Muối"},
+          {"word": "塩分", "hiragana": "えんぶん", "meaning": "Lượng muối"},
+          {"word": "塩辛い", "hiragana": "しおからい", "meaning": "Mặn"},
+          {"word": "食塩", "hiragana": "しょくえん", "meaning": "Thực diêm, muối ăn"},
+          {"word": "塩水", "hiragana": "しおみず", "meaning": "Nước muối"}
+        ]
+      },
+      {
+        "character": "兆",
+        "han_viet": "Triệu",
+        "onyomi": ["チョウ"],
+        "kunyomi": ["きざし", "きざす"],
+        "meaning_vi": "Triệu chứng, triệu triệu (10¹²)",
+        "formation": "Tượng hình: Hình ảnh vết nứt trên mai rùa dùng bói toán thời cổ → điềm báo, triệu chứng. Mở rộng: số lượng cực lớn.",
+        "examples": [
+          {"word": "兆候", "hiragana": "ちょうこう", "meaning": "Triệu chứng, dấu hiệu"},
+          {"word": "前兆", "hiragana": "ぜんちょう", "meaning": "Điềm báo trước"},
+          {"word": "一兆", "hiragana": "いっちょう", "meaning": "Một nghìn tỷ"},
+          {"word": "兆し", "hiragana": "きざし", "meaning": "Dấu hiệu, triệu chứng"}
+        ]
+      },
+      {
+        "character": "畑",
+        "han_viet": "Điền",
+        "onyomi": [],
+        "kunyomi": ["はたけ", "はた"],
+        "meaning_vi": "Vườn, ruộng khô",
+        "formation": "Hội ý (Quốc tự – chữ chỉ Nhật mới có): 火(lửa) + 田(ruộng). Đốt cỏ trên ruộng để canh tác → vườn rau, ruộng trồng màu (khác 田 là ruộng ngập nước).",
+        "examples": [
+          {"word": "畑", "hiragana": "はたけ", "meaning": "Ruộng, vườn trồng rau"},
+          {"word": "花畑", "hiragana": "はなばたけ", "meaning": "Vườn hoa"},
+          {"word": "畑仕事", "hiragana": "はたしごと", "meaning": "Công việc đồng áng"},
+          {"word": "田畑", "hiragana": "たはた", "meaning": "Ruộng nương"}
+        ]
+      },
+      {
+        "character": "毛",
+        "han_viet": "Mao",
+        "onyomi": ["モウ"],
+        "kunyomi": ["け"],
+        "meaning_vi": "Lông, tóc",
+        "formation": "Tượng hình: Hình ảnh sợi lông/tóc mọc ra, có gốc và ngọn cong.",
+        "examples": [
+          {"word": "毛", "hiragana": "け", "meaning": "Lông"},
+          {"word": "毛布", "hiragana": "もうふ", "meaning": "Chăn len"},
+          {"word": "羽毛", "hiragana": "うもう", "meaning": "Lông vũ"},
+          {"word": "毛糸", "hiragana": "けいと", "meaning": "Len, sợi len"},
+          {"word": "毛皮", "hiragana": "けがわ", "meaning": "Da lông thú"}
+        ]
+      },
+      {
+        "character": "緑",
+        "han_viet": "Lục",
+        "onyomi": ["リョク", "ロク"],
+        "kunyomi": ["みどり"],
+        "meaning_vi": "Xanh lục, xanh lá",
+        "formation": "Hình thanh: 糸(ý: sợi tơ, sắc màu) + 录(âm: ロク). Sợi tơ nhuộm màu xanh lá → màu xanh lục.",
+        "examples": [
+          {"word": "緑", "hiragana": "みどり", "meaning": "Màu xanh lá"},
+          {"word": "緑茶", "hiragana": "りょくちゃ", "meaning": "Trà xanh"},
+          {"word": "新緑", "hiragana": "しんりょく", "meaning": "Cây xanh mùa xuân"},
+          {"word": "緑化", "hiragana": "りょくか", "meaning": "Phủ xanh"},
+          {"word": "緑地", "hiragana": "りょくち", "meaning": "Khu đất xanh"}
+        ]
+      },
+      {
+        "character": "祝",
+        "han_viet": "Chúc",
+        "onyomi": ["シュク", "シュウ"],
+        "kunyomi": ["いわう"],
+        "meaning_vi": "Chúc mừng, lễ mừng",
+        "formation": "Hội ý: 礻(ý: thần linh, nghi lễ) + 兄(anh, người đứng đầu). Người đứng đầu cúng tế thần linh → lễ chúc phúc, mừng.",
+        "examples": [
+          {"word": "祝う", "hiragana": "いわう", "meaning": "Chúc mừng"},
+          {"word": "祝日", "hiragana": "しゅくじつ", "meaning": "Ngày lễ"},
+          {"word": "祝賀", "hiragana": "しゅくが", "meaning": "Chúc mừng, khánh hạ"},
+          {"word": "祝福", "hiragana": "しゅくふく", "meaning": "Chúc phúc"},
+          {"word": "お祝い", "hiragana": "おいわい", "meaning": "Lời chúc mừng, quà mừng"}
+        ]
+      },
+      {
+        "character": "衣",
+        "han_viet": "Y",
+        "onyomi": ["イ"],
+        "kunyomi": ["ころも", "きぬ"],
+        "meaning_vi": "Áo, y phục",
+        "formation": "Tượng hình: Hình ảnh chiếc áo có cổ, tay và vạt. Bộ 衣/衤 xuất hiện trong: 裏(lý=lót), 袋(đại=túi), 複(phức=phức tạp), 被(bị=chăn).",
+        "examples": [
+          {"word": "衣服", "hiragana": "いふく", "meaning": "Y phục, quần áo"},
+          {"word": "衣類", "hiragana": "いるい", "meaning": "Quần áo, đồ mặc"},
+          {"word": "衣食住", "hiragana": "いしょくじゅう", "meaning": "Ăn mặc ở (nhu cầu cơ bản)"},
+          {"word": "浴衣", "hiragana": "ゆかた", "meaning": "Yukata (áo tắm mỏng)"},
+          {"word": "衣替え", "hiragana": "ころもがえ", "meaning": "Thay đồ theo mùa"}
+        ]
+      },
+      {
+        "character": "荷",
+        "han_viet": "Hà",
+        "onyomi": ["カ"],
+        "kunyomi": ["に"],
+        "meaning_vi": "Hành lý, gánh nặng",
+        "formation": "Hình thanh: 艹(ý: cỏ, thực vật) + 何(âm: カ, cái gì). Gốc: lá sen (cây cỏ) dùng gói đồ → hàng hóa, hành lý. Mở rộng: gánh vác.",
+        "examples": [
+          {"word": "荷物", "hiragana": "にもつ", "meaning": "Hành lý"},
+          {"word": "出荷", "hiragana": "しゅっか", "meaning": "Xuất hàng"},
+          {"word": "入荷", "hiragana": "にゅうか", "meaning": "Nhập hàng"},
+          {"word": "荷造り", "hiragana": "にづくり", "meaning": "Đóng gói hành lý"},
+          {"word": "重荷", "hiragana": "おもに", "meaning": "Gánh nặng"}
+        ]
+      },
+      {
+        "character": "黄",
+        "han_viet": "Hoàng",
+        "onyomi": ["オウ", "コウ"],
+        "kunyomi": ["き", "こ"],
+        "meaning_vi": "Màu vàng, hoàng kim",
+        "formation": "Tượng hình: Phần trên là ngọn lửa, dưới là mũi tên → ánh sáng lửa rực rỡ → màu vàng. Hoàng = vàng, hoàng kim.",
+        "examples": [
+          {"word": "黄色", "hiragana": "きいろ", "meaning": "Màu vàng"},
+          {"word": "黄金", "hiragana": "おうごん", "meaning": "Vàng ròng, hoàng kim"},
+          {"word": "黄色い", "hiragana": "きいろい", "meaning": "Vàng (tính từ)"},
+          {"word": "卵黄", "hiragana": "らんおう", "meaning": "Lòng đỏ trứng"},
+          {"word": "黄葉", "hiragana": "こうよう", "meaning": "Lá vàng"}
+        ]
+      },
+      {
+        "character": "臣",
+        "han_viet": "Thần",
+        "onyomi": ["シン", "ジン"],
+        "kunyomi": [],
+        "meaning_vi": "Bề tôi, thần dân",
+        "formation": "Tượng hình: Hình ảnh con mắt cúi xuống → bề tôi quỳ mọp, mắt nhìn xuống trước vua. Bộ 臣 xuất hiện trong: 臨(lâm=đến), 蔵(tạng=kho).",
+        "examples": [
+          {"word": "大臣", "hiragana": "だいじん", "meaning": "Đại thần, bộ trưởng"},
+          {"word": "臣下", "hiragana": "しんか", "meaning": "Thần hạ, bề tôi"},
+          {"word": "家臣", "hiragana": "かしん", "meaning": "Gia thần, thị vệ"},
+          {"word": "忠臣", "hiragana": "ちゅうしん", "meaning": "Trung thần"}
+        ]
+      },
+      {
+        "character": "浅",
+        "han_viet": "Thiển",
+        "onyomi": ["セン"],
+        "kunyomi": ["あさい"],
+        "meaning_vi": "Nông, cạn, thiển cận",
+        "formation": "Hình thanh: 氵(ý: nước) + 戔(âm: セン, nhỏ bé). Nước ít, nhỏ → nông, cạn. Mở rộng: kiến thức nông → thiển cận.",
+        "examples": [
+          {"word": "浅い", "hiragana": "あさい", "meaning": "Nông, cạn"},
+          {"word": "浅草", "hiragana": "あさくさ", "meaning": "Asakusa (địa danh Tokyo)"},
+          {"word": "浅瀬", "hiragana": "あさせ", "meaning": "Chỗ nông, bãi cạn"},
+          {"word": "浅はかな", "hiragana": "あさはかな", "meaning": "Nông cạn, hời hợt"}
+        ]
+      },
+      {
+        "character": "雲",
+        "han_viet": "Vân",
+        "onyomi": ["ウン"],
+        "kunyomi": ["くも"],
+        "meaning_vi": "Mây",
+        "formation": "Hình thanh: 雨(ý: mưa, thời tiết) + 云(âm: ウン, vần xoáy). Hơi nước xoáy dưới trời mưa → đám mây. Nhóm âm 云→ウン: 雲(vân=mây), 芸(vân=nghệ).",
+        "examples": [
+          {"word": "雲", "hiragana": "くも", "meaning": "Mây"},
+          {"word": "雲海", "hiragana": "うんかい", "meaning": "Biển mây"},
+          {"word": "入道雲", "hiragana": "にゅうどうぐも", "meaning": "Mây tích, mây vũ tích"},
+          {"word": "暗雲", "hiragana": "あんうん", "meaning": "Mây đen, điềm gở"},
+          {"word": "星雲", "hiragana": "せいうん", "meaning": "Tinh vân"}
+        ]
+      },
+      {
+        "character": "炭",
+        "han_viet": "Thán",
+        "onyomi": ["タン"],
+        "kunyomi": ["すみ"],
+        "meaning_vi": "Than",
+        "formation": "Hội ý: 山(núi) + 灰(tro). Chất lấy từ núi sau khi đốt → than. Đá trong núi đốt lên thành tro → than đá.",
+        "examples": [
+          {"word": "炭", "hiragana": "すみ", "meaning": "Than"},
+          {"word": "石炭", "hiragana": "せきたん", "meaning": "Than đá"},
+          {"word": "炭素", "hiragana": "たんそ", "meaning": "Cacbon"},
+          {"word": "炭酸", "hiragana": "たんさん", "meaning": "Axit cacbonic, soda"},
+          {"word": "木炭", "hiragana": "もくたん", "meaning": "Than củi"}
+        ]
+      },
+      {
+        "character": "勇",
+        "han_viet": "Dũng",
+        "onyomi": ["ユウ"],
+        "kunyomi": ["いさむ"],
+        "meaning_vi": "Dũng cảm",
+        "formation": "Hội ý: 甬(ống thông suốt) + 力(sức lực). Sức mạnh thông suốt, không gì cản nổi → dũng cảm.",
+        "examples": [
+          {"word": "勇気", "hiragana": "ゆうき", "meaning": "Dũng khí, can đảm"},
+          {"word": "勇敢", "hiragana": "ゆうかん", "meaning": "Dũng cảm"},
+          {"word": "勇者", "hiragana": "ゆうしゃ", "meaning": "Dũng sĩ, anh hùng"},
+          {"word": "勇ましい", "hiragana": "いさましい", "meaning": "Dũng mãnh"},
+          {"word": "勇退", "hiragana": "ゆうたい", "meaning": "Dũng thoái, từ chức"}
+        ]
+      },
+      {
+        "character": "械",
+        "han_viet": "Giới",
+        "onyomi": ["カイ"],
+        "kunyomi": [],
+        "meaning_vi": "Cơ giới, máy móc",
+        "formation": "Hình thanh: 木(ý: gỗ, vật liệu) + 戒(âm: カイ, răn đe). Gốc: cùm gỗ trói tù nhân (công cụ răn đe). Mở rộng: dụng cụ, cơ giới, máy móc.",
+        "examples": [
+          {"word": "機械", "hiragana": "きかい", "meaning": "Cơ giới, máy móc"},
+          {"word": "機械的", "hiragana": "きかいてき", "meaning": "Máy móc, tự động"},
+          {"word": "器械", "hiragana": "きかい", "meaning": "Dụng cụ, khí cụ"},
+          {"word": "機械化", "hiragana": "きかいか", "meaning": "Cơ giới hóa"}
+        ]
+      },
+      {
+        "character": "湖",
+        "han_viet": "Hồ",
+        "onyomi": ["コ"],
+        "kunyomi": ["みずうみ"],
+        "meaning_vi": "Ao hồ",
+        "formation": "Hình thanh: 氵(ý: nước) + 胡(âm: コ, rậm rạp). Vùng nước rộng giữa đất liền, bao quanh bởi cây cỏ rậm rạp → hồ nước.",
+        "examples": [
+          {"word": "湖", "hiragana": "みずうみ", "meaning": "Hồ nước"},
+          {"word": "湖畔", "hiragana": "こはん", "meaning": "Bờ hồ"},
+          {"word": "湖水", "hiragana": "こすい", "meaning": "Nước hồ"},
+          {"word": "琵琶湖", "hiragana": "びわこ", "meaning": "Hồ Biwa (lớn nhất Nhật)"}
+        ]
+      },
+      {
+        "character": "虫",
+        "han_viet": "Trùng",
+        "onyomi": ["チュウ"],
+        "kunyomi": ["むし"],
+        "meaning_vi": "Côn trùng, sâu bọ",
+        "formation": "Tượng hình: Hình ảnh con rắn cuộn tròn. Gốc chỉ rắn, sau mở rộng thành tất cả côn trùng, sâu bọ. Bộ 虫 xuất hiện trong: 蛇(xà=rắn), 蚊(văn=muỗi), 蝶(điệp=bướm).",
+        "examples": [
+          {"word": "虫", "hiragana": "むし", "meaning": "Côn trùng"},
+          {"word": "昆虫", "hiragana": "こんちゅう", "meaning": "Côn trùng"},
+          {"word": "虫歯", "hiragana": "むしば", "meaning": "Sâu răng"},
+          {"word": "害虫", "hiragana": "がいちゅう", "meaning": "Sâu bọ hại"},
+          {"word": "弱虫", "hiragana": "よわむし", "meaning": "Kẻ nhát gan"}
+        ]
+      }
+    ]
+  }
+]

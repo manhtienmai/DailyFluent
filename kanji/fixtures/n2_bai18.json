@@ -1,0 +1,435 @@
+{
+  "jlpt_level": "N2",
+  "lesson_id": 18,
+  "topic": "Đồ vật & Thời tiết",
+  "kanji_list": [
+    {
+      "character": "粒",
+      "han_viet": "Lạp",
+      "onyomi": ["リュウ"],
+      "kunyomi": ["つぶ"],
+      "meaning_vi": "Hạt, viên",
+      "formation": "Hình thanh: 米(ý: gạo) + 立(âm: リュウ, đứng) → hạt gạo riêng lẻ → hạt, viên",
+      "examples": [
+        {"word": "粒", "hiragana": "つぶ", "meaning": "Hạt, viên", "jlpt": "N2"},
+        {"word": "粒子", "hiragana": "りゅうし", "meaning": "Hạt (vật lý)", "jlpt": "N1"},
+        {"word": "一粒", "hiragana": "ひとつぶ", "meaning": "Một hạt", "jlpt": "N2"},
+        {"word": "大粒", "hiragana": "おおつぶ", "meaning": "Hạt to", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "詞",
+      "han_viet": "Từ",
+      "onyomi": ["シ"],
+      "kunyomi": ["ことば"],
+      "meaning_vi": "Từ, ca từ, lời",
+      "formation": "Hình thanh: 言(ý: lời nói) + 司(âm: シ, quản lý) → lời nói sắp xếp → từ, ca từ",
+      "examples": [
+        {"word": "歌詞", "hiragana": "かし", "meaning": "Ca từ", "jlpt": "N2"},
+        {"word": "名詞", "hiragana": "めいし", "meaning": "Danh từ", "jlpt": "N3"},
+        {"word": "動詞", "hiragana": "どうし", "meaning": "Động từ", "jlpt": "N3"},
+        {"word": "形容詞", "hiragana": "けいようし", "meaning": "Tính từ", "jlpt": "N3"},
+        {"word": "助詞", "hiragana": "じょし", "meaning": "Trợ từ", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "畳",
+      "han_viet": "Điệp",
+      "onyomi": ["ジョウ"],
+      "kunyomi": ["たたむ", "たたみ"],
+      "meaning_vi": "Chiếu tatami, gấp, xếp",
+      "formation": "Hội ý: 田(ruộng) + 冝(hợp lý) → xếp gọn gàng → chiếu tatami, gấp",
+      "examples": [
+        {"word": "畳", "hiragana": "たたみ", "meaning": "Chiếu tatami", "jlpt": "N3"},
+        {"word": "畳む", "hiragana": "たたむ", "meaning": "Gấp, xếp", "jlpt": "N3"},
+        {"word": "六畳", "hiragana": "ろくじょう", "meaning": "Phòng 6 chiếu", "jlpt": "N3"},
+        {"word": "畳の間", "hiragana": "たたみのま", "meaning": "Phòng tatami", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "机",
+      "han_viet": "Cơ",
+      "onyomi": ["キ"],
+      "kunyomi": ["つくえ"],
+      "meaning_vi": "Cái bàn",
+      "formation": "Hình thanh: 木(ý: gỗ) + 几(âm: キ, bàn nhỏ) → bàn gỗ → cái bàn",
+      "examples": [
+        {"word": "机", "hiragana": "つくえ", "meaning": "Cái bàn", "jlpt": "N4"},
+        {"word": "机上", "hiragana": "きじょう", "meaning": "Trên bàn, lý thuyết", "jlpt": "N2"},
+        {"word": "事務机", "hiragana": "じむづくえ", "meaning": "Bàn làm việc", "jlpt": "N2"},
+        {"word": "学習机", "hiragana": "がくしゅうづくえ", "meaning": "Bàn học", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "膚",
+      "han_viet": "Phu",
+      "onyomi": ["フ"],
+      "kunyomi": [],
+      "meaning_vi": "Da, bề mặt da",
+      "formation": "Hình thanh: 月(ý: thịt) + 盧(âm: フ) → phần thịt bề ngoài → da",
+      "examples": [
+        {"word": "皮膚", "hiragana": "ひふ", "meaning": "Da", "jlpt": "N2"},
+        {"word": "皮膚科", "hiragana": "ひふか", "meaning": "Khoa da liễu", "jlpt": "N2"},
+        {"word": "皮膚炎", "hiragana": "ひふえん", "meaning": "Viêm da", "jlpt": "N1"},
+        {"word": "皮膚病", "hiragana": "ひふびょう", "meaning": "Bệnh da", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "濯",
+      "han_viet": "Trạc",
+      "onyomi": ["タク"],
+      "kunyomi": [],
+      "meaning_vi": "Rửa, giặt",
+      "formation": "Hình thanh: 氵(ý: nước) + 翟(âm: タク) → rửa bằng nước → giặt",
+      "examples": [
+        {"word": "洗濯", "hiragana": "せんたく", "meaning": "Giặt giũ", "jlpt": "N4"},
+        {"word": "洗濯機", "hiragana": "せんたくき", "meaning": "Máy giặt", "jlpt": "N4"},
+        {"word": "洗濯物", "hiragana": "せんたくもの", "meaning": "Đồ giặt", "jlpt": "N3"},
+        {"word": "洗濯ばさみ", "hiragana": "せんたくばさみ", "meaning": "Kẹp phơi đồ", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "塔",
+      "han_viet": "Tháp",
+      "onyomi": ["トウ"],
+      "kunyomi": [],
+      "meaning_vi": "Tháp, tòa tháp",
+      "formation": "Hình thanh: 土(ý: đất) + 荅(âm: トウ) → công trình xây cao → tháp",
+      "examples": [
+        {"word": "塔", "hiragana": "とう", "meaning": "Tháp", "jlpt": "N2"},
+        {"word": "五重塔", "hiragana": "ごじゅうのとう", "meaning": "Tháp 5 tầng", "jlpt": "N2"},
+        {"word": "管制塔", "hiragana": "かんせいとう", "meaning": "Đài kiểm soát", "jlpt": "N1"},
+        {"word": "仏塔", "hiragana": "ぶっとう", "meaning": "Tháp Phật", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "沸",
+      "han_viet": "Phí",
+      "onyomi": ["フツ"],
+      "kunyomi": ["わかす", "わく"],
+      "meaning_vi": "Sôi, đun sôi",
+      "formation": "Hình thanh: 氵(ý: nước) + 弗(âm: フツ) → nước sôi sùng sục → sôi",
+      "examples": [
+        {"word": "沸かす", "hiragana": "わかす", "meaning": "Đun sôi", "jlpt": "N3"},
+        {"word": "沸く", "hiragana": "わく", "meaning": "Sôi lên", "jlpt": "N3"},
+        {"word": "沸騰", "hiragana": "ふっとう", "meaning": "Sôi, sục sôi", "jlpt": "N2"},
+        {"word": "沸点", "hiragana": "ふってん", "meaning": "Điểm sôi", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "灰",
+      "han_viet": "Hôi",
+      "onyomi": ["カイ"],
+      "kunyomi": ["はい"],
+      "meaning_vi": "Tro, màu xám",
+      "formation": "Hội ý: 厂(vách đá) + 火(lửa) → lửa cháy để lại tro → tro",
+      "examples": [
+        {"word": "灰", "hiragana": "はい", "meaning": "Tro", "jlpt": "N2"},
+        {"word": "灰色", "hiragana": "はいいろ", "meaning": "Màu xám", "jlpt": "N3"},
+        {"word": "灰皿", "hiragana": "はいざら", "meaning": "Gạt tàn thuốc", "jlpt": "N3"},
+        {"word": "石灰", "hiragana": "せっかい", "meaning": "Vôi", "jlpt": "N1"},
+        {"word": "火山灰", "hiragana": "かざんばい", "meaning": "Tro núi lửa", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "菓",
+      "han_viet": "Quả",
+      "onyomi": ["カ"],
+      "kunyomi": [],
+      "meaning_vi": "Bánh kẹo, hoa quả",
+      "formation": "Hình thanh: 艹(ý: cỏ) + 果(âm: カ, quả) → quả cây → bánh kẹo",
+      "examples": [
+        {"word": "お菓子", "hiragana": "おかし", "meaning": "Bánh kẹo", "jlpt": "N4"},
+        {"word": "和菓子", "hiragana": "わがし", "meaning": "Bánh Nhật", "jlpt": "N3"},
+        {"word": "洋菓子", "hiragana": "ようがし", "meaning": "Bánh Tây", "jlpt": "N3"},
+        {"word": "菓子屋", "hiragana": "かしや", "meaning": "Tiệm bánh", "jlpt": "N3"},
+        {"word": "製菓", "hiragana": "せいか", "meaning": "Làm bánh kẹo", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "帽",
+      "han_viet": "Mạo",
+      "onyomi": ["ボウ"],
+      "kunyomi": [],
+      "meaning_vi": "Mũ, nón",
+      "formation": "Hình thanh: 巾(ý: vải) + 冒(âm: ボウ) → vải trùm lên đầu → mũ",
+      "examples": [
+        {"word": "帽子", "hiragana": "ぼうし", "meaning": "Mũ, nón", "jlpt": "N4"},
+        {"word": "脱帽", "hiragana": "だつぼう", "meaning": "Cởi mũ, bái phục", "jlpt": "N1"},
+        {"word": "野球帽", "hiragana": "やきゅうぼう", "meaning": "Mũ bóng chày", "jlpt": "N2"},
+        {"word": "麦わら帽子", "hiragana": "むぎわらぼうし", "meaning": "Mũ rơm", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "枯",
+      "han_viet": "Khô",
+      "onyomi": ["コ"],
+      "kunyomi": ["かれる", "からす"],
+      "meaning_vi": "Héo, khô, tàn",
+      "formation": "Hình thanh: 木(ý: cây) + 古(âm: コ, cũ) → cây cũ khô héo → héo, khô",
+      "examples": [
+        {"word": "枯れる", "hiragana": "かれる", "meaning": "Héo, khô", "jlpt": "N2"},
+        {"word": "枯れ葉", "hiragana": "かれは", "meaning": "Lá khô", "jlpt": "N2"},
+        {"word": "枯渇", "hiragana": "こかつ", "meaning": "Cạn kiệt", "jlpt": "N1"},
+        {"word": "枯れ木", "hiragana": "かれき", "meaning": "Cây khô", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "涼",
+      "han_viet": "Lương",
+      "onyomi": ["リョウ"],
+      "kunyomi": ["すずしい", "すずむ"],
+      "meaning_vi": "Mát, mát mẻ",
+      "formation": "Hình thanh: 氵(ý: nước) + 京(âm: リョウ) → nước mang hơi mát → mát mẻ",
+      "examples": [
+        {"word": "涼しい", "hiragana": "すずしい", "meaning": "Mát mẻ", "jlpt": "N4"},
+        {"word": "涼む", "hiragana": "すずむ", "meaning": "Hóng mát", "jlpt": "N2"},
+        {"word": "涼風", "hiragana": "りょうふう", "meaning": "Gió mát", "jlpt": "N1"},
+        {"word": "夕涼み", "hiragana": "ゆうすずみ", "meaning": "Hóng mát buổi chiều", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "舟",
+      "han_viet": "Chu",
+      "onyomi": ["シュウ"],
+      "kunyomi": ["ふね", "ふな"],
+      "meaning_vi": "Thuyền",
+      "formation": "Tượng hình: Hình ảnh con thuyền nhỏ → thuyền",
+      "examples": [
+        {"word": "舟", "hiragana": "ふね", "meaning": "Thuyền nhỏ", "jlpt": "N2"},
+        {"word": "小舟", "hiragana": "こぶね", "meaning": "Thuyền nhỏ", "jlpt": "N2"},
+        {"word": "舟歌", "hiragana": "ふなうた", "meaning": "Bài hát trên thuyền", "jlpt": "N1"},
+        {"word": "丸木舟", "hiragana": "まるきぶね", "meaning": "Thuyền độc mộc", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "符",
+      "han_viet": "Phù",
+      "onyomi": ["フ"],
+      "kunyomi": [],
+      "meaning_vi": "Phù hiệu, ký hiệu",
+      "formation": "Hình thanh: 竹(ý: tre) + 付(âm: フ, gắn) → thẻ tre ký hiệu → phù hiệu",
+      "examples": [
+        {"word": "切符", "hiragana": "きっぷ", "meaning": "Vé", "jlpt": "N4"},
+        {"word": "符号", "hiragana": "ふごう", "meaning": "Ký hiệu", "jlpt": "N2"},
+        {"word": "音符", "hiragana": "おんぷ", "meaning": "Nốt nhạc", "jlpt": "N2"},
+        {"word": "符合", "hiragana": "ふごう", "meaning": "Phù hợp", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "憎",
+      "han_viet": "Tăng",
+      "onyomi": ["ゾウ"],
+      "kunyomi": ["にくむ", "にくい", "にくらしい", "にくしみ"],
+      "meaning_vi": "Ghét, căm ghét",
+      "formation": "Hình thanh: 忄(ý: trái tim) + 曾(âm: ゾウ) → lòng mang hận → ghét, căm thù",
+      "examples": [
+        {"word": "憎む", "hiragana": "にくむ", "meaning": "Ghét, căm giận", "jlpt": "N2"},
+        {"word": "憎い", "hiragana": "にくい", "meaning": "Đáng ghét", "jlpt": "N2"},
+        {"word": "憎しみ", "hiragana": "にくしみ", "meaning": "Sự căm ghét", "jlpt": "N2"},
+        {"word": "愛憎", "hiragana": "あいぞう", "meaning": "Yêu ghét, ân oán", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "肯",
+      "han_viet": "Khẳng",
+      "onyomi": ["コウ"],
+      "kunyomi": [],
+      "meaning_vi": "Khẳng định, chấp nhận",
+      "formation": "Hội ý: 止(dừng) + 月(thịt) → xương đúng chỗ → chấp nhận, khẳng định",
+      "examples": [
+        {"word": "肯定", "hiragana": "こうてい", "meaning": "Khẳng định", "jlpt": "N2"},
+        {"word": "肯定的", "hiragana": "こうていてき", "meaning": "Tích cực", "jlpt": "N2"},
+        {"word": "首肯", "hiragana": "しゅこう", "meaning": "Gật đầu đồng ý", "jlpt": "N1"},
+        {"word": "肯否", "hiragana": "こうひ", "meaning": "Đồng ý hay không", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "燥",
+      "han_viet": "Táo",
+      "onyomi": ["ソウ"],
+      "kunyomi": [],
+      "meaning_vi": "Khô, can táo",
+      "formation": "Hình thanh: 火(ý: lửa) + 喿(âm: ソウ) → lửa đốt khô → khô, can táo",
+      "examples": [
+        {"word": "乾燥", "hiragana": "かんそう", "meaning": "Khô ráo", "jlpt": "N2"},
+        {"word": "乾燥機", "hiragana": "かんそうき", "meaning": "Máy sấy", "jlpt": "N2"},
+        {"word": "乾燥肌", "hiragana": "かんそうはだ", "meaning": "Da khô", "jlpt": "N2"},
+        {"word": "乾燥剤", "hiragana": "かんそうざい", "meaning": "Chất hút ẩm", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "畜",
+      "han_viet": "Súc",
+      "onyomi": ["チク"],
+      "kunyomi": [],
+      "meaning_vi": "Gia súc, chăn nuôi",
+      "formation": "Hình thanh: 玄(âm) + 田(ý: ruộng) → nuôi thú trên ruộng → gia súc",
+      "examples": [
+        {"word": "家畜", "hiragana": "かちく", "meaning": "Gia súc", "jlpt": "N2"},
+        {"word": "畜産", "hiragana": "ちくさん", "meaning": "Chăn nuôi", "jlpt": "N2"},
+        {"word": "牧畜", "hiragana": "ぼくちく", "meaning": "Mục súc", "jlpt": "N1"},
+        {"word": "畜生", "hiragana": "ちくしょう", "meaning": "Súc sinh (chửi thề)", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "坊",
+      "han_viet": "Phường",
+      "onyomi": ["ボウ", "ボッ"],
+      "kunyomi": [],
+      "meaning_vi": "Phường, cậu bé, nhà sư",
+      "formation": "Hình thanh: 土(ý: đất) + 方(âm: ボウ, phương) → vùng đất nhỏ → phường",
+      "examples": [
+        {"word": "坊さん", "hiragana": "ぼうさん", "meaning": "Nhà sư", "jlpt": "N3"},
+        {"word": "坊や", "hiragana": "ぼうや", "meaning": "Cậu bé", "jlpt": "N2"},
+        {"word": "寝坊", "hiragana": "ねぼう", "meaning": "Ngủ nướng", "jlpt": "N3"},
+        {"word": "赤ん坊", "hiragana": "あかんぼう", "meaning": "Em bé sơ sinh", "jlpt": "N3"},
+        {"word": "朝寝坊", "hiragana": "あさねぼう", "meaning": "Ngủ dậy muộn", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "挟",
+      "han_viet": "Hiệp",
+      "onyomi": ["キョウ"],
+      "kunyomi": ["はさむ", "はさまる"],
+      "meaning_vi": "Kẹp, kề bên",
+      "formation": "Hình thanh: 扌(ý: tay) + 夹(âm: キョウ) → tay kẹp lại → kẹp",
+      "examples": [
+        {"word": "挟む", "hiragana": "はさむ", "meaning": "Kẹp, nhét vào", "jlpt": "N2"},
+        {"word": "挟まる", "hiragana": "はさまる", "meaning": "Bị kẹp", "jlpt": "N2"},
+        {"word": "板挟み", "hiragana": "いたばさみ", "meaning": "Kẹt giữa hai bên", "jlpt": "N1"},
+        {"word": "挟み撃ち", "hiragana": "はさみうち", "meaning": "Tấn công hai mặt", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "曇",
+      "han_viet": "Đàm",
+      "onyomi": ["ドン"],
+      "kunyomi": ["くもる"],
+      "meaning_vi": "Mây, u ám",
+      "formation": "Hình thanh: 日(ý: mặt trời) + 雲(âm: ドン, mây) → trời có mây → u ám",
+      "examples": [
+        {"word": "曇る", "hiragana": "くもる", "meaning": "U ám, có mây", "jlpt": "N4"},
+        {"word": "曇り", "hiragana": "くもり", "meaning": "Trời u ám", "jlpt": "N4"},
+        {"word": "曇り空", "hiragana": "くもりぞら", "meaning": "Bầu trời u ám", "jlpt": "N3"},
+        {"word": "曇天", "hiragana": "どんてん", "meaning": "Trời âm u", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "滴",
+      "han_viet": "Tích",
+      "onyomi": ["テキ"],
+      "kunyomi": ["しずく", "したたる"],
+      "meaning_vi": "Giọt, nhỏ giọt",
+      "formation": "Hình thanh: 氵(ý: nước) + 啇(âm: テキ) → nước từng giọt → giọt",
+      "examples": [
+        {"word": "滴", "hiragana": "しずく", "meaning": "Giọt nước", "jlpt": "N2"},
+        {"word": "水滴", "hiragana": "すいてき", "meaning": "Giọt nước", "jlpt": "N2"},
+        {"word": "滴る", "hiragana": "したたる", "meaning": "Nhỏ giọt", "jlpt": "N2"},
+        {"word": "一滴", "hiragana": "いってき", "meaning": "Một giọt", "jlpt": "N2"},
+        {"word": "点滴", "hiragana": "てんてき", "meaning": "Truyền dịch", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "伺",
+      "han_viet": "Tứ",
+      "onyomi": ["シ"],
+      "kunyomi": ["うかがう"],
+      "meaning_vi": "Thăm, hỏi thăm",
+      "formation": "Hình thanh: 亻(ý: người) + 司(âm: シ) → người đến hỏi thăm → thăm hỏi",
+      "examples": [
+        {"word": "伺う", "hiragana": "うかがう", "meaning": "Thăm, hỏi (kính ngữ)", "jlpt": "N3"},
+        {"word": "伺い", "hiragana": "うかがい", "meaning": "Sự thăm hỏi", "jlpt": "N2"},
+        {"word": "お伺いする", "hiragana": "おうかがいする", "meaning": "Xin phép thăm", "jlpt": "N3"},
+        {"word": "伺い知る", "hiragana": "うかがいしる", "meaning": "Dò biết", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "患",
+      "han_viet": "Hoạn",
+      "onyomi": ["カン"],
+      "kunyomi": ["わずらう"],
+      "meaning_vi": "Bệnh, mắc bệnh",
+      "formation": "Hình thanh: 串(âm: カン) + 心(ý: trái tim) → tâm bị đau → mắc bệnh",
+      "examples": [
+        {"word": "患者", "hiragana": "かんじゃ", "meaning": "Bệnh nhân", "jlpt": "N2"},
+        {"word": "患う", "hiragana": "わずらう", "meaning": "Mắc bệnh", "jlpt": "N2"},
+        {"word": "患部", "hiragana": "かんぶ", "meaning": "Vùng bị bệnh", "jlpt": "N1"},
+        {"word": "疾患", "hiragana": "しっかん", "meaning": "Bệnh, tật", "jlpt": "N1"},
+        {"word": "急患", "hiragana": "きゅうかん", "meaning": "Bệnh nhân cấp cứu", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "籍",
+      "han_viet": "Tịch",
+      "onyomi": ["セキ"],
+      "kunyomi": [],
+      "meaning_vi": "Hộ tịch, quốc tịch, sách",
+      "formation": "Hình thanh: 竹(ý: tre) + 耤(âm: セキ, cày) → sách tre ghi danh → hộ tịch, quốc tịch",
+      "examples": [
+        {"word": "国籍", "hiragana": "こくせき", "meaning": "Quốc tịch", "jlpt": "N2"},
+        {"word": "戸籍", "hiragana": "こせき", "meaning": "Hộ tịch", "jlpt": "N2"},
+        {"word": "書籍", "hiragana": "しょせき", "meaning": "Sách vở", "jlpt": "N2"},
+        {"word": "本籍", "hiragana": "ほんせき", "meaning": "Nguyên quán", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "跡",
+      "han_viet": "Tích",
+      "onyomi": ["セキ"],
+      "kunyomi": ["あと"],
+      "meaning_vi": "Dấu vết, vết tích, di tích",
+      "formation": "Hình thanh: 足(ý: chân) + 亦(âm: セキ, cũng) → vết chân để lại → dấu vết",
+      "examples": [
+        {"word": "跡", "hiragana": "あと", "meaning": "Dấu vết, vết tích", "jlpt": "N2"},
+        {"word": "足跡", "hiragana": "あしあと", "meaning": "Dấu chân", "jlpt": "N2"},
+        {"word": "遺跡", "hiragana": "いせき", "meaning": "Di tích", "jlpt": "N2"},
+        {"word": "奇跡", "hiragana": "きせき", "meaning": "Kỳ tích, phép lạ", "jlpt": "N2"},
+        {"word": "痕跡", "hiragana": "こんせき", "meaning": "Dấu vết, tàn tích", "jlpt": "N1"}
+      ]
+    },
+    {
+      "character": "瓶",
+      "han_viet": "Bình",
+      "onyomi": ["ビン"],
+      "kunyomi": [],
+      "meaning_vi": "Cái bình, chai, lọ",
+      "formation": "Hình thanh: 瓦(ý: gốm) + 并(âm: ビン/ヘイ, hợp lại) → đồ gốm chứa nước → bình, chai",
+      "examples": [
+        {"word": "花瓶", "hiragana": "かびん", "meaning": "Bình hoa", "jlpt": "N3"},
+        {"word": "瓶", "hiragana": "びん", "meaning": "Chai, lọ", "jlpt": "N3"},
+        {"word": "空き瓶", "hiragana": "あきびん", "meaning": "Chai rỗng", "jlpt": "N3"},
+        {"word": "瓶詰め", "hiragana": "びんづめ", "meaning": "Đóng chai", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "缶",
+      "han_viet": "Phũ",
+      "onyomi": ["カン"],
+      "kunyomi": [],
+      "meaning_vi": "Lon, hộp, đồ hộp",
+      "formation": "Tượng hình: Hình ảnh cái vại, bình chứa → lon, hộp",
+      "examples": [
+        {"word": "缶", "hiragana": "かん", "meaning": "Lon, hộp", "jlpt": "N3"},
+        {"word": "缶詰", "hiragana": "かんづめ", "meaning": "Đồ hộp", "jlpt": "N2"},
+        {"word": "空き缶", "hiragana": "あきかん", "meaning": "Lon rỗng", "jlpt": "N3"},
+        {"word": "缶ビール", "hiragana": "かんビール", "meaning": "Bia lon", "jlpt": "N3"},
+        {"word": "缶切り", "hiragana": "かんきり", "meaning": "Đồ mở hộp", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "隻",
+      "han_viet": "Chích",
+      "onyomi": ["セキ"],
+      "kunyomi": [],
+      "meaning_vi": "Chiếc (đơn vị đếm tàu, thuyền)",
+      "formation": "Hội ý: 隹(chim) + 又(tay) → tay bắt một con chim → một chiếc, đơn lẻ",
+      "examples": [
+        {"word": "一隻", "hiragana": "いっせき", "meaning": "Một chiếc (tàu)", "jlpt": "N2"},
+        {"word": "隻眼", "hiragana": "せきがん", "meaning": "Một mắt, chột", "jlpt": "N1"},
+        {"word": "隻手", "hiragana": "せきしゅ", "meaning": "Một tay", "jlpt": "N1"},
+        {"word": "数隻", "hiragana": "すうせき", "meaning": "Vài chiếc (tàu)", "jlpt": "N2"}
+      ]
+    }
+  ]
+}

@@ -37,18 +37,15 @@ export default function EnglishExamListPage() {
       <nav className="mb-5 flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-tertiary)' }}>
         <Link href="/exam/" className="no-underline hover:text-blue-500 transition-colors duration-200" style={{ color: 'var(--text-tertiary)' }}>Luyện thi</Link>
         <span style={{ color: 'var(--border-default)' }}>/</span>
-        <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>🇬🇧 English Lớp 10</span>
+        <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>English Lớp 10</span>
       </nav>
 
       {/* Header with animated underline */}
       <div className="mb-8">
         <h1 className="text-2xl font-extrabold tracking-tight mb-2 relative inline-block" style={{ color: 'var(--text-primary)' }}>
-          🇬🇧 Luyện Đề Tiếng Anh — Thi vào Lớp 10
+          Luyện thi tiếng Anh vào 10
           <span className={`absolute bottom-0 left-0 h-[3px] bg-blue-500 rounded-full transition-all duration-700 ease-out ${mounted ? "w-full" : "w-0"}`} />
         </h1>
-        <p className="text-sm leading-relaxed mt-2" style={{ color: 'var(--text-secondary)' }}>
-          Mỗi đề gồm 40 câu trắc nghiệm, thời gian 60 phút. Có giải thích đáp án chi tiết cho mỗi câu.
-        </p>
       </div>
 
       {loading ? (
@@ -79,6 +76,11 @@ export default function EnglishExamListPage() {
               <div className="text-sm font-bold group-hover:text-blue-500 transition-colors" style={{ color: 'var(--text-primary)' }}>Ngữ pháp</div>
               <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>Ôn lý thuyết + BT</div>
             </Link>
+            <Link href="/exam/english/vocabulary" className="group rounded-xl border p-4 no-underline transition-all duration-300 hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }}>
+              <div className="text-2xl mb-2 transition-transform duration-300 group-hover:scale-110">📖</div>
+              <div className="text-sm font-bold group-hover:text-blue-500 transition-colors" style={{ color: 'var(--text-primary)' }}>Từ vựng</div>
+              <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>19 chủ đề, 285 từ</div>
+            </Link>
           </div>
         </div>
 
@@ -105,18 +107,13 @@ export default function EnglishExamListPage() {
               ) : (
                 <div className="flex flex-col overflow-hidden rounded-xl border p-5 opacity-75 transition-opacity duration-300 hover:opacity-90" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }}>
                   <ExamCardContent exam={exam} />
-                  <div className="mt-3 flex flex-col gap-2">
-                    <div className="rounded-lg px-3 py-2 text-center text-sm font-semibold flex items-center justify-center gap-1.5" style={{ background: 'var(--bg-interactive)', color: 'var(--text-disabled)' }}>
-                      <span className="animate-pulse">🔒</span> Yêu cầu VIP
+                  <div className="mt-3 rounded-lg px-3 py-2.5 text-center text-sm" style={{ background: 'var(--bg-interactive)' }}>
+                    <div className="flex items-center justify-center gap-1.5 font-semibold mb-1" style={{ color: 'var(--text-disabled)' }}>
+                      <span>🔒</span> Đề thi bị khóa
                     </div>
-                    <a
-                      href="https://zalo.me/0962715898"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-lg bg-blue-500 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-600 transition-all duration-200 no-underline hover:shadow-md hover:shadow-blue-500/25 active:scale-[0.97]"
-                    >
-                      💬 Liên hệ mở khóa
-                    </a>
+                    <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      Liên hệ admin để truy cập bài thi
+                    </div>
                   </div>
                 </div>
               )}
@@ -126,28 +123,7 @@ export default function EnglishExamListPage() {
         </>
       )}
 
-      {/* VIP banner */}
-      {!loading && items.length > 0 && !isVip && (
-        <div
-          className="mt-8 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200/60 dark:border-amber-800/60 p-6 text-center"
-          style={{ animation: "slideUp 0.5s ease-out 0.3s both" }}
-        >
-          <p className="text-lg font-bold text-amber-700 dark:text-amber-400 mb-1">
-            <span className="inline-block animate-bounce">👑</span> Mở khóa tất cả đề thi
-          </p>
-          <p className="text-sm text-amber-600 dark:text-amber-500/80 mb-4">
-            Liên hệ để nhận quyền truy cập toàn bộ kho đề thi + giải thích chi tiết + bài ôn tập
-          </p>
-          <a
-            href="https://zalo.me/0962715898"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block rounded-lg bg-amber-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-amber-600 transition-all duration-200 no-underline hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5 active:scale-[0.97]"
-          >
-            💬 Liên hệ qua Zalo
-          </a>
-        </div>
-      )}
+
 
       {/* Global keyframes */}
       <style jsx global>{`

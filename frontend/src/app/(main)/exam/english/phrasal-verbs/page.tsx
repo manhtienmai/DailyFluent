@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
-/* ─── DATA ────────────────────────────────────────────── */
+/* ─── TYPES ────────────────────────────────────────────── */
 interface PhrasalVerb {
   id: number;
   verb: string;
@@ -14,32 +14,24 @@ interface PhrasalVerb {
   emoji: string;
 }
 
-const PHRASAL_VERBS: PhrasalVerb[] = [
-  { id: 1, verb: "turn off", meaning: "Tắt (thiết bị, đèn, nước…)", meaningEn: "to stop a device or machine from working", example: "Please turn off the lights before you leave.", exampleVi: "Hãy tắt đèn trước khi bạn rời đi.", emoji: "💡" },
-  { id: 2, verb: "look after", meaning: "Chăm sóc, trông nom", meaningEn: "to take care of someone or something", example: "She looks after her younger brother every day.", exampleVi: "Cô ấy chăm sóc em trai mỗi ngày.", emoji: "🤲" },
-  { id: 3, verb: "look up", meaning: "Tra cứu (từ điển, thông tin)", meaningEn: "to search for information in a book or online", example: "I need to look up this word in the dictionary.", exampleVi: "Tôi cần tra từ này trong từ điển.", emoji: "🔍" },
-  { id: 4, verb: "look for", meaning: "Tìm kiếm", meaningEn: "to try to find something or someone", example: "Are you looking for your keys?", exampleVi: "Bạn đang tìm chìa khóa à?", emoji: "🔎" },
-];
+interface FillSentence {
+  sentence: string;
+  answer: string;
+  hint: string;
+}
 
-const FILL_SENTENCES = [
-  { sentence: "Can you ___ the baby while I go shopping?", answer: "look after", hint: "chăm sóc" },
-  { sentence: "Don't forget to ___ the TV before bed.", answer: "turn off", hint: "tắt" },
-  { sentence: "I'll ___ the meaning of this word online.", answer: "look up", hint: "tra cứu" },
-  { sentence: "She's been ___ her lost cat all morning.", answer: "looking for", hint: "tìm kiếm" },
-  { sentence: "Who will ___ the children tonight?", answer: "look after", hint: "trông nom" },
-  { sentence: "Please ___ your phone during the exam.", answer: "turn off", hint: "tắt" },
-  { sentence: "You should ___ the recipe on the internet.", answer: "look up", hint: "tra" },
-  { sentence: "What are you ___ in this drawer?", answer: "looking for", hint: "tìm" },
-];
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correct: number;
+}
 
-const QUIZ_QUESTIONS = [
-  { question: "\"Please ___ the lights when you leave the room.\"", options: ["look up", "turn off", "look for", "look after"], correct: 1 },
-  { question: "\"She ___ her grandmother every weekend.\"", options: ["turns off", "looks up", "looks after", "looks for"], correct: 2 },
-  { question: "\"I need to ___ this word. I don't know what it means.\"", options: ["look after", "turn off", "look for", "look up"], correct: 3 },
-  { question: "\"He's been ___ a new job for months.\"", options: ["turning off", "looking up", "looking after", "looking for"], correct: 3 },
-  { question: "\"Tắt máy tính\" means:", options: ["look up the computer", "look after the computer", "turn off the computer", "look for the computer"], correct: 2 },
-  { question: "\"Tra từ điển\" means:", options: ["turn off the dictionary", "look for the dictionary", "look after the dictionary", "look up in the dictionary"], correct: 3 },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
+/* Module-level data (populated from API) */
+let PHRASAL_VERBS: PhrasalVerb[] = [];
+let FILL_SENTENCES: FillSentence[] = [];
+let QUIZ_QUESTIONS: QuizQuestion[] = [];
 
 type GameMode = "cards" | "fill" | "match" | "quiz";
 type Choice = { key: string; text: string };
@@ -56,6 +48,28 @@ function shuffle<T>(arr: T[]): T[] {
 /* ═══════════════════════════════════════════════════════ */
 export default function PhrasalVerbPage() {
   const [mode, setMode] = useState<GameMode>("cards");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/v1/exam/english/phrasal-verbs-data`)
+      .then(r => r.json())
+      .then(data => {
+        PHRASAL_VERBS = data.verbs || [];
+        FILL_SENTENCES = data.fill_sentences || [];
+        QUIZ_QUESTIONS = data.quiz_questions || [];
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  if (!loaded) {
+    return (
+      <div className="pv-page" style={{ textAlign: "center", paddingTop: 48 }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+        <p style={{ fontSize: 14, color: "var(--text-tertiary)" }}>Đang tải...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="pv-page">
@@ -66,7 +80,6 @@ export default function PhrasalVerbPage() {
       </nav>
 
       <h1 className="pv-title">🔤 Phrasal Verbs</h1>
-      <p className="pv-subtitle">Học các cụm động từ thường gặp trong đề thi. Chọn chế độ học bên dưới.</p>
 
       <div className="pv-tabs">
         {([
@@ -88,7 +101,7 @@ export default function PhrasalVerbPage() {
       {mode === "quiz" && <QuizMode />}
 
       <style jsx global>{`
-        .pv-page { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+        .pv-page { max-width: 100%; margin: 0 auto; padding: 24px 24px; }
         .pv-breadcrumb { font-size: 13px; color: var(--text-tertiary); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
         .pv-breadcrumb a { color: var(--text-tertiary); text-decoration: none; }
         .pv-breadcrumb a:hover { color: var(--action-primary); }
@@ -105,20 +118,20 @@ export default function PhrasalVerbPage() {
         .pv-tab-desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
 
         /* Card */
-        .pv-card-wrap { width: 100%; aspect-ratio: 5/3; perspective: 1000px; cursor: pointer; user-select: none; }
-        @media (max-width: 640px) { .pv-card-wrap { aspect-ratio: 4/3; } }
+        .pv-card-wrap { width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 3/2; perspective: 1000px; cursor: pointer; user-select: none; }
+        @media (max-width: 640px) { .pv-card-wrap { max-width: 100%; aspect-ratio: 4/3; } }
         .pv-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
         .pv-card-inner.flipped { transform: rotateY(180deg); }
-        .pv-card-face { position: absolute; inset: 0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; color: white; padding: 24px; text-align: center; }
+        .pv-card-face { position: absolute; inset: 0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; color: white; padding: 20px; text-align: center; }
         .pv-card-front { background: linear-gradient(135deg, #3b82f6, #6366f1); }
         .pv-card-back { background: linear-gradient(135deg, #10b981, #14b8a6); transform: rotateY(180deg); }
-        .pv-card-emoji { font-size: 48px; margin-bottom: 16px; }
-        .pv-card-verb { font-size: 28px; font-weight: 900; }
-        @media (max-width: 640px) { .pv-card-verb { font-size: 22px; } .pv-card-emoji { font-size: 36px; } }
-        .pv-card-hint { font-size: 13px; opacity: 0.7; margin-top: 12px; }
-        .pv-card-meaning { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .pv-card-meaning-en { font-size: 13px; opacity: 0.8; font-style: italic; margin-bottom: 16px; }
-        .pv-card-example { background: rgba(255,255,255,0.2); border-radius: 10px; padding: 12px 16px; font-size: 13px; line-height: 1.5; }
+        .pv-card-emoji { font-size: 36px; margin-bottom: 8px; }
+        .pv-card-verb { font-size: 22px; font-weight: 900; }
+        @media (max-width: 640px) { .pv-card-verb { font-size: 20px; } .pv-card-emoji { font-size: 28px; } }
+        .pv-card-hint { font-size: 12px; opacity: 0.7; margin-top: 8px; }
+        .pv-card-meaning { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .pv-card-meaning-en { font-size: 12px; opacity: 0.8; font-style: italic; margin-bottom: 10px; }
+        .pv-card-example { background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-size: 12px; line-height: 1.4; }
 
         /* Controls */
         .pv-controls { display: flex; gap: 12px; margin-top: 16px; }
@@ -154,6 +167,8 @@ export default function PhrasalVerbPage() {
         .pv-fill-blank.correct { background: rgba(34,197,94,0.15); color: #15803d; }
         .pv-fill-blank.wrong { background: rgba(239,68,68,0.15); color: #dc2626; }
         .pv-fill-hint { font-size: 11px; color: var(--text-tertiary); margin-left: 36px; margin-bottom: 8px; }
+        .pv-fill-hint-btn { font-size: 11px; color: var(--action-primary); background: var(--bg-interactive); border: 1px solid var(--border-default); border-radius: 6px; padding: 3px 10px; margin-left: 36px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .pv-fill-hint-btn:hover { background: var(--bg-interactive-hover); border-color: var(--action-primary); }
         .pv-fill-options { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 36px; }
         .pv-fill-opt { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
         .pv-fill-opt:hover { border-color: var(--action-primary); }
@@ -282,6 +297,7 @@ function FillMode() {
   const [sentences] = useState(() => shuffle(FILL_SENTENCES).slice(0, 5));
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
+  const [showHints, setShowHints] = useState<Set<number>>(new Set());
   const options = ["turn off", "look after", "look up", "look for", "looking for"];
 
   const handleSelect = (idx: number, value: string) => { if (checked) return; setAnswers(prev => ({ ...prev, [idx]: value })); };
@@ -305,7 +321,11 @@ function FillMode() {
                   {parts[1]}
                 </p>
               </div>
-              <div className="pv-fill-hint">💡 Gợi ý: {s.hint}</div>
+              {!checked && (
+                showHints.has(i)
+                  ? <div className="pv-fill-hint">💡 {s.hint}</div>
+                  : <button className="pv-fill-hint-btn" onClick={() => setShowHints(prev => { const s2 = new Set(prev); s2.add(i); return s2; })}>💡 Gợi ý</button>
+              )}
               {!checked && (
                 <div className="pv-fill-options">
                   {options.map(opt => (

@@ -767,3 +767,108 @@ class ExamReviewResult(models.Model):
     def __str__(self):
         return f"{self.user.username} – {self.template.title} [{self.quiz_type}] {self.correct_count}/{self.total_count}"
 
+
+# ======================
+#  EN10 GRAMMAR TOPICS
+# ======================
+
+class EN10Difficulty(models.TextChoices):
+    EASY = "easy", "Cơ bản"
+    MEDIUM = "medium", "Trung bình"
+    HARD = "hard", "Nâng cao"
+
+
+class EN10GrammarTopic(models.Model):
+    """
+    Chủ đề ngữ pháp tiếng Anh lớp 10.
+
+    Mỗi topic chứa:
+    - sections: lý thuyết [{heading, content}, ...]
+    - formulas: công thức [{name, formula, example, exampleVi}, ...]
+    - exercises: bài tập MCQ [{question, options[], correct, explanation}, ...]
+    """
+    topic_id = models.SlugField(unique=True, max_length=50, help_text="VD: nouns, tenses, passive-voice")
+    title = models.CharField(max_length=100, help_text="Tên tiếng Anh: Nouns")
+    title_vi = models.CharField(max_length=100, help_text="Tên tiếng Việt: Danh từ")
+    emoji = models.CharField(max_length=10, default="📝")
+    description = models.TextField(blank=True, help_text="Mô tả ngắn về chủ đề")
+    difficulty = models.CharField(max_length=10, choices=EN10Difficulty.choices, default=EN10Difficulty.EASY)
+    order = models.PositiveIntegerField(default=0, help_text="Thứ tự hiển thị")
+
+    # Rich content JSON
+    sections = models.JSONField(default=list, blank=True, help_text='[{"heading": "...", "content": "..."}]')
+    formulas = models.JSONField(default=list, blank=True, help_text='[{"name": "...", "formula": "...", "example": "...", "exampleVi": "..."}]')
+    exercises = models.JSONField(default=list, blank=True, help_text='[{"question": "...", "options": [...], "correct": 0, "explanation": "..."}]')
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "EN10 Grammar Topic"
+        verbose_name_plural = "EN10 Grammar Topics"
+
+    def __str__(self):
+        return f"{self.emoji} {self.title} ({self.title_vi})"
+
+    @property
+    def question_count(self):
+        return len(self.exercises) if self.exercises else 0
+
+
+class EN10PhrasalVerbSet(models.Model):
+    """
+    Bộ Phrasal Verbs tiếng Anh lớp 10.
+
+    1 record chứa toàn bộ dữ liệu:
+    - verbs: [{id, verb, meaning, meaningEn, example, exampleVi, emoji}, ...]
+    - fill_sentences: [{sentence, answer, hint}, ...]
+    - quiz_questions: [{question, options[], correct}, ...]
+    """
+    title = models.CharField(max_length=100, default="Phrasal Verbs")
+    verbs = models.JSONField(default=list, blank=True, help_text='[{"id": 1, "verb": "turn off", ...}]')
+    fill_sentences = models.JSONField(default=list, blank=True, help_text='[{"sentence": "...", "answer": "...", "hint": "..."}]')
+    quiz_questions = models.JSONField(default=list, blank=True, help_text='[{"question": "...", "options": [...], "correct": 0}]')
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "EN10 Phrasal Verb Set"
+        verbose_name_plural = "EN10 Phrasal Verb Sets"
+
+    def __str__(self):
+        return f"{self.title} ({len(self.verbs)} verbs)"
+
+
+class EN10VocabTopic(models.Model):
+    """
+    Chủ đề từ vựng tiếng Anh lớp 10.
+
+    Mỗi topic chứa danh sách từ vựng dạng JSON:
+    words: [{word, pos, ipa, meaning}, ...]
+    """
+    slug = models.SlugField(unique=True, max_length=60, help_text="VD: education, health")
+    title = models.CharField(max_length=100, help_text="Education")
+    title_vi = models.CharField(max_length=100, help_text="Giáo dục")
+    emoji = models.CharField(max_length=10, default="📚")
+    order = models.PositiveIntegerField(default=0)
+    words = models.JSONField(default=list, blank=True, help_text='[{"word": "...", "pos": "noun", "ipa": "/.../" , "meaning": "..."}]')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "EN10 Vocab Topic"
+        verbose_name_plural = "EN10 Vocab Topics"
+
+    def __str__(self):
+        return f"{self.emoji} {self.title} ({self.title_vi}) — {len(self.words)} words"
+
+    @property
+    def word_count(self):
+        return len(self.words) if self.words else 0
+

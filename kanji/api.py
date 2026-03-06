@@ -105,6 +105,24 @@ class AddToStudyOut(Schema):
     already: int
 
 
+class AddAllByLevelIn(Schema):
+    jlpt_level: str
+
+
+class AddAllByLevelOut(Schema):
+    added: int
+    already: int
+    total: int
+
+
+class RemoveFromStudyIn(Schema):
+    kanji_vocab_ids: List[int]
+
+
+class RemoveFromStudyOut(Schema):
+    removed: int
+
+
 # ── Endpoints ──────────────────────────────────────────────
 
 @router.get("/levels", response=List[JLPTGroupOut], auth=None)
@@ -178,6 +196,21 @@ def my_kanji_progress(request):
         )
         for e in entries
     ]
+
+
+@router.post("/progress", response=KanjiProgressOut)
+def update_progress(request, payload: ProgressIn):
+    """Record the result of a kanji practice attempt."""
+    kanji = get_object_or_404(Kanji, pk=payload.kanji_id)
+    progress, _ = UserKanjiProgress.objects.get_or_create(
+        user=request.user, kanji=kanji
+    )
+    progress.record_attempt(payload.passed)
+    return KanjiProgressOut(
+        status=progress.status,
+        correct_streak=progress.correct_streak,
+        mastered=progress.status == UserKanjiProgress.STATUS_MASTERED,
+    )
 
 
 @router.get("/{char}", response=KanjiDetailOut, auth=None)
@@ -270,19 +303,6 @@ def kanji_detail(request, char: str):
     )
 
 
-@router.post("/progress", response=KanjiProgressOut)
-def update_progress(request, payload: ProgressIn):
-    """Record the result of a kanji practice attempt."""
-    kanji = get_object_or_404(Kanji, pk=payload.kanji_id)
-    progress, _ = UserKanjiProgress.objects.get_or_create(
-        user=request.user, kanji=kanji
-    )
-    progress.record_attempt(payload.passed)
-    return KanjiProgressOut(
-        status=progress.status,
-        correct_streak=progress.correct_streak,
-        mastered=progress.status == UserKanjiProgress.STATUS_MASTERED,
-    )
 
 
 
@@ -373,6 +393,55 @@ def add_vocab_to_study(request, payload: AddToStudyIn):
         SetItem.objects.bulk_create(items_to_create, ignore_conflicts=True)
 
     return AddToStudyOut(added=added, already=already)
+
+
+@router.post("/vocab/add-all-by-level", response=AddAllByLevelOut)
+def add_all_vocab_by_level(request, payload: AddAllByLevelIn):
+    """Add ALL vocab from all kanji lessons of a JLPT level to user's study set."""
+    # Get all KanjiVocab IDs for this level
+    all_vocab_ids = list(
+        KanjiVocab.objects.filter(
+            kanji__lesson__jlpt_level=payload.jlpt_level
+        ).values_list('id', flat=True)
+    )
+    total = len(all_vocab_ids)
+    if total == 0:
+        return AddAllByLevelOut(added=0, already=0, total=0)
+
+    # Reuse existing add_vocab_to_study logic
+    result = add_vocab_to_study(request, AddToStudyIn(kanji_vocab_ids=all_vocab_ids))
+    return AddAllByLevelOut(added=result.added, already=result.already, total=total)
+
+
+@router.post("/vocab/remove-from-study", response=RemoveFromStudyOut)
+def remove_vocab_from_study(request, payload: RemoveFromStudyIn):
+    """Remove selected kanji vocab words from the user's study set."""
+    from vocab.models import VocabularySet, SetItem
+
+    try:
+        study_set = VocabularySet.objects.get(
+            owner=request.user, title="Từ vựng Kanji"
+        )
+    except VocabularySet.DoesNotExist:
+        return RemoveFromStudyOut(removed=0)
+
+    # Get the vocabulary_ids for the given kanji_vocab_ids
+    vocab_ids = list(
+        KanjiVocab.objects.filter(
+            id__in=payload.kanji_vocab_ids,
+            vocabulary_id__isnull=False,
+        ).values_list('vocabulary_id', flat=True)
+    )
+    if not vocab_ids:
+        return RemoveFromStudyOut(removed=0)
+
+    # Delete SetItems that match
+    deleted_count, _ = SetItem.objects.filter(
+        vocabulary_set=study_set,
+        definition__entry__vocab_id__in=vocab_ids,
+    ).delete()
+
+    return RemoveFromStudyOut(removed=deleted_count)
 
 
 class VocabKanjiBreakdownOut(Schema):

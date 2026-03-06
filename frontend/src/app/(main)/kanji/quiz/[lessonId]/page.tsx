@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { apiFetch, apiUrl } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +120,8 @@ export default function KanjiQuizPage() {
   const [score, setScore] = useState(savedProgress.current?.score || { correct: 0, wrong: 0 });
   const [showNext, setShowNext] = useState(false);
   const answersRef = useRef<Record<number, number>>(savedProgress.current?.answers || {});
+  // Track per-kanji results: { kanji_id: { correct: n, total: n } }
+  const kanjiResultsRef = useRef<Record<number, { correct: number; total: number }>>({});
 
   const checkStatus = useCallback(async () => {
     setPhase("checking");
@@ -250,6 +253,20 @@ export default function KanjiQuizPage() {
   const currentQ = questions[currentIdx];
   const totalQ = questions.length;
 
+  /** Aggregate per-kanji results and send to backend */
+  const syncProgressToBackend = () => {
+    const results = kanjiResultsRef.current;
+    for (const kanjiId of Object.keys(results)) {
+      const r = results[Number(kanjiId)];
+      // passed = answered ALL questions for this kanji correctly
+      const passed = r.correct === r.total;
+      apiFetch(apiUrl("/kanji/progress"), {
+        method: "POST",
+        body: JSON.stringify({ kanji_id: Number(kanjiId), passed }),
+      }).catch(() => {});
+    }
+  };
+
   const handleSelect = (optIndex: number) => {
     if (selected !== null) return;
     setSelected(optIndex);
@@ -259,6 +276,14 @@ export default function KanjiQuizPage() {
       ? { ...score, correct: score.correct + 1 }
       : { ...score, wrong: score.wrong + 1 };
     setScore(newScore);
+
+    // Aggregate results per kanji (send at quiz end, not per question)
+    const kid = currentQ.kanji_id;
+    if (!kanjiResultsRef.current[kid]) {
+      kanjiResultsRef.current[kid] = { correct: 0, total: 0 };
+    }
+    kanjiResultsRef.current[kid].total += 1;
+    if (isCorrect) kanjiResultsRef.current[kid].correct += 1;
 
     // Save progress to localStorage
     answersRef.current[currentIdx] = optIndex;
@@ -276,6 +301,7 @@ export default function KanjiQuizPage() {
       if (currentIdx + 1 >= totalQ) {
         setPhase("finished");
         clearKanjiProgress(lessonId);
+        syncProgressToBackend();
       } else {
         setShowNext(true);
       }
@@ -347,6 +373,7 @@ export default function KanjiQuizPage() {
   const retry = () => {
     clearKanjiProgress(lessonId);
     answersRef.current = {};
+    kanjiResultsRef.current = {};
     loadQuiz(quizType);
   };
 

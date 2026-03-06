@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Table, Input, Tag, Button, Typography, Space, Switch, Popconfirm } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Input, Tag, Typography, Space, Switch, Popconfirm, Segmented } from "antd";
+import { SearchOutlined, CrownFilled, UserOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { adminGet, adminPut } from "@/lib/admin-api";
 import InlineEditCell from "@/components/admin/InlineEditCell";
@@ -15,12 +15,15 @@ interface User {
   date_joined: string; is_active: boolean; is_staff: boolean;
 }
 
+type RoleFilter = "all" | "teacher" | "student";
+
 export default function UsersPage() {
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
 
   const fetchData = useCallback(() => {
     setLoading(true);
@@ -41,16 +44,32 @@ export default function UsersPage() {
     fetchData();
   };
 
+  // Filter by role
+  const filteredItems = roleFilter === "all"
+    ? items
+    : roleFilter === "teacher"
+      ? items.filter((u) => u.is_staff)
+      : items.filter((u) => !u.is_staff);
+
+  const teacherCount = items.filter((u) => u.is_staff).length;
+
   const columns: ColumnsType<User> = [
     { title: "ID", dataIndex: "id", width: 60, render: (id) => <Text type="secondary" style={{ fontSize: 12 }}>{id}</Text> },
     {
       title: "Username", dataIndex: "username",
       render: (_, u) => (
-        <InlineEditCell
-          value={u.username}
-          style={{ fontWeight: 600 }}
-          onSave={async (v) => { await adminPut(`/crud/users/${u.id}/`, { is_active: u.is_active, is_staff: u.is_staff, username: v }); fetchData(); }}
-        />
+        <Space>
+          <InlineEditCell
+            value={u.username}
+            style={{ fontWeight: 600 }}
+            onSave={async (v) => { await adminPut(`/crud/users/${u.id}/`, { is_active: u.is_active, is_staff: u.is_staff, username: v }); fetchData(); }}
+          />
+          {u.is_staff && (
+            <Tag icon={<CrownFilled />} color="gold" style={{ borderRadius: 20, fontWeight: 600, fontSize: 11 }}>
+              Giáo viên
+            </Tag>
+          )}
+        </Space>
       ),
     },
     {
@@ -78,8 +97,27 @@ export default function UsersPage() {
     },
     { title: "Ngày tham gia", dataIndex: "date_joined", width: 120, render: (d) => <Text style={{ fontSize: 12 }}>{new Date(d).toLocaleDateString("vi-VN")}</Text> },
     {
-      title: "Staff", dataIndex: "is_staff", width: 80, align: "center",
-      render: (_, u) => <Switch size="small" checked={u.is_staff} onChange={() => toggleUser(u, "is_staff")} />,
+      title: "Giáo viên", dataIndex: "is_staff", width: 110, align: "center",
+      render: (_, u) => (
+        <Popconfirm
+          title={u.is_staff ? "Thu hồi quyền giáo viên?" : "Gán quyền giáo viên?"}
+          description={u.is_staff
+            ? `${u.username} sẽ không còn quyền giáo viên (staff).`
+            : `${u.username} sẽ được cấp quyền giáo viên (staff).`
+          }
+          okText={u.is_staff ? "Thu hồi" : "Gán quyền"}
+          okType={u.is_staff ? "danger" : "primary"}
+          cancelText="Huỷ"
+          onConfirm={() => toggleUser(u, "is_staff")}
+        >
+          <Switch
+            size="small"
+            checked={u.is_staff}
+            checkedChildren={<CrownFilled />}
+            unCheckedChildren={<UserOutlined />}
+          />
+        </Popconfirm>
+      ),
     },
     {
       title: "Active", dataIndex: "is_active", width: 80, align: "center",
@@ -89,10 +127,25 @@ export default function UsersPage() {
 
   return (
     <div>
-      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
-        <div>
-          <Title level={3} style={{ margin: 0 }}>👤 Người dùng</Title>
-          <Text type="secondary">{totalCount} tài khoản</Text>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+          <div>
+            <Title level={3} style={{ margin: 0 }}>👤 Người dùng</Title>
+            <Space style={{ marginTop: 4 }}>
+              <Text type="secondary">{totalCount} tài khoản</Text>
+              <Tag icon={<CrownFilled />} color="gold">{teacherCount} giáo viên</Tag>
+            </Space>
+          </div>
+
+          <Segmented
+            value={roleFilter}
+            onChange={(v) => { setRoleFilter(v as RoleFilter); setPage(1); }}
+            options={[
+              { label: `Tất cả (${items.length})`, value: "all" },
+              { label: `👨‍🏫 Giáo viên (${teacherCount})`, value: "teacher" },
+              { label: `👨‍🎓 Học sinh (${items.length - teacherCount})`, value: "student" },
+            ]}
+          />
         </div>
 
         <Input.Search
@@ -106,13 +159,13 @@ export default function UsersPage() {
 
         <Table<User>
           columns={columns}
-          dataSource={items}
+          dataSource={filteredItems}
           rowKey="id"
           loading={loading}
           size="middle"
           pagination={{
             current: page,
-            total: totalCount,
+            total: roleFilter === "all" ? totalCount : filteredItems.length,
             pageSize: 50,
             onChange: (p) => setPage(p),
             showSizeChanger: false,

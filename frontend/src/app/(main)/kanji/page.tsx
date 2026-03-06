@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 import "./kanji.css";
 
 interface KanjiSummary {
@@ -82,6 +83,31 @@ export default function KanjiLevelsPage() {
     history.replaceState({}, "", url.toString());
   }, []);
 
+  const [addingVocab, setAddingVocab] = useState(false);
+  const [studyMsg, setStudyMsg] = useState("");
+
+  const handleAddAllVocab = useCallback(async () => {
+    if (!activeLevel || addingVocab) return;
+    setAddingVocab(true);
+    setStudyMsg("");
+    try {
+      const res = await apiFetch<{ added: number; already: number; total: number }>(
+        "/api/v1/kanji/vocab/add-all-by-level",
+        { method: "POST", body: JSON.stringify({ jlpt_level: activeLevel }) }
+      );
+      if (res.added > 0) {
+        setStudyMsg(`✅ Đã thêm ${res.added} từ vào bộ học (${res.already} từ đã có)`);
+      } else {
+        setStudyMsg(`📋 Tất cả ${res.total} từ đã có trong bộ học`);
+      }
+    } catch {
+      setStudyMsg("❌ Cần đăng nhập để sử dụng tính năng này");
+    } finally {
+      setAddingVocab(false);
+      setTimeout(() => setStudyMsg(""), 5000);
+    }
+  }, [activeLevel, addingVocab]);
+
   const activeGroup = groups.find((g) => g.level === activeLevel);
 
   if (loading) {
@@ -97,9 +123,21 @@ export default function KanjiLevelsPage() {
       {groups.length > 0 ? (
         <>
           {/* Page Title */}
-          <h1 className="kj-title">
-            {activeLevel === "BT" ? "214 Bộ thủ" : `Kanji ${activeLevel}`}
-          </h1>
+          <div className="kj-title-row">
+            <h1 className="kj-title">
+              {activeLevel === "BT" ? "214 Bộ thủ" : `Kanji ${activeLevel}`}
+            </h1>
+            {activeLevel !== "BT" && (
+              <button
+                className={`kj-add-all-btn ${addingVocab ? "kj-add-all-btn--loading" : ""}`}
+                onClick={handleAddAllVocab}
+                disabled={addingVocab}
+              >
+                {addingVocab ? "⏳ Đang thêm..." : "📚 Học tất cả từ vựng"}
+              </button>
+            )}
+          </div>
+          {studyMsg && <div className="kj-study-msg">{studyMsg}</div>}
 
           {/* Tab bar */}
           <div className="kj-tabs">

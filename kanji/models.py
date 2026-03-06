@@ -162,14 +162,16 @@ class UserKanjiProgress(models.Model):
         return f"{self.user} – {self.kanji.char} ({self.status})"
 
     def record_attempt(self, passed: bool) -> None:
-        """Cập nhật streak và status sau một lần luyện viết."""
+        """Cập nhật streak và status sau một lần luyện."""
         if passed:
-            self.correct_streak += 1
+            self.correct_streak = min(self.correct_streak + 1, 5)
             if self.correct_streak >= 5:
                 self.status = self.STATUS_MASTERED
         else:
-            self.correct_streak = 0
-            self.status = self.STATUS_LEARNING
+            # Soft penalty: -1 instead of full reset
+            self.correct_streak = max(0, self.correct_streak - 1)
+            if self.correct_streak < 5:
+                self.status = self.STATUS_LEARNING
         self.last_practiced = timezone.now()
         self.save(update_fields=["status", "correct_streak", "last_practiced"])
 

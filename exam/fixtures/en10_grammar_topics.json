@@ -1,0 +1,2813 @@
+[
+  {
+    "topic_id": "nouns",
+    "emoji": "📦",
+    "title": "Nouns",
+    "title_vi": "Danh từ",
+    "description": "Danh từ đếm được, không đếm được, mạo từ a/an, số nhiều.",
+    "difficulty": "easy",
+    "order": 1,
+    "sections": [
+      {
+        "heading": "1. Khái niệm",
+        "content": "Danh từ là những từ dùng để chỉ người, sự vật, sự việc.\nCó thể phân loại danh từ thành hai nhóm: **danh từ đếm được** (countable nouns) và **danh từ không đếm được** (uncountable nouns).\n\nĐể xác định một danh từ đếm được hay không, chúng ta có thể sử dụng số đếm.\n• I have **a** pen. (Tôi có một cây bút.)\n• She has **three** apples. (Cô ấy có ba quả táo.)\n• We don't have much water left. (Chúng ta không còn nhiều nước.)"
+      },
+      {
+        "heading": "2. Danh từ đếm được (Countable nouns)",
+        "content": "Danh từ đếm được có dạng **số ít** và **số nhiều**.\n\n**Số ít**: đi sau mạo từ **a** hoặc **an**.\n• a banana, a child, a dog\n• an apple, an umbrella, an hour\n\n**Mạo từ a**: đi cùng danh từ bắt đầu bằng **phụ âm** (b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x, y, z).\nVD: a cat, a dog, a woman\n\n**Mạo từ an**: đi cùng danh từ bắt đầu bằng **nguyên âm** (a, e, i, o, u).\nVD: an orange, an umbrella, an idiot"
+      },
+      {
+        "heading": "3. Trường hợp đặc biệt a/an",
+        "content": "• Danh từ bắt đầu bằng **nguyên âm** nhưng đi cùng **a**: a university, a unit, a union (phát âm /juː/ — phụ âm).\n• Danh từ bắt đầu bằng **phụ âm** nhưng đi cùng **an**: an hour, an honor, an heir (chữ h câm)."
+      },
+      {
+        "heading": "4. Cách biến đổi số ít → số nhiều",
+        "content": "• **Hầu hết danh từ**: thêm **-s** → books, cats, dogs\n• **Kết thúc bằng -s, -ch, -sh, -x, -z**: thêm **-es** → buses, watches, boxes\n• **Kết thúc bằng -f hoặc -fe**: chuyển thành **-ves** → knife → knives, leaf → leaves\n• **Kết thúc bằng phụ âm + y**: bỏ y, thêm **-ies** → baby → babies, city → cities\n• **Kết thúc bằng -o**: thêm **-es** → tomato → tomatoes, potato → potatoes\n\n**Bất quy tắc**: man → men, woman → women, child → children, tooth → teeth, person → people, mouse → mice"
+      },
+      {
+        "heading": "5. Danh từ không đếm được (Uncountable nouns)",
+        "content": "Danh từ không đếm được **KHÔNG** dùng a/an, **KHÔNG** có dạng số nhiều.\n\n**Dung dịch**: water, wine, oil, gas, milk, coffee\n**Khái niệm trừu tượng**: freedom, communication, motivation, knowledge, information\n**Cảm xúc**: happiness, fear, sadness, hope\n**Khối/Chất liệu**: furniture, equipment, bread, hair, air, homework, advice"
+      },
+      {
+        "heading": "6. Lượng từ với danh từ",
+        "content": "• **Đếm được**: many, a few, few, several, a number of\n  VD: many books, a few students\n• **Không đếm được**: much, a little, little, a great deal of\n  VD: much water, a little sugar\n• **Cả hai**: some, any, a lot of, lots of, plenty of\n  VD: some books / some water"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Mạo từ a",
+        "formula": "a + N bắt đầu phụ âm",
+        "example": "a cat, a dog, a student",
+        "exampleVi": "một con mèo, một con chó, một sinh viên"
+      },
+      {
+        "name": "Mạo từ an",
+        "formula": "an + N bắt đầu nguyên âm",
+        "example": "an apple, an umbrella, an hour",
+        "exampleVi": "một quả táo, một cái ô, một tiếng"
+      },
+      {
+        "name": "Số nhiều thường",
+        "formula": "N + -s / -es / -ies / -ves",
+        "example": "books, boxes, babies, knives",
+        "exampleVi": "sách, hộp, em bé, dao"
+      },
+      {
+        "name": "Không đếm được",
+        "formula": "Không dùng a/an, không thêm -s",
+        "example": "water, information, furniture",
+        "exampleVi": "nước, thông tin, nội thất"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "___ umbrella",
+        "options": [
+          "a",
+          "an",
+          "some",
+          "many"
+        ],
+        "correct": 1,
+        "explanation": "'umbrella' bắt đầu bằng nguyên âm 'u' /ʌ/ → an."
+      },
+      {
+        "question": "___ hour",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "some"
+        ],
+        "correct": 1,
+        "explanation": "'hour' chữ h câm, phát âm /aʊ/ → an."
+      },
+      {
+        "question": "___ university",
+        "options": [
+          "a",
+          "an",
+          "some",
+          "many"
+        ],
+        "correct": 0,
+        "explanation": "'university' phát âm /juː/ (phụ âm) → a."
+      },
+      {
+        "question": "___ engineer",
+        "options": [
+          "a",
+          "an",
+          "some",
+          "much"
+        ],
+        "correct": 1,
+        "explanation": "'engineer' bắt đầu bằng nguyên âm 'e' → an."
+      },
+      {
+        "question": "Which is UNCOUNTABLE?",
+        "options": [
+          "book",
+          "chair",
+          "information",
+          "student"
+        ],
+        "correct": 2,
+        "explanation": "'information' là danh từ không đếm được, không thêm -s."
+      },
+      {
+        "question": "Which is UNCOUNTABLE?",
+        "options": [
+          "table",
+          "fork",
+          "advice",
+          "pupil"
+        ],
+        "correct": 2,
+        "explanation": "'advice' là danh từ không đếm được."
+      },
+      {
+        "question": "My father has two ___. (sister)",
+        "options": [
+          "sister",
+          "sisters",
+          "sisteres",
+          "sisteren"
+        ],
+        "correct": 1,
+        "explanation": "Danh từ thường thêm -s: sisters."
+      },
+      {
+        "question": "There are ten ___ on the floor. (box)",
+        "options": [
+          "box",
+          "boxs",
+          "boxes",
+          "boxies"
+        ],
+        "correct": 2,
+        "explanation": "Kết thúc bằng -x → thêm -es: boxes."
+      },
+      {
+        "question": "They have four ___. (child)",
+        "options": [
+          "childs",
+          "children",
+          "childes",
+          "child"
+        ],
+        "correct": 1,
+        "explanation": "child → children (bất quy tắc)."
+      },
+      {
+        "question": "At least twelve ___ were killed. (person)",
+        "options": [
+          "persons",
+          "people",
+          "peoples",
+          "person"
+        ],
+        "correct": 1,
+        "explanation": "person → people (bất quy tắc)."
+      }
+    ]
+  },
+  {
+    "topic_id": "numbers",
+    "emoji": "🔢",
+    "title": "Numbers",
+    "title_vi": "Số đếm & Số thứ tự",
+    "description": "Cardinal numbers, ordinal numbers, cách đọc và viết tắt.",
+    "difficulty": "easy",
+    "order": 2,
+    "sections": [
+      {
+        "heading": "1. Số đếm (Cardinal Numbers)",
+        "content": "Số đếm dùng để đếm số lượng.\n\n0 = zero/oh, 1 = one, 2 = two, 3 = three, 4 = four, 5 = five\n6 = six, 7 = seven, 8 = eight, 9 = nine, 10 = ten\n11 = eleven, 12 = twelve, 13 = thirteen, 14 = fourteen, 15 = fifteen\n16 = sixteen, 17 = seventeen, 18 = eighteen, 19 = nineteen\n20 = twenty, 21 = twenty-one, 30 = thirty, 40 = forty, 50 = fifty\n60 = sixty, 70 = seventy, 80 = eighty, 90 = ninety\n100 = one hundred, 101 = one hundred and one"
+      },
+      {
+        "heading": "2. Cách dùng số đếm",
+        "content": "• Số đếm + **danh từ đếm được số ít**: one pencil (một cây bút chì)\n• Số đếm ≥ 2 + **danh từ đếm được số nhiều**: two pencils, three books\n\nVD:\n• I have **one** sister. (Tôi có một chị gái.)\n• She has **three** children. (Cô ấy có ba người con.)"
+      },
+      {
+        "heading": "3. Số thứ tự (Ordinal Numbers)",
+        "content": "Số thứ tự thể hiện **thứ tự, vị trí, thứ hạng**.\n\nQuy tắc: Số đếm + **-th**\nVD: six → six**th**, ten → ten**th**, nineteen → nineteen**th**\n\n**Ngoại lệ quan trọng**:\n• one → **first** (1st)\n• two → **second** (2nd)\n• three → **third** (3rd)\n• five → **fifth** (5th)\n• nine → **ninth** (9th)\n• twelve → **twelfth** (12th)\n• twenty → twenti**eth** (20th), thirty → thirti**eth** (30th)"
+      },
+      {
+        "heading": "4. Số thứ tự ghép",
+        "content": "Với số ghép, chỉ đổi **chữ số cuối**:\n• 21 → twenty-**first** (21st)\n• 22 → twenty-**second** (22nd)\n• 23 → twenty-**third** (23rd)\n• 25 → twenty-**fifth** (25th)\n• 31 → thirty-**first** (31st)\n• 43 → forty-**third** (43rd)"
+      },
+      {
+        "heading": "5. Viết tắt số thứ tự",
+        "content": "Lấy **hai chữ cái cuối** viết nhỏ hơn:\n• first = 1**st**, second = 2**nd**, third = 3**rd**\n• fourth = 4**th**, fifth = 5**th**, sixth = 6**th**\n• twentieth = 20**th**, twenty-first = 21**st**"
+      },
+      {
+        "heading": "6. Trường hợp dùng số thứ tự",
+        "content": "• Vị trí, thứ hạng: He is the **second** one to call me.\n• Ngày trong tháng: Today is the **eleventh** of May.\n• Tầng nhà: I live on the **third** floor.\n• Thế kỷ: the **nineteenth** century"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Quy tắc chung",
+        "formula": "Số đếm + -th → Số thứ tự",
+        "example": "four → fourth, six → sixth",
+        "exampleVi": "thứ tư, thứ sáu"
+      },
+      {
+        "name": "Ngoại lệ 1,2,3",
+        "formula": "1st, 2nd, 3rd",
+        "example": "first, second, third",
+        "exampleVi": "thứ nhất, thứ hai, thứ ba"
+      },
+      {
+        "name": "Ngoại lệ 5,9,12",
+        "formula": "fifth, ninth, twelfth",
+        "example": "five→fifth, nine→ninth",
+        "exampleVi": "thứ năm, thứ chín"
+      },
+      {
+        "name": "Số ghép",
+        "formula": "Chỉ đổi chữ số cuối",
+        "example": "21st, 32nd, 43rd",
+        "exampleVi": "đổi phần cuối thành thứ tự"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "Số thứ tự của 1 là gì?",
+        "options": [
+          "oneth",
+          "first",
+          "firth",
+          "onest"
+        ],
+        "correct": 1,
+        "explanation": "1 → first (ngoại lệ)."
+      },
+      {
+        "question": "Số thứ tự của 5 là gì?",
+        "options": [
+          "fiveth",
+          "fivth",
+          "fifth",
+          "fifeth"
+        ],
+        "correct": 2,
+        "explanation": "five → fifth (bỏ ve, thêm fth)."
+      },
+      {
+        "question": "Số thứ tự của 8 là gì?",
+        "options": [
+          "eightth",
+          "eighth",
+          "eigth",
+          "eighteth"
+        ],
+        "correct": 1,
+        "explanation": "eight → eighth (thêm h)."
+      },
+      {
+        "question": "Số thứ tự của 12 là gì?",
+        "options": [
+          "twelveth",
+          "twelfth",
+          "twelvth",
+          "twelth"
+        ],
+        "correct": 1,
+        "explanation": "twelve → twelfth (ve → fth)."
+      },
+      {
+        "question": "Số thứ tự của 9 là gì?",
+        "options": [
+          "nineth",
+          "ninith",
+          "ninth",
+          "nineeth"
+        ],
+        "correct": 2,
+        "explanation": "nine → ninth (bỏ e)."
+      },
+      {
+        "question": "Số thứ tự của 20 là gì?",
+        "options": [
+          "twentyth",
+          "twentieth",
+          "twentith",
+          "twentiethth"
+        ],
+        "correct": 1,
+        "explanation": "twenty → twentieth (y → ieth)."
+      },
+      {
+        "question": "Viết tắt của 'thirty-first' là?",
+        "options": [
+          "31th",
+          "31rd",
+          "31st",
+          "31nd"
+        ],
+        "correct": 2,
+        "explanation": "thirty-first → 31st (lấy 2 chữ cuối 'st')."
+      },
+      {
+        "question": "Viết tắt của 'twenty-second' là?",
+        "options": [
+          "22th",
+          "22st",
+          "22nd",
+          "22rd"
+        ],
+        "correct": 2,
+        "explanation": "twenty-second → 22nd (lấy 2 chữ cuối 'nd')."
+      },
+      {
+        "question": "Viết tắt của 'twenty-ninth' là?",
+        "options": [
+          "29st",
+          "29nd",
+          "29rd",
+          "29th"
+        ],
+        "correct": 3,
+        "explanation": "twenty-ninth → 29th."
+      },
+      {
+        "question": "Số thứ tự của 43 là gì?",
+        "options": [
+          "forty-three",
+          "forty-third",
+          "fourty-third",
+          "forty-threeth"
+        ],
+        "correct": 1,
+        "explanation": "43 → forty-third (chỉ đổi chữ số cuối: three → third)."
+      },
+      {
+        "question": "I have dinner at _____ o'clock.",
+        "options": [
+          "seven",
+          "seventh",
+          "the seven",
+          "sevens"
+        ],
+        "correct": 0,
+        "explanation": "Giờ dùng số đếm: seven o'clock."
+      },
+      {
+        "question": "Rome was founded in the ___ century BC.",
+        "options": [
+          "eight",
+          "eighth",
+          "eights",
+          "eighty"
+        ],
+        "correct": 1,
+        "explanation": "Thế kỷ dùng số thứ tự: the eighth century."
+      },
+      {
+        "question": "Michael is ___ years old.",
+        "options": [
+          "ten",
+          "tenth",
+          "the ten",
+          "tens"
+        ],
+        "correct": 0,
+        "explanation": "Tuổi dùng số đếm: ten years old."
+      },
+      {
+        "question": "This cake costs only ___ dollars.",
+        "options": [
+          "two",
+          "second",
+          "the two",
+          "twos"
+        ],
+        "correct": 0,
+        "explanation": "Giá tiền dùng số đếm: two dollars."
+      },
+      {
+        "question": "It takes ___ minutes to get to school by bike.",
+        "options": [
+          "twenty",
+          "twentieth",
+          "the twenty",
+          "twentyth"
+        ],
+        "correct": 0,
+        "explanation": "Số lượng dùng số đếm: twenty minutes."
+      },
+      {
+        "question": "It's the ___ day of our holiday in London.",
+        "options": [
+          "five",
+          "fifth",
+          "fiveth",
+          "fivth"
+        ],
+        "correct": 1,
+        "explanation": "Thứ tự ngày dùng số thứ tự: the fifth day."
+      },
+      {
+        "question": "Our apartment is on the ___ floor.",
+        "options": [
+          "three",
+          "third",
+          "thirth",
+          "threeth"
+        ],
+        "correct": 1,
+        "explanation": "Tầng nhà dùng số thứ tự: the third floor."
+      },
+      {
+        "question": "This machine was invented in the ___ century.",
+        "options": [
+          "nineteen",
+          "nineteenth",
+          "nineteeth",
+          "nineth"
+        ],
+        "correct": 1,
+        "explanation": "Thế kỷ dùng số thứ tự: the nineteenth century."
+      },
+      {
+        "question": "Brazil won the World Cup for the ___ time in 1994.",
+        "options": [
+          "four",
+          "fourth",
+          "fouth",
+          "foruth"
+        ],
+        "correct": 1,
+        "explanation": "Lần thứ mấy dùng số thứ tự: the fourth time."
+      },
+      {
+        "question": "My grandfather's birthday is on the ___ of August.",
+        "options": [
+          "twenty-two",
+          "twenty-second",
+          "twenty-twoth",
+          "twentith-two"
+        ],
+        "correct": 1,
+        "explanation": "Ngày trong tháng dùng số thứ tự: the twenty-second."
+      }
+    ]
+  },
+  {
+    "topic_id": "quantifiers",
+    "emoji": "⚖️",
+    "title": "Quantifiers",
+    "title_vi": "Lượng từ",
+    "description": "many/much, some/any, a few/a little, a lot of.",
+    "difficulty": "easy",
+    "order": 3,
+    "sections": [
+      {
+        "heading": "1. A lot of / Lots of (Nhiều)",
+        "content": "**A lot of** và **lots of** dùng với cả **danh từ đếm được số nhiều** và **danh từ không đếm được**.\n• I have **a lot of** friends. (Tôi có nhiều bạn bè.)\n• There is **lots of** water. (Có nhiều nước.)\n\n**A lot of** mang tính trang trọng hơn **lots of**."
+      },
+      {
+        "heading": "2. Many vs. Much (Nhiều)",
+        "content": "• **Many** + danh từ **đếm được số nhiều**\n  VD: There are **many** students. (Có nhiều học sinh.)\n\n• **Much** + danh từ **không đếm được**\n  VD: There is **much** water. (Có nhiều nước.)\n\n⚠️ Many/much thường dùng trong câu **phủ định** và **nghi vấn**."
+      },
+      {
+        "heading": "3. Some vs. Any (Một vài, một số)",
+        "content": "Cả **some** và **any** đều dùng với danh từ đếm được số nhiều và không đếm được.\n\n• **Some**: dùng trong câu **khẳng định**\n  VD: I have **some** pears. / I have **some** orange juice.\n\n• **Any**: dùng trong câu **phủ định** và **nghi vấn**\n  VD: I don't have **any** pears. / Do you have **any** juice?"
+      },
+      {
+        "heading": "4. (A) few vs. (A) little (Một ít)",
+        "content": "• **(A) few** + danh từ **đếm được số nhiều**\n  VD: I have **a few** books. (Tôi có một vài cuốn sách.)\n\n• **(A) little** + danh từ **không đếm được**\n  VD: I have **a little** money. (Tôi có một ít tiền.)\n\n⚠️ **a few / a little** = có một ít (tích cực)\n⚠️ **few / little** (không có a) = rất ít, gần như không có (tiêu cực)"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Many",
+        "formula": "many + N đếm được (số nhiều)",
+        "example": "many books, many students",
+        "exampleVi": "nhiều sách, nhiều sinh viên"
+      },
+      {
+        "name": "Much",
+        "formula": "much + N không đếm được",
+        "example": "much water, much time",
+        "exampleVi": "nhiều nước, nhiều thời gian"
+      },
+      {
+        "name": "A few",
+        "formula": "a few + N đếm được (số nhiều)",
+        "example": "a few friends, a few shops",
+        "exampleVi": "một vài bạn, một vài cửa hàng"
+      },
+      {
+        "name": "A little",
+        "formula": "a little + N không đếm được",
+        "example": "a little money, a little sugar",
+        "exampleVi": "một ít tiền, một ít đường"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "There aren't ___ skirts in the shop.",
+        "options": [
+          "some",
+          "a",
+          "much",
+          "any"
+        ],
+        "correct": 3,
+        "explanation": "Câu phủ định + đếm được số nhiều → any."
+      },
+      {
+        "question": "There are ___ plates on the table.",
+        "options": [
+          "any",
+          "much",
+          "some",
+          "a"
+        ],
+        "correct": 2,
+        "explanation": "Câu khẳng định + đếm được số nhiều → some."
+      },
+      {
+        "question": "My father gave me ___ laptop as a gift for my birthday.",
+        "options": [
+          "some",
+          "a",
+          "any",
+          "an"
+        ],
+        "correct": 1,
+        "explanation": "'laptop' số ít, bắt đầu phụ âm → a."
+      },
+      {
+        "question": "Is there ___ internet café in your city?",
+        "options": [
+          "a",
+          "some",
+          "an",
+          "any"
+        ],
+        "correct": 2,
+        "explanation": "Câu hỏi, 'internet' bắt đầu nguyên âm → an."
+      },
+      {
+        "question": "Bring me ___ coffee please.",
+        "options": [
+          "a",
+          "an",
+          "some",
+          "any"
+        ],
+        "correct": 2,
+        "explanation": "'coffee' không đếm được, câu yêu cầu (khẳng định) → some."
+      },
+      {
+        "question": "Has Alice got ___ sisters?",
+        "options": [
+          "some",
+          "a",
+          "much",
+          "any"
+        ],
+        "correct": 3,
+        "explanation": "Câu hỏi + đếm được số nhiều → any."
+      },
+      {
+        "question": "I have been to ___ different cities in England.",
+        "options": [
+          "any",
+          "a",
+          "some",
+          "much"
+        ],
+        "correct": 2,
+        "explanation": "Câu khẳng định + đếm được số nhiều → some."
+      },
+      {
+        "question": "I had ___ friends when I studied at high school.",
+        "options": [
+          "many",
+          "much",
+          "a",
+          "any"
+        ],
+        "correct": 0,
+        "explanation": "'friends' đếm được số nhiều, câu khẳng định → many."
+      },
+      {
+        "question": "Hurry up! We only have ___ time to finish the task.",
+        "options": [
+          "a few",
+          "a little",
+          "many",
+          "a lot of"
+        ],
+        "correct": 1,
+        "explanation": "'time' không đếm được, 'only' = chỉ có một ít → a little."
+      },
+      {
+        "question": "It is difficult to buy a dress because there are ___ shops there.",
+        "options": [
+          "a few",
+          "a little",
+          "any",
+          "much"
+        ],
+        "correct": 0,
+        "explanation": "'shops' đếm được số nhiều, ý 'rất ít' → a few."
+      },
+      {
+        "question": "David spent a lot of money. Now he only has ___ money left.",
+        "options": [
+          "much",
+          "a few",
+          "many",
+          "a little"
+        ],
+        "correct": 3,
+        "explanation": "'money' không đếm được, 'only' = chỉ một ít → a little."
+      },
+      {
+        "question": "This exam is so difficult that ___ students got low marks.",
+        "options": [
+          "any",
+          "much",
+          "many",
+          "a little"
+        ],
+        "correct": 2,
+        "explanation": "'students' đếm được số nhiều → many."
+      },
+      {
+        "question": "___ rays of sunlight pierced the smoke.",
+        "options": [
+          "Any",
+          "Much",
+          "A few",
+          "A little"
+        ],
+        "correct": 2,
+        "explanation": "'rays' đếm được số nhiều → A few."
+      },
+      {
+        "question": "My hometown has ___ big museum.",
+        "options": [
+          "a",
+          "much",
+          "many",
+          "an"
+        ],
+        "correct": 0,
+        "explanation": "'museum' số ít, bắt đầu phụ âm → a."
+      },
+      {
+        "question": "There is ___ water in the bottle.",
+        "options": [
+          "few",
+          "a few",
+          "a little",
+          "many"
+        ],
+        "correct": 2,
+        "explanation": "'water' không đếm được → a little."
+      }
+    ]
+  },
+  {
+    "topic_id": "there-is-are",
+    "emoji": "📍",
+    "title": "There is / There are",
+    "title_vi": "Cấu trúc There is/are",
+    "description": "Cấu trúc khẳng định, phủ định, nghi vấn với There is/are.",
+    "difficulty": "easy",
+    "order": 4,
+    "sections": [
+      {
+        "heading": "1. Cấu trúc (Structure)",
+        "content": "**There is / There are** dùng để nói về sự tồn tại của người/vật ở một nơi nào đó.\n\n• **There is** + danh từ **số ít** / danh từ **không đếm được**\n• **There are** + danh từ **đếm được số nhiều**\n\nVD:\n• There **is** a book on the shelf. (Có một cuốn sách trên kệ.)\n• There **is** oil in this bottle. (Có dầu trong chai này.)\n• There **are** two bikes. (Có hai chiếc xe đạp.)"
+      },
+      {
+        "heading": "2. Khẳng định & Phủ định",
+        "content": "**Khẳng định (+)**:\n• There **is** + N số ít / N không đếm được\n• There **are** + N đếm được số nhiều\n\n**Phủ định (−)**:\n• There **is not** (isn't) + N số ít / N không đếm được\n• There **are not** (aren't) + N đếm được số nhiều\n\nVD:\n• There **isn't** any jam to eat with bread.\n• There **aren't** any boys in my class."
+      },
+      {
+        "heading": "3. Nghi vấn & Trả lời",
+        "content": "**Câu hỏi (?)**:\n• **Is there** + N số ít / N không đếm được?\n• **Are there** + N đếm được số nhiều?\n\n**Trả lời**:\n• Yes, there is. / No, there isn't.\n• Yes, there are. / No, there aren't.\n\nVD:\n• **Are there** any mobile phones in your bag? → Yes, there are.\n• **Is there** any milk in the fridge? → No, there isn't."
+      },
+      {
+        "heading": "4. Dạng rút gọn (Short forms)",
+        "content": "• There is = **There's**\n• There is not = **There isn't**\n• There are = **There're** (ít dùng)\n• There are not = **There aren't**"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Khẳng định",
+        "formula": "There is / are + N",
+        "example": "There is a cat. There are 3 dogs.",
+        "exampleVi": "Có một con mèo. Có 3 con chó."
+      },
+      {
+        "name": "Phủ định",
+        "formula": "There isn't / aren't + N",
+        "example": "There isn't any milk.",
+        "exampleVi": "Không có sữa."
+      },
+      {
+        "name": "Nghi vấn",
+        "formula": "Is there / Are there + N?",
+        "example": "Is there a bank near here?",
+        "exampleVi": "Có ngân hàng gần đây không?"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "___ some sugar in the kitchen.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 0,
+        "explanation": "'sugar' không đếm được → There is."
+      },
+      {
+        "question": "___ six chairs in the living room.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 1,
+        "explanation": "'six chairs' đếm được số nhiều → There are."
+      },
+      {
+        "question": "___ many fruits in the dining room.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 1,
+        "explanation": "'many fruits' đếm được số nhiều → There are."
+      },
+      {
+        "question": "___ a book on the shelf.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 0,
+        "explanation": "'a book' số ít → There is."
+      },
+      {
+        "question": "___ 15 cushions on the sofa.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 1,
+        "explanation": "'15 cushions' số nhiều → There are."
+      },
+      {
+        "question": "___ any mistakes in that essay?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 3,
+        "explanation": "'mistakes' số nhiều + câu hỏi → Are there."
+      },
+      {
+        "question": "___ a football match on Wednesday?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 2,
+        "explanation": "'a match' số ít + câu hỏi → Is there."
+      },
+      {
+        "question": "___ any computers in your class?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 3,
+        "explanation": "'computers' số nhiều + câu hỏi → Are there."
+      },
+      {
+        "question": "___ any useful information in the leaflet?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 2,
+        "explanation": "'information' không đếm được + câu hỏi → Is there."
+      },
+      {
+        "question": "___ a lot of children in the swimming pool?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 3,
+        "explanation": "'children' số nhiều + câu hỏi → Are there."
+      },
+      {
+        "question": "___ any shopping malls in this district.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 1,
+        "explanation": "'shopping malls' số nhiều + phủ định → There aren't."
+      },
+      {
+        "question": "___ any beaches in Hung Yen.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 1,
+        "explanation": "'beaches' số nhiều + phủ định → There aren't."
+      },
+      {
+        "question": "___ a train from Hanoi to Thai Binh.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 0,
+        "explanation": "'a train' số ít + phủ định → There isn't."
+      },
+      {
+        "question": "___ a farewell party in my company tonight.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 0,
+        "explanation": "'a party' số ít + phủ định → There isn't."
+      },
+      {
+        "question": "___ any milk in the refrigerator.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 0,
+        "explanation": "'milk' không đếm được + phủ định → There isn't."
+      },
+      {
+        "question": "___ a bus stop near here.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "There is",
+          "There are"
+        ],
+        "correct": 0,
+        "explanation": "'a bus stop' số ít + phủ định → There isn't."
+      },
+      {
+        "question": "___ any water left in the bottle.",
+        "options": [
+          "There isn't",
+          "There aren't",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 0,
+        "explanation": "'water' không đếm được + phủ định → There isn't."
+      },
+      {
+        "question": "___ 30 students in my class.",
+        "options": [
+          "There is",
+          "There are",
+          "There isn't",
+          "There aren't"
+        ],
+        "correct": 1,
+        "explanation": "'30 students' số nhiều → There are."
+      },
+      {
+        "question": "___ a hospital near your house?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 2,
+        "explanation": "'a hospital' số ít + câu hỏi → Is there."
+      },
+      {
+        "question": "___ any good restaurants around here?",
+        "options": [
+          "There is",
+          "Is there",
+          "There aren't",
+          "Are there"
+        ],
+        "correct": 3,
+        "explanation": "'restaurants' số nhiều + câu hỏi → Are there."
+      },
+      {
+        "question": "___ only one window in this room.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 0,
+        "explanation": "'one window' số ít → There is."
+      },
+      {
+        "question": "___ many trees in the park.",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 1,
+        "explanation": "'many trees' số nhiều → There are."
+      },
+      {
+        "question": "___ any homework tonight?",
+        "options": [
+          "There is",
+          "There are",
+          "Is there",
+          "Are there"
+        ],
+        "correct": 2,
+        "explanation": "'homework' không đếm được + câu hỏi → Is there."
+      },
+      {
+        "question": "___ two pillows on the bed.",
+        "options": [
+          "There is",
+          "There are",
+          "There isn't",
+          "There aren't"
+        ],
+        "correct": 1,
+        "explanation": "'two pillows' số nhiều → There are."
+      },
+      {
+        "question": "___ a big garden behind the house.",
+        "options": [
+          "There is",
+          "There are",
+          "There isn't",
+          "There aren't"
+        ],
+        "correct": 0,
+        "explanation": "'a big garden' số ít → There is."
+      },
+      {
+        "question": "___ any clean towels in the bathroom?",
+        "options": [
+          "There is",
+          "Is there",
+          "There are",
+          "Are there"
+        ],
+        "correct": 3,
+        "explanation": "'towels' số nhiều + câu hỏi → Are there."
+      }
+    ]
+  },
+  {
+    "topic_id": "articles",
+    "emoji": "📝",
+    "title": "Articles",
+    "title_vi": "Mạo từ a, an, the",
+    "description": "Phân biệt a/an/the, khi nào không dùng mạo từ (∅).",
+    "difficulty": "easy",
+    "order": 5,
+    "sections": [
+      {
+        "heading": "1. Mạo từ a / an",
+        "content": "**A / An** chỉ dùng với danh từ **đếm được số ít**.\n\n• **a** + danh từ bắt đầu phụ âm: a girl, a car, a teacher\n• **an** + danh từ bắt đầu nguyên âm: an onion, an engineer, an hour\n\n**Khi nào dùng a/an**:\n• Nói đến đối tượng **không xác định**, lần đầu đề cập\n• Nói về **nghề nghiệp**\n\nVD:\n• There is **a** car near my house. (lần đầu nhắc)\n• She is **a** doctor. He is **an** engineer."
+      },
+      {
+        "heading": "2. Mạo từ the",
+        "content": "**The** dùng với cả danh từ đếm được (số ít, số nhiều) và danh từ không đếm được.\n\n**Khi nào dùng the**:\n• Đối tượng **đã xác định**, đã được đề cập từ trước\n• Người nghe/đọc **biết chính xác** đối tượng\n\nVD:\n• There is a car near my house. **The car** is red.\n  (Lần 2 nhắc → đã xác định → the)\n• **The** girl (cô gái đó), **the** teachers (những giáo viên đó)"
+      },
+      {
+        "heading": "3. Danh từ theo sau the",
+        "content": "**The** đi trước:\n• Các buổi trong ngày: **the** morning, **the** evening\n• Sự vật duy nhất: **the** earth, **the** moon, **the** sun\n• Tên nước nhiều bộ phận: **the** Philippines, **the** United Kingdom\n• Đại dương, biển, sông, dãy núi: **the** Atlantic Ocean, **the** Alps\n• Nhạc cụ: **the** violin, **the** piano"
+      },
+      {
+        "heading": "4. The + tính từ",
+        "content": "**The** còn đứng trước **tính từ** để chỉ **một nhóm đối tượng**.\n\nVD:\n• There is a room for **the disabled**. (Có phòng cho người khuyết tật.)\n• **The rich** should help **the poor**. (Người giàu nên giúp người nghèo.)"
+      },
+      {
+        "heading": "5. Không dùng mạo từ (∅)",
+        "content": "**Không dùng a/an/the** trước:\n• Tên môn thể thao: play ∅ football, play ∅ tennis\n• Tên bữa ăn: have ∅ breakfast, have ∅ lunch\n• Tên trường (chung): go to ∅ school, go to ∅ church\n• Tên ngôn ngữ, môn học: study ∅ English, learn ∅ Music\n\nVD:\n• Music is ∅ a subject in my school. → Music is **a** subject."
+      }
+    ],
+    "formulas": [
+      {
+        "name": "a / an",
+        "formula": "a/an + N đếm được số ít (chưa xác định)",
+        "example": "a dog, an apple, a teacher",
+        "exampleVi": "một con chó, một quả táo, một giáo viên"
+      },
+      {
+        "name": "the",
+        "formula": "the + N đã xác định / duy nhất",
+        "example": "the sun, the car (đã nhắc)",
+        "exampleVi": "mặt trời, chiếc xe (đã biết)"
+      },
+      {
+        "name": "∅ (zero article)",
+        "formula": "Không dùng mạo từ",
+        "example": "play football, have lunch",
+        "exampleVi": "chơi bóng đá, ăn trưa"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "I prefer ___ white shirt over there.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 2,
+        "explanation": "'over there' → xác định cụ thể → the."
+      },
+      {
+        "question": "___ Alps are the highest mountain range in Europe.",
+        "options": [
+          "A",
+          "An",
+          "The",
+          "∅"
+        ],
+        "correct": 2,
+        "explanation": "Tên dãy núi luôn dùng the: The Alps."
+      },
+      {
+        "question": "Where is ___ dictionary I lent you yesterday?",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 2,
+        "explanation": "'I lent you' → đã xác định cụ thể → the."
+      },
+      {
+        "question": "I have ___ car. ___ car has my photo on it.",
+        "options": [
+          "a … The",
+          "the … A",
+          "a … A",
+          "the … The"
+        ],
+        "correct": 0,
+        "explanation": "Lần 1 chưa xác định → a. Lần 2 đã nhắc → The."
+      },
+      {
+        "question": "There's been ___ accident — dial 115 and ask for ___ ambulance.",
+        "options": [
+          "an … an",
+          "a … an",
+          "the … the",
+          "an … the"
+        ],
+        "correct": 0,
+        "explanation": "Lần đầu nhắc + 'accident/ambulance' bắt đầu nguyên âm → an … an."
+      },
+      {
+        "question": "Caroline's mother works as ___ teacher.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 0,
+        "explanation": "Nghề nghiệp dùng a/an + 'teacher' phụ âm → a."
+      },
+      {
+        "question": "What do you usually have for ___ lunch?",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 3,
+        "explanation": "Tên bữa ăn không dùng mạo từ: have ∅ lunch."
+      },
+      {
+        "question": "I spend ___ hour every morning doing exercise.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 1,
+        "explanation": "'hour' chữ h câm → an hour."
+      },
+      {
+        "question": "My brother is never late for ___ school.",
+        "options": [
+          "a",
+          "an",
+          "the",
+          "∅"
+        ],
+        "correct": 3,
+        "explanation": "'go to school' / 'late for school' — dùng ∅."
+      },
+      {
+        "question": "___ Earth goes around the Sun once every 365 days.",
+        "options": [
+          "A",
+          "An",
+          "The",
+          "∅"
+        ],
+        "correct": 2,
+        "explanation": "Sự vật duy nhất: The Earth."
+      }
+    ]
+  },
+  {
+    "topic_id": "pronouns",
+    "emoji": "👤",
+    "title": "Pronouns",
+    "title_vi": "Đại từ nhân xưng",
+    "description": "Subject pronouns, object pronouns, cấu trúc câu đơn S + V.",
+    "difficulty": "easy",
+    "order": 6,
+    "sections": [
+      {
+        "heading": "1. Cấu trúc câu đơn (Simple Sentence)",
+        "content": "Câu đơn gồm **Chủ ngữ (Subject)** + **Động từ (Verb)**.\n\nChủ ngữ có thể là: Danh từ, Cụm danh từ, hoặc **Đại từ nhân xưng chủ ngữ**.\nHình thái của động từ được quyết định bởi **chủ ngữ** và **thì**.\n\nVD:\n• **My father** is a doctor. **He** is busy every day.\n• **The students** study hard. **They** love English."
+      },
+      {
+        "heading": "2. Đại từ nhân xưng chủ ngữ (Subject Pronouns)",
+        "content": "Đại từ nhân xưng chủ ngữ thường đứng **đầu câu** hoặc **mệnh đề**.\n\n| Số ít | Số nhiều |\n|---|---|\n| **I** (Tôi) | **We** (Chúng tôi) |\n| **You** (Bạn) | **You** (Các bạn) |\n| **He** (Anh ấy) | **They** (Họ) |\n| **She** (Cô ấy) | |\n| **It** (Nó) | |"
+      },
+      {
+        "heading": "3. Đại từ nhân xưng tân ngữ (Object Pronouns)",
+        "content": "Đại từ tân ngữ đứng **sau động từ** hoặc **sau giới từ**.\n\n| Chủ ngữ | Tân ngữ | Ví dụ |\n|---|---|---|\n| I | **me** | Can you pass **me** that book? |\n| You | **you** | Drinking too much isn't good for **you**. |\n| We | **us** | Thank you for driving **us** to the station. |\n| They | **them** | Don't break **them**. |\n| He | **him** | Are you in love with **him**? |\n| She | **her** | Margaret wants me to go with **her**. |\n| It | **it** | I often let **it** sleep on my bed. |"
+      },
+      {
+        "heading": "4. Vị trí Subject vs Object",
+        "content": "• **Subject pronoun** → đứng **trước** động từ (làm chủ ngữ)\n  VD: **I** go to school. **They** are on the table.\n\n• **Object pronoun** → đứng **sau** động từ hoặc **sau giới từ** (làm tân ngữ)\n  VD: Listen to **me**. Let's buy **it**. Keep an eye on **him**.\n\n⚠️ Lỗi thường gặp:\n• ✗ Me go to school → ✓ **I** go to school\n• ✗ Listen to I → ✓ Listen to **me**"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Subject Pronouns",
+        "formula": "I / You / He / She / It / We / They + V",
+        "example": "I study. She works. They play.",
+        "exampleVi": "Tôi học. Cô ấy làm việc. Họ chơi."
+      },
+      {
+        "name": "Object Pronouns",
+        "formula": "V / Prep + me / you / him / her / it / us / them",
+        "example": "Tell me. Look at him. Help us.",
+        "exampleVi": "Nói cho tôi. Nhìn anh ấy. Giúp chúng tôi."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "\"I give them cookies every month.\" — Chủ ngữ là gì?",
+        "options": [
+          "I",
+          "them",
+          "cookies",
+          "month"
+        ],
+        "correct": 0,
+        "explanation": "'I' đứng trước động từ 'give' → chủ ngữ."
+      },
+      {
+        "question": "\"Your pictures are impressive.\" — Chủ ngữ là gì?",
+        "options": [
+          "Your",
+          "pictures",
+          "Your pictures",
+          "impressive"
+        ],
+        "correct": 2,
+        "explanation": "'Your pictures' là cụm danh từ làm chủ ngữ."
+      },
+      {
+        "question": "\"He donates thousands of pounds to charities.\" — Chủ ngữ là gì?",
+        "options": [
+          "He",
+          "thousands",
+          "pounds",
+          "charities"
+        ],
+        "correct": 0,
+        "explanation": "'He' đứng trước 'donates' → chủ ngữ."
+      },
+      {
+        "question": "\"My father is a breadwinner.\" — Chủ ngữ là gì?",
+        "options": [
+          "My",
+          "father",
+          "My father",
+          "breadwinner"
+        ],
+        "correct": 2,
+        "explanation": "'My father' là cụm danh từ làm chủ ngữ."
+      },
+      {
+        "question": "\"Tomatoes grow best in direct sunlight.\" — Chủ ngữ là gì?",
+        "options": [
+          "Tomatoes",
+          "best",
+          "direct",
+          "sunlight"
+        ],
+        "correct": 0,
+        "explanation": "'Tomatoes' đứng trước 'grow' → chủ ngữ."
+      },
+      {
+        "question": "\"They share a house with two other people.\" — Chủ ngữ là gì?",
+        "options": [
+          "They",
+          "house",
+          "two",
+          "people"
+        ],
+        "correct": 0,
+        "explanation": "'They' đứng trước 'share' → chủ ngữ."
+      },
+      {
+        "question": "\"Luke illustrates his lecture with a fascinating video.\" — Chủ ngữ là gì?",
+        "options": [
+          "lecture",
+          "Luke",
+          "video",
+          "fascinating"
+        ],
+        "correct": 1,
+        "explanation": "'Luke' đứng trước 'illustrates' → chủ ngữ."
+      },
+      {
+        "question": "\"The bad weather causes problems for many farmers.\" — Chủ ngữ là gì?",
+        "options": [
+          "weather",
+          "The bad weather",
+          "problems",
+          "farmers"
+        ],
+        "correct": 1,
+        "explanation": "'The bad weather' là cụm danh từ làm chủ ngữ."
+      },
+      {
+        "question": "Jack is thirsty. Here is a glass of juice for ___.",
+        "options": [
+          "he",
+          "him",
+          "his",
+          "himself"
+        ],
+        "correct": 1,
+        "explanation": "Sau giới từ 'for' → tân ngữ: him."
+      },
+      {
+        "question": "___ go to school by bus every morning.",
+        "options": [
+          "I",
+          "Me",
+          "My",
+          "Mine"
+        ],
+        "correct": 0,
+        "explanation": "Trước động từ 'go' → chủ ngữ: I."
+      },
+      {
+        "question": "I have an important announcement. Listen to ___.",
+        "options": [
+          "I",
+          "me",
+          "my",
+          "mine"
+        ],
+        "correct": 1,
+        "explanation": "Sau giới từ 'to' → tân ngữ: me."
+      },
+      {
+        "question": "Where are my glasses? — ___ are on the table.",
+        "options": [
+          "It",
+          "Them",
+          "They",
+          "Their"
+        ],
+        "correct": 2,
+        "explanation": "Trước 'are' → chủ ngữ: They (glasses = số nhiều)."
+      },
+      {
+        "question": "How pretty these earrings are! Let's buy ___.",
+        "options": [
+          "it",
+          "them",
+          "they",
+          "its"
+        ],
+        "correct": 1,
+        "explanation": "Sau động từ 'buy' → tân ngữ: them (earrings = số nhiều)."
+      },
+      {
+        "question": "___ love reading science books.",
+        "options": [
+          "We",
+          "Us",
+          "Our",
+          "Ours"
+        ],
+        "correct": 0,
+        "explanation": "Trước 'love' → chủ ngữ: We."
+      },
+      {
+        "question": "I greeted ___ at the party last night but he ignored me.",
+        "options": [
+          "he",
+          "him",
+          "his",
+          "himself"
+        ],
+        "correct": 1,
+        "explanation": "Sau động từ 'greeted' → tân ngữ: him."
+      },
+      {
+        "question": "Everyone reads the document except for ___.",
+        "options": [
+          "she",
+          "her",
+          "hers",
+          "herself"
+        ],
+        "correct": 1,
+        "explanation": "Sau giới từ 'for' → tân ngữ: her."
+      },
+      {
+        "question": "My mother and ___ plant a garden when summer comes.",
+        "options": [
+          "I",
+          "me",
+          "my",
+          "mine"
+        ],
+        "correct": 0,
+        "explanation": "'My mother and I' là chủ ngữ ghép → I."
+      },
+      {
+        "question": "We had many interesting conversations with ___.",
+        "options": [
+          "he",
+          "him",
+          "his",
+          "himself"
+        ],
+        "correct": 1,
+        "explanation": "Sau giới từ 'with' → tân ngữ: him."
+      },
+      {
+        "question": "Thank you for driving ___ to the station.",
+        "options": [
+          "we",
+          "us",
+          "our",
+          "ours"
+        ],
+        "correct": 1,
+        "explanation": "Sau động từ 'driving' → tân ngữ: us."
+      },
+      {
+        "question": "Hannah was ill so I sent some flowers to cheer ___ up.",
+        "options": [
+          "she",
+          "her",
+          "hers",
+          "herself"
+        ],
+        "correct": 1,
+        "explanation": "Sau động từ 'cheer' → tân ngữ: her."
+      },
+      {
+        "question": "Create a new folder and put this letter in ___.",
+        "options": [
+          "it",
+          "them",
+          "its",
+          "they"
+        ],
+        "correct": 0,
+        "explanation": "Sau giới từ 'in' → tân ngữ: it (folder = số ít)."
+      },
+      {
+        "question": "John painted this picture. ___ is very creative.",
+        "options": [
+          "He",
+          "Him",
+          "His",
+          "Himself"
+        ],
+        "correct": 0,
+        "explanation": "Trước 'is' → chủ ngữ: He."
+      },
+      {
+        "question": "I saw Rosie and Simon while ___ were walking their dog.",
+        "options": [
+          "them",
+          "their",
+          "they",
+          "theirs"
+        ],
+        "correct": 2,
+        "explanation": "Trước 'were walking' → chủ ngữ: they."
+      }
+    ]
+  },
+  {
+    "topic_id": "present-simple",
+    "emoji": "🔁",
+    "title": "Present Simple",
+    "title_vi": "Thì hiện tại đơn",
+    "description": "To be (am/is/are), động từ thường, thêm -s/-es, trạng từ tần suất.",
+    "difficulty": "easy",
+    "order": 7,
+    "sections": [
+      {
+        "heading": "1. Cấu trúc với \"to be\" (am/is/are)",
+        "content": "**Khẳng định (+)**:\n• I **am** … → I'm a student.\n• He / She / It **is** … → He's tall.\n• We / You / They **are** … → They're my friends.\n\n**Phủ định (−)**:\n• I **am not** (I'm not)\n• He / She / It **is not** (isn't)\n• We / You / They **are not** (aren't)\n\n**Nghi vấn (?)**:\n• **Am** I …? → Yes, I am. / No, I'm not.\n• **Is** he/she/it …? → Yes, he is. / No, he isn't.\n• **Are** we/you/they …? → Yes, they are. / No, they aren't."
+      },
+      {
+        "heading": "2. Cấu trúc với động từ thường",
+        "content": "**Khẳng định (+)**:\n• I / We / You / They + **V** (nguyên thể)\n• He / She / It + **V-s / V-es**\n\n**Phủ định (−)**:\n• I / We / You / They + **do not (don't)** + V\n• He / She / It + **does not (doesn't)** + V\n\n**Nghi vấn (?)**:\n• **Do** + I/we/you/they + V?\n• **Does** + he/she/it + V?\n\nVD:\n• I go for a picnic every weekend.\n• She doesn't do exercise regularly.\n• Do you often surf the internet?"
+      },
+      {
+        "heading": "3. Cách thêm -s / -es vào động từ",
+        "content": "Với chủ ngữ **He / She / It**:\n\n• Động từ tận cùng **-o, -s, -x, -z, -ch, -sh** → thêm **-es**\n  go → go**es**, watch → watch**es**, wash → wash**es**\n\n• Động từ tận cùng **phụ âm + y** → đổi y → **-ies**\n  study → stud**ies**, vary → var**ies**, fly → fl**ies**\n\n• Động từ tận cùng **nguyên âm + y** → thêm **-s**\n  stay → stay**s**, buy → buy**s**, play → play**s**\n\n• Các động từ còn lại → thêm **-s**\n  work → work**s**, read → read**s**, run → run**s**"
+      },
+      {
+        "heading": "4. Cách dùng (Usage)",
+        "content": "**1.** Diễn tả tình trạng cố định ở hiện tại:\n  My mother **works** as a nurse.\n\n**2.** Diễn tả chân lý, sự thật hiển nhiên:\n  The Sun **rises** in the East.\n\n**3.** Diễn tả thói quen hoặc hành động lặp lại:\n  I **have** a regular check-up every 6 months.\n\n**4.** Diễn tả thời gian biểu, chương trình:\n  The flight to Nha Trang **takes off** at 9 p.m."
+      },
+      {
+        "heading": "5. Dấu hiệu nhận biết (Signals)",
+        "content": "**Trạng từ tần suất** (đứng **trước** động từ thường, **sau** to be):\n• **always** (luôn luôn)\n• **usually** (thường xuyên)\n• **often** (thường)\n• **sometimes** (thỉnh thoảng)\n• **rarely** (hiếm khi)\n• **never** (không bao giờ)\n\nVD:\n• They **rarely** go fishing. (trước V thường)\n• He is **never** late for school. (sau to be)\n\n**Trạng từ chỉ thời gian**: every day/week/month/year, daily, weekly, once/twice a week…"
+      },
+      {
+        "heading": "6. Phát âm -s/-es",
+        "content": "• Phát âm **/s/** sau: /p/, /k/, /f/, /θ/, /t/\n  stop**s**, talk**s**, bluff**s**, berth**s**, post**s**\n\n• Phát âm **/ɪz/** sau: /s/, /z/, /ʃ/, /tʃ/, /dʒ/, /ʒ/\n  kiss**es**, ris**es**, wash**es**, watch**es**, damag**es**, massag**es**\n\n• Phát âm **/z/** sau nguyên âm và các phụ âm còn lại:\n  purée**s**, vari**es**, stay**s**, mould**s**, weav**es**"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "To be (+)",
+        "formula": "I am / He-She-It is / We-You-They are",
+        "example": "I am a student. She is kind.",
+        "exampleVi": "Tôi là học sinh. Cô ấy tốt bụng."
+      },
+      {
+        "name": "V thường (+)",
+        "formula": "S + V / V-s/-es",
+        "example": "I work. She works.",
+        "exampleVi": "Tôi làm việc. Cô ấy làm việc."
+      },
+      {
+        "name": "V thường (−)",
+        "formula": "S + don't/doesn't + V",
+        "example": "I don't smoke. He doesn't eat meat.",
+        "exampleVi": "Tôi không hút thuốc. Anh ấy không ăn thịt."
+      },
+      {
+        "name": "V thường (?)",
+        "formula": "Do/Does + S + V?",
+        "example": "Do you play? Does she know?",
+        "exampleVi": "Bạn có chơi không? Cô ấy có biết không?"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "\"She is a specialist.\" → Câu phủ định:",
+        "options": [
+          "She isn't a specialist.",
+          "She aren't a specialist.",
+          "She don't a specialist.",
+          "She doesn't a specialist."
+        ],
+        "correct": 0,
+        "explanation": "She + is → phủ định: She isn't a specialist."
+      },
+      {
+        "question": "\"They visit their grandparents every summer.\" → Nghi vấn:",
+        "options": [
+          "Do they visit…?",
+          "Does they visit…?",
+          "Are they visit…?",
+          "Is they visit…?"
+        ],
+        "correct": 0,
+        "explanation": "They + V thường → Do they visit…?"
+      },
+      {
+        "question": "\"They are handsome and kind.\" → Phủ định:",
+        "options": [
+          "They aren't handsome and kind.",
+          "They isn't handsome and kind.",
+          "They don't handsome and kind.",
+          "They doesn't handsome and kind."
+        ],
+        "correct": 0,
+        "explanation": "They + are → phủ định: They aren't."
+      },
+      {
+        "question": "\"He often hangs out with his friends on Sundays.\" → Nghi vấn:",
+        "options": [
+          "Does he often hang out…?",
+          "Do he often hangs out…?",
+          "Is he often hang out…?",
+          "Does he often hangs out…?"
+        ],
+        "correct": 0,
+        "explanation": "He + V thường → Does he hang out…? (bỏ -s)."
+      },
+      {
+        "question": "\"Linda spends two hours a day reading books.\" → Phủ định:",
+        "options": [
+          "Linda doesn't spend two hours…",
+          "Linda don't spend two hours…",
+          "Linda isn't spend two hours…",
+          "Linda doesn't spends two hours…"
+        ],
+        "correct": 0,
+        "explanation": "Linda (she) + V thường → doesn't spend (bỏ -s)."
+      },
+      {
+        "question": "My father (earn) ___ about 300 pounds every month.",
+        "options": [
+          "earn",
+          "earns",
+          "earning",
+          "earned"
+        ],
+        "correct": 1,
+        "explanation": "My father = He → earns (thêm -s)."
+      },
+      {
+        "question": "I have a cat and its name (be) ___ Daisy.",
+        "options": [
+          "is",
+          "are",
+          "am",
+          "be"
+        ],
+        "correct": 0,
+        "explanation": "'its name' = It → is."
+      },
+      {
+        "question": "She (not study) ___ on Saturday and Sunday.",
+        "options": [
+          "don't study",
+          "doesn't study",
+          "isn't study",
+          "not studies"
+        ],
+        "correct": 1,
+        "explanation": "She → doesn't study."
+      },
+      {
+        "question": "We (listen) ___ to the BBC every morning.",
+        "options": [
+          "listens",
+          "listen",
+          "listening",
+          "listened"
+        ],
+        "correct": 1,
+        "explanation": "We → listen (không thêm -s)."
+      },
+      {
+        "question": "His flight (take) ___ off at 7 p.m. tomorrow.",
+        "options": [
+          "take",
+          "takes",
+          "taking",
+          "taked"
+        ],
+        "correct": 1,
+        "explanation": "His flight = It → takes (thời gian biểu dùng Present Simple)."
+      },
+      {
+        "question": "Mount Everest (not be) ___ in Africa.",
+        "options": [
+          "isn't",
+          "aren't",
+          "don't",
+          "doesn't"
+        ],
+        "correct": 0,
+        "explanation": "Mount Everest = It → isn't."
+      },
+      {
+        "question": "___ Jim and Joe (go) jogging every week?",
+        "options": [
+          "Do … go",
+          "Does … go",
+          "Are … go",
+          "Is … go"
+        ],
+        "correct": 0,
+        "explanation": "Jim and Joe = They → Do … go."
+      },
+      {
+        "question": "They often (take) ___ their children to the countryside.",
+        "options": [
+          "take",
+          "takes",
+          "taking",
+          "took"
+        ],
+        "correct": 0,
+        "explanation": "They → take (không thêm -s)."
+      },
+      {
+        "question": "A water molecule (consist) ___ of two atoms of hydrogen.",
+        "options": [
+          "consist",
+          "consists",
+          "consisting",
+          "consisted"
+        ],
+        "correct": 1,
+        "explanation": "A water molecule = It → consists."
+      },
+      {
+        "question": "Mr. Smith (teach) ___ Spanish and French.",
+        "options": [
+          "teach",
+          "teaches",
+          "teaching",
+          "taught"
+        ],
+        "correct": 1,
+        "explanation": "Mr. Smith = He, 'teach' tận cùng -ch → teaches."
+      },
+      {
+        "question": "The Olympic Games ___ place every four years.",
+        "options": [
+          "take",
+          "takes",
+          "is taking",
+          "took"
+        ],
+        "correct": 0,
+        "explanation": "The Olympic Games = They → take (sự thật/lịch trình)."
+      },
+      {
+        "question": "We ___ to pursue higher education after graduating.",
+        "options": [
+          "intend",
+          "intends",
+          "is intending",
+          "intended"
+        ],
+        "correct": 0,
+        "explanation": "We → intend."
+      },
+      {
+        "question": "What time does the train ___?",
+        "options": [
+          "leaves",
+          "leave",
+          "leaving",
+          "left"
+        ],
+        "correct": 1,
+        "explanation": "Does + S + V (nguyên thể) → leave."
+      },
+      {
+        "question": "The Panama Canal ___ the Atlantic and Pacific Oceans.",
+        "options": [
+          "connect",
+          "connects",
+          "connecting",
+          "connected"
+        ],
+        "correct": 1,
+        "explanation": "The Panama Canal = It → connects."
+      },
+      {
+        "question": "The public museum ___ at 8:30 every morning.",
+        "options": [
+          "open",
+          "opens",
+          "opening",
+          "opened"
+        ],
+        "correct": 1,
+        "explanation": "The public museum = It → opens."
+      },
+      {
+        "question": "My father sometimes ___ dinner for us.",
+        "options": [
+          "prepare",
+          "prepares",
+          "preparing",
+          "prepared"
+        ],
+        "correct": 1,
+        "explanation": "My father = He → prepares."
+      },
+      {
+        "question": "An interpreter ___ from one language into another.",
+        "options": [
+          "translate",
+          "translates",
+          "translating",
+          "translated"
+        ],
+        "correct": 1,
+        "explanation": "An interpreter = He/She → translates."
+      }
+    ]
+  },
+  {
+    "topic_id": "tenses",
+    "emoji": "⏰",
+    "title": "Tenses",
+    "title_vi": "Các thì trong tiếng Anh",
+    "description": "Present Simple, Past Simple, Present Perfect, Future Simple…",
+    "difficulty": "medium",
+    "order": 8,
+    "sections": [
+      {
+        "heading": "1. Thì Hiện tại đơn (Present Simple)",
+        "content": "Diễn tả thói quen, sự thật hiển nhiên, lịch trình.\n\n**Dấu hiệu**: always, usually, often, sometimes, every day/week/month.\n\n**Cấu trúc**:\n• (+) S + V(s/es) + O\n• (−) S + do/does + not + V + O\n• (?) Do/Does + S + V + O?"
+      },
+      {
+        "heading": "2. Thì Quá khứ đơn (Past Simple)",
+        "content": "Diễn tả hành động đã xảy ra và kết thúc trong quá khứ.\n\n**Dấu hiệu**: yesterday, last week/month/year, ago, in 2020.\n\n**Cấu trúc**:\n• (+) S + V-ed / V2 + O\n• (−) S + did + not + V + O\n• (?) Did + S + V + O?"
+      },
+      {
+        "heading": "3. Thì Hiện tại hoàn thành (Present Perfect)",
+        "content": "Diễn tả hành động đã xảy ra, không rõ thời điểm, hoặc còn tiếp tục.\n\n**Dấu hiệu**: already, yet, just, ever, never, since, for, so far, recently.\n\n**Cấu trúc**:\n• (+) S + have/has + V3/ed + O\n• (−) S + have/has + not + V3/ed + O\n• (?) Have/Has + S + V3/ed + O?"
+      },
+      {
+        "heading": "4. Thì Tương lai đơn (Future Simple)",
+        "content": "Diễn tả hành động sẽ xảy ra, quyết định tức thời, lời hứa, dự đoán.\n\n**Dấu hiệu**: tomorrow, next week/month/year, I think, probably.\n\n**Cấu trúc**:\n• (+) S + will + V + O\n• (−) S + will + not + V + O\n• (?) Will + S + V + O?"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Present Simple (+)",
+        "formula": "S + V(s/es)",
+        "example": "She plays tennis every Sunday.",
+        "exampleVi": "Cô ấy chơi tennis mỗi Chủ nhật."
+      },
+      {
+        "name": "Past Simple (+)",
+        "formula": "S + V-ed / V2",
+        "example": "I visited Ha Noi last year.",
+        "exampleVi": "Tôi đã đến Hà Nội năm ngoái."
+      },
+      {
+        "name": "Present Perfect (+)",
+        "formula": "S + have/has + V3",
+        "example": "They have lived here since 2010.",
+        "exampleVi": "Họ đã sống ở đây từ 2010."
+      },
+      {
+        "name": "Future Simple (+)",
+        "formula": "S + will + V",
+        "example": "I will call you tomorrow.",
+        "exampleVi": "Tôi sẽ gọi bạn ngày mai."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "She ___ to school every day.",
+        "options": [
+          "go",
+          "goes",
+          "going",
+          "went"
+        ],
+        "correct": 1,
+        "explanation": "Thì hiện tại đơn, chủ ngữ 'She' (ngôi 3 số ít) → V thêm -es: goes."
+      },
+      {
+        "question": "They ___ a new house last month.",
+        "options": [
+          "buy",
+          "buys",
+          "bought",
+          "have bought"
+        ],
+        "correct": 2,
+        "explanation": "Dấu hiệu 'last month' → quá khứ đơn → bought (V2 của buy)."
+      },
+      {
+        "question": "I ___ this movie three times.",
+        "options": [
+          "see",
+          "saw",
+          "have seen",
+          "am seeing"
+        ],
+        "correct": 2,
+        "explanation": "Hành động lặp lại, không rõ thời điểm → hiện tại hoàn thành: have seen."
+      },
+      {
+        "question": "We ___ you at the party tomorrow.",
+        "options": [
+          "see",
+          "saw",
+          "seeing",
+          "will see"
+        ],
+        "correct": 3,
+        "explanation": "Dấu hiệu 'tomorrow' → tương lai đơn: will see."
+      },
+      {
+        "question": "He ___ English since he was 6.",
+        "options": [
+          "learns",
+          "learned",
+          "has learned",
+          "is learning"
+        ],
+        "correct": 2,
+        "explanation": "'since he was 6' → hiện tại hoàn thành: has learned."
+      },
+      {
+        "question": "My mother usually ___ dinner at 6 PM.",
+        "options": [
+          "cook",
+          "cooks",
+          "cooked",
+          "is cooking"
+        ],
+        "correct": 1,
+        "explanation": "'usually' → hiện tại đơn, chủ ngữ ngôi 3 → cooks."
+      },
+      {
+        "question": "They ___ to Japan last summer.",
+        "options": [
+          "travel",
+          "travels",
+          "traveled",
+          "have traveled"
+        ],
+        "correct": 2,
+        "explanation": "'last summer' → quá khứ đơn: traveled."
+      },
+      {
+        "question": "I think it ___ rain tonight.",
+        "options": [
+          "will",
+          "is",
+          "was",
+          "has"
+        ],
+        "correct": 0,
+        "explanation": "'I think' + dự đoán → tương lai đơn: will rain."
+      },
+      {
+        "question": "She has ___ finished her homework.",
+        "options": [
+          "yet",
+          "already",
+          "ago",
+          "yesterday"
+        ],
+        "correct": 1,
+        "explanation": "'already' dùng trong câu khẳng định hiện tại hoàn thành."
+      },
+      {
+        "question": "The sun ___ in the east.",
+        "options": [
+          "rise",
+          "rises",
+          "rose",
+          "has risen"
+        ],
+        "correct": 1,
+        "explanation": "Sự thật hiển nhiên → hiện tại đơn: rises (ngôi 3)."
+      }
+    ]
+  },
+  {
+    "topic_id": "passive-voice",
+    "emoji": "🔄",
+    "title": "Passive Voice",
+    "title_vi": "Câu bị động",
+    "description": "Chuyển đổi câu chủ động sang bị động ở các thì.",
+    "difficulty": "medium",
+    "order": 9,
+    "sections": [
+      {
+        "heading": "1. Khái niệm",
+        "content": "Câu bị động dùng khi muốn nhấn mạnh đối tượng chịu tác động.\n\n**Công thức chung**: S + be + V3/ed + (by + O)"
+      },
+      {
+        "heading": "2. Chuyển đổi các thì",
+        "content": "• **Hiện tại đơn**: S + am/is/are + V3\n• **Quá khứ đơn**: S + was/were + V3\n• **Hiện tại hoàn thành**: S + have/has been + V3\n• **Tương lai đơn**: S + will be + V3"
+      },
+      {
+        "heading": "3. Lưu ý quan trọng",
+        "content": "• Tân ngữ (O) câu chủ động → Chủ ngữ (S) câu bị động.\n• Chủ ngữ câu chủ động → by + O.\n• Chỉ động từ CÓ TÂN NGỮ mới chuyển được sang bị động."
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Present Simple",
+        "formula": "S + am/is/are + V3",
+        "example": "English is spoken worldwide.",
+        "exampleVi": "Tiếng Anh được nói trên toàn giới."
+      },
+      {
+        "name": "Past Simple",
+        "formula": "S + was/were + V3",
+        "example": "The cake was made by my mom.",
+        "exampleVi": "Chiếc bánh được làm bởi mẹ tôi."
+      },
+      {
+        "name": "Present Perfect",
+        "formula": "S + have/has been + V3",
+        "example": "The report has been finished.",
+        "exampleVi": "Bản báo cáo đã được hoàn thành."
+      },
+      {
+        "name": "Future Simple",
+        "formula": "S + will be + V3",
+        "example": "The meeting will be held tomorrow.",
+        "exampleVi": "Cuộc họp sẽ được tổ chức ngày mai."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "This song ___ by millions of people.",
+        "options": [
+          "love",
+          "loves",
+          "is loved",
+          "loving"
+        ],
+        "correct": 2,
+        "explanation": "Bị động hiện tại đơn: is loved."
+      },
+      {
+        "question": "The window ___ by the boy yesterday.",
+        "options": [
+          "broke",
+          "was broken",
+          "is broken",
+          "has broken"
+        ],
+        "correct": 1,
+        "explanation": "'yesterday' → bị động quá khứ đơn: was broken."
+      },
+      {
+        "question": "The homework ___ already ___.",
+        "options": [
+          "has / been done",
+          "have / been done",
+          "was / done",
+          "is / done"
+        ],
+        "correct": 0,
+        "explanation": "'already' → bị động hiện tại hoàn thành: has been done."
+      },
+      {
+        "question": "A new school ___ next year.",
+        "options": [
+          "builds",
+          "built",
+          "will be built",
+          "is building"
+        ],
+        "correct": 2,
+        "explanation": "'next year' → bị động tương lai: will be built."
+      },
+      {
+        "question": "Milk ___ in many countries.",
+        "options": [
+          "produce",
+          "is produced",
+          "produces",
+          "producing"
+        ],
+        "correct": 1,
+        "explanation": "Sự thật → bị động hiện tại đơn: is produced."
+      },
+      {
+        "question": "The email ___ to all employees last week.",
+        "options": [
+          "sent",
+          "was sent",
+          "is sent",
+          "has sent"
+        ],
+        "correct": 1,
+        "explanation": "'last week' → bị động quá khứ đơn: was sent."
+      },
+      {
+        "question": "Many houses ___ by the storm.",
+        "options": [
+          "destroyed",
+          "were destroyed",
+          "are destroyed",
+          "destroying"
+        ],
+        "correct": 1,
+        "explanation": "Bị động quá khứ đơn: were destroyed."
+      },
+      {
+        "question": "The test results ___ tomorrow.",
+        "options": [
+          "announce",
+          "announced",
+          "will be announced",
+          "are announcing"
+        ],
+        "correct": 2,
+        "explanation": "'tomorrow' → bị động tương lai đơn: will be announced."
+      }
+    ]
+  },
+  {
+    "topic_id": "reported-speech",
+    "emoji": "💬",
+    "title": "Reported Speech",
+    "title_vi": "Câu tường thuật",
+    "description": "Chuyển đổi lời nói trực tiếp sang gián tiếp.",
+    "difficulty": "hard",
+    "order": 10,
+    "sections": [
+      {
+        "heading": "1. Khái niệm",
+        "content": "Câu tường thuật dùng để thuật lại lời nói của người khác.\nVD: \"I am tired.\" → She said (that) she was tired."
+      },
+      {
+        "heading": "2. Quy tắc lùi thì",
+        "content": "• Present Simple → Past Simple\n• Present Continuous → Past Continuous\n• Present Perfect → Past Perfect\n• Past Simple → Past Perfect\n• will → would\n• can → could\n• may → might"
+      },
+      {
+        "heading": "3. Đổi đại từ & trạng từ",
+        "content": "• I → he/she  •  my → his/her\n• now → then  •  today → that day\n• tomorrow → the next day\n• yesterday → the day before\n• here → there  •  this → that"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Câu trần thuật",
+        "formula": "S + said (that) + S + V (lùi thì)",
+        "example": "\"I like music.\" → He said he liked music.",
+        "exampleVi": "\"Tôi thích nhạc.\" → Anh ấy nói anh ấy thích nhạc."
+      },
+      {
+        "name": "Câu hỏi Yes/No",
+        "formula": "S + asked + if/whether + S + V",
+        "example": "\"Do you like it?\" → She asked if I liked it.",
+        "exampleVi": "\"Bạn thích không?\" → Cô ấy hỏi tôi có thích không."
+      },
+      {
+        "name": "Câu hỏi Wh-",
+        "formula": "S + asked + Wh- + S + V",
+        "example": "\"Where do you live?\" → He asked where I lived.",
+        "exampleVi": "\"Bạn sống ở đâu?\" → Anh ấy hỏi tôi sống ở đâu."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "\"I am happy.\" → She said she ___ happy.",
+        "options": [
+          "is",
+          "was",
+          "has been",
+          "would be"
+        ],
+        "correct": 1,
+        "explanation": "am → was (lùi thì)."
+      },
+      {
+        "question": "\"I will come tomorrow.\" → He said he ___ come the next day.",
+        "options": [
+          "will",
+          "would",
+          "can",
+          "could"
+        ],
+        "correct": 1,
+        "explanation": "will → would."
+      },
+      {
+        "question": "\"Do you speak English?\" → She asked me ___ I spoke English.",
+        "options": [
+          "that",
+          "what",
+          "if",
+          "do"
+        ],
+        "correct": 2,
+        "explanation": "Câu hỏi Yes/No → if/whether."
+      },
+      {
+        "question": "\"Where is the station?\" → He asked where the station ___.",
+        "options": [
+          "is",
+          "was",
+          "were",
+          "be"
+        ],
+        "correct": 1,
+        "explanation": "is → was."
+      },
+      {
+        "question": "\"I can swim.\" → She said she ___ swim.",
+        "options": [
+          "can",
+          "could",
+          "may",
+          "might"
+        ],
+        "correct": 1,
+        "explanation": "can → could."
+      },
+      {
+        "question": "\"We are studying.\" → They said they ___ studying.",
+        "options": [
+          "are",
+          "were",
+          "have been",
+          "had been"
+        ],
+        "correct": 1,
+        "explanation": "are → were."
+      },
+      {
+        "question": "\"I bought a car.\" → He said he ___ a car.",
+        "options": [
+          "bought",
+          "had bought",
+          "has bought",
+          "buys"
+        ],
+        "correct": 1,
+        "explanation": "bought → had bought."
+      },
+      {
+        "question": "\"Don't touch it!\" → She told me ___ touch it.",
+        "options": [
+          "don't",
+          "not to",
+          "to not",
+          "didn't"
+        ],
+        "correct": 1,
+        "explanation": "Mệnh lệnh phủ định → told + O + not to + V."
+      }
+    ]
+  },
+  {
+    "topic_id": "conditionals",
+    "emoji": "🔀",
+    "title": "Conditionals",
+    "title_vi": "Câu điều kiện",
+    "description": "If Type 0, 1, 2, 3 và câu điều kiện hỗn hợp.",
+    "difficulty": "hard",
+    "order": 11,
+    "sections": [
+      {
+        "heading": "1. Loại 0 — Sự thật hiển nhiên",
+        "content": "**If + S + V(s), S + V(s)**\nVD: If you heat water to 100°C, it boils."
+      },
+      {
+        "heading": "2. Loại 1 — Có thể xảy ra",
+        "content": "**If + S + V(s), S + will + V**\nVD: If it rains, I will stay home."
+      },
+      {
+        "heading": "3. Loại 2 — Không có thật ở hiện tại",
+        "content": "**If + S + V-ed, S + would + V**\nVD: If I were you, I would study harder.\n⚠️ Với \"be\" luôn dùng **were**."
+      },
+      {
+        "heading": "4. Loại 3 — Không có thật ở quá khứ",
+        "content": "**If + S + had V3, S + would have V3**\nVD: If I had studied harder, I would have passed."
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Type 0",
+        "formula": "If + V(s), S + V(s)",
+        "example": "If ice melts, it becomes water.",
+        "exampleVi": "Nếu đá tan, nó thành nước."
+      },
+      {
+        "name": "Type 1",
+        "formula": "If + V(s), S + will + V",
+        "example": "If you study, you will pass.",
+        "exampleVi": "Nếu bạn học, bạn sẽ đậu."
+      },
+      {
+        "name": "Type 2",
+        "formula": "If + V-ed, S + would + V",
+        "example": "If I had money, I would travel.",
+        "exampleVi": "Nếu tôi có tiền, tôi sẽ du lịch."
+      },
+      {
+        "name": "Type 3",
+        "formula": "If + had V3, S + would have V3",
+        "example": "If she had come, she would have seen.",
+        "exampleVi": "Nếu cô ấy đến, cô ấy đã thấy."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "If it rains, we ___ at home.",
+        "options": [
+          "stay",
+          "stayed",
+          "will stay",
+          "would stay"
+        ],
+        "correct": 2,
+        "explanation": "Loại 1: will + V."
+      },
+      {
+        "question": "If I ___ you, I would apologize.",
+        "options": [
+          "am",
+          "was",
+          "were",
+          "be"
+        ],
+        "correct": 2,
+        "explanation": "Loại 2: dùng 'were'."
+      },
+      {
+        "question": "If she had studied, she ___ the exam.",
+        "options": [
+          "will pass",
+          "would pass",
+          "would have passed",
+          "passes"
+        ],
+        "correct": 2,
+        "explanation": "Loại 3: would have + V3."
+      },
+      {
+        "question": "If you heat ice, it ___.",
+        "options": [
+          "melt",
+          "melts",
+          "will melt",
+          "would melt"
+        ],
+        "correct": 1,
+        "explanation": "Loại 0: V(s) cả 2 vế."
+      },
+      {
+        "question": "If I ___ a bird, I would fly.",
+        "options": [
+          "am",
+          "was",
+          "were",
+          "be"
+        ],
+        "correct": 2,
+        "explanation": "Loại 2: If + were."
+      },
+      {
+        "question": "If he ___ earlier, he wouldn't have missed the bus.",
+        "options": [
+          "woke",
+          "wakes",
+          "had woken",
+          "would wake"
+        ],
+        "correct": 2,
+        "explanation": "Loại 3: If + had V3."
+      },
+      {
+        "question": "I ___ call you if I have time.",
+        "options": [
+          "would",
+          "will",
+          "can",
+          "could"
+        ],
+        "correct": 1,
+        "explanation": "Loại 1: will + V."
+      },
+      {
+        "question": "If we ___ more trees, the air would be cleaner.",
+        "options": [
+          "plant",
+          "planted",
+          "had planted",
+          "will plant"
+        ],
+        "correct": 1,
+        "explanation": "Loại 2: If + V-ed."
+      }
+    ]
+  },
+  {
+    "topic_id": "relative-clauses",
+    "emoji": "🔗",
+    "title": "Relative Clauses",
+    "title_vi": "Mệnh đề quan hệ",
+    "description": "Who, which, that, whose, where, when.",
+    "difficulty": "medium",
+    "order": 12,
+    "sections": [
+      {
+        "heading": "1. Đại từ quan hệ",
+        "content": "• **who** — người (chủ ngữ)\n• **whom** — người (tân ngữ)\n• **which** — vật\n• **that** — cả người và vật\n• **whose** — sở hữu"
+      },
+      {
+        "heading": "2. Trạng từ quan hệ",
+        "content": "• **where** — nơi chốn\n• **when** — thời gian\n• **why** — lý do"
+      },
+      {
+        "heading": "3. Lưu ý",
+        "content": "• Xác định: KHÔNG dấu phẩy, cần thiết.\n• Không xác định: CÓ dấu phẩy, bổ sung.\n• Không xác định KHÔNG dùng 'that'."
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Who",
+        "formula": "N (person) + who + V",
+        "example": "The girl who sits next to me is kind.",
+        "exampleVi": "Cô gái ngồi cạnh tôi rất tốt bụng."
+      },
+      {
+        "name": "Which",
+        "formula": "N (thing) + which + V",
+        "example": "The book which I read was interesting.",
+        "exampleVi": "Cuốn sách tôi đọc rất thú vị."
+      },
+      {
+        "name": "Where",
+        "formula": "N (place) + where + S + V",
+        "example": "That's the school where I studied.",
+        "exampleVi": "Đó là trường tôi đã học."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "The man ___ lives next door is a teacher.",
+        "options": [
+          "which",
+          "who",
+          "whom",
+          "where"
+        ],
+        "correct": 1,
+        "explanation": "Người, chủ ngữ → who."
+      },
+      {
+        "question": "The book ___ I bought is really good.",
+        "options": [
+          "who",
+          "where",
+          "which",
+          "whose"
+        ],
+        "correct": 2,
+        "explanation": "Vật → which."
+      },
+      {
+        "question": "That's the restaurant ___ we had dinner.",
+        "options": [
+          "which",
+          "who",
+          "that",
+          "where"
+        ],
+        "correct": 3,
+        "explanation": "Nơi chốn → where."
+      },
+      {
+        "question": "The girl ___ bag was stolen cried.",
+        "options": [
+          "who",
+          "which",
+          "whose",
+          "whom"
+        ],
+        "correct": 2,
+        "explanation": "Sở hữu → whose."
+      },
+      {
+        "question": "I remember the day ___ we first met.",
+        "options": [
+          "which",
+          "where",
+          "who",
+          "when"
+        ],
+        "correct": 3,
+        "explanation": "Thời gian → when."
+      },
+      {
+        "question": "The teacher ___ I respect most is Mrs. Lan.",
+        "options": [
+          "who",
+          "whom",
+          "which",
+          "where"
+        ],
+        "correct": 1,
+        "explanation": "Người, tân ngữ → whom/who."
+      }
+    ]
+  },
+  {
+    "topic_id": "comparisons",
+    "emoji": "📊",
+    "title": "Comparisons",
+    "title_vi": "So sánh",
+    "description": "So sánh hơn, nhất, ngang bằng.",
+    "difficulty": "easy",
+    "order": 13,
+    "sections": [
+      {
+        "heading": "1. So sánh hơn",
+        "content": "• **Tính từ ngắn**: S + adj-ER + than\n• **Tính từ dài**: S + MORE + adj + than"
+      },
+      {
+        "heading": "2. So sánh nhất",
+        "content": "• **Ngắn**: S + THE + adj-EST\n• **Dài**: S + THE MOST + adj"
+      },
+      {
+        "heading": "3. Ngang bằng",
+        "content": "**S + as + adj + as + N**\nPhủ định: S + not as/so + adj + as"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Hơn (ngắn)",
+        "formula": "S + adj-ER + than",
+        "example": "This road is longer than that one.",
+        "exampleVi": "Con đường này dài hơn."
+      },
+      {
+        "name": "Hơn (dài)",
+        "formula": "S + MORE + adj + than",
+        "example": "Math is more difficult than English.",
+        "exampleVi": "Toán khó hơn Anh."
+      },
+      {
+        "name": "Nhất (ngắn)",
+        "formula": "S + THE + adj-EST",
+        "example": "She is the youngest.",
+        "exampleVi": "Cô ấy nhỏ nhất."
+      }
+    ],
+    "exercises": [
+      {
+        "question": "She is ___ than her sister.",
+        "options": [
+          "tall",
+          "taller",
+          "tallest",
+          "more tall"
+        ],
+        "correct": 1,
+        "explanation": "Ngắn → taller + than."
+      },
+      {
+        "question": "This is the ___ movie I've ever seen.",
+        "options": [
+          "good",
+          "better",
+          "best",
+          "most good"
+        ],
+        "correct": 2,
+        "explanation": "good → best."
+      },
+      {
+        "question": "English is ___ difficult ___ Math.",
+        "options": [
+          "more/than",
+          "most/in",
+          "as/as",
+          "the/of"
+        ],
+        "correct": 0,
+        "explanation": "Dài → more... than."
+      },
+      {
+        "question": "Tom is ___ tall ___ his brother.",
+        "options": [
+          "as/as",
+          "more/than",
+          "the/est",
+          "so/that"
+        ],
+        "correct": 0,
+        "explanation": "Ngang bằng: as + adj + as."
+      },
+      {
+        "question": "She is the ___ student in the class.",
+        "options": [
+          "smart",
+          "smarter",
+          "smartest",
+          "most smart"
+        ],
+        "correct": 2,
+        "explanation": "Nhất, ngắn → the smartest."
+      },
+      {
+        "question": "This exercise is ___ than the last one.",
+        "options": [
+          "easy",
+          "easier",
+          "easiest",
+          "more easy"
+        ],
+        "correct": 1,
+        "explanation": "easy → easier + than."
+      }
+    ]
+  },
+  {
+    "topic_id": "tag-questions",
+    "emoji": "❓",
+    "title": "Tag Questions",
+    "title_vi": "Câu hỏi đuôi",
+    "description": "Quy tắc thêm tag question vào câu.",
+    "difficulty": "easy",
+    "order": 14,
+    "sections": [
+      {
+        "heading": "1. Quy tắc",
+        "content": "• Khẳng định → tag phủ định (và ngược lại).\n• Tag dùng trợ động từ tương ứng.\n• Chủ ngữ tag luôn là đại từ nhân xưng."
+      },
+      {
+        "heading": "2. Ví dụ",
+        "content": "• She is a student, **isn't she**?\n• They don't like coffee, **do they**?\n• He can swim, **can't he**?"
+      },
+      {
+        "heading": "3. Đặc biệt",
+        "content": "• I am → **aren't I?**\n• Let's → **shall we?**\n• Imperative → **will you?**\n• Nobody → tag **khẳng định**"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "KĐ → PĐ",
+        "formula": "S + V, aux + n't + pronoun?",
+        "example": "She likes music, doesn't she?",
+        "exampleVi": "Cô ấy thích nhạc, phải không?"
+      },
+      {
+        "name": "PĐ → KĐ",
+        "formula": "S + V not, aux + pronoun?",
+        "example": "They don't know, do they?",
+        "exampleVi": "Họ không biết, đúng không?"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "She is a doctor, ___?",
+        "options": [
+          "is she",
+          "isn't she",
+          "does she",
+          "doesn't she"
+        ],
+        "correct": 1,
+        "explanation": "KĐ (is) → PĐ: isn't she?"
+      },
+      {
+        "question": "They can't swim, ___?",
+        "options": [
+          "can't they",
+          "do they",
+          "can they",
+          "don't they"
+        ],
+        "correct": 2,
+        "explanation": "PĐ (can't) → KĐ: can they?"
+      },
+      {
+        "question": "You went to school, ___?",
+        "options": [
+          "did you",
+          "didn't you",
+          "don't you",
+          "do you"
+        ],
+        "correct": 1,
+        "explanation": "KĐ (went) → didn't you?"
+      },
+      {
+        "question": "I am right, ___?",
+        "options": [
+          "am I",
+          "aren't I",
+          "don't I",
+          "isn't I"
+        ],
+        "correct": 1,
+        "explanation": "I am → aren't I? (ngoại lệ)."
+      },
+      {
+        "question": "Let's go, ___?",
+        "options": [
+          "shall we",
+          "will we",
+          "do we",
+          "let we"
+        ],
+        "correct": 0,
+        "explanation": "Let's → shall we?"
+      },
+      {
+        "question": "He hasn't finished, ___?",
+        "options": [
+          "hasn't he",
+          "has he",
+          "did he",
+          "does he"
+        ],
+        "correct": 1,
+        "explanation": "PĐ (hasn't) → KĐ: has he?"
+      }
+    ]
+  },
+  {
+    "topic_id": "word-forms",
+    "emoji": "🔤",
+    "title": "Word Forms",
+    "title_vi": "Dạng từ",
+    "description": "Danh từ, tính từ, trạng từ, động từ — cách chuyển đổi.",
+    "difficulty": "medium",
+    "order": 15,
+    "sections": [
+      {
+        "heading": "1. Vị trí từ loại",
+        "content": "• **N**: sau a/an/the, sau tính từ.\n• **Adj**: trước danh từ, sau be/look/seem.\n• **Adv**: cuối câu, trước V.\n• **V**: sau chủ ngữ, sau trợ động từ."
+      },
+      {
+        "heading": "2. Đuôi phổ biến",
+        "content": "• **N**: -tion, -ment, -ness, -ity, -ance\n• **Adj**: -ful, -less, -ous, -ive, -able\n• **Adv**: -ly\n• **V**: -ize, -fy, -en"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "V → N",
+        "formula": "V + -tion / -ment",
+        "example": "educate → education",
+        "exampleVi": "giáo dục → sự giáo dục"
+      },
+      {
+        "name": "N → Adj",
+        "formula": "N + -ful / -less",
+        "example": "beauty → beautiful",
+        "exampleVi": "đẹp"
+      },
+      {
+        "name": "Adj → Adv",
+        "formula": "Adj + -ly",
+        "example": "careful → carefully",
+        "exampleVi": "cẩn thận → một cách cẩn thận"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "She is a ___ student. (beauty)",
+        "options": [
+          "beauty",
+          "beautiful",
+          "beautifully",
+          "beautify"
+        ],
+        "correct": 1,
+        "explanation": "Trước N cần Adj: beautiful."
+      },
+      {
+        "question": "He drives very ___. (careful)",
+        "options": [
+          "careful",
+          "carefully",
+          "careless",
+          "care"
+        ],
+        "correct": 1,
+        "explanation": "Bổ nghĩa V cần Adv: carefully."
+      },
+      {
+        "question": "The ___ of the project is important. (succeed)",
+        "options": [
+          "succeed",
+          "successful",
+          "successfully",
+          "success"
+        ],
+        "correct": 3,
+        "explanation": "Sau 'The' cần N: success."
+      },
+      {
+        "question": "This exercise is ___. (difficulty)",
+        "options": [
+          "difficulty",
+          "difficult",
+          "difficultly",
+          "difficulties"
+        ],
+        "correct": 1,
+        "explanation": "Sau 'is' cần Adj: difficult."
+      },
+      {
+        "question": "They live ___ in the countryside. (happy)",
+        "options": [
+          "happy",
+          "happiness",
+          "happily",
+          "unhappy"
+        ],
+        "correct": 2,
+        "explanation": "Bổ nghĩa V cần Adv: happily."
+      },
+      {
+        "question": "The ___ was very interesting. (perform)",
+        "options": [
+          "perform",
+          "performer",
+          "performance",
+          "performing"
+        ],
+        "correct": 2,
+        "explanation": "Sau 'The' cần N: performance."
+      },
+      {
+        "question": "He is an ___ teacher. (experience)",
+        "options": [
+          "experience",
+          "experienced",
+          "experiencing",
+          "experiential"
+        ],
+        "correct": 1,
+        "explanation": "Trước N cần Adj: experienced."
+      },
+      {
+        "question": "She made a ___ decision. (wisdom)",
+        "options": [
+          "wisdom",
+          "wise",
+          "wisely",
+          "wiser"
+        ],
+        "correct": 1,
+        "explanation": "Trước N cần Adj: wise."
+      }
+    ]
+  }
+]

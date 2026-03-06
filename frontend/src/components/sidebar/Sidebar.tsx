@@ -164,7 +164,7 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { collapsed, toggleCollapse } = useSidebar();
+  const { collapsed, toggleCollapse, mobileOpen } = useSidebar();
   const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   const isActive = useCallback(
@@ -197,7 +197,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="df-sidebar" id="df-sidebar">
+      <aside className={`df-sidebar ${mobileOpen ? "mobile-open" : ""}`} id="df-sidebar">
         <nav className="df-sidebar-nav">
           {navItems.map((item) => (
             <Link

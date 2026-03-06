@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/lib/auth";
+import { useState, useEffect, useCallback } from "react";
 
 export default function UserModal() {
   const { userModalOpen, closeUserModal } = useSidebar();
@@ -16,6 +17,29 @@ export default function UserModal() {
     closeUserModal();
     await logout();
   };
+
+  // Language switcher
+  const [lang, setLang] = useState<"jp" | "en">("jp");
+  useEffect(() => {
+    const saved = localStorage.getItem("df_study_lang");
+    if (saved === "en" || saved === "jp") setLang(saved);
+  }, []);
+
+  const handleLangToggle = useCallback(async (newLang: "jp" | "en") => {
+    setLang(newLang);
+    localStorage.setItem("df_study_lang", newLang);
+    try {
+      await fetch("/api/set-language/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ language: newLang }),
+      });
+    } catch (e) {
+      console.warn("Failed to save language:", e);
+    }
+    window.location.reload();
+  }, []);
 
   return (
     <>
@@ -77,6 +101,35 @@ export default function UserModal() {
             </svg>
             Cài đặt
           </Link>
+        </div>
+
+        {/* Language Setting */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Ngôn ngữ học</div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => handleLangToggle("jp")}
+              style={{
+                flex: 1, padding: '10px', borderRadius: '10px', border: `2px solid ${lang === 'jp' ? 'var(--text-primary)' : 'var(--border-default)'}`,
+                background: lang === 'jp' ? 'var(--text-primary)' : 'var(--bg-surface)',
+                color: lang === 'jp' ? 'white' : 'var(--text-secondary)',
+                fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
+              }}
+            >
+              🇯🇵 JLPT
+            </button>
+            <button
+              onClick={() => handleLangToggle("en")}
+              style={{
+                flex: 1, padding: '10px', borderRadius: '10px', border: `2px solid ${lang === 'en' ? 'var(--text-primary)' : 'var(--border-default)'}`,
+                background: lang === 'en' ? 'var(--text-primary)' : 'var(--bg-surface)',
+                color: lang === 'en' ? 'white' : 'var(--text-secondary)',
+                fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
+              }}
+            >
+              🇺🇸 TOEIC
+            </button>
+          </div>
         </div>
 
         {/* Logout */}

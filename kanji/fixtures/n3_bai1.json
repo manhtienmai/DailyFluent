@@ -1,0 +1,301 @@
+{
+  "jlpt_level": "N3",
+  "lesson_id": 1,
+  "topic": "Xã hội & Cuộc sống",
+  "kanji_list": [
+    {
+      "character": "耳",
+      "han_viet": "Nhĩ",
+      "onyomi": ["ジ"],
+      "kunyomi": ["みみ"],
+      "meaning_vi": "Tai",
+      "formation": "Tượng hình: Hình ảnh lỗ tai người → tai",
+      "examples": [
+        {"word": "耳", "hiragana": "みみ", "meaning": "Tai", "jlpt": "N5"},
+        {"word": "耳鼻科", "hiragana": "じびか", "meaning": "Khoa tai mũi họng", "jlpt": "N3"},
+        {"word": "早耳", "hiragana": "はやみみ", "meaning": "Thính tai, nắm tin nhanh", "jlpt": "N2"},
+        {"word": "耳元", "hiragana": "みみもと", "meaning": "Bên tai", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "民",
+      "han_viet": "Dân",
+      "onyomi": ["ミン"],
+      "kunyomi": ["たみ"],
+      "meaning_vi": "Dân, nhân dân, quốc dân",
+      "formation": "Tượng hình: Hình ảnh con mắt bị đâm mù → nô lệ → dân chúng",
+      "examples": [
+        {"word": "国民", "hiragana": "こくみん", "meaning": "Quốc dân", "jlpt": "N3"},
+        {"word": "市民", "hiragana": "しみん", "meaning": "Thị dân", "jlpt": "N3"},
+        {"word": "民族", "hiragana": "みんぞく", "meaning": "Dân tộc", "jlpt": "N3"},
+        {"word": "住民", "hiragana": "じゅうみん", "meaning": "Cư dân", "jlpt": "N3"},
+        {"word": "民主", "hiragana": "みんしゅ", "meaning": "Dân chủ", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "合",
+      "han_viet": "Hợp",
+      "onyomi": ["ゴウ", "ガッ"],
+      "kunyomi": ["あう", "あわす", "あわせる"],
+      "meaning_vi": "Hợp, phù hợp, kết hợp",
+      "formation": "Hội ý: 亼(tụ lại) + 口(miệng) → miệng tụ lại nói cùng → hợp, phù hợp",
+      "examples": [
+        {"word": "合う", "hiragana": "あう", "meaning": "Hợp, phù hợp", "jlpt": "N4"},
+        {"word": "場合", "hiragana": "ばあい", "meaning": "Trường hợp", "jlpt": "N4"},
+        {"word": "合計", "hiragana": "ごうけい", "meaning": "Tổng cộng", "jlpt": "N3"},
+        {"word": "合格", "hiragana": "ごうかく", "meaning": "Đỗ, đạt", "jlpt": "N3"},
+        {"word": "組み合わせ", "hiragana": "くみあわせ", "meaning": "Tổ hợp, kết hợp", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "市",
+      "han_viet": "Thị",
+      "onyomi": ["シ"],
+      "kunyomi": ["いち"],
+      "meaning_vi": "Thành phố, chợ, thị trường",
+      "formation": "Hội ý: 亠(nhà) + 巾(vải) → nơi bán vải → chợ, thành thị",
+      "examples": [
+        {"word": "市", "hiragana": "し", "meaning": "Thành phố", "jlpt": "N4"},
+        {"word": "市場", "hiragana": "しじょう", "meaning": "Thị trường", "jlpt": "N3"},
+        {"word": "市民", "hiragana": "しみん", "meaning": "Thị dân", "jlpt": "N3"},
+        {"word": "都市", "hiragana": "とし", "meaning": "Đô thị", "jlpt": "N3"},
+        {"word": "市内", "hiragana": "しない", "meaning": "Trong thành phố", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "回",
+      "han_viet": "Hồi",
+      "onyomi": ["カイ"],
+      "kunyomi": ["まわる", "まわす"],
+      "meaning_vi": "Quay, lần, hồi",
+      "formation": "Tượng hình: Hình ảnh nước xoáy tròn → quay, vòng quanh",
+      "examples": [
+        {"word": "回る", "hiragana": "まわる", "meaning": "Quay, đi vòng", "jlpt": "N4"},
+        {"word": "回", "hiragana": "かい", "meaning": "Lần", "jlpt": "N4"},
+        {"word": "回復", "hiragana": "かいふく", "meaning": "Hồi phục", "jlpt": "N3"},
+        {"word": "回答", "hiragana": "かいとう", "meaning": "Trả lời", "jlpt": "N3"},
+        {"word": "回収", "hiragana": "かいしゅう", "meaning": "Thu hồi", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "首",
+      "han_viet": "Thủ",
+      "onyomi": ["シュ"],
+      "kunyomi": ["くび"],
+      "meaning_vi": "Đầu, cổ, thủ lĩnh",
+      "formation": "Tượng hình: Hình ảnh cái đầu có tóc → đầu, cổ",
+      "examples": [
+        {"word": "首", "hiragana": "くび", "meaning": "Cổ", "jlpt": "N4"},
+        {"word": "首相", "hiragana": "しゅしょう", "meaning": "Thủ tướng", "jlpt": "N3"},
+        {"word": "首都", "hiragana": "しゅと", "meaning": "Thủ đô", "jlpt": "N3"},
+        {"word": "首輪", "hiragana": "くびわ", "meaning": "Vòng cổ", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "都",
+      "han_viet": "Đô",
+      "onyomi": ["ト", "ツ"],
+      "kunyomi": ["みやこ"],
+      "meaning_vi": "Đô, thủ đô, thành phố lớn",
+      "formation": "Hình thanh: 者(âm: シャ/ト, người) + 阝(ý: làng) → nơi nhiều người tụ hợp → thành phố lớn, đô",
+      "examples": [
+        {"word": "都", "hiragana": "みやこ", "meaning": "Kinh đô", "jlpt": "N3"},
+        {"word": "都市", "hiragana": "とし", "meaning": "Đô thị", "jlpt": "N3"},
+        {"word": "首都", "hiragana": "しゅと", "meaning": "Thủ đô", "jlpt": "N3"},
+        {"word": "東京都", "hiragana": "とうきょうと", "meaning": "Tokyo (thành phố)", "jlpt": "N4"},
+        {"word": "都合", "hiragana": "つごう", "meaning": "Tình thế, thuận tiện", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "進",
+      "han_viet": "Tiến",
+      "onyomi": ["シン"],
+      "kunyomi": ["すすむ", "すすめる"],
+      "meaning_vi": "Tiến, tiến lên, thăng tiến",
+      "formation": "Hình thanh: 辶(ý: đi) + 隹(âm: スイ, chim) → chim bay tiến về phía trước → tiến",
+      "examples": [
+        {"word": "進む", "hiragana": "すすむ", "meaning": "Tiến lên", "jlpt": "N4"},
+        {"word": "進める", "hiragana": "すすめる", "meaning": "Thúc đẩy", "jlpt": "N3"},
+        {"word": "進歩", "hiragana": "しんぽ", "meaning": "Tiến bộ", "jlpt": "N3"},
+        {"word": "前進", "hiragana": "ぜんしん", "meaning": "Tiền tiến", "jlpt": "N2"},
+        {"word": "進学", "hiragana": "しんがく", "meaning": "Học lên", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "産",
+      "han_viet": "Sản",
+      "onyomi": ["サン"],
+      "kunyomi": ["うむ", "うまれる", "うぶ"],
+      "meaning_vi": "Sản xuất, sinh sản, tài sản",
+      "formation": "Hội ý: 立(đứng) + 生(sinh) + 厂(vách) → đứng ở chỗ sản sinh → sản xuất",
+      "examples": [
+        {"word": "産む", "hiragana": "うむ", "meaning": "Sinh, đẻ", "jlpt": "N4"},
+        {"word": "生産", "hiragana": "せいさん", "meaning": "Sản xuất", "jlpt": "N3"},
+        {"word": "産業", "hiragana": "さんぎょう", "meaning": "Công nghiệp", "jlpt": "N3"},
+        {"word": "不動産", "hiragana": "ふどうさん", "meaning": "Bất động sản", "jlpt": "N2"},
+        {"word": "お土産", "hiragana": "おみやげ", "meaning": "Quà lưu niệm", "jlpt": "N4"}
+      ]
+    },
+    {
+      "character": "引",
+      "han_viet": "Dẫn",
+      "onyomi": ["イン"],
+      "kunyomi": ["ひく", "ひける"],
+      "meaning_vi": "Kéo, dẫn, trích",
+      "formation": "Hội ý: 弓(cung) + 丨(mũi tên) → kéo dây cung → kéo, dẫn",
+      "examples": [
+        {"word": "引く", "hiragana": "ひく", "meaning": "Kéo", "jlpt": "N4"},
+        {"word": "引き出す", "hiragana": "ひきだす", "meaning": "Rút ra", "jlpt": "N3"},
+        {"word": "引退", "hiragana": "いんたい", "meaning": "Giải nghệ, nghỉ hưu", "jlpt": "N3"},
+        {"word": "引用", "hiragana": "いんよう", "meaning": "Trích dẫn", "jlpt": "N2"},
+        {"word": "引越し", "hiragana": "ひっこし", "meaning": "Chuyển nhà", "jlpt": "N4"}
+      ]
+    },
+    {
+      "character": "所",
+      "han_viet": "Sở",
+      "onyomi": ["ショ", "ソ"],
+      "kunyomi": ["ところ"],
+      "meaning_vi": "Nơi, chỗ, trụ sở",
+      "formation": "Hình thanh: 戸(ý: cửa) + 斤(âm: キン/ショ, rìu) → nơi dùng rìu làm cửa → nơi, chỗ",
+      "examples": [
+        {"word": "所", "hiragana": "ところ", "meaning": "Nơi, chỗ", "jlpt": "N4"},
+        {"word": "事務所", "hiragana": "じむしょ", "meaning": "Văn phòng", "jlpt": "N3"},
+        {"word": "住所", "hiragana": "じゅうしょ", "meaning": "Địa chỉ", "jlpt": "N4"},
+        {"word": "場所", "hiragana": "ばしょ", "meaning": "Nơi chốn", "jlpt": "N4"},
+        {"word": "研究所", "hiragana": "けんきゅうじょ", "meaning": "Viện nghiên cứu", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "説",
+      "han_viet": "Thuyết",
+      "onyomi": ["セツ"],
+      "kunyomi": ["とく"],
+      "meaning_vi": "Nói, giải thích, thuyết",
+      "formation": "Hình thanh: 言(ý: lời) + 兌(âm: エツ/セツ, vui) → dùng lời giải thích cho vui → giải thích, thuyết",
+      "examples": [
+        {"word": "説明", "hiragana": "せつめい", "meaning": "Giải thích", "jlpt": "N4"},
+        {"word": "小説", "hiragana": "しょうせつ", "meaning": "Tiểu thuyết", "jlpt": "N3"},
+        {"word": "説く", "hiragana": "とく", "meaning": "Giải thích, thuyết phục", "jlpt": "N2"},
+        {"word": "学説", "hiragana": "がくせつ", "meaning": "Học thuyết", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "乗",
+      "han_viet": "Thừa",
+      "onyomi": ["ジョウ"],
+      "kunyomi": ["のる", "のせる"],
+      "meaning_vi": "Lên xe, đi, cưỡi",
+      "formation": "Hội ý: 禾(lúa) + 北(hai người) trên 木(cây) → người ngồi lên cây → cưỡi, lên xe",
+      "examples": [
+        {"word": "乗る", "hiragana": "のる", "meaning": "Lên xe, cưỡi", "jlpt": "N5"},
+        {"word": "乗せる", "hiragana": "のせる", "meaning": "Cho lên xe", "jlpt": "N4"},
+        {"word": "乗客", "hiragana": "じょうきゃく", "meaning": "Hành khách", "jlpt": "N3"},
+        {"word": "乗り換え", "hiragana": "のりかえ", "meaning": "Chuyển tàu/xe", "jlpt": "N4"},
+        {"word": "搭乗", "hiragana": "とうじょう", "meaning": "Lên tàu/máy bay", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "声",
+      "han_viet": "Thanh",
+      "onyomi": ["セイ"],
+      "kunyomi": ["こえ"],
+      "meaning_vi": "Tiếng, giọng, âm thanh",
+      "formation": "Hội ý: 士(kẻ sĩ) + 殳(đánh) → tiếng kêu khi đánh → tiếng, âm thanh",
+      "examples": [
+        {"word": "声", "hiragana": "こえ", "meaning": "Tiếng, giọng", "jlpt": "N4"},
+        {"word": "声優", "hiragana": "せいゆう", "meaning": "Diễn viên lồng tiếng", "jlpt": "N3"},
+        {"word": "大声", "hiragana": "おおごえ", "meaning": "Tiếng to", "jlpt": "N4"},
+        {"word": "音声", "hiragana": "おんせい", "meaning": "Âm thanh", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "働",
+      "han_viet": "Động",
+      "onyomi": ["ドウ"],
+      "kunyomi": ["はたらく"],
+      "meaning_vi": "Làm việc, lao động",
+      "formation": "Hội ý: 亻(người) + 動(động) → người hoạt động → làm việc (chữ Nhật tạo)",
+      "examples": [
+        {"word": "働く", "hiragana": "はたらく", "meaning": "Làm việc", "jlpt": "N5"},
+        {"word": "労働", "hiragana": "ろうどう", "meaning": "Lao động", "jlpt": "N3"},
+        {"word": "共働き", "hiragana": "ともばたらき", "meaning": "Vợ chồng cùng đi làm", "jlpt": "N3"},
+        {"word": "働き方", "hiragana": "はたらきかた", "meaning": "Cách làm việc", "jlpt": "N3"}
+      ]
+    },
+    {
+      "character": "好",
+      "han_viet": "Hảo",
+      "onyomi": ["コウ"],
+      "kunyomi": ["すく", "このむ"],
+      "meaning_vi": "Thích, yêu thích, tốt đẹp",
+      "formation": "Hội ý: 女(phụ nữ) + 子(con) → mẹ yêu con → thích, tốt đẹp",
+      "examples": [
+        {"word": "好き", "hiragana": "すき", "meaning": "Thích", "jlpt": "N5"},
+        {"word": "好む", "hiragana": "このむ", "meaning": "Ưa thích", "jlpt": "N3"},
+        {"word": "好み", "hiragana": "このみ", "meaning": "Sở thích", "jlpt": "N3"},
+        {"word": "好調", "hiragana": "こうちょう", "meaning": "Thuận lợi, tốt đẹp", "jlpt": "N2"},
+        {"word": "好奇心", "hiragana": "こうきしん", "meaning": "Tính tò mò", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "頭",
+      "han_viet": "Đầu",
+      "onyomi": ["トウ", "ズ"],
+      "kunyomi": ["あたま", "かしら"],
+      "meaning_vi": "Đầu, đầu não",
+      "formation": "Hình thanh: 豆(âm: トウ/ズ, đậu) + 頁(ý: đầu) → phần đầu → đầu",
+      "examples": [
+        {"word": "頭", "hiragana": "あたま", "meaning": "Đầu", "jlpt": "N5"},
+        {"word": "頭痛", "hiragana": "ずつう", "meaning": "Đau đầu", "jlpt": "N4"},
+        {"word": "先頭", "hiragana": "せんとう", "meaning": "Đầu tiên, dẫn đầu", "jlpt": "N3"},
+        {"word": "冒頭", "hiragana": "ぼうとう", "meaning": "Phần mở đầu", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "光",
+      "han_viet": "Quang",
+      "onyomi": ["コウ"],
+      "kunyomi": ["ひかり", "ひかる"],
+      "meaning_vi": "Ánh sáng, quang, tỏa sáng",
+      "formation": "Hội ý: 火(lửa) + 儿(người) → lửa trên đầu người → ánh sáng",
+      "examples": [
+        {"word": "光", "hiragana": "ひかり", "meaning": "Ánh sáng", "jlpt": "N4"},
+        {"word": "光る", "hiragana": "ひかる", "meaning": "Tỏa sáng", "jlpt": "N4"},
+        {"word": "日光", "hiragana": "にっこう", "meaning": "Ánh nắng", "jlpt": "N3"},
+        {"word": "光景", "hiragana": "こうけい", "meaning": "Quang cảnh", "jlpt": "N2"},
+        {"word": "観光", "hiragana": "かんこう", "meaning": "Du lịch", "jlpt": "N4"}
+      ]
+    },
+    {
+      "character": "太",
+      "han_viet": "Thái",
+      "onyomi": ["タイ", "タ"],
+      "kunyomi": ["ふとい", "ふとる"],
+      "meaning_vi": "To, mập, thái",
+      "formation": "Chỉ sự: 大(lớn) + 、(thêm nét) → lớn hơn, rất lớn → to, thái",
+      "examples": [
+        {"word": "太い", "hiragana": "ふとい", "meaning": "To, mập", "jlpt": "N4"},
+        {"word": "太る", "hiragana": "ふとる", "meaning": "Béo lên", "jlpt": "N4"},
+        {"word": "太陽", "hiragana": "たいよう", "meaning": "Mặt trời", "jlpt": "N3"},
+        {"word": "太平洋", "hiragana": "たいへいよう", "meaning": "Thái Bình Dương", "jlpt": "N3"},
+        {"word": "丸太", "hiragana": "まるた", "meaning": "Khúc gỗ tròn", "jlpt": "N2"}
+      ]
+    },
+    {
+      "character": "顔",
+      "han_viet": "Nhan",
+      "onyomi": ["ガン"],
+      "kunyomi": ["かお"],
+      "meaning_vi": "Mặt, khuôn mặt, nhan sắc",
+      "formation": "Hình thanh: 彦(âm: ゲン/ガン, tài giỏi) + 頁(ý: đầu) → phần đầu đẹp → khuôn mặt",
+      "examples": [
+        {"word": "顔", "hiragana": "かお", "meaning": "Khuôn mặt", "jlpt": "N4"},
+        {"word": "顔色", "hiragana": "かおいろ", "meaning": "Sắc mặt", "jlpt": "N3"},
+        {"word": "笑顔", "hiragana": "えがお", "meaning": "Nụ cười", "jlpt": "N3"},
+        {"word": "顔つき", "hiragana": "かおつき", "meaning": "Nét mặt", "jlpt": "N2"},
+        {"word": "洗顔", "hiragana": "せんがん", "meaning": "Rửa mặt", "jlpt": "N2"}
+      ]
+    }
+  ]
+}

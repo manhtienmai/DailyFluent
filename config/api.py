@@ -257,8 +257,14 @@ api.add_router("/exam/", exam_router, tags=["Exam"])
 api.add_router("/placement/", placement_router, tags=["Placement"])
 api.add_router("/vocab/", vocab_router, tags=["Vocab"])
 
+from common.api import router as common_router
+api.add_router("/", common_router, tags=["Common"])
+
 from ebook.api import router as ebook_router
 api.add_router("/ebooks/", ebook_router, tags=["Ebooks"])
+
+from notifications.api import router as notifications_router
+api.add_router("/notifications/", notifications_router, tags=["Notifications"])
 
 # ── Admin API (for Next.js admin dashboard) ────────────────
 from config.admin_api import router as admin_router
@@ -266,3 +272,6 @@ api.add_router("/admin/", admin_router, tags=["Admin"])
 
 from config.admin_crud import router as admin_crud_router
 api.add_router("/admin/crud/", admin_crud_router, tags=["Admin CRUD"])
+
+from notifications.teacher_api import router as teacher_dashboard_router
+api.add_router("/admin/teacher-dashboard/", teacher_dashboard_router, tags=["Teacher Dashboard"])

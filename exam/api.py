@@ -597,6 +597,108 @@ def bunpou_detail(request, slug: str):
     return QuizService.get_detail(slug)
 
 
+# ── EN10 Grammar Topics & Phrasal Verbs endpoints ─────────
+# NOTE: Must appear BEFORE the catch-all /{slug} route
+
+@router.get("/english/grammar-topics", auth=None)
+def en10_grammar_topics_list(request):
+    """List all EN10 grammar topics (for the topics grid page)."""
+    from exam.models import EN10GrammarTopic
+
+    topics = EN10GrammarTopic.objects.filter(is_active=True).order_by("order")
+    return [
+        {
+            "topic_id": t.topic_id,
+            "title": t.title,
+            "title_vi": t.title_vi,
+            "emoji": t.emoji,
+            "description": t.description,
+            "difficulty": t.difficulty,
+            "question_count": t.question_count,
+            "order": t.order,
+        }
+        for t in topics
+    ]
+
+
+@router.get("/english/grammar-topics/{topic_id}", auth=None)
+def en10_grammar_topic_detail(request, topic_id: str):
+    """Get full grammar topic with theory sections, formulas, and exercises."""
+    from exam.models import EN10GrammarTopic
+
+    try:
+        t = EN10GrammarTopic.objects.get(topic_id=topic_id, is_active=True)
+    except EN10GrammarTopic.DoesNotExist:
+        raise HttpError(404, "Grammar topic not found")
+
+    return {
+        "topic_id": t.topic_id,
+        "title": t.title,
+        "title_vi": t.title_vi,
+        "emoji": t.emoji,
+        "description": t.description,
+        "difficulty": t.difficulty,
+        "question_count": t.question_count,
+        "sections": t.sections,
+        "formulas": t.formulas,
+        "exercises": t.exercises,
+    }
+
+
+@router.get("/english/phrasal-verbs-data", auth=None)
+def en10_phrasal_verbs_data(request):
+    """Get all phrasal verbs data (verbs, fill sentences, quiz questions)."""
+    from exam.models import EN10PhrasalVerbSet
+
+    pv = EN10PhrasalVerbSet.objects.filter(is_active=True).first()
+    if not pv:
+        return {"verbs": [], "fill_sentences": [], "quiz_questions": []}
+
+    return {
+        "verbs": pv.verbs,
+        "fill_sentences": pv.fill_sentences,
+        "quiz_questions": pv.quiz_questions,
+    }
+
+
+@router.get("/english/vocab-topics", auth=None)
+def en10_vocab_topics_list(request):
+    """List all EN10 vocabulary topics (for the topics grid page)."""
+    from exam.models import EN10VocabTopic
+
+    topics = EN10VocabTopic.objects.filter(is_active=True).order_by("order")
+    return [
+        {
+            "slug": t.slug,
+            "title": t.title,
+            "title_vi": t.title_vi,
+            "emoji": t.emoji,
+            "word_count": t.word_count,
+        }
+        for t in topics
+    ]
+
+
+@router.get("/english/vocab-topics/{slug}", auth=None)
+def en10_vocab_topic_detail(request, slug: str):
+    """Get vocabulary topic with full word list."""
+    from exam.models import EN10VocabTopic
+
+    try:
+        t = EN10VocabTopic.objects.get(slug=slug, is_active=True)
+    except EN10VocabTopic.DoesNotExist:
+        raise HttpError(404, "Vocabulary topic not found")
+
+    return {
+        "slug": t.slug,
+        "title": t.title,
+        "title_vi": t.title_vi,
+        "emoji": t.emoji,
+        "word_count": t.word_count,
+        "words": t.words,
+    }
+
+
 # ── English 10th Grade Exam endpoints ─────────────────────
 # NOTE: Must appear BEFORE the catch-all /{slug} route
 
