@@ -100,9 +100,9 @@ function formatMinutes(mins: number): string {
 }
 
 function scoreColor(pct: number): string {
-  if (pct >= 80) return "#52c41a";
-  if (pct >= 60) return "#faad14";
-  return "#ff4d4f";
+  if (pct >= 80) return "#22c55e";
+  if (pct >= 60) return "#f59e0b";
+  return "#ef4444";
 }
 
 function statusTag(status: string) {
@@ -115,27 +115,86 @@ function statusTag(status: string) {
   return <Tag color={s.color}>{s.label}</Tag>;
 }
 
-// ── Bar chart (pure CSS) ──────────────────────
+// ── Stat Card ─────────────────────────────────
 
-function MiniBarChart({ data }: { data: { date: string; minutes_studied: number }[] }) {
+function StatCard({
+  icon,
+  color,
+  bg,
+  title,
+  value,
+  suffix,
+}: {
+  icon: React.ReactNode;
+  color: string;
+  bg: string;
+  title: string;
+  value: string | number;
+  suffix?: string;
+}) {
+  return (
+    <div style={{
+      background: "#fff",
+      borderRadius: 16,
+      padding: "20px 18px",
+      border: "1px solid #f0f0f0",
+      transition: "all 0.3s",
+      cursor: "default",
+    }}
+    className="admin-stat-card"
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: bg,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 20, color,
+          flexShrink: 0,
+        }}>
+          {icon}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, marginBottom: 2 }}>{title}</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#1e293b", lineHeight: 1.2 }}>
+            {value}
+            {suffix && <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginLeft: 4 }}>{suffix}</span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Bar chart (premium CSS) ──────────────────
+
+function StudyChart({ data }: { data: { date: string; minutes_studied: number }[] }) {
   if (!data.length) return <Empty description="Chưa có dữ liệu" />;
 
   const maxVal = Math.max(...data.map((d) => d.minutes_studied), 1);
   const last30 = data.slice(-30);
 
   return (
-    <div style={{ padding: "8px 0" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: 2,
-          height: 120,
-          padding: "0 4px",
-        }}
-      >
+    <div style={{ padding: "12px 0" }}>
+      <div style={{
+        display: "flex",
+        alignItems: "flex-end",
+        gap: 3,
+        height: 140,
+        padding: "0 4px",
+        position: "relative",
+      }}>
+        {/* Grid lines */}
+        {[0.25, 0.5, 0.75, 1].map(pct => (
+          <div key={pct} style={{
+            position: "absolute", left: 0, right: 0,
+            bottom: `${pct * 100}%`,
+            borderBottom: "1px dashed rgba(0,0,0,0.06)",
+            pointerEvents: "none",
+          }} />
+        ))}
         {last30.map((d, i) => {
-          const h = Math.max((d.minutes_studied / maxVal) * 100, 2);
+          const h = Math.max((d.minutes_studied / maxVal) * 100, 3);
+          const isActive = d.minutes_studied > 0;
           return (
             <Tooltip
               key={i}
@@ -145,24 +204,36 @@ function MiniBarChart({ data }: { data: { date: string; minutes_studied: number 
                 style={{
                   flex: 1,
                   height: `${h}%`,
-                  background: d.minutes_studied > 0
-                    ? "linear-gradient(180deg, #6366f1 0%, #818cf8 100%)"
-                    : "#f0f0f0",
-                  borderRadius: "3px 3px 0 0",
-                  minWidth: 6,
-                  transition: "height 0.3s ease",
+                  background: isActive
+                    ? "linear-gradient(180deg, #6366f1 0%, #a5b4fc 100%)"
+                    : "rgba(0,0,0,0.04)",
+                  borderRadius: "4px 4px 0 0",
+                  minWidth: 8,
+                  transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
                   cursor: "pointer",
+                  position: "relative",
+                }}
+                onMouseEnter={(e) => {
+                  if (isActive) (e.currentTarget.style.transform = "scaleY(1.08)");
+                  (e.currentTarget.style.opacity = "0.85");
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget.style.transform = "scaleY(1)");
+                  (e.currentTarget.style.opacity = "1");
                 }}
               />
             </Tooltip>
           );
         })}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-        <Text type="secondary" style={{ fontSize: 11 }}>
+      <div style={{
+        display: "flex", justifyContent: "space-between",
+        marginTop: 8, padding: "0 4px",
+      }}>
+        <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>
           {last30.length > 0 && new Date(last30[0].date).toLocaleDateString("vi-VN")}
         </Text>
-        <Text type="secondary" style={{ fontSize: 11 }}>
+        <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>
           {last30.length > 0 && new Date(last30[last30.length - 1].date).toLocaleDateString("vi-VN")}
         </Text>
       </div>
@@ -209,6 +280,7 @@ export default function UserDetailPage() {
   }
 
   const { user, overview } = data;
+  const totalStudyMinutes = data.daily_activity.reduce((s, d) => s + d.minutes_studied, 0);
 
   // ── Exam columns ────────────────────────────
   const examCols: ColumnsType<LearningHistory["exam_attempts"][0]> = [
@@ -237,7 +309,7 @@ export default function UserDetailPage() {
       key: "result",
       width: 140,
       render: (_, r) => (
-        <Space orientation="vertical" size={0}>
+        <Space direction="vertical" size={0}>
           <Text strong style={{ color: scoreColor(r.score_percent) }}>
             {r.correct_count}/{r.total_questions} ({r.score_percent}%)
           </Text>
@@ -286,10 +358,10 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.total_words > 0 ? Math.round((r.words_mastered / r.total_words) * 100) : 0;
         return (
-          <Space orientation="vertical" size={0} style={{ width: "100%" }}>
+          <Space direction="vertical" size={0} style={{ width: "100%" }}>
             <Text style={{ fontSize: 12 }}>
               {r.words_mastered}/{r.total_words} từ
-              {pct === 100 && <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 6 }} />}
+              {pct === 100 && <CheckCircleFilled style={{ color: "#22c55e", marginLeft: 6 }} />}
             </Text>
             <Progress percent={pct} size="small" showInfo={false} strokeColor="#6366f1" />
           </Space>
@@ -325,7 +397,7 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.words_total > 0 ? Math.round((r.words_learned / r.words_total) * 100) : 0;
         return (
-          <Space orientation="vertical" size={0}>
+          <Space direction="vertical" size={0}>
             <Text style={{ fontSize: 12 }}>{r.words_learned}/{r.words_total}</Text>
             <Progress percent={pct} size="small" showInfo={false} strokeColor="#10b981" />
           </Space>
@@ -347,78 +419,84 @@ export default function UserDetailPage() {
 
   return (
     <div>
-      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        {/* ── Header ── */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 16,
+          padding: "16px 20px", borderRadius: 16,
+          background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+          border: "1px solid #e2e8f0",
+        }}>
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => router.push("/admin/users")}
+            style={{ borderRadius: 10 }}
           />
           <div>
             <Title level={3} style={{ margin: 0 }}>
               📊 {user.username}
             </Title>
             <Space>
-              <Text type="secondary">{user.email}</Text>
+              <Text type="secondary" style={{ fontSize: 13 }}>{user.email}</Text>
               <Text type="secondary">·</Text>
-              <Text type="secondary">
+              <Text type="secondary" style={{ fontSize: 13 }}>
                 Tham gia {new Date(user.date_joined).toLocaleDateString("vi-VN")}
               </Text>
             </Space>
           </div>
         </div>
 
-        {/* Overview Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-          <Card size="small">
-            <Statistic
-              title="Tổng thời gian học"
-              value={formatMinutes(overview.total_minutes)}
-              prefix={<ClockCircleOutlined style={{ color: "#6366f1" }} />}
-            />
-          </Card>
-          <Card size="small">
-            <Statistic
-              title="Số ngày hoạt động"
-              value={overview.total_days_active}
-              suffix="ngày"
-              prefix={<CalendarOutlined style={{ color: "#10b981" }} />}
-            />
-          </Card>
-          <Card size="small">
-            <Statistic
-              title="Streak hiện tại"
-              value={overview.current_streak}
-              suffix={`ngày (kỷ lục: ${overview.longest_streak})`}
-              prefix={<FireOutlined style={{ color: "#f59e0b" }} />}
-            />
-          </Card>
-          <Card size="small">
-            <Statistic
-              title="Từ vựng đã thuộc"
-              value={overview.total_words_mastered}
-              suffix="từ"
-              prefix={<BookOutlined style={{ color: "#8b5cf6" }} />}
-            />
-          </Card>
-          <Card size="small">
-            <Statistic
-              title="Bài thi đã làm"
-              value={overview.total_exams_taken}
-              suffix="bài"
-              prefix={<TrophyOutlined style={{ color: "#ef4444" }} />}
-            />
-          </Card>
+        {/* ── Overview Stats ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          <StatCard
+            icon={<ClockCircleOutlined />}
+            color="#6366f1" bg="rgba(99,102,241,0.1)"
+            title="Tổng thời gian học"
+            value={formatMinutes(overview.total_minutes || totalStudyMinutes)}
+          />
+          <StatCard
+            icon={<CalendarOutlined />}
+            color="#10b981" bg="rgba(16,185,129,0.1)"
+            title="Số ngày hoạt động"
+            value={overview.total_days_active} suffix="ngày"
+          />
+          <StatCard
+            icon={<FireOutlined />}
+            color="#f59e0b" bg="rgba(245,158,11,0.1)"
+            title="Streak hiện tại"
+            value={overview.current_streak}
+            suffix={`ngày (kỷ lục: ${overview.longest_streak})`}
+          />
+          <StatCard
+            icon={<BookOutlined />}
+            color="#8b5cf6" bg="rgba(139,92,246,0.1)"
+            title="Từ vựng đã thuộc"
+            value={overview.total_words_mastered} suffix="từ"
+          />
+          <StatCard
+            icon={<TrophyOutlined />}
+            color="#ef4444" bg="rgba(239,68,68,0.1)"
+            title="Bài thi đã làm"
+            value={overview.total_exams_taken} suffix="bài"
+          />
         </div>
 
-        {/* Study Time Chart */}
-        <Card title="⏱️ Thời gian học (30 ngày gần nhất)" size="small">
-          <MiniBarChart data={data.daily_activity} />
+        {/* ── Study Time Chart ── */}
+        <Card
+          title={<span style={{ fontWeight: 800 }}>⏱️ Thời gian học (30 ngày gần nhất)</span>}
+          size="small"
+          style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
+        >
+          <StudyChart data={data.daily_activity} />
         </Card>
 
-        {/* EN10 Vocab Topics */}
+        {/* ── EN10 Vocab Topics ── */}
         {data.en10_vocab_topics.length > 0 && (
-          <Card title="📚 Từ vựng Tiếng Anh 10" size="small">
+          <Card
+            title={<span style={{ fontWeight: 800 }}>📚 Từ vựng Tiếng Anh 10</span>}
+            size="small"
+            style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
+          >
             <Table
               columns={vocabTopicCols}
               dataSource={data.en10_vocab_topics}
@@ -429,9 +507,13 @@ export default function UserDetailPage() {
           </Card>
         )}
 
-        {/* EN10 Grammar Topics */}
+        {/* ── EN10 Grammar Topics ── */}
         {data.en10_grammar_topics.length > 0 && (
-          <Card title="📝 Ngữ pháp Tiếng Anh 10" size="small">
+          <Card
+            title={<span style={{ fontWeight: 800 }}>📝 Ngữ pháp Tiếng Anh 10</span>}
+            size="small"
+            style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
+          >
             <Table
               columns={[
                 {
@@ -462,8 +544,12 @@ export default function UserDetailPage() {
           </Card>
         )}
 
-        {/* Exam History */}
-        <Card title="📋 Lịch sử làm bài thi" size="small">
+        {/* ── Exam History ── */}
+        <Card
+          title={<span style={{ fontWeight: 800 }}>📋 Lịch sử làm bài thi</span>}
+          size="small"
+          style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
+        >
           {data.exam_attempts.length > 0 ? (
             <Table
               columns={examCols}
@@ -477,9 +563,13 @@ export default function UserDetailPage() {
           )}
         </Card>
 
-        {/* Vocab Set Progress */}
+        {/* ── Vocab Set Progress ── */}
         {data.vocab_set_progress.length > 0 && (
-          <Card title="📦 Tiến độ bộ từ vựng" size="small">
+          <Card
+            title={<span style={{ fontWeight: 800 }}>📦 Tiến độ bộ từ vựng</span>}
+            size="small"
+            style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
+          >
             <Table
               columns={vocabSetCols}
               dataSource={data.vocab_set_progress}
@@ -490,6 +580,14 @@ export default function UserDetailPage() {
           </Card>
         )}
       </Space>
+
+      <style jsx global>{`
+        .admin-stat-card:hover {
+          border-color: #e2e8f0 !important;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+          transform: translateY(-2px);
+        }
+      `}</style>
     </div>
   );
 }

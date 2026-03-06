@@ -305,15 +305,40 @@ def definition_delete(request, vocab_id: int, entry_id: int, def_id: int):
 
 # ── Vocab Sets ──
 
+@router.get("/vocab/collections/")
+def vocab_collections_list(request):
+    """Get list of distinct collection names for filter dropdown."""
+    if not staff_required(request):
+        return []
+    from vocab.models import VocabularySet
+    names = (
+        VocabularySet.objects
+        .exclude(collection__isnull=True)
+        .select_related('collection')
+        .values_list('collection__name', flat=True)
+        .distinct()
+        .order_by('collection__name')
+    )
+    return [n for n in names if n]
+
+
 @router.get("/vocab/sets/", response=list[VocabSetOut])
 @paginate(PageNumberPagination, page_size=50)
-def vocab_set_list(request, search: str = ""):
+def vocab_set_list(request, search: str = "", collection: str = "", status: str = "", is_public: str = ""):
     if not staff_required(request):
         return []
     from vocab.models import VocabularySet
     qs = VocabularySet.objects.select_related('collection').annotate(word_count=Count('items'))
     if search:
         qs = qs.filter(Q(title__icontains=search) | Q(collection__title__icontains=search))
+    if collection:
+        qs = qs.filter(collection__name=collection)
+    if status:
+        qs = qs.filter(status=status)
+    if is_public == "true":
+        qs = qs.filter(is_public=True)
+    elif is_public == "false":
+        qs = qs.filter(is_public=False)
     return [
         {
             'id': vs.id, 'title': vs.title,

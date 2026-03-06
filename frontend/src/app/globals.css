@@ -213,7 +213,7 @@
   --sidebar-item-active: rgba(99, 102, 241, 0.1);
   --sidebar-text: var(--text-secondary);
   --sidebar-text-active: var(--_indigo-700);
-  --topbar-bg: rgba(255, 255, 255, 0.7);
+  --topbar-bg: rgba(255, 255, 255, 1);
   --topbar-border: rgba(226, 232, 240, 0.5);
 }
 
@@ -276,7 +276,7 @@
   --sidebar-item-active: rgba(99, 102, 241, 0.18);
   --sidebar-text: #94A3B8;
   --sidebar-text-active: #A5B4FC;
-  --topbar-bg: rgba(17, 24, 39, 0.6);
+  --topbar-bg: rgba(17, 24, 39, 1);
   --topbar-border: rgba(99, 102, 241, 0.08);
 }
 

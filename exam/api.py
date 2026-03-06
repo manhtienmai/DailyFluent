@@ -724,6 +724,35 @@ def en10_vocab_topic_detail(request, slug: str):
     }
 
 
+@router.delete("/english/vocab-topics/{slug}/words/{word}")
+def en10_vocab_topic_remove_word(request, slug: str, word: str):
+    """Remove a word from a vocab topic (staff only). Removes M2M link + JSON entry."""
+    from exam.models import EN10VocabTopic
+    from vocab.models import Vocabulary
+
+    if not request.user.is_staff:
+        raise HttpError(403, "Forbidden")
+
+    try:
+        t = EN10VocabTopic.objects.get(slug=slug)
+    except EN10VocabTopic.DoesNotExist:
+        raise HttpError(404, "Topic not found")
+
+    # Remove M2M link
+    vocab = Vocabulary.objects.filter(word=word).first()
+    if vocab:
+        t.vocabularies.remove(vocab)
+
+    # Also remove from JSON words field
+    if t.words:
+        original_count = len(t.words)
+        t.words = [w for w in t.words if w.get("word", "").lower() != word.lower()]
+        if len(t.words) != original_count:
+            t.save(update_fields=["words", "updated_at"])
+
+    return {"ok": True, "word": word, "slug": slug}
+
+
 # ── English 10th Grade Exam endpoints ─────────────────────
 # NOTE: Must appear BEFORE the catch-all /{slug} route
 

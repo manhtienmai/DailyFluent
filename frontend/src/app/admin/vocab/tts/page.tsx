@@ -60,6 +60,7 @@ export default function TtsPage() {
   const [progress, setProgress] = useState<BatchProgress | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
+  const [batchRunning, setBatchRunning] = useState(false);
 
   // Voice & speed settings
   const [voices, setVoices] = useState<Record<string, VoiceOption[]>>({});
@@ -114,12 +115,22 @@ export default function TtsPage() {
 
   // Poll progress while batch is running
   useEffect(() => {
-    if (!progress?.running) return;
+    if (!batchRunning) return;
     const interval = setInterval(() => {
-      fetchProgress();
-    }, 2000);
+      adminGet<BatchProgress>("/crud/tts/progress/")
+        .then((p) => {
+          setProgress(p);
+          // Batch finished: stop polling, refresh data
+          if (!p.running) {
+            setBatchRunning(false);
+            fetchStats();
+            fetchMissing();
+          }
+        })
+        .catch(() => {});
+    }, 1500);
     return () => clearInterval(interval);
-  }, [progress?.running, fetchProgress]);
+  }, [batchRunning, fetchStats, fetchMissing]);
 
   const startBatch = async () => {
     try {
@@ -129,6 +140,7 @@ export default function TtsPage() {
       );
       if (resp.success) {
         message.success(resp.message);
+        setBatchRunning(true); // Start polling immediately
         fetchProgress();
       } else {
         message.warning(resp.message);
@@ -442,10 +454,10 @@ export default function TtsPage() {
             type="primary"
             icon={<ThunderboltOutlined />}
             onClick={startBatch}
-            loading={progress?.running}
-            disabled={progress?.running}
+            loading={batchRunning || progress?.running}
+            disabled={batchRunning || progress?.running}
           >
-            {progress?.running ? "Đang chạy..." : "Bắt đầu"}
+            {(batchRunning || progress?.running) ? "Đang chạy..." : "Bắt đầu"}
           </Button>
           <Button
             icon={<ReloadOutlined />}

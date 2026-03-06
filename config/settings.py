@@ -180,6 +180,11 @@ if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is missing. Check /home/mtmanh/apps/DailyFluent/shared/.env")
 DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 
+# ── Azure PostgreSQL (target for migration) ──────────────────
+AZURE_DATABASE_URL = os.getenv("AZURE_DATABASE_URL", "").strip()
+if AZURE_DATABASE_URL:
+    DATABASES["azure"] = dj_database_url.parse(AZURE_DATABASE_URL, conn_max_age=600)
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

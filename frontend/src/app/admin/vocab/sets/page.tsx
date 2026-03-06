@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Table, Button, Tag, Modal, Input, Select, Switch, Typography, Space, Popconfirm } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilterOutlined, ClearOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { adminGet, adminPost, adminPut, adminDelete } from "@/lib/admin-api";
 import Link from "next/link";
@@ -21,14 +21,33 @@ export default function VocabSetsPage() {
   const [showCreate, setShowCreate] = useState(false); const [newTitle, setNewTitle] = useState(""); const [newDesc, setNewDesc] = useState(""); const [creating, setCreating] = useState(false);
   const [editSet, setEditSet] = useState<VocabSet | null>(null); const [editTitle, setEditTitle] = useState(""); const [editDesc, setEditDesc] = useState(""); const [editStatus, setEditStatus] = useState("published"); const [editPublic, setEditPublic] = useState(true); const [saving, setSaving] = useState(false);
 
+  // Filters
+  const [filterCollection, setFilterCollection] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPublic, setFilterPublic] = useState("");
+  const [collections, setCollections] = useState<string[]>([]);
+
+  // Fetch distinct collections for dropdown
+  useEffect(() => {
+    adminGet<string[]>("/crud/vocab/collections/")
+      .then(setCollections)
+      .catch(() => setCollections([]));
+  }, []);
+
+  const hasActiveFilters = !!(filterCollection || filterStatus || filterPublic);
+
   const fetchData = useCallback(() => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (search) params.set("search", search); params.set("page", String(page));
+    if (search) params.set("search", search);
+    params.set("page", String(page));
+    if (filterCollection) params.set("collection", filterCollection);
+    if (filterStatus) params.set("status", filterStatus);
+    if (filterPublic) params.set("is_public", filterPublic);
     adminGet<{ items: VocabSet[]; count: number }>(`/crud/vocab/sets/?${params}`)
       .then((d) => { setItems(d.items || []); setTotalCount(d.count || 0); })
       .catch(() => setItems([])).finally(() => setLoading(false));
-  }, [search, page]);
+  }, [search, page, filterCollection, filterStatus, filterPublic]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleCreate = async () => {
@@ -44,6 +63,8 @@ export default function VocabSetsPage() {
     setSaving(false);
   };
   const handleDelete = async (id: number, title: string) => { if (!confirm(`Xoá bộ từ "${title}"?`)) return; await adminDelete(`/crud/vocab/sets/${id}/`); fetchData(); };
+
+  const clearFilters = () => { setFilterCollection(""); setFilterStatus(""); setFilterPublic(""); setPage(1); };
 
   const columns: ColumnsType<VocabSet> = [
     { title: "ID", dataIndex: "id", width: 50, render: (id) => <Text type="secondary" style={{ fontSize: 12 }}>{id}</Text> },
@@ -69,7 +90,7 @@ export default function VocabSetsPage() {
 
   return (
     <div>
-      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div><Title level={3} style={{ margin: 0 }}>📂 Bộ từ vựng</Title><Text type="secondary">Quản lý {totalCount} bộ từ vựng</Text></div>
           <Space>
@@ -77,20 +98,77 @@ export default function VocabSetsPage() {
             <Link href="/admin/vocab/import-jp"><Button>🇯🇵 Import JP</Button></Link>
           </Space>
         </div>
-        <Input.Search placeholder="Tìm bộ từ vựng..." allowClear onSearch={(v) => { setSearch(v); setPage(1); }} prefix={<SearchOutlined />} style={{ maxWidth: 400 }} />
+
+        {/* Search + Filters row */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <Input.Search
+            placeholder="Tìm bộ từ vựng..."
+            allowClear
+            onSearch={(v) => { setSearch(v); setPage(1); }}
+            prefix={<SearchOutlined />}
+            style={{ width: 260 }}
+          />
+          <Select
+            value={filterCollection || undefined}
+            onChange={(v) => { setFilterCollection(v || ""); setPage(1); }}
+            placeholder="📁 Collection"
+            allowClear
+            style={{ width: 200 }}
+            options={collections.map(c => ({ value: c, label: c }))}
+          />
+          <Select
+            value={filterStatus || undefined}
+            onChange={(v) => { setFilterStatus(v || ""); setPage(1); }}
+            placeholder="📊 Trạng thái"
+            allowClear
+            style={{ width: 140 }}
+            options={[
+              { value: "published", label: "✅ Published" },
+              { value: "draft", label: "📝 Draft" },
+              { value: "archived", label: "📦 Archived" },
+            ]}
+          />
+          <Select
+            value={filterPublic || undefined}
+            onChange={(v) => { setFilterPublic(v || ""); setPage(1); }}
+            placeholder="🔒 Hiển thị"
+            allowClear
+            style={{ width: 140 }}
+            options={[
+              { value: "true", label: "🌐 Công khai" },
+              { value: "false", label: "🔒 Riêng tư" },
+            ]}
+          />
+          {hasActiveFilters && (
+            <Button size="small" icon={<ClearOutlined />} onClick={clearFilters} type="text" style={{ color: "var(--text-tertiary)" }}>
+              Xóa lọc
+            </Button>
+          )}
+        </div>
+
+        {/* Active filter tags */}
+        {hasActiveFilters && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <FilterOutlined style={{ color: "var(--text-tertiary)", fontSize: 13, marginTop: 3 }} />
+            {filterCollection && <Tag closable onClose={() => setFilterCollection("")} color="blue">Collection: {filterCollection}</Tag>}
+            {filterStatus && <Tag closable onClose={() => setFilterStatus("")} color="green">Trạng thái: {filterStatus}</Tag>}
+            {filterPublic && <Tag closable onClose={() => setFilterPublic("")} color="orange">{filterPublic === "true" ? "Công khai" : "Riêng tư"}</Tag>}
+          </div>
+        )}
+
         <Table<VocabSet> columns={columns} dataSource={items} rowKey="id" loading={loading} size="middle"
           pagination={{ current: page, total: totalCount, pageSize: 50, onChange: (p) => setPage(p), showSizeChanger: false, showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}` }} />
       </Space>
 
       <Modal title="✨ Tạo bộ từ vựng mới" open={showCreate} onCancel={() => setShowCreate(false)} onOk={handleCreate} okText="Tạo bộ" okButtonProps={{ disabled: creating || !newTitle.trim() }} confirmLoading={creating} width={480}>
-        <Space orientation="vertical" style={{ width: "100%" }} size="small">
+        <Space direction="vertical" style={{ width: "100%" }} size="small">
           <div><Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>Tiêu đề *</Text><Input placeholder="VD: Mimikara N2 — Bài 1" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} autoFocus onPressEnter={handleCreate} /></div>
           <div><Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>Mô tả</Text><TextArea placeholder="Mô tả ngắn (tuỳ chọn)" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} rows={3} /></div>
         </Space>
       </Modal>
 
       <Modal title="✏️ Chỉnh sửa bộ từ vựng" open={!!editSet} onCancel={() => setEditSet(null)} onOk={handleEdit} okText="Lưu thay đổi" okButtonProps={{ disabled: saving || !editTitle.trim() }} confirmLoading={saving} width={480}>
-        <Space orientation="vertical" style={{ width: "100%" }} size="small">
+        <Space direction="vertical" style={{ width: "100%" }} size="small">
           <div><Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>Tiêu đề *</Text><Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} autoFocus onPressEnter={handleEdit} /></div>
           <div><Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>Mô tả</Text><TextArea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={2} /></div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
