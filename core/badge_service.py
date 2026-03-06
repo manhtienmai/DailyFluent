@@ -11,7 +11,7 @@ BADGE_DEFINITIONS = {
     # ===== STREAK BADGES =====
     'first_step': {
         'name': 'Bước Đầu Tiên',
-        'description': 'Hoàn thành Set đầu tiên',
+        'description': 'Hoàn thành Bộ từ vựng đầu tiên',
         'icon': '👣',
         'order': 1,
     },
