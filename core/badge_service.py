@@ -67,7 +67,7 @@ BADGE_DEFINITIONS = {
     },
     'vocab_1000': {
         'name': 'Kho Từ Vựng',
-        'description': 'Học được 1,000 từ vựng',
+        'description': 'Học được 1,000 từ vựngg',
         'icon': '📚',
         'order': 12,
     },
