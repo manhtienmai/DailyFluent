@@ -136,13 +136,7 @@ export default function VocabDetailPage() {
         </button>
       </div>
 
-      {mode === "list" && <WordList words={topic.words} topicSlug={topicId} onWordDeleted={() => {
-        // Reload topic data after delete
-        fetch(`${API_BASE}/api/v1/exam/english/vocab-topics/${topicId}`, { credentials: "include" })
-          .then(r => r.json())
-          .then(data => setTopic(data))
-          .catch(() => {});
-      }} />}
+      {mode === "list" && <WordList words={topic.words} />}
       {mode === "flashcard" && <FlashcardMode words={topic.words} topicSlug={topicId} />}
       {mode === "quiz" && <QuizMode words={topic.words} />}
 
@@ -369,29 +363,8 @@ export default function VocabDetailPage() {
 }
 
 /* ─── Word List ─────────────────────────────────────── */
-function WordList({ words, topicSlug, onWordDeleted }: { words: VocabWord[]; topicSlug: string; onWordDeleted: () => void }) {
+function WordList({ words }: { words: VocabWord[] }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
-
-  const handleDelete = async (word: string) => {
-    if (!confirm(`Xóa từ "${word}" khỏi chủ đề này?`)) return;
-    setDeleting(word);
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/exam/english/vocab-topics/${topicSlug}/words/${encodeURIComponent(word)}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        onWordDeleted();
-      } else {
-        alert("Không thể xóa từ này.");
-      }
-    } catch {
-      alert("Lỗi kết nối.");
-    } finally {
-      setDeleting(null);
-    }
-  };
 
   return (
     <div className="vd-table-wrap">
@@ -403,7 +376,7 @@ function WordList({ words, topicSlug, onWordDeleted }: { words: VocabWord[]; top
             <th>Loại</th>
             <th>Phiên âm</th>
             <th>Nghĩa</th>
-            <th style={{ width: 70 }}></th>
+            <th style={{ width: 40 }}></th>
           </tr>
         </thead>
         <tbody>
@@ -415,34 +388,16 @@ function WordList({ words, topicSlug, onWordDeleted }: { words: VocabWord[]; top
               <td className="vd-ipa">{w.ipa}</td>
               <td className="vd-meaning">{w.meaning}</td>
               <td>
-                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                  <button
-                    className="vd-speaker-btn"
-                    onClick={() => playWordAudio(w, audioRef)}
-                    title="Nghe phát âm"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
-                    </svg>
-                  </button>
-                  <button
-                    className="vd-delete-btn"
-                    onClick={() => handleDelete(w.word)}
-                    disabled={deleting === w.word}
-                    title="Xóa từ này"
-                  >
-                    {deleting === w.word ? (
-                      <span style={{ fontSize: 12 }}>⏳</span>
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                        <path d="M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
+                <button
+                  className="vd-speaker-btn"
+                  onClick={() => playWordAudio(w, audioRef)}
+                  title="Nghe phát âm"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
+                  </svg>
+                </button>
               </td>
             </tr>
           ))}
