@@ -857,6 +857,12 @@ class EN10VocabTopic(models.Model):
     order = models.PositiveIntegerField(default=0)
     words = models.JSONField(default=list, blank=True, help_text='[{"word": "...", "pos": "noun", "ipa": "/.../" , "meaning": "..."}]')
     is_active = models.BooleanField(default=True)
+    vocabularies = models.ManyToManyField(
+        'vocab.Vocabulary',
+        blank=True,
+        related_name='en10_topics',
+        help_text='Linked Vocabulary records (primary source)',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

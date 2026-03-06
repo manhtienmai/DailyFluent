@@ -50,6 +50,7 @@ interface QuickAction {
   bg: string;
 }
 const QUICK_ACTIONS: QuickAction[] = [
+  { href: "/exam/english", icon: "🇬🇧", label: "Tiếng Anh 10", desc: "Luyện thi vào 10", color: "#2563eb", bg: "rgba(37,99,235,.08)" },
   { href: "/vocab/flashcards", icon: "🎴", label: "Flashcard", desc: "Ôn từ vựng", color: "#6366f1", bg: "rgba(99,102,241,.08)" },
   { href: "/exam/bunpou/flashcard", icon: "文", label: "Flashcard NP", desc: "Ôn ngữ pháp", color: "#ef4444", bg: "rgba(239,68,68,.08)" },
   { href: "/kanji", icon: "漢", label: "Kanji", desc: "Luyện Hán tự", color: "#f59e0b", bg: "rgba(245,158,11,.08)" },
@@ -125,19 +126,11 @@ export default function HomePage() {
   const cardsDone = streak?.cards_today ?? 0;
 
   return (
-    <div style={{ padding: "24px", minHeight: "100vh" }}>
+    <div className="home-wrap">
       <div className="max-w-5xl mx-auto">
 
         {/* ─── Glass Header ─────────────────────────────── */}
-        <header style={{
-          position: "relative",
-          background: "var(--bg-surface)",
-          borderRadius: 20,
-          padding: "24px 28px",
-          marginBottom: 24,
-          boxShadow: "0 2px 20px rgba(0,0,0,.06)",
-          overflow: "hidden",
-        }}>
+        <header className="home-header">
           {/* Gradient border accent at top */}
           <div style={{
             position: "absolute", top: 0, left: 0, right: 0, height: 3,
@@ -145,9 +138,9 @@ export default function HomePage() {
           }} />
 
           {/* Top row: greeting + streak */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+          <div className="home-header-top">
             {/* Greeting */}
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div className="home-greeting" style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 14,
                 background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
@@ -168,9 +161,9 @@ export default function HomePage() {
             </div>
 
             {/* Streak badge + day dots */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }} className="home-streak-wrap">
               {/* Streak number */}
-              <div style={{
+              <div className="home-streak-badge" style={{
                 display: "flex", alignItems: "center", gap: 6,
                 background: "linear-gradient(135deg, #fb923c, #f97316)",
                 padding: "6px 14px", borderRadius: 20,
@@ -182,11 +175,11 @@ export default function HomePage() {
               </div>
 
               {/* Day dots */}
-              <div style={{ display: "flex", gap: 5 }}>
+              <div className="home-day-dots" style={{ display: "flex", gap: 5 }}>
                 {days.map((d, i) => {
                   const active = streakNum > (6 - i);
                   return (
-                    <div key={i} style={{
+                    <div key={i} className="home-day-dot" style={{
                       width: 32, height: 32, borderRadius: "50%",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 10, fontWeight: 700, lineHeight: 1,
@@ -211,7 +204,7 @@ export default function HomePage() {
           <div style={{ height: 1, background: "var(--border-default)", margin: "18px 0" }} />
 
           {/* Stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, textAlign: "center" }}>
+          <div className="home-header-stats">
             <Link href="/vocab/my-words?filter=mastered" style={{ textDecoration: "none" }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e", lineHeight: 1.2 }}>{mastered}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-tertiary)", marginTop: 4, letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Đã thuộc</div>
@@ -232,10 +225,7 @@ export default function HomePage() {
         </header>
 
         {/* ─── Daily Progress Dashboard ───────────────────── */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14,
-          marginBottom: 24,
-        }}>
+        <div className="home-progress-grid">
           {/* Study Time */}
           <div className="stat-card" style={{ "--accent": "#6366f1", "--accent-bg": "rgba(99,102,241,.08)" } as React.CSSProperties}>
             <div className="stat-ring-wrap">
@@ -320,7 +310,7 @@ export default function HomePage() {
         )}
 
         {/* ─── CTA Buttons (compact) ────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
+        <div className="home-cta-grid">
           <Link href="/vocab/flashcards" style={{
             display: "flex", alignItems: "center", gap: 10,
             padding: "14px 14px", borderRadius: 14,

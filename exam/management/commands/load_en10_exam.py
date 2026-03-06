@@ -110,17 +110,8 @@ class Command(BaseCommand):
                 },
             )
 
-            # Load review data if exists
-            review_file = fixtures_dir / f"{exam_file.stem}_review.json"
-            if review_file.exists():
-                with open(review_file, "r", encoding="utf-8") as f:
-                    review_data = json.load(f)
-                template.data = template.data or {}
-                template.data["review_items"] = review_data.get("items", [])
-                template.save(update_fields=["data"])
-                self.stdout.write(
-                    f"  → Loaded {len(review_data.get('items', []))} review items"
-                )
+            # Note: review data (en10_de_so_*_review.json) is served
+            # separately via API, not stored on ExamTemplate.
 
             # Delete existing questions for this template (idempotent reload)
             if not t_created:

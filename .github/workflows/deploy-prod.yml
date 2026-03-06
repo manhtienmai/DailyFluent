@@ -46,6 +46,14 @@ jobs:
             echo "No theme/static_src/package.json, skipping npm build"
           fi
 
+      - name: Build Next.js frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ""
+
       - name: Package artifact
         run: |
           set -euo pipefail
@@ -62,7 +70,6 @@ jobs:
             --exclude="*.pyc" \
             --exclude=".env" \
             --exclude="node_modules" \
-            --exclude=".next" \
             --exclude="staticfiles" \
             --exclude="media" \
             --exclude="*.sqlite3" \

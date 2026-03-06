@@ -275,3 +275,6 @@ api.add_router("/admin/crud/", admin_crud_router, tags=["Admin CRUD"])
 
 from notifications.teacher_api import router as teacher_dashboard_router
 api.add_router("/admin/teacher-dashboard/", teacher_dashboard_router, tags=["Teacher Dashboard"])
+
+from config.admin_user_history import router as admin_user_history_router
+api.add_router("/admin/users/", admin_user_history_router, tags=["Admin User History"])

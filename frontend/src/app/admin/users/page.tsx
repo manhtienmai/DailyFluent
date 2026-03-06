@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Table, Input, Tag, Typography, Space, Switch, Popconfirm, Segmented } from "antd";
-import { SearchOutlined, CrownFilled, UserOutlined } from "@ant-design/icons";
+import { Table, Input, Tag, Typography, Space, Switch, Popconfirm, Segmented, Button } from "antd";
+import { SearchOutlined, CrownFilled, UserOutlined, EyeOutlined } from "@ant-design/icons";
+import Link from "next/link";
 import type { ColumnsType } from "antd/es/table";
 import { adminGet, adminPut } from "@/lib/admin-api";
 import InlineEditCell from "@/components/admin/InlineEditCell";
@@ -122,6 +123,14 @@ export default function UsersPage() {
     {
       title: "Active", dataIndex: "is_active", width: 80, align: "center",
       render: (_, u) => <Switch size="small" checked={u.is_active} onChange={() => toggleUser(u, "is_active")} />,
+    },
+    {
+      title: "Chi tiết", key: "detail", width: 80, align: "center",
+      render: (_, u) => (
+        <Link href={`/admin/users/${u.id}`}>
+          <Button type="link" icon={<EyeOutlined />} size="small">Xem</Button>
+        </Link>
+      ),
     },
   ];
 

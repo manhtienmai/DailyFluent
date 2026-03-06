@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Table, Button, Typography, Space, Tag, Select, InputNumber,
-  message, Progress, Switch, Tooltip, Input
+  message, Progress, Switch, Tooltip, Slider, Card, Input, Divider
 } from "antd";
 import {
   SoundOutlined, PlayCircleOutlined, ThunderboltOutlined,
-  ReloadOutlined, SearchOutlined
+  ReloadOutlined, AudioOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { adminGet, adminPost } from "@/lib/admin-api";
@@ -41,6 +41,13 @@ interface BatchProgress {
   error_list: string[];
 }
 
+interface VoiceOption {
+  name: string;
+  gender: string;
+  quality: string;
+  note: string;
+}
+
 export default function TtsPage() {
   const [language, setLanguage] = useState("en");
   const [stats, setStats] = useState<Stats | null>(null);
@@ -53,6 +60,17 @@ export default function TtsPage() {
   const [progress, setProgress] = useState<BatchProgress | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
+
+  // Voice & speed settings
+  const [voices, setVoices] = useState<Record<string, VoiceOption[]>>({});
+  const [selectedVoiceUS, setSelectedVoiceUS] = useState("en-US-Studio-Q");
+  const [selectedVoiceUK, setSelectedVoiceUK] = useState("en-GB-Studio-B");
+  const [speakingRate, setSpeakingRate] = useState(0.92);
+
+  // EN10 preview
+  const [en10Word, setEN10Word] = useState("");
+  const [en10Loading, setEN10Loading] = useState(false);
+  const [en10Audio, setEN10Audio] = useState<string | null>(null);
 
   const fetchStats = useCallback(() => {
     adminGet<Stats>(`/crud/tts/stats/?language=${language}`)
@@ -79,10 +97,20 @@ export default function TtsPage() {
       .catch(() => {});
   }, []);
 
+  const fetchVoices = useCallback(() => {
+    adminGet<{ voices: Record<string, VoiceOption[]>; default_speaking_rate: number }>("/crud/tts/voices/")
+      .then((d) => {
+        setVoices(d.voices || {});
+        setSpeakingRate(d.default_speaking_rate || 0.92);
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchStats();
     fetchMissing();
-  }, [fetchStats, fetchMissing]);
+    fetchVoices();
+  }, [fetchStats, fetchMissing, fetchVoices]);
 
   // Poll progress while batch is running
   useEffect(() => {
@@ -97,7 +125,7 @@ export default function TtsPage() {
     try {
       const resp = await adminPost<{ success: boolean; message: string }>(
         "/crud/tts/generate-batch/",
-        { language, limit: batchLimit, force: batchForce }
+        { language, limit: batchLimit, force: batchForce, voice_us: selectedVoiceUS, voice_uk: selectedVoiceUK, speaking_rate: speakingRate }
       );
       if (resp.success) {
         message.success(resp.message);
@@ -138,6 +166,31 @@ export default function TtsPage() {
     audio.onended = () => setPlayingUrl(null);
     audio.onerror = () => { setPlayingUrl(null); message.error("Không phát được audio"); };
     audio.play();
+  };
+
+  const previewEN10 = async () => {
+    if (!en10Word.trim()) return;
+    setEN10Loading(true);
+    setEN10Audio(null);
+    try {
+      const accent = selectedVoiceUS.startsWith("en-GB") ? "en-GB" : "en-US";
+      const resp = await adminPost<{ success: boolean; audio_base64?: string; message?: string }>(
+        "/crud/tts/en10-synthesize/",
+        { word: en10Word.trim(), voice_name: selectedVoiceUS, language_code: accent, speaking_rate: speakingRate }
+      );
+      if (resp.success && resp.audio_base64) {
+        const audioUrl = `data:audio/mp3;base64,${resp.audio_base64}`;
+        setEN10Audio(audioUrl);
+        const audio = new Audio(audioUrl);
+        audio.play();
+      } else {
+        message.error(resp.message || "Lỗi");
+      }
+    } catch {
+      message.error("Lỗi khi synthesize");
+    } finally {
+      setEN10Loading(false);
+    }
   };
 
   const pctHasAudio = stats ? Math.round(((stats.total - stats.missing) / Math.max(stats.total, 1)) * 100) : 0;
@@ -198,6 +251,10 @@ export default function TtsPage() {
     },
   ];
 
+  const usVoices = voices["en-US"] || [];
+  const ukVoices = voices["en-GB"] || [];
+  const jpVoices = voices["ja-JP"] || [];
+
   return (
     <div>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
@@ -217,6 +274,111 @@ export default function TtsPage() {
             ]}
           />
         </div>
+
+        {/* ── Voice & Speed Settings ── */}
+        <Card size="small" title="🎙️ Cài đặt giọng đọc & tốc độ" style={{ borderColor: "#d1d5db" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+            {/* US Voice */}
+            <div>
+              <Text strong style={{ fontSize: 12, display: "block", marginBottom: 6 }}>🇺🇸 Giọng US</Text>
+              <Select
+                value={selectedVoiceUS}
+                onChange={setSelectedVoiceUS}
+                style={{ width: "100%" }}
+                optionLabelProp="label"
+              >
+                {usVoices.map((v) => (
+                  <Select.Option key={v.name} value={v.name} label={`${v.name} (${v.gender})`}>
+                    <div>
+                      <Text strong style={{ fontSize: 12 }}>{v.name}</Text>
+                      <Tag
+                        style={{ marginLeft: 6, fontSize: 10 }}
+                        color={v.quality === "Studio" ? "gold" : v.quality === "Neural2" ? "blue" : "default"}
+                      >
+                        {v.quality}
+                      </Tag>
+                      <Tag style={{ fontSize: 10 }}>{v.gender}</Tag>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#888" }}>{v.note}</div>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            {/* UK Voice */}
+            <div>
+              <Text strong style={{ fontSize: 12, display: "block", marginBottom: 6 }}>🇬🇧 Giọng UK</Text>
+              <Select
+                value={selectedVoiceUK}
+                onChange={setSelectedVoiceUK}
+                style={{ width: "100%" }}
+                optionLabelProp="label"
+              >
+                {ukVoices.map((v) => (
+                  <Select.Option key={v.name} value={v.name} label={`${v.name} (${v.gender})`}>
+                    <div>
+                      <Text strong style={{ fontSize: 12 }}>{v.name}</Text>
+                      <Tag
+                        style={{ marginLeft: 6, fontSize: 10 }}
+                        color={v.quality === "Studio" ? "gold" : v.quality === "Neural2" ? "blue" : "default"}
+                      >
+                        {v.quality}
+                      </Tag>
+                      <Tag style={{ fontSize: 10 }}>{v.gender}</Tag>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#888" }}>{v.note}</div>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+          </div>
+
+          {/* Speaking Rate */}
+          <div>
+            <Text strong style={{ fontSize: 12 }}>⏱️ Tốc độ nói: <Text code>{speakingRate.toFixed(2)}x</Text></Text>
+            <div style={{ fontSize: 11, color: "#888", marginBottom: 4 }}>
+              0.5 = rất chậm · 0.8 = chậm rõ · <b>0.92 = chuẩn từ điển</b> · 1.0 = bình thường · 1.2 = nhanh
+            </div>
+            <Slider
+              min={0.5} max={1.5} step={0.02}
+              value={speakingRate}
+              onChange={setSpeakingRate}
+              marks={{ 0.5: "0.5", 0.8: "0.8", 0.92: "0.92", 1.0: "1.0", 1.2: "1.2", 1.5: "1.5" }}
+            />
+          </div>
+
+          <Divider style={{ margin: "12px 0" }} />
+
+          {/* EN10 Preview */}
+          <div>
+            <Text strong style={{ fontSize: 12, display: "block", marginBottom: 6 }}>🔤 Preview phát âm (nhập từ bất kỳ)</Text>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Input
+                placeholder="Nhập từ tiếng Anh, vd: opportunity"
+                value={en10Word}
+                onChange={(e) => setEN10Word(e.target.value)}
+                onPressEnter={previewEN10}
+                style={{ flex: 1 }}
+              />
+              <Button
+                type="primary"
+                icon={<AudioOutlined />}
+                onClick={previewEN10}
+                loading={en10Loading}
+              >
+                Nghe thử
+              </Button>
+              {en10Audio && (
+                <Button
+                  icon={<PlayCircleOutlined />}
+                  onClick={() => { const a = new Audio(en10Audio); a.play(); }}
+                >
+                  Phát lại
+                </Button>
+              )}
+            </div>
+          </div>
+        </Card>
 
         {/* Stats */}
         {stats && (

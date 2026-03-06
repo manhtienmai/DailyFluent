@@ -681,21 +681,46 @@ def en10_vocab_topics_list(request):
 
 @router.get("/english/vocab-topics/{slug}", auth=None)
 def en10_vocab_topic_detail(request, slug: str):
-    """Get vocabulary topic with full word list."""
+    """Get vocabulary topic with full word list from Vocabulary + WordEntry."""
     from exam.models import EN10VocabTopic
+    from vocab.models import WordEntry, WordDefinition
 
     try:
         t = EN10VocabTopic.objects.get(slug=slug, is_active=True)
     except EN10VocabTopic.DoesNotExist:
         raise HttpError(404, "Vocabulary topic not found")
 
+    # Build word list from M2M → WordEntry → WordDefinition
+    vocab_ids = t.vocabularies.values_list("id", flat=True)
+    entries = (
+        WordEntry.objects
+        .filter(vocab_id__in=vocab_ids)
+        .select_related("vocab")
+        .prefetch_related("definitions")
+        .order_by("vocab__word")
+    )
+
+    words = []
+    for entry in entries:
+        # Get first definition's meaning
+        defn = entry.definitions.first()
+        meaning = defn.meaning if defn else ""
+        words.append({
+            "word": entry.vocab.word,
+            "pos": entry.part_of_speech,
+            "ipa": entry.ipa,
+            "meaning": meaning,
+            "audio_us": entry.audio_us,
+            "audio_uk": entry.audio_uk,
+        })
+
     return {
         "slug": t.slug,
         "title": t.title,
         "title_vi": t.title_vi,
         "emoji": t.emoji,
-        "word_count": t.word_count,
-        "words": t.words,
+        "word_count": len(words),
+        "words": words,
     }
 
 

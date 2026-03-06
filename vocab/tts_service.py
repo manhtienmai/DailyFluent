@@ -17,6 +17,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 # ── Voice configuration ──────────────────────────────────────
+# Default voices (used by batch_generate when no voice is specified)
 VOICES = {
     "en": {
         "us": {"language_code": "en-US", "name": "en-US-Neural2-J", "label": "US"},
@@ -27,10 +28,44 @@ VOICES = {
     },
 }
 
+# All available voice options for admin UI picker
+AVAILABLE_VOICES = {
+    "en-US": [
+        {"name": "en-US-Studio-Q",   "gender": "Male",   "quality": "Studio",  "note": "⭐ Xịn nhất — giọng studio chuyên nghiệp, tự nhiên như người thật"},
+        {"name": "en-US-Studio-O",   "gender": "Female", "quality": "Studio",  "note": "⭐ Xịn nhất — nữ studio, phát âm rõ ràng"},
+        {"name": "en-US-Neural2-J",  "gender": "Male",   "quality": "Neural2", "note": "Rất tốt — neural AI, giọng nam tự nhiên"},
+        {"name": "en-US-Neural2-H",  "gender": "Female", "quality": "Neural2", "note": "Rất tốt — neural AI, giọng nữ"},
+        {"name": "en-US-Neural2-D",  "gender": "Male",   "quality": "Neural2", "note": "Tốt — nam trầm, phù hợp từ điển"},
+        {"name": "en-US-Neural2-A",  "gender": "Male",   "quality": "Neural2", "note": "Tốt — nam nhẹ nhàng"},
+        {"name": "en-US-Wavenet-D",  "gender": "Male",   "quality": "Wavenet", "note": "Khá — wavenet nam"},
+        {"name": "en-US-Wavenet-C",  "gender": "Female", "quality": "Wavenet", "note": "Khá — wavenet nữ"},
+    ],
+    "en-GB": [
+        {"name": "en-GB-Studio-B",   "gender": "Male",   "quality": "Studio",  "note": "⭐ Xịn nhất — giọng Anh studio, RP chuẩn"},
+        {"name": "en-GB-Studio-C",   "gender": "Female", "quality": "Studio",  "note": "⭐ Xịn nhất — nữ Anh studio"},
+        {"name": "en-GB-Neural2-B",  "gender": "Male",   "quality": "Neural2", "note": "Rất tốt — neural nam Anh"},
+        {"name": "en-GB-Neural2-A",  "gender": "Female", "quality": "Neural2", "note": "Rất tốt — neural nữ Anh"},
+        {"name": "en-GB-Wavenet-B",  "gender": "Male",   "quality": "Wavenet", "note": "Khá — wavenet nam Anh"},
+    ],
+    "ja-JP": [
+        {"name": "ja-JP-Neural2-B",  "gender": "Female", "quality": "Neural2", "note": "Rất tốt — phát âm chuẩn"},
+        {"name": "ja-JP-Neural2-C",  "gender": "Male",   "quality": "Neural2", "note": "Rất tốt — giọng nam"},
+        {"name": "ja-JP-Neural2-D",  "gender": "Male",   "quality": "Neural2", "note": "Tốt — nam nhẹ nhàng"},
+        {"name": "ja-JP-Wavenet-B",  "gender": "Female", "quality": "Wavenet", "note": "Khá — wavenet nữ"},
+    ],
+}
+
+DEFAULT_SPEAKING_RATE = 0.92  # Slightly slow for dictionary clarity
+
 TTS_API_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
 
 
-def synthesize_word(word: str, language_code: str, voice_name: str) -> bytes:
+def synthesize_word(
+    word: str,
+    language_code: str,
+    voice_name: str,
+    speaking_rate: float = DEFAULT_SPEAKING_RATE,
+) -> bytes:
     """
     Call Google Cloud TTS REST API to synthesize a word.
     Returns raw MP3 bytes.
@@ -47,7 +82,7 @@ def synthesize_word(word: str, language_code: str, voice_name: str) -> bytes:
         },
         "audioConfig": {
             "audioEncoding": "MP3",
-            "speakingRate": 0.95,  # slightly slower for learners
+            "speakingRate": speaking_rate,
             "pitch": 0.0,
         },
     }

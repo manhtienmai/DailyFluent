@@ -2832,6 +2832,9 @@ class TtsBatchIn(Schema):
     language: str = "en"
     limit: int = 50
     force: bool = False
+    voice_us: str = ""
+    voice_uk: str = ""
+    speaking_rate: float = 0.92
 
 
 @router.post("/tts/generate-batch/")
@@ -2886,6 +2889,54 @@ def tts_generate_single(request, payload: TtsSingleIn):
     try:
         result = generate_audio_for_entry(payload.entry_id, force=payload.force)
         return {"success": True, "result": result}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@router.get("/tts/voices/")
+def tts_available_voices(request):
+    """Return all available voice options with quality notes."""
+    if not staff_required(request):
+        return {"error": "Forbidden"}
+
+    from vocab.tts_service import AVAILABLE_VOICES, DEFAULT_SPEAKING_RATE
+    return {
+        "voices": AVAILABLE_VOICES,
+        "default_speaking_rate": DEFAULT_SPEAKING_RATE,
+    }
+
+
+class TtsEN10SynthesizeIn(Schema):
+    word: str
+    voice_name: str = "en-US-Studio-Q"
+    language_code: str = "en-US"
+    speaking_rate: float = 0.92
+
+
+@router.post("/tts/en10-synthesize/")
+def tts_en10_synthesize(request, payload: TtsEN10SynthesizeIn):
+    """Synthesize a single EN10 word and return base64 audio (for preview/download)."""
+    if not staff_required(request):
+        return {"success": False, "message": "Forbidden"}
+
+    from vocab.tts_service import synthesize_word
+    import base64
+
+    try:
+        audio_bytes = synthesize_word(
+            payload.word,
+            payload.language_code,
+            payload.voice_name,
+            payload.speaking_rate,
+        )
+        audio_b64 = base64.b64encode(audio_bytes).decode()
+        return {
+            "success": True,
+            "word": payload.word,
+            "audio_base64": audio_b64,
+            "voice": payload.voice_name,
+            "rate": payload.speaking_rate,
+        }
     except Exception as e:
         return {"success": False, "message": str(e)}
 
