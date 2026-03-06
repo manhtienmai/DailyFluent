@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useLanguageMode, type StudyLanguage } from "@/hooks/useLanguageMode";
 import "./home.css";
 
 /* ── Types ─────────────────────────────────────────────── */
@@ -48,15 +49,16 @@ interface QuickAction {
   desc: string;
   color: string;
   bg: string;
+  lang: StudyLanguage | "both";
 }
 const QUICK_ACTIONS: QuickAction[] = [
-  { href: "/exam/english", icon: "🇬🇧", label: "Tiếng Anh 10", desc: "Luyện thi vào 10", color: "#2563eb", bg: "rgba(37,99,235,.08)" },
-  { href: "/vocab/flashcards", icon: "🎴", label: "Flashcard", desc: "Ôn từ vựng", color: "#6366f1", bg: "rgba(99,102,241,.08)" },
-  { href: "/exam/bunpou/flashcard", icon: "文", label: "Flashcard NP", desc: "Ôn ngữ pháp", color: "#ef4444", bg: "rgba(239,68,68,.08)" },
-  { href: "/kanji", icon: "漢", label: "Kanji", desc: "Luyện Hán tự", color: "#f59e0b", bg: "rgba(245,158,11,.08)" },
-  { href: "/grammar", icon: "文", label: "Ngữ pháp", desc: "Học văn phạm", color: "#f59e0b", bg: "rgba(245,158,11,.08)" },
-  { href: "/exam", icon: "📝", label: "Luyện thi", desc: "TOEIC · JLPT", color: "#10b981", bg: "rgba(16,185,129,.08)" },
-  { href: "/vocab/games", icon: "🎮", label: "Games", desc: "Ôn vui vẻ", color: "#ec4899", bg: "rgba(236,72,153,.08)" },
+  { href: "/exam/english", icon: "🇬🇧", label: "Tiếng Anh 10", desc: "Luyện thi vào 10", color: "#2563eb", bg: "rgba(37,99,235,.08)", lang: "en" },
+  { href: "/vocab/flashcards", icon: "🃏", label: "Flashcard", desc: "Ôn từ vựng", color: "#6366f1", bg: "rgba(99,102,241,.08)", lang: "both" },
+  { href: "/exam/bunpou/flashcard", icon: "文", label: "Flashcard NP", desc: "Ôn ngữ pháp", color: "#ef4444", bg: "rgba(239,68,68,.08)", lang: "jp" },
+  { href: "/kanji", icon: "漢", label: "Kanji", desc: "Luyện Hán tự", color: "#f59e0b", bg: "rgba(245,158,11,.08)", lang: "jp" },
+  { href: "/grammar", icon: "文", label: "Ngữ pháp", desc: "Học văn phạm", color: "#f59e0b", bg: "rgba(245,158,11,.08)", lang: "jp" },
+  { href: "/exam", icon: "📝", label: "Luyện thi", desc: "TOEIC · JLPT", color: "#10b981", bg: "rgba(16,185,129,.08)", lang: "both" },
+  { href: "/vocab/games", icon: "🎮", label: "Games", desc: "Ôn vui vẻ", color: "#ec4899", bg: "rgba(236,72,153,.08)", lang: "both" },
 ];
 
 /* ── Quiz stats from localStorage ──────────────────────── */
@@ -95,6 +97,7 @@ export default function HomePage() {
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [name, setName] = useState("");
   const [quizStats, setQuizStats] = useState({ totalAnswered: 0, totalRevealed: 0, details: [] as { type: string; answered: number; correct: number }[] });
+  const { mode } = useLanguageMode();
   const days = getLast7Days();
 
   useEffect(() => {
@@ -319,26 +322,44 @@ export default function HomePage() {
             boxShadow: "0 4px 12px rgba(79,70,229,.25)",
             transition: "transform .15s, box-shadow .15s",
           }}>
-            <span style={{ fontSize: 20 }}>🎴</span>
+            <span style={{ fontSize: 20 }}>🃏</span>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700 }}>Ôn từ vựng</div>
               <div style={{ fontSize: 10, opacity: 0.8 }}>Flashcard SRS</div>
             </div>
           </Link>
-          <Link href="/exam/bunpou/flashcard" style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "14px 14px", borderRadius: 14,
-            background: "linear-gradient(135deg, #dc2626, #ef4444)",
-            textDecoration: "none", color: "#fff",
-            boxShadow: "0 4px 12px rgba(220,38,38,.25)",
-            transition: "transform .15s, box-shadow .15s",
-          }}>
-            <span style={{ fontSize: 20 }}>🃏</span>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>Ôn ngữ pháp</div>
-              <div style={{ fontSize: 10, opacity: 0.8 }}>Flashcard 文法</div>
-            </div>
-          </Link>
+          {mode === "jp" && (
+            <Link href="/exam/bunpou/flashcard" style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "14px 14px", borderRadius: 14,
+              background: "linear-gradient(135deg, #dc2626, #ef4444)",
+              textDecoration: "none", color: "#fff",
+              boxShadow: "0 4px 12px rgba(220,38,38,.25)",
+              transition: "transform .15s, box-shadow .15s",
+            }}>
+              <span style={{ fontSize: 20 }}>🃏</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>Ôn ngữ pháp</div>
+                <div style={{ fontSize: 10, opacity: 0.8 }}>Flashcard 文法</div>
+              </div>
+            </Link>
+          )}
+          {mode === "en" && (
+            <Link href="/exam/english" style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "14px 14px", borderRadius: 14,
+              background: "linear-gradient(135deg, #2563eb, #3b82f6)",
+              textDecoration: "none", color: "#fff",
+              boxShadow: "0 4px 12px rgba(37,99,235,.25)",
+              transition: "transform .15s, box-shadow .15s",
+            }}>
+              <span style={{ fontSize: 20 }}>🇬🇧</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>Tiếng Anh 10</div>
+                <div style={{ fontSize: 10, opacity: 0.8 }}>Luyện thi vào 10</div>
+              </div>
+            </Link>
+          )}
           <Link href="/streak" style={{
             display: "flex", alignItems: "center", gap: 10,
             padding: "14px 14px", borderRadius: 14,
@@ -357,7 +378,7 @@ export default function HomePage() {
 
         {/* ─── Quick Actions Grid ───────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {QUICK_ACTIONS.map((a) => (
+          {QUICK_ACTIONS.filter(a => a.lang === "both" || a.lang === mode).map((a) => (
             <Link
               key={a.href}
               href={a.href}
@@ -378,14 +399,17 @@ export default function HomePage() {
         {/* ─── Module Links ─────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
-            { href: "/vocab/sets", icon: "📦", title: "Bộ từ vựng", desc: "Quản lý và khám phá bộ từ" },
-            { href: "/vocab/courses", icon: "📚", title: "Khóa học", desc: "Học theo lộ trình" },
-            { href: "/vocab/my-words", icon: "📝", title: "Từ của tôi", desc: "Xem tiến độ từ vựng" },
-            { href: "/exam/choukai", icon: "🎧", title: "聴解 Choukai", desc: "Luyện nghe JLPT" },
-            { href: "/exam/dokkai", icon: "📖", title: "読解 Dokkai", desc: "Luyện đọc hiểu" },
-            { href: "/exam/usage", icon: "✍️", title: "用法 Cách dùng từ", desc: "Quiz cách dùng từ" },
-            { href: "/grammar/books", icon: "📕", title: "Sách ngữ pháp", desc: "Học theo giáo trình" },
-          ].map((item) => (
+            { href: "/vocab/sets", icon: "📦", title: "Bộ từ vựng", desc: "Quản lý và khám phá bộ từ", lang: "both" as const },
+            { href: "/vocab/courses", icon: "📚", title: "Khóa học", desc: "Học theo lộ trình", lang: "both" as const },
+            { href: "/vocab/my-words", icon: "📝", title: "Từ của tôi", desc: "Xem tiến độ từ vựng", lang: "both" as const },
+            { href: "/exam/choukai", icon: "🎧", title: "聴解 Choukai", desc: "Luyện nghe JLPT", lang: "jp" as const },
+            { href: "/exam/dokkai", icon: "📖", title: "読解 Dokkai", desc: "Luyện đọc hiểu", lang: "jp" as const },
+            { href: "/exam/usage", icon: "✍️", title: "用法 Cách dùng từ", desc: "Quiz cách dùng từ", lang: "jp" as const },
+            { href: "/grammar/books", icon: "📕", title: "Sách ngữ pháp", desc: "Học theo giáo trình", lang: "jp" as const },
+            { href: "/exam/english", icon: "🇬🇧", title: "Tiếng Anh 10", desc: "Từ vựng + Ngữ pháp", lang: "en" as const },
+            { href: "/exam/english/vocabulary", icon: "📚", title: "Từ vựng EN10", desc: "Học theo chủ đề", lang: "en" as const },
+            { href: "/exam/english/grammar", icon: "✍️", title: "Ngữ pháp EN10", desc: "Học ngữ pháp Anh", lang: "en" as const },
+          ].filter(item => item.lang === "both" || item.lang === mode).map((item) => (
             <Link
               key={item.href}
               href={item.href}

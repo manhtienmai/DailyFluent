@@ -87,7 +87,7 @@ export default function LoginPage() {
 
         {/* Google OAuth */}
         <a
-          href="/accounts/google/login/?process=login"
+          href={`${process.env.NEXT_PUBLIC_API_URL || ""}/accounts/google/login/?process=login`}
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-all no-underline"
           style={{ background: "var(--bg-interactive)", color: "var(--text-primary)", border: "1px solid var(--border-default)" }}
         >

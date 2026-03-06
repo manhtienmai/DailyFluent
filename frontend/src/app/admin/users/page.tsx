@@ -136,7 +136,7 @@ export default function UsersPage() {
 
   return (
     <div>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
           <div>
             <Title level={3} style={{ margin: 0 }}>👤 Người dùng</Title>

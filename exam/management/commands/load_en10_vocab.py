@@ -54,82 +54,80 @@ class Command(BaseCommand):
         total_words = 0
 
         for topic_data in topics:
-            with transaction.atomic():
-                # 1. Create/update EN10VocabTopic
-                topic, was_created = EN10VocabTopic.objects.update_or_create(
-                    slug=topic_data["slug"],
+            # 1. Create/update EN10VocabTopic
+            topic, was_created = EN10VocabTopic.objects.update_or_create(
+                slug=topic_data["slug"],
+                defaults={
+                    "title": topic_data["title"],
+                    "title_vi": topic_data["title_vi"],
+                    "emoji": topic_data["emoji"],
+                    "order": topic_data["order"],
+                    "words": topic_data["words"],  # keep JSON for backward compat
+                },
+            )
+            if was_created:
+                topics_created += 1
+            else:
+                topics_updated += 1
+
+            # 2. For each word → Vocabulary + WordEntry + WordDefinition + M2M
+            vocab_ids = []
+            for w in topic_data.get("words", []):
+                word_text = w.get("word", "").strip()
+                if not word_text:
+                    continue
+
+                # 2a. Vocabulary (unique by word)
+                vocab, v_created = Vocabulary.objects.get_or_create(
+                    word=word_text,
+                    defaults={"language": "en"},
+                )
+                if v_created:
+                    vocab_created += 1
+                vocab_ids.append(vocab.id)
+
+                # Normalize POS
+                pos_raw = w.get("pos", "").strip().lower()
+                pos_map = {
+                    "noun": "n", "n": "n",
+                    "verb": "v", "v": "v",
+                    "adjective": "adj", "adj": "adj",
+                    "adverb": "adv", "adv": "adv",
+                    "preposition": "prep", "prep": "prep",
+                    "conjunction": "conj", "conj": "conj",
+                    "pronoun": "pron", "pron": "pron",
+                    "interjection": "interj", "interj": "interj",
+                }
+                pos = pos_map.get(pos_raw, pos_raw)
+
+                # 2b. WordEntry (unique by vocab + pos)
+                entry, e_created = WordEntry.objects.get_or_create(
+                    vocab=vocab,
+                    part_of_speech=pos,
                     defaults={
-                        "title": topic_data["title"],
-                        "title_vi": topic_data["title_vi"],
-                        "emoji": topic_data["emoji"],
-                        "order": topic_data["order"],
-                        "words": topic_data["words"],  # keep JSON for backward compat
+                        "ipa": w.get("ipa", ""),
                     },
                 )
-                if was_created:
-                    topics_created += 1
-                else:
-                    topics_updated += 1
+                if e_created:
+                    entry_created += 1
+                elif w.get("ipa") and not entry.ipa:
+                    entry.ipa = w["ipa"]
+                    entry.save(update_fields=["ipa"])
 
-                # 2. For each word → Vocabulary + WordEntry + WordDefinition + M2M
-                vocab_ids = []
-                for w in topic_data.get("words", []):
-                    word_text = w.get("word", "").strip()
-                    if not word_text:
-                        continue
-
-                    # 2a. Vocabulary (unique by word)
-                    vocab, v_created = Vocabulary.objects.get_or_create(
-                        word=word_text,
-                        defaults={"language": "en"},
+                # 2c. WordDefinition
+                meaning = w.get("meaning", "").strip()
+                if meaning:
+                    defn, d_created = WordDefinition.objects.get_or_create(
+                        entry=entry,
+                        defaults={"meaning": meaning},
                     )
-                    if v_created:
-                        vocab_created += 1
-                    vocab_ids.append(vocab.id)
+                    if d_created:
+                        defn_created += 1
 
-                    # Normalize POS
-                    pos_raw = w.get("pos", "").strip().lower()
-                    pos_map = {
-                        "noun": "n", "n": "n",
-                        "verb": "v", "v": "v",
-                        "adjective": "adj", "adj": "adj",
-                        "adverb": "adv", "adv": "adv",
-                        "preposition": "prep", "prep": "prep",
-                        "conjunction": "conj", "conj": "conj",
-                        "pronoun": "pron", "pron": "pron",
-                        "interjection": "interj", "interj": "interj",
-                    }
-                    pos = pos_map.get(pos_raw, pos_raw)
+                total_words += 1
 
-                    # 2b. WordEntry (unique by vocab + pos)
-                    entry, e_created = WordEntry.objects.get_or_create(
-                        vocab=vocab,
-                        part_of_speech=pos,
-                        defaults={
-                            "ipa": w.get("ipa", ""),
-                        },
-                    )
-                    if e_created:
-                        entry_created += 1
-                    elif w.get("ipa") and not entry.ipa:
-                        # Update IPA if entry existed without one
-                        entry.ipa = w["ipa"]
-                        entry.save(update_fields=["ipa"])
-
-                    # 2c. WordDefinition
-                    meaning = w.get("meaning", "").strip()
-                    if meaning:
-                        _, d_created = WordDefinition.objects.get_or_create(
-                            entry=entry,
-                            meaning=meaning,
-                        )
-                        if d_created:
-                            defn_created += 1
-
-                    total_words += 1
-
-                # 3. M2M link: topic.vocabularies
-                topic.vocabularies.set(vocab_ids)
+            # 3. M2M link: topic.vocabularies
+            topic.vocabularies.set(vocab_ids)
 
         self.stdout.write(
             self.style.SUCCESS(

@@ -8,6 +8,7 @@ import UserModal from "@/components/sidebar/UserModal";
 import NotificationToast from "@/components/notifications/NotificationToast";
 import { SidebarProvider, useSidebar } from "@/hooks/useSidebar";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { LanguageModeProvider } from "@/hooks/useLanguageMode";
 import { NotificationProvider } from "@/hooks/useNotifications";
 
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -75,9 +76,11 @@ export default function MainLayout({
 }) {
   return (
     <AuthProvider>
-      <SidebarProvider>
-        <MainLayoutInner>{children}</MainLayoutInner>
-      </SidebarProvider>
+      <LanguageModeProvider>
+        <SidebarProvider>
+          <MainLayoutInner>{children}</MainLayoutInner>
+        </SidebarProvider>
+      </LanguageModeProvider>
     </AuthProvider>
   );
 }

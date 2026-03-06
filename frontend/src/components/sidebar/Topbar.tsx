@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useSidebar } from "@/hooks/useSidebar";
 import { useAuth } from "@/lib/auth";
+import { useLanguageMode } from "@/hooks/useLanguageMode";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { useState, useEffect, useCallback } from "react";
 
 export default function Topbar() {
   const { toggleMobile, openUserModal, toggleTheme, theme } = useSidebar();
   const { user } = useAuth();
+  const { mode, toggleMode } = useLanguageMode();
 
   const userName = user?.first_name || user?.username || "Khách";
   const userAvatar = user?.avatar_url;
@@ -109,6 +111,25 @@ export default function Topbar() {
             <span className="df-topbar-user-name">{userName}</span>
           </div>
         </div>
+
+        {/* Language Mode Toggle */}
+        <button
+          className="df-topbar-btn df-lang-toggle"
+          onClick={toggleMode}
+          title={mode === "en" ? "Đang học Tiếng Anh — Bấm để chuyển sang Tiếng Nhật" : "Đang học Tiếng Nhật — Bấm để chuyển sang Tiếng Anh"}
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            padding: "4px 10px", borderRadius: 8,
+            background: mode === "en" ? "rgba(37,99,235,.1)" : "rgba(239,68,68,.1)",
+            border: `1px solid ${mode === "en" ? "rgba(37,99,235,.25)" : "rgba(239,68,68,.25)"}`,
+            cursor: "pointer", fontSize: 13, fontWeight: 700,
+            color: mode === "en" ? "#2563eb" : "#ef4444",
+            transition: "all .2s",
+          }}
+        >
+          <span style={{ fontSize: 16 }}>{mode === "en" ? "🇬🇧" : "🇯🇵"}</span>
+          <span style={{ fontSize: 11 }}>{mode === "en" ? "EN" : "JP"}</span>
+        </button>
 
         {/* Theme Toggle */}
         <button

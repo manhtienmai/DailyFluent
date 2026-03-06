@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/hooks/useSidebar";
+import { useLanguageMode, type StudyLanguage } from "@/hooks/useLanguageMode";
 import { useRef, useCallback } from "react";
 
 interface NavItem {
@@ -11,6 +12,7 @@ interface NavItem {
   icon: React.ReactNode;
   iconClass: string;
   matchPaths: string[];
+  lang: StudyLanguage | "both";
 }
 
 const navItems: NavItem[] = [
@@ -25,6 +27,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-home",
     matchPaths: ["/"],
+    lang: "both",
   },
   {
     href: "/vocab/courses",
@@ -37,6 +40,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-exam",
     matchPaths: ["/vocab/courses", "/toeic"],
+    lang: "both",
   },
 
   {
@@ -50,6 +54,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-flashcard",
     matchPaths: ["/vocab/flashcards"],
+    lang: "both",
   },
   {
     href: "/vocab/my-words",
@@ -62,6 +67,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-book",
     matchPaths: ["/vocab/my-words", "/vocab/games"],
+    lang: "both",
   },
   {
     href: "/exam",
@@ -74,6 +80,20 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-exam",
     matchPaths: ["/exam"],
+    lang: "both",
+  },
+  {
+    href: "/exam/english",
+    label: "Tiếng Anh 10",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+      </svg>
+    ),
+    iconClass: "df-icon-english",
+    matchPaths: ["/exam/english"],
+    lang: "en",
   },
   {
     href: "/exam/study",
@@ -86,6 +106,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-study",
     matchPaths: ["/exam/study"],
+    lang: "jp",
   },
   {
     href: "/kanji",
@@ -99,6 +120,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-kanji",
     matchPaths: ["/kanji"],
+    lang: "jp",
   },
   {
     href: "/grammar",
@@ -111,6 +133,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-grammar",
     matchPaths: ["/grammar"],
+    lang: "jp",
   },
   {
     href: "/exam/choukai",
@@ -123,6 +146,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-choukai",
     matchPaths: ["/exam/choukai"],
+    lang: "jp",
   },
   {
     href: "/dictation",
@@ -137,6 +161,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-dictation",
     matchPaths: ["/dictation"],
+    lang: "jp",
   },
   {
     href: "/streak",
@@ -148,6 +173,7 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-icon-streak",
     matchPaths: ["/streak"],
+    lang: "both",
   },
   {
     href: "/feedback",
@@ -159,13 +185,20 @@ const navItems: NavItem[] = [
     ),
     iconClass: "df-sidebar-icon-feedback",
     matchPaths: ["/feedback"],
+    lang: "both",
   },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { collapsed, toggleCollapse, mobileOpen } = useSidebar();
+  const { mode } = useLanguageMode();
   const tooltipRef = useRef<HTMLDivElement | null>(null);
+
+  // Filter nav items based on language mode
+  const filteredItems = navItems.filter(
+    (item) => item.lang === "both" || item.lang === mode
+  );
 
   const isActive = useCallback(
     (item: NavItem) => {
@@ -199,7 +232,7 @@ export default function Sidebar() {
     <>
       <aside className={`df-sidebar ${mobileOpen ? "mobile-open" : ""}`} id="df-sidebar">
         <nav className="df-sidebar-nav">
-          {navItems.map((item) => (
+          {filteredItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

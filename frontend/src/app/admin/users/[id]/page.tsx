@@ -237,7 +237,7 @@ export default function UserDetailPage() {
       key: "result",
       width: 140,
       render: (_, r) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <Text strong style={{ color: scoreColor(r.score_percent) }}>
             {r.correct_count}/{r.total_questions} ({r.score_percent}%)
           </Text>
@@ -286,7 +286,7 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.total_words > 0 ? Math.round((r.words_mastered / r.total_words) * 100) : 0;
         return (
-          <Space direction="vertical" size={0} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={0} style={{ width: "100%" }}>
             <Text style={{ fontSize: 12 }}>
               {r.words_mastered}/{r.total_words} từ
               {pct === 100 && <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 6 }} />}
@@ -325,7 +325,7 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.words_total > 0 ? Math.round((r.words_learned / r.words_total) * 100) : 0;
         return (
-          <Space direction="vertical" size={0}>
+          <Space orientation="vertical" size={0}>
             <Text style={{ fontSize: 12 }}>{r.words_learned}/{r.words_total}</Text>
             <Progress percent={pct} size="small" showInfo={false} strokeColor="#10b981" />
           </Space>
@@ -347,7 +347,7 @@ export default function UserDetailPage() {
 
   return (
     <div>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Button
