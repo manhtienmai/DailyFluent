@@ -142,6 +142,7 @@ class Command(BaseCommand):
                             "section_type": section_type,
                             "section_title": section_title,
                             "passage_text": passage_text if passage_text else None,
+                            "passage_title": section.get("passage_title", "") or None,
                             "question_num": q.get("num"),
                         },
                     )

@@ -52,7 +52,7 @@ Trả về 1 JSON object duy nhất, cấu trúc CHÍNH XÁC như sau:
 | `stress` | Trọng âm | Hiện câu hỏi + 4 đáp án grid |
 | `grammar` | Ngữ pháp, từ vựng | Hiện câu hỏi + đáp án |
 | `communication` | Giao tiếp | Hiện câu hỏi + đáp án |
-| `cloze_reading` | Điền từ vào đoạn văn/thông báo | **ẨN câu hỏi**, chỉ hiện số câu + 4 đáp án (vì câu hỏi đã nằm trong passage) |
+| `cloze_reading` | Điền từ vào đoạn văn/thông báo | **ẨN câu hỏi**, chỉ hiện số câu + 4 đáp án (vì câu hỏi đã nằm trong passage). **`text` phải là `""`** |
 | `sign_reading` | Đọc biển báo/thông báo ngắn | Hiện câu hỏi + đáp án |
 | `reading_comprehension` | Đọc hiểu đoạn dài | **HIỆN câu hỏi** + đáp án (câu hỏi độc lập với passage) |
 | `sentence_insertion` | Điền câu/cụm từ vào đoạn văn | 4 đáp án chung hiện 1 lần ở đầu, mỗi câu chọn bằng **dropdown** A/B/C/D |
@@ -64,8 +64,8 @@ Trả về 1 JSON object duy nhất, cấu trúc CHÍNH XÁC như sau:
 ## QUY TẮC QUAN TRỌNG VỀ SECTION TYPE VÀ HIỂN THỊ
 
 ### ⚠️ `cloze_reading` — Câu điền từ vào passage
-- Câu hỏi (`text`) sẽ bị ẨN trên giao diện (vì nó trùng với passage)
-- Chỉ hiện: **số câu** + **4 đáp án ngắn** (grid 4 cột)
+- **`text` PHẢI là `""` (chuỗi rỗng)** — KHÔNG copy câu từ passage xuống vì nó hoàn toàn thừa
+- Giao diện chỉ hiện: **số câu** + **4 đáp án ngắn** (grid 4 cột)
 - Passage chứa các chỗ trống: `(13) _______`, `(14) _______`...
 - Dùng cho: điền từ vào thông báo, điền từ vào đoạn văn
 
@@ -151,20 +151,36 @@ Với mỗi câu trọng âm, phần `explanation_json` PHẢI có:
 **`detail`**: Phân tích ngữ cảnh hội thoại, giải thích tại sao phản hồi phù hợp
 **`tip`**: Các cách diễn đạt tương tự
 
-### 5. ĐIỀN TỪ / ĐỌC HIỂU (cloze / reading)
-**`rule`**: Loại kiến thức (từ vựng, ngữ pháp, collocation, đọc hiểu...)
-**`detail`**: Giải nghĩa từ, phân tích ngữ cảnh, so sánh đáp án
-**`tip`**: Collocation, từ vựng liên quan
+### 5. ĐIỀN TỪ / ĐỌC HIỂU (cloze / reading) — CẦN CHI TIẾT
+**`rule`**: Loại kiến thức cụ thể (ví dụ: "Từ vựng — Tính từ ghép", "Collocation — go with", "Ngữ pháp — Bị động", "Từ loại — Cần tính từ")
+**`detail`**: BẮT BUỘC giải nghĩa TẤT CẢ 4 đáp án, phân tích ngữ cảnh câu, giải thích tại sao đáp án đúng phù hợp VÀ tại sao 3 đáp án còn lại KHÔNG phù hợp.
 
-### 6. CÂU GẦN NGHĨA / VIẾT CÂU (closest_meaning / sentence_from_cues)
+Ví dụ mẫu:
+```
+"detail": "A. eco-friendly = thân thiện với môi trường ✓ (phổ biến với 'tour', đúng cấu trúc)\nB. environmentally-friendly = thân thiện với môi trường (đúng nghĩa nhưng dài, ít dùng với 'tour')\nC. sustainable = bền vững (nghĩa rộng hơn, không tập trung vào 'eco')\nD. environmental-friendly = SAI cấu trúc (phải là environmentally-friendly, cần trạng từ)\n→ Đáp án A: eco-friendly phổ biến nhất khi nói về du lịch sinh thái."
+```
+
+**`tip`**: Ghi cụm từ hay gặp (collocation), từ đồng nghĩa/trái nghĩa, hoặc mẹo loại trừ đáp án. Ví dụ: "eco- = prefix sinh thái: eco-friendly, ecosystem, eco-tourism" hoặc "Mẹo: loại D vì tính từ không đứng trước -friendly, cần trạng từ."
+
+### 6. SẮP XẾP CÂU (sentence_order)
+**`rule`**: Loại liên kết logic (thời gian, nhân quả, chuyển ý, ví dụ minh họa...)
+**`detail`**: Phân tích logic trật tự câu, chỉ ra linking words/discourse markers (firstly, however, in addition, as a result...), giải thích tại sao các thứ tự khác KHÔNG hợp lý
+**`tip`**: Mẹo nhận biết: câu mở đầu (giới thiệu chủ đề), câu kết (tóm tắt), các từ nối chỉ thứ tự
+
+### 7. CÂU GẦN NGHĨA / VIẾT CÂU (closest_meaning / sentence_from_cues)
 **`rule`**: Cấu trúc chuyển đổi (reported speech, passive voice, conditional...)
-**`detail`**: Phân tích cấu trúc + quy tắc chuyển đổi + tại sao đáp án khác sai
+**`detail`**: Phân tích cấu trúc + quy tắc chuyển đổi + tại sao đáp án đúng + tại sao các đáp án khác sai
 **`tip`**: Công thức chuyển đổi + ví dụ
 
-### 7. ĐOẠN VĂN / BIỂN BÁO (reading / sign_reading)
+### 8. ĐOẠN VĂN / BIỂN BÁO (reading / sign_reading)
 **`rule`**: Dạng câu hỏi (main idea, reference, synonym, detail, NOT mentioned...)
-**`detail`**: Trích dẫn evidence từ bài đọc, giải thích logic suy luận
+**`detail`**: Trích dẫn evidence từ bài đọc, giải thích logic suy luận, giải thích tại sao các đáp án khác không đúng
 **`tip`**: Chiến thuật làm bài cho dạng câu hỏi đó
+
+### ⚠️ QUY TẮC CHUNG CHO TẤT CẢ CÁC DẠNG
+- **LUÔN giải thích tại sao các đáp án SAI không đúng** — không chỉ nói đáp án đúng là gì
+- **Giải nghĩa tất cả 4 đáp án** khi có thể (đặc biệt quan trọng với từ vựng, phát âm, trọng âm)
+- **`tip` phải actionable** — học sinh đọc xong phải biết cách áp dụng cho câu tương tự, không viết chung chung kiểu "học thêm từ vựng"
 
 ## QUY TẮC CHOICES TEXT
 
@@ -277,7 +293,7 @@ Với mỗi câu trọng âm, phần `explanation_json` PHẢI có:
   "questions": [
     {
       "num": 13,
-      "text": "Join our (13) _______ tour to explore the Mekong Delta.",
+      "text": "",
       "choices": [
         {"key": "A", "text": "eco-friendly"},
         {"key": "B", "text": "environmentally-friendly"},
@@ -306,7 +322,7 @@ Với mỗi câu trọng âm, phần `explanation_json` PHẢI có:
 8. **Passage title** tách riêng vào field `passage_title` (sẽ hiển thị centered + bold)
 9. **Reading comprehension**: BẮT BUỘC có `text` cho mỗi câu + HTML bold/underline cho từ khóa trong passage
 10. **Sentence insertion**: 4 đáp án giống nhau cho mỗi câu, giao diện sẽ hiện 1 lần + dropdown
-11. **Cloze reading**: Câu hỏi sẽ bị ẨN, chỉ hiện số câu và 4 đáp án
+11. **Cloze reading**: `text` phải là `""` (chuỗi rỗng) — KHÔNG copy câu từ passage. Giao diện chỉ hiện số câu và 4 đáp án
 12. **JSON phải valid** — có thể parse được bằng JSON.parse()
 
 ---

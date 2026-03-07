@@ -195,7 +195,7 @@ export default function EnglishExamDetailPage() {
 
       {/* Score summary when all done */}
       {allDone && (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-center animate-[scaleIn_0.4s_ease]">
+        <div className="mb-5 rounded-xl shadow-sm p-6 text-center animate-[scaleIn_0.4s_ease]" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
           <div className="text-5xl font-black mb-2 transition-all duration-500" style={{ color: score10 >= 8 ? "#10b981" : score10 >= 6 ? "#f59e0b" : "#ef4444" }}>
             {score10}<span className="text-2xl font-bold text-gray-400">/10</span>
           </div>
@@ -205,7 +205,8 @@ export default function EnglishExamDetailPage() {
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button onClick={handleRetry}
-              className="rounded-lg bg-gray-200 dark:bg-gray-700 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-300 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]">
+              className="rounded-lg px-5 py-2 text-sm font-medium hover:opacity-80 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
+              style={{ background: 'var(--bg-interactive)', color: 'var(--text-primary)' }}>
               🔄 Làm lại
             </button>
             <Link href={`/exam/english/${slug}/review`}
@@ -214,7 +215,8 @@ export default function EnglishExamDetailPage() {
             </Link>
             {attemptHistory.length > 0 && (
               <button onClick={() => setShowHistory(!showHistory)}
-                className="rounded-lg bg-indigo-100 dark:bg-indigo-900/30 px-5 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:bg-indigo-200 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]">
+                className="rounded-lg px-5 py-2 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
+              style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
                 📊 Lịch sử ({attemptHistory.length})
               </button>
             )}
@@ -235,14 +237,14 @@ export default function EnglishExamDetailPage() {
                   const attemptNum = attemptHistory.length - i;
                   return (
                     <div key={i}
-                      className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-700/40 px-4 py-2.5 text-sm"
-                      style={{ animation: `slideUp 0.3s ease-out ${i * 0.05}s both` }}
+                      className="flex items-center justify-between rounded-lg px-4 py-2.5 text-sm"
+                      style={{ background: 'var(--bg-interactive)', animation: `slideUp 0.3s ease-out ${i * 0.05}s both` }}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 text-xs font-bold flex items-center justify-center text-gray-500 dark:text-gray-300">
+                        <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center" style={{ background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' }}>
                           {attemptNum}
                         </span>
-                        <span className="text-gray-500 dark:text-gray-400">
+                        <span style={{ color: 'var(--text-tertiary)' }}>
                           {new Date(a.date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
@@ -278,42 +280,31 @@ export default function EnglishExamDetailPage() {
       {exam.sections.map((section, si) => (
         <div key={si} className="mb-5" style={{ animation: `slideUp 0.4s ease-out ${si * 0.1}s both` }}>
           {/* Section instruction */}
-          <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed mb-2 italic px-1">
+          <p className="text-[15px] leading-[1.8] mb-3 font-semibold px-1" style={{ color: 'var(--text-primary)' }}>
             {section.title}
           </p>
 
           {/* Passage */}
           {section.passage && (
-            <div className="mb-2 bg-gray-50 dark:bg-gray-800/60 rounded-lg p-4 text-[13px] leading-relaxed text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700/50">
+            <div className="mb-3 rounded-lg p-5 text-[15px] leading-[1.8]" style={{ background: 'var(--bg-interactive)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}>
               {section.passage.title && (
-                <p className="text-center font-bold text-gray-800 dark:text-gray-100 mb-2 text-[14px]">{section.passage.title}</p>
+                <p className="text-center font-bold mb-3 text-[15px]" style={{ color: 'var(--text-primary)' }}>{section.passage.title}</p>
               )}
-              <div className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: section.passage.text }} />
+              <div className="whitespace-pre-line [&>p]:mb-3 [&>br+br]:block [&>br+br]:mb-2" dangerouslySetInnerHTML={{ __html: section.passage.text }} />
             </div>
           )}
 
-          {/* Sentence insertion: show shared choices A-D behind toggle */}
+          {/* Sentence insertion: show shared choices A-D */}
           {section.type === 'sentence_insertion' && section.questions.length > 0 && (
-            <div className="mb-2">
-              <button
-                onClick={() => setShowSentenceChoices(!showSentenceChoices)}
-                className="w-full flex items-center justify-between bg-white dark:bg-gray-800/40 rounded-xl px-4 py-3 shadow-sm border border-gray-100 dark:border-gray-700/50 text-[13px] font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-200"
-              >
-                <span>📋 Xem đáp án A, B, C, D</span>
-                <span className={`transition-transform duration-200 ${showSentenceChoices ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ${showSentenceChoices ? 'max-h-[300px] opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
-                <div className="bg-white dark:bg-gray-800/40 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700/50">
-                  {section.questions[0].choices.map((c: Choice) => (
-                    <p key={c.key} className="text-[13px] text-gray-700 dark:text-gray-200 py-1 leading-relaxed"><strong>{c.key}.</strong> {c.text}</p>
-                  ))}
-                </div>
-              </div>
+            <div className="mb-2 rounded-xl p-4 shadow-sm" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
+              {section.questions[0].choices.map((c: Choice) => (
+                <p key={c.key} className="text-[15px] py-1.5 leading-[1.8]" style={{ color: 'var(--text-primary)' }}><strong>{c.key}.</strong> {c.text}</p>
+              ))}
             </div>
           )}
 
           {/* Questions — continuous */}
-          <div className="bg-white dark:bg-gray-800/40 rounded-xl overflow-hidden shadow-sm">
+          <div className="rounded-xl overflow-hidden shadow-sm" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
             {section.questions.map((q, qi) => {
               const selected = answers[q.num];
               const isCorrect = selected === q.correct_answer;
@@ -329,29 +320,78 @@ export default function EnglishExamDetailPage() {
                 <div
                   key={q.id}
                   ref={(el) => { questionRefs.current[q.num] = el; }}
-                  className={`px-5 py-4 transition-all duration-500 ${
-                    qi > 0 ? "border-t border-gray-100 dark:border-gray-700/50" : ""
+                  className={`px-5 py-5 transition-all duration-500 ${
+                    qi > 0 ? "border-t" : ""
                   } ${
-                    showResult
-                      ? isCorrect
-                        ? `bg-emerald-50/60 dark:bg-emerald-900/15 ${wasJustAnswered ? "animate-[correctPulse_0.6s_ease]" : ""}`
-                        : "bg-red-50/40 dark:bg-red-900/10"
-                      : isFlagged ? "bg-amber-50/60 dark:bg-amber-900/15" : ""
+                    showResult && isCorrect && wasJustAnswered ? "animate-[correctPulse_0.6s_ease]" : ""
                   }`}
+                  style={{
+                    borderColor: qi > 0 ? 'var(--border-default)' : undefined,
+                    background: showResult
+                      ? isCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.05)'
+                      : isFlagged ? 'rgba(245,158,11,0.06)' : undefined
+                  }}
                 >
-                  {/* Question header */}
+                  {/* Sentence insertion: inline layout */}
+                  {isSentenceInsertion ? (
+                    <div className="flex items-center gap-2.5">
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-300 ${
+                        showResult
+                          ? isCorrect ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-110" : "bg-red-500 text-white shadow-sm shadow-red-500/30"
+                          : selected ? "bg-blue-500 text-white" : ""
+                      }`} style={{
+                        ...(!showResult && !selected ? { background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' } : {})
+                      }}>{q.num}</span>
+                      <select
+                        value={selected || ""}
+                        onChange={(e) => e.target.value && handleSelect(q.num, e.target.value)}
+                        disabled={!!selected}
+                        className={`max-w-[160px] rounded-lg border px-3 py-1.5 text-[15px] transition-all duration-200 appearance-none cursor-pointer ${
+                          showResult
+                            ? isCorrect
+                              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                              : "border-red-400 bg-red-50 text-red-600"
+                            : "hover:border-blue-400"
+                        }`}
+                        style={{
+                          ...(!showResult ? { borderColor: 'var(--border-default)', background: 'var(--bg-surface)', color: 'var(--text-primary)' } : {})
+                        }}
+                      >
+                        <option value="">-- Chọn --</option>
+                        {["A","B","C","D"].map(k => (
+                          <option key={k} value={k}>{k}</option>
+                        ))}
+                      </select>
+                      {showResult && (
+                        <span className="text-[12px] text-gray-500">Đáp án: <strong className="text-emerald-600">{q.correct_answer}</strong></span>
+                      )}
+                      <div className="flex-1" />
+                      {/* Flag button */}
+                      {!selected && (
+                        <button
+                          onClick={() => toggleFlag(q.num)}
+                          className={`flex-shrink-0 text-base transition-all duration-200 hover:scale-125 active:scale-90 ${isFlagged ? "text-amber-400" : "text-gray-300 hover:text-amber-400"}`}
+                          title="Đánh dấu câu hỏi"
+                        >
+                          {isFlagged ? "🚩" : "⚑"}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                  <>
+                  {/* Question header for normal questions */}
                   <div className={`flex items-start gap-2.5 ${hideQuestionText ? 'mb-1' : 'mb-3'}`}>
                     <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-300 ${
                       showResult
                         ? isCorrect ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-110" : "bg-red-500 text-white shadow-sm shadow-red-500/30"
-                        : selected ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-300"
-                    }`}>{q.num}</span>
-                    {/* Show question text for non-cloze types */}
-                    {!hideQuestionText && !isSentenceInsertion && (
-                      <p className="text-[13px] text-gray-800 dark:text-gray-100 leading-relaxed flex-1 whitespace-pre-line">{q.text}</p>
+                        : selected ? "bg-blue-500 text-white" : ""
+                    }`} style={{
+                      ...(!showResult && !selected ? { background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' } : {})
+                    }}>{q.num}</span>
+                    {!hideQuestionText && (
+                      <p className="text-[15px] leading-[1.8] flex-1 whitespace-pre-line" style={{ color: 'var(--text-primary)' }}>{q.text}</p>
                     )}
-                    {(hideQuestionText || isSentenceInsertion) && <div className="flex-1" />}
-                    {/* Flag button */}
+                    {hideQuestionText && <div className="flex-1" />}
                     {!selected && (
                       <button
                         onClick={() => toggleFlag(q.num)}
@@ -361,81 +401,61 @@ export default function EnglishExamDetailPage() {
                         {isFlagged ? "🚩" : "⚑"}
                       </button>
                     )}
-                    {/* Correct/wrong indicator */}
-                    {showResult && (
-                      <span className={`text-base transition-all duration-300 ${wasJustAnswered ? "animate-[popIn_0.3s_ease]" : ""}`}>
-                        {isCorrect ? "✅" : "❌"}
-                      </span>
-                    )}
                   </div>
-
-                  {/* Sentence insertion: dropdown instead of normal choices */}
-                  {isSentenceInsertion ? (
-                    <div className="ml-9">
-                      <select
-                        value={selected || ""}
-                        onChange={(e) => e.target.value && handleSelect(q.num, e.target.value)}
-                        disabled={!!selected}
-                        className={`w-full max-w-[200px] rounded-lg border px-3 py-2 text-[13px] transition-all duration-200 appearance-none cursor-pointer ${
-                          showResult
-                            ? isCorrect
-                              ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
-                              : "border-red-400 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300"
-                            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:border-blue-400"
-                        }`}
-                      >
-                        <option value="">-- Chọn --</option>
-                        {["A","B","C","D"].map(k => (
-                          <option key={k} value={k}>{k}</option>
-                        ))}
-                      </select>
-                      {showResult && (
-                        <span className="ml-2 text-[12px] text-gray-500">Đáp án: <strong className="text-emerald-600">{q.correct_answer}</strong></span>
-                      )}
-                    </div>
-                  ) : (
-                  /* Normal choices */
+                  {/* Normal choices */}
                   <div className={`ml-9 gap-2 ${isShort ? "grid grid-cols-2 sm:grid-cols-4" : "grid grid-cols-1"}`}>
                     {q.choices.map((c) => {
                       const isSelected = selected === c.key;
                       const isAnswer = c.key === q.correct_answer;
-                      let cls = "hover:bg-gray-100/50 dark:hover:bg-gray-700/30 cursor-pointer text-gray-700 dark:text-gray-200 hover:shadow-sm hover:-translate-y-px";
+                      let cls = "cursor-pointer hover:shadow-sm hover:-translate-y-px";
 
                       if (showResult) {
-                        if (isAnswer) cls = "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium ring-1 ring-emerald-300 dark:ring-emerald-600 shadow-sm shadow-emerald-500/10";
-                        else cls = "text-gray-700 dark:text-gray-200";
+                        if (isAnswer) cls = "font-medium ring-1 ring-emerald-300 shadow-sm shadow-emerald-500/10";
+                        else cls = "";
                       } else if (isSelected) {
-                        cls = "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 ring-1 ring-blue-300 dark:ring-blue-600";
+                        cls = "ring-1 ring-blue-300";
                       }
+
+                      const itemStyle: React.CSSProperties = showResult
+                        ? isAnswer
+                          ? { background: 'rgba(16,185,129,0.08)', color: '#15803d' }
+                          : { color: 'var(--text-primary)' }
+                        : isSelected
+                          ? { background: 'rgba(59,130,246,0.08)', color: '#2563eb' }
+                          : { color: 'var(--text-primary)' };
 
                       return (
                         <button
                           key={c.key}
                           onClick={() => handleSelect(q.num, c.key)}
                           disabled={!!selected}
-                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition-all duration-200 active:scale-[0.98] ${cls}`}
+                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[15px] transition-all duration-200 active:scale-[0.98] ${cls}`}
+                          style={itemStyle}
                         >
                           <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200 ${
                             showResult && isAnswer ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" :
                             showResult && isSelected ? "bg-red-400 text-white border-red-400" :
                             isSelected ? "bg-blue-500 text-white border-blue-500" :
-                            "border-gray-300 dark:border-gray-500 text-gray-400 group-hover:border-blue-400"
-                          }`}>{c.key}</span>
-                          <span className="flex-1 [&_u]:underline [&_u]:decoration-2 [&_u]:decoration-blue-400 [&_u]:font-semibold" dangerouslySetInnerHTML={{ __html: c.text }} />
-                          {showResult && isAnswer && <span className="text-emerald-500 text-[13px] animate-[popIn_0.3s_ease]">✓</span>}
+                            "text-gray-400"
+                          }`} style={{
+                            ...(!showResult && !isSelected ? { borderColor: 'var(--border-default)' } : {})
+                          }}>{c.key}</span>
+                          <span className="flex-1 [&_u]:underline [&_u]:decoration-2 [&_u]:decoration-current [&_u]:font-semibold" dangerouslySetInnerHTML={{ __html: c.text }} />
+                          {showResult && isAnswer && <span className="text-emerald-500 text-[15px] animate-[popIn_0.3s_ease]">✓</span>}
                         </button>
                       );
                     })}
                   </div>
+                  </>
                   )}
 
                   {/* Explanation */}
                   {showResult && q.explanation_json && Object.keys(q.explanation_json).length > 0 && (
-                    <div className="mt-3 ml-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3 animate-[slideDown_0.3s_ease] border border-blue-100 dark:border-blue-800/30">
+                    <div className="mt-3 ml-9 rounded-lg p-3 animate-[slideDown_0.3s_ease]" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)' }}>
                       <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1">
                         💡 {q.explanation_json.rule || "Giải thích"}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{q.explanation_json.detail}</p>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{q.explanation_json.detail}</p>
                       {q.explanation_json.tip && (
                         <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
                           <span className="inline-block animate-pulse">📌</span> {q.explanation_json.tip}
@@ -451,13 +471,16 @@ export default function EnglishExamDetailPage() {
       ))}
 
       {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 transition-all duration-300">
+      <div className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300" style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', opacity: 0.97 }}>
         <div className="max-w-[960px] mx-auto flex items-center justify-between px-4 py-2.5">
           {/* Live score with animation */}
           <div className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all duration-300 ${
-            answeredCount === 0 ? "text-gray-400 bg-gray-100 dark:bg-gray-800" :
-            "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30"
-          }`}>
+            answeredCount === 0 ? "" :
+            "text-emerald-600"
+          }`} style={{
+            background: answeredCount === 0 ? 'var(--bg-interactive)' : 'rgba(16,185,129,0.08)',
+            color: answeredCount === 0 ? 'var(--text-tertiary)' : undefined
+          }}>
             <span className={justAnswered !== null ? "animate-[popIn_0.3s_ease]" : ""}>✓ {correctCount}/{answeredCount}</span>
           </div>
 
@@ -479,24 +502,28 @@ export default function EnglishExamDetailPage() {
         </div>
 
         {/* Navigation grid with transition */}
-        <div className={`border-t border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ${showNav ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+        <div className={`overflow-hidden transition-all duration-300 ${showNav ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`} style={{ borderTop: '1px solid var(--border-default)' }}>
           <div className="px-4 py-2">
             <div className="max-w-[960px] mx-auto grid grid-cols-10 gap-1">
               {allQuestions.map(q => {
                 const sel = answers[q.num];
                 const isRight = sel === q.correct_answer;
                 const isFl = flagged.has(q.num);
-                let cls = "bg-gray-100 dark:bg-gray-700 text-gray-400";
+                let cls = "text-gray-400";
+                let itemStyle: React.CSSProperties = { background: 'var(--bg-interactive)' };
                 if (sel) {
                   cls = isRight
                     ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
                     : "bg-red-400 text-white shadow-sm shadow-red-500/30";
+                  itemStyle = {};
                 } else if (isFl) {
                   cls = "bg-amber-400 text-white shadow-sm shadow-amber-500/30";
+                  itemStyle = {};
                 }
                 return (
                   <button key={q.num} onClick={() => scrollToQuestion(q.num)}
-                    className={`rounded-md text-[11px] font-bold py-1.5 transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 active:scale-95 ${cls}`}>
+                    className={`rounded-md text-[11px] font-bold py-1.5 transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 active:scale-95 ${cls}`}
+                    style={itemStyle}>
                     {q.num}
                   </button>
                 );

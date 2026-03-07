@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useLanguageMode } from "@/hooks/useLanguageMode";
 
 interface ExamItem {
   slug: string;
@@ -19,21 +20,25 @@ interface ExamCategory {
   description: string;
   color: string;
   href: string;
+  lang: "en" | "jp";
 }
 
 const EXAM_CATEGORIES: ExamCategory[] = [
-  { slug: "toeic", label: "TOEIC", icon: "📝", description: "Luyện đề TOEIC Reading & Listening", color: "#6366f1", href: "/exam/toeic" },
-  { slug: "choukai", label: "聴解 Choukai", icon: "🎧", description: "Luyện nghe JLPT chọn đáp án", color: "#f59e0b", href: "/exam/choukai" },
-  { slug: "dokkai", label: "読解 Dokkai", icon: "📖", description: "Luyện đọc hiểu JLPT", color: "#10b981", href: "/exam/dokkai" },
-  { slug: "usage", label: "用法 Cách dùng từ", icon: "✍️", description: "Chọn câu dùng từ đúng", color: "#8b5cf6", href: "/exam/usage" },
-  { slug: "bunpou", label: "文法 Ngữ pháp", icon: "📝", description: "Điền chỗ trống ngữ pháp JLPT", color: "#ef4444", href: "/exam/bunpou" },
-  { slug: "books", label: "Sách đề", icon: "📚", description: "Bộ đề theo sách", color: "#ec4899", href: "/exam/books" },
-  { slug: "english", label: "🇬🇧 English Lớp 10", icon: "🇬🇧", description: "Luyện đề tiếng Anh thi vào lớp 10", color: "#3b82f6", href: "/exam/english" },
+  { slug: "toeic", label: "TOEIC", icon: "📝", description: "Luyện đề TOEIC Reading & Listening", color: "#6366f1", href: "/exam/toeic", lang: "en" },
+  { slug: "choukai", label: "聴解 Choukai", icon: "🎧", description: "Luyện nghe JLPT chọn đáp án", color: "#f59e0b", href: "/exam/choukai", lang: "jp" },
+  { slug: "dokkai", label: "読解 Dokkai", icon: "📖", description: "Luyện đọc hiểu JLPT", color: "#10b981", href: "/exam/dokkai", lang: "jp" },
+  { slug: "usage", label: "用法 Cách dùng từ", icon: "✍️", description: "Chọn câu dùng từ đúng", color: "#8b5cf6", href: "/exam/usage", lang: "jp" },
+  { slug: "bunpou", label: "文法 Ngữ pháp", icon: "📝", description: "Điền chỗ trống ngữ pháp JLPT", color: "#ef4444", href: "/exam/bunpou", lang: "jp" },
+  { slug: "books", label: "Sách đề", icon: "📚", description: "Bộ đề theo sách", color: "#ec4899", href: "/exam/books", lang: "jp" },
+  { slug: "english", label: "🇬🇧 English Lớp 10", icon: "🇬🇧", description: "Luyện đề tiếng Anh thi vào lớp 10", color: "#3b82f6", href: "/exam/english", lang: "en" },
 ];
 
 export default function ExamListPage() {
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { mode } = useLanguageMode();
+
+  const filteredCategories = EXAM_CATEGORIES.filter(cat => cat.lang === mode);
 
   useEffect(() => {
     fetch("/api/v1/exam/list", { credentials: "include" })
@@ -47,12 +52,11 @@ export default function ExamListPage() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold mb-2" style={{ color: "var(--text-primary)" }}>📝 Luyện thi</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Chọn dạng bài luyện tập</p>
         </div>
 
         {/* Category cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {EXAM_CATEGORIES.map((cat) => (
+          {filteredCategories.map((cat) => (
             <Link
               key={cat.slug}
               href={cat.href}

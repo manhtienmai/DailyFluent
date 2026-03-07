@@ -753,6 +753,60 @@ def en10_vocab_topic_remove_word(request, slug: str, word: str):
     return {"ok": True, "word": word, "slug": slug}
 
 
+@router.get("/english/vocab-progress")
+def en10_vocab_progress_all(request):
+    """Get all learned words for all vocab topics for the authenticated user."""
+    from exam.models import EN10VocabProgress
+
+    progress = EN10VocabProgress.objects.filter(
+        user=request.user
+    ).select_related('topic')
+
+    result = {}
+    for p in progress:
+        result[p.topic.slug] = p.learned_words or []
+    return result
+
+
+class VocabProgressIn(Schema):
+    word: str
+
+
+@router.post("/english/vocab-progress/{slug}")
+def en10_vocab_progress_toggle(request, slug: str, payload: VocabProgressIn):
+    """Toggle a word's learned status for a vocab topic."""
+    from exam.models import EN10VocabTopic, EN10VocabProgress
+
+    try:
+        topic = EN10VocabTopic.objects.get(slug=slug, is_active=True)
+    except EN10VocabTopic.DoesNotExist:
+        raise HttpError(404, "Topic not found")
+
+    progress, _ = EN10VocabProgress.objects.get_or_create(
+        user=request.user,
+        topic=topic,
+        defaults={'learned_words': []},
+    )
+
+    words = progress.learned_words or []
+    word = payload.word
+    if word in words:
+        words.remove(word)
+    else:
+        words.append(word)
+
+    progress.learned_words = words
+    progress.save(update_fields=['learned_words', 'updated_at'])
+
+    return {
+        "slug": slug,
+        "word": word,
+        "learned": word in words,
+        "learned_words": words,
+        "total_learned": len(words),
+    }
+
+
 # ── English 10th Grade Exam endpoints ─────────────────────
 # NOTE: Must appear BEFORE the catch-all /{slug} route
 
@@ -861,6 +915,7 @@ def english_detail(request, slug: str):
                 "passage": None,
                 "questions": [],
             }
+            # Try ReadingPassage first
             if q.passage_id and q.passage_id in passages:
                 p = passages[q.passage_id]
                 current_section["passage"] = {
@@ -869,6 +924,14 @@ def english_detail(request, slug: str):
                     "text": p.text,
                     "instruction": p.instruction,
                     "content_json": p.content_json,
+                }
+            # Fallback: read passage_text from question data (load_en10_exam stores it there)
+            elif q.data.get("passage_text"):
+                current_section["passage"] = {
+                    "id": None,
+                    "title": q.data.get("passage_title", ""),
+                    "text": q.data["passage_text"],
+                    "instruction": "",
                 }
             sections.append(current_section)
 

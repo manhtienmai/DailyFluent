@@ -552,7 +552,7 @@ body {
 /* ── User Modal ── */
 .df-user-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; opacity: 0; transition: opacity 0.3s ease; }
 .df-user-modal-overlay.active { display: block; opacity: 1; }
-.df-user-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 420px; max-width: 90vw; max-height: 90vh; overflow-y: auto; background: var(--bg-surface); border-radius: 20px; padding: 32px; z-index: 210; opacity: 0; transition: all 0.3s ease; box-shadow: var(--shadow-xl); }
+.df-user-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 420px; max-width: 90vw; max-height: 90vh; overflow-y: auto; background: #ffffff; border-radius: 20px; padding: 32px; z-index: 210; opacity: 0; transition: all 0.3s ease; box-shadow: var(--shadow-xl); }
 .df-user-modal.active { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .df-user-modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border: none; background: var(--bg-interactive); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all 0.15s ease; }
 .df-user-modal-close:hover { background: var(--bg-interactive-hover); color: var(--text-primary); }

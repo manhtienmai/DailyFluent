@@ -878,3 +878,35 @@ class EN10VocabTopic(models.Model):
     def word_count(self):
         return len(self.words) if self.words else 0
 
+
+class EN10VocabProgress(models.Model):
+    """
+    Tracks which words a user has learned in each EN10 vocab topic.
+    Replaces localStorage-based tracking for cross-device sync.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='en10_vocab_progress',
+    )
+    topic = models.ForeignKey(
+        EN10VocabTopic,
+        on_delete=models.CASCADE,
+        related_name='progress',
+    )
+    learned_words = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of learned word strings, e.g. ["education", "school"]',
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'topic')
+        verbose_name = "EN10 Vocab Progress"
+        verbose_name_plural = "EN10 Vocab Progress"
+
+    def __str__(self):
+        count = len(self.learned_words) if self.learned_words else 0
+        return f"{self.user.username} – {self.topic.title} ({count} learned)"
+
