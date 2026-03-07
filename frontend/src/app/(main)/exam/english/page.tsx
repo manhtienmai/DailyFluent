@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getLearnedWords } from "@/lib/vocab-progress";
+import { fetchLearnedCountsAPI } from "@/lib/vocab-progress";
 
 interface ExamItem {
   id: number;
@@ -40,16 +40,14 @@ export default function EnglishExamListPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
 
-    // Fetch vocab topics
+    // Fetch vocab topics + progress from API
     fetch("/api/v1/exam/english/vocab-topics")
       .then(r => r.json())
-      .then(data => {
+      .then(async (data) => {
         const list = Array.isArray(data) ? data : [];
         setVocabTopics(list);
-        const counts: Record<string, number> = {};
-        for (const t of list) {
-          counts[t.slug] = getLearnedWords(t.slug).length;
-        }
+        // Fetch progress from server API
+        const counts = await fetchLearnedCountsAPI(list.map((t: VocabTopic) => t.slug));
         setLearnedCounts(counts);
       })
       .catch(() => {});
@@ -157,7 +155,7 @@ export default function EnglishExamListPage() {
             <div className="en9-header-left">
               <span className="en9-icon">📚</span>
               <div>
-                <h2 className="en9-title">Từ vựng Tiếng Anh 10</h2>
+                <h2 className="en9-title">Tiếng Anh 9 lên 10</h2>
                 <p className="en9-subtitle">{vocabTopics.length} chủ đề · {totalWords} từ vựng · Đã thuộc {totalLearned}/{totalWords}</p>
               </div>
             </div>

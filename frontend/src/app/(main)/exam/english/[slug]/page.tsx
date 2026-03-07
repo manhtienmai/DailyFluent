@@ -380,28 +380,90 @@ export default function EnglishExamDetailPage() {
                   ) : (
                   <>
                   {/* Question header for normal questions */}
-                  <div className={`flex items-start gap-2.5 ${hideQuestionText ? 'mb-1' : 'mb-3'}`}>
-                    <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-300 ${
-                      showResult
-                        ? isCorrect ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-110" : "bg-red-500 text-white shadow-sm shadow-red-500/30"
-                        : selected ? "bg-blue-500 text-white" : ""
-                    }`} style={{
-                      ...(!showResult && !selected ? { background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' } : {})
-                    }}>{q.num}</span>
-                    {!hideQuestionText && (
+                  {hideQuestionText ? (
+                    /* Cloze: number + choices on same row */
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-300 ${
+                        showResult
+                          ? isCorrect ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-110" : "bg-red-500 text-white shadow-sm shadow-red-500/30"
+                          : selected ? "bg-blue-500 text-white" : ""
+                      }`} style={{
+                        ...(!showResult && !selected ? { background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' } : {})
+                      }}>{q.num}</span>
+                      {q.choices.map((c) => {
+                        const isSelected = selected === c.key;
+                        const isAnswer = c.key === q.correct_answer;
+                        let cls = "cursor-pointer hover:shadow-sm hover:-translate-y-px";
+
+                        if (showResult) {
+                          if (isAnswer) cls = "font-medium ring-1 ring-emerald-300 shadow-sm shadow-emerald-500/10";
+                          else cls = "";
+                        } else if (isSelected) {
+                          cls = "ring-1 ring-blue-300";
+                        }
+
+                        const itemStyle: React.CSSProperties = showResult
+                          ? isAnswer
+                            ? { background: 'rgba(16,185,129,0.08)', color: '#15803d' }
+                            : { color: 'var(--text-primary)' }
+                          : isSelected
+                            ? { background: 'rgba(59,130,246,0.08)', color: '#2563eb' }
+                            : { color: 'var(--text-primary)' };
+
+                        return (
+                          <button
+                            key={c.key}
+                            onClick={() => handleSelect(q.num, c.key)}
+                            disabled={!!selected}
+                            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[15px] transition-all duration-200 active:scale-[0.98] ${cls}`}
+                            style={itemStyle}
+                          >
+                            <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200 ${
+                              showResult && isAnswer ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" :
+                              showResult && isSelected ? "bg-red-400 text-white border-red-400" :
+                              isSelected ? "bg-blue-500 text-white border-blue-500" :
+                              "text-gray-400"
+                            }`} style={{
+                              ...(!showResult && !isSelected ? { borderColor: 'var(--border-default)' } : {})
+                            }}>{c.key}</span>
+                            <span className="flex-1 [&_u]:underline [&_u]:decoration-2 [&_u]:decoration-current [&_u]:font-semibold" dangerouslySetInnerHTML={{ __html: c.text }} />
+                            {showResult && isAnswer && <span className="text-emerald-500 text-[15px] animate-[popIn_0.3s_ease]">✓</span>}
+                          </button>
+                        );
+                      })}
+                      <div className="flex-1" />
+                      {!selected && (
+                        <button
+                          onClick={() => toggleFlag(q.num)}
+                          className={`flex-shrink-0 text-base transition-all duration-200 hover:scale-125 active:scale-90 ${isFlagged ? "text-amber-400" : "text-gray-300 hover:text-amber-400"}`}
+                          title="Đánh dấu câu hỏi"
+                        >
+                          {isFlagged ? "🚩" : "⚑"}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    /* Normal question with text */
+                    <>
+                    <div className={`flex items-start gap-2.5 mb-3`}>
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all duration-300 ${
+                        showResult
+                          ? isCorrect ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-110" : "bg-red-500 text-white shadow-sm shadow-red-500/30"
+                          : selected ? "bg-blue-500 text-white" : ""
+                      }`} style={{
+                        ...(!showResult && !selected ? { background: 'var(--bg-interactive)', color: 'var(--text-tertiary)' } : {})
+                      }}>{q.num}</span>
                       <p className="text-[15px] leading-[1.8] flex-1 whitespace-pre-line" style={{ color: 'var(--text-primary)' }}>{q.text}</p>
-                    )}
-                    {hideQuestionText && <div className="flex-1" />}
-                    {!selected && (
-                      <button
-                        onClick={() => toggleFlag(q.num)}
-                        className={`flex-shrink-0 text-base transition-all duration-200 hover:scale-125 active:scale-90 ${isFlagged ? "text-amber-400" : "text-gray-300 hover:text-amber-400"}`}
-                        title="Đánh dấu câu hỏi"
-                      >
-                        {isFlagged ? "🚩" : "⚑"}
-                      </button>
-                    )}
-                  </div>
+                      {!selected && (
+                        <button
+                          onClick={() => toggleFlag(q.num)}
+                          className={`flex-shrink-0 text-base transition-all duration-200 hover:scale-125 active:scale-90 ${isFlagged ? "text-amber-400" : "text-gray-300 hover:text-amber-400"}`}
+                          title="Đánh dấu câu hỏi"
+                        >
+                          {isFlagged ? "🚩" : "⚑"}
+                        </button>
+                      )}
+                    </div>
                   {/* Normal choices */}
                   <div className={`ml-9 gap-2 ${isShort ? "grid grid-cols-2 sm:grid-cols-4" : "grid grid-cols-1"}`}>
                     {q.choices.map((c) => {
@@ -446,6 +508,8 @@ export default function EnglishExamDetailPage() {
                       );
                     })}
                   </div>
+                    </>
+                  )}
                   </>
                   )}
 

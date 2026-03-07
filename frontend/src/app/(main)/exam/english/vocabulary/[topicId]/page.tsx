@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getLearnedWords, toggleLearnedWord } from "@/lib/vocab-progress";
+import { getLearnedWords, toggleLearnedWordAPI, fetchAllLearnedWordsAPI } from "@/lib/vocab-progress";
 import { useStudyTimer } from "@/hooks/useStudyTimer";
 
 interface VocabWord {
@@ -141,16 +141,16 @@ export default function VocabDetailPage() {
       {mode === "quiz" && <QuizMode words={topic.words} />}
 
       <style jsx global>{`
-        .vd-page { max-width: 100%; margin: 0 auto; padding: 24px; }
-        .vd-breadcrumb { font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .vd-page { max-width: 100%; margin: 0 auto; padding: 20px 24px; }
+        .vd-breadcrumb { font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .vd-breadcrumb a { color: var(--text-tertiary); text-decoration: none; transition: color 0.2s; position: relative; }
         .vd-breadcrumb a::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 1.5px; background: var(--action-primary); transition: width 0.25s ease; }
         .vd-breadcrumb a:hover { color: var(--action-primary); }
         .vd-breadcrumb a:hover::after { width: 100%; }
         .vd-breadcrumb span:last-child { color: var(--text-primary); }
-        .vd-title { font-size: 24px; font-weight: 900; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .vd-title { font-size: 20px; font-weight: 900; color: var(--text-primary); margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
 
-        .vd-modes { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+        .vd-modes { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
         .vd-mode-btn {
           padding: 7px 14px; border-radius: 99px; font-weight: 600; font-size: 13px;
           border: 1px solid var(--border-default); background: var(--bg-surface);
@@ -272,36 +272,37 @@ export default function VocabDetailPage() {
           padding: 4px 12px; border-radius: 99px; white-space: nowrap;
         }
         .vd-quiz-q {
-          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
           border-radius: 20px; padding: 32px 24px;
           margin-bottom: 20px; text-align: center;
-          box-shadow: 0 8px 32px rgba(30,41,59,0.25), 0 0 0 1px rgba(255,255,255,0.05) inset;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
           animation: vdSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative; overflow: hidden;
         }
         .vd-quiz-q::before {
           content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%;
-          background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(0,0,0,0.02) 0%, transparent 70%);
           pointer-events: none;
         }
         @keyframes vdSlideDown { from { opacity: 0; transform: translateY(-12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .vd-quiz-q-word { font-size: 28px; font-weight: 900; color: #fff; margin: 0 0 6px; position: relative; }
-        .vd-quiz-q-ipa { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0 0 4px; font-style: italic; }
+        .vd-quiz-q-word { font-size: 28px; font-weight: 900; color: var(--text-primary); margin: 0 0 6px; position: relative; }
+        .vd-quiz-q-ipa { font-size: 13px; color: var(--text-tertiary); margin: 0 0 4px; font-style: italic; }
         .vd-quiz-q-word-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; position: relative; }
-        .vd-quiz-q .vd-speaker-btn { color: rgba(255,255,255,0.6); }
-        .vd-quiz-q .vd-speaker-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+        .vd-quiz-q .vd-speaker-btn { color: var(--text-tertiary); }
+        .vd-quiz-q .vd-speaker-btn:hover { color: var(--text-primary); background: rgba(0,0,0,0.06); }
         .vd-quiz-q-ipa-big {
-          font-size: 15px; color: rgba(255,255,255,0.7); margin: 0 0 8px;
+          font-size: 15px; color: var(--text-secondary); margin: 0 0 8px;
           font-style: italic; font-weight: 500;
-          background: rgba(255,255,255,0.08); display: inline-block;
+          background: rgba(0,0,0,0.04); display: inline-block;
           padding: 4px 16px; border-radius: 8px;
-          letter-spacing: 0.3px; backdrop-filter: blur(4px);
+          letter-spacing: 0.3px;
         }
         .vd-quiz-q-pos {
           font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 1px; color: rgba(255,255,255,0.45);
+          letter-spacing: 1px; color: var(--text-tertiary);
         }
-        .vd-quiz-q-meaning { font-size: 20px; font-weight: 800; color: #fff; margin: 0 0 6px; line-height: 1.5; position: relative; }
+        .vd-quiz-q-meaning { font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px; line-height: 1.5; position: relative; }
         .vd-quiz-label {
           font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;
           text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
@@ -391,7 +392,7 @@ export default function VocabDetailPage() {
         @keyframes vd-fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Quiz sub-tabs */
-        .vd-quiz-subtabs { display: flex; gap: 0; margin-bottom: 20px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-default); background: var(--bg-interactive); }
+        .vd-quiz-subtabs { display: flex; gap: 0; margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-default); background: var(--bg-interactive); }
         .vd-quiz-subtab {
           flex: 1; padding: 9px 16px; font-size: 13px; font-weight: 700;
           border: none; background: transparent; color: var(--text-tertiary);
@@ -413,15 +414,16 @@ export default function VocabDetailPage() {
           border-radius: 14px; overflow: hidden;
           border: 1px solid var(--border-default);
           box-shadow: var(--shadow-sm);
+          max-width: 480px; margin: 0 auto;
         }
         .vd-match-tile {
-          position: relative; padding: 16px 8px;
-          font-size: 13px; font-weight: 600; text-align: center;
+          position: relative; padding: 8px 6px;
+          font-size: 12px; font-weight: 600; text-align: center;
           border: none; border-right: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default);
           background: var(--bg-surface); color: var(--text-primary); cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          min-height: 64px; display: flex; align-items: center; justify-content: center;
-          word-break: break-word; line-height: 1.35;
+          aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+          word-break: break-word; line-height: 1.3; overflow: hidden;
           user-select: none; border-radius: 0;
         }
         .vd-match-tile:nth-child(4n) { border-right: none; }
@@ -446,6 +448,145 @@ export default function VocabDetailPage() {
         .vd-match-msg-icon { font-size: 56px; margin-bottom: 12px; }
         .vd-match-msg-title { font-size: 22px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
         .vd-match-msg-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+
+        /* Meteor game */
+        .vd-meteor-wrap { max-width: 540px; margin: 0 auto; }
+        .vd-meteor-hud {
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 10px; padding: 6px 0; gap: 12px;
+        }
+        .vd-meteor-level {
+          font-size: 12px; font-weight: 800; color: #0d9488;
+          background: rgba(13,148,136,0.08); padding: 6px 16px; border-radius: 99px;
+          border: 1px solid rgba(13,148,136,0.15);
+        }
+        .vd-meteor-score {
+          font-size: 13px; font-weight: 800; color: var(--text-primary);
+          background: var(--bg-surface); padding: 6px 16px; border-radius: 99px;
+          border: 1px solid var(--border-default);
+          box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .vd-meteor-hearts { display: flex; gap: 4px; }
+        .vd-meteor-hearts span { font-size: 18px; transition: all 0.3s; }
+        .vd-meteor-hearts span.lost { opacity: 0.12; transform: scale(0.6); filter: grayscale(1); }
+        .vd-meteor-field {
+          position: relative; width: 100%; height: 220px;
+          background: linear-gradient(180deg, #0c1222 0%, #0f2928 60%, #134e4a 100%);
+          border-radius: 16px; overflow: hidden;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05) inset;
+          margin-bottom: 14px;
+        }
+        .vd-meteor-stars {
+          position: absolute; inset: 0; pointer-events: none; opacity: 0.6;
+          background-image:
+            radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6), transparent),
+            radial-gradient(1px 1px at 25% 65%, rgba(255,255,255,0.3), transparent),
+            radial-gradient(1px 1px at 55% 8%, rgba(255,255,255,0.5), transparent),
+            radial-gradient(1px 1px at 75% 75%, rgba(255,255,255,0.3), transparent),
+            radial-gradient(1px 1px at 88% 25%, rgba(255,255,255,0.5), transparent),
+            radial-gradient(1px 1px at 40% 90%, rgba(255,255,255,0.2), transparent);
+        }
+        .vd-meteor-ground {
+          position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+          background: linear-gradient(90deg, #f97316, #ef4444, #f97316);
+          box-shadow: 0 0 12px rgba(239,68,68,0.5), 0 0 32px rgba(239,68,68,0.2);
+        }
+        .vd-meteor-rock {
+          position: absolute; padding: 8px 16px; border-radius: 10px;
+          font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap;
+          background: rgba(13,148,136,0.85);
+          border: 1px solid rgba(255,255,255,0.2);
+          box-shadow: 0 4px 16px rgba(13,148,136,0.35);
+          backdrop-filter: blur(8px);
+          transition: transform 0.1s;
+          animation: vdMeteorGlow 2s ease-in-out infinite alternate;
+        }
+        .vd-meteor-rock.explode {
+          animation: vdExplode 0.4s ease forwards;
+          pointer-events: none;
+        }
+        @keyframes vdMeteorGlow {
+          from { box-shadow: 0 4px 16px rgba(13,148,136,0.35); }
+          to { box-shadow: 0 4px 24px rgba(20,184,166,0.55), 0 0 40px rgba(13,148,136,0.15); }
+        }
+        @keyframes vdExplode {
+          0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+          40% { transform: scale(1.6); opacity: 0.8; filter: brightness(1.5); }
+          100% { transform: scale(0.1); opacity: 0; filter: brightness(2); }
+        }
+        .vd-meteor-choices {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .vd-meteor-choice {
+          display: flex; align-items: center; gap: 10px;
+          padding: 14px 18px; border-radius: 14px; font-weight: 600; font-size: 15px;
+          border: 1.5px solid var(--border-default); background: var(--bg-surface);
+          color: var(--text-primary); cursor: pointer; text-align: left;
+          transition: all 0.2s cubic-bezier(0.4,0,0.2,1); user-select: none;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .vd-meteor-choice-label {
+          display: inline-flex; align-items: center; justify-content: center;
+          width: 26px; height: 26px; border-radius: 8px; font-size: 12px; font-weight: 800;
+          background: rgba(0,0,0,0.05); color: var(--text-tertiary); flex-shrink: 0;
+          transition: all 0.2s;
+        }
+        .vd-meteor-choice:hover:not(:disabled) {
+          border-color: #0d9488; background: rgba(13,148,136,0.04);
+          transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .vd-meteor-choice:hover:not(:disabled) .vd-meteor-choice-label {
+          background: rgba(13,148,136,0.1); color: #0d9488;
+        }
+        .vd-meteor-choice:active:not(:disabled) { transform: scale(0.98); }
+        .vd-meteor-choice.correct {
+          border-color: #10b981; background: rgba(16,185,129,0.06); color: #059669;
+        }
+        .vd-meteor-choice.correct .vd-meteor-choice-label {
+          background: #10b981; color: #fff;
+        }
+        .vd-meteor-choice.wrong {
+          border-color: #ef4444; background: rgba(239,68,68,0.05); color: #dc2626;
+          animation: vdShake 0.4s ease;
+        }
+        .vd-meteor-choice.wrong .vd-meteor-choice-label {
+          background: #ef4444; color: #fff;
+        }
+        .vd-meteor-choice:disabled { cursor: default; }
+        .vd-meteor-start-wrap {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          height: 100%; gap: 12px; padding: 24px;
+        }
+        .vd-meteor-start-title {
+          font-size: 24px; font-weight: 900; color: #fff;
+          text-shadow: 0 2px 12px rgba(13,148,136,0.4);
+        }
+        .vd-meteor-start-sub {
+          font-size: 13px; color: rgba(255,255,255,0.55); text-align: center;
+          max-width: 260px; line-height: 1.6;
+        }
+        .vd-meteor-start-btn {
+          padding: 12px 32px; border-radius: 12px; font-weight: 800; font-size: 15px;
+          border: none; cursor: pointer;
+          background: linear-gradient(135deg, #0d9488, #14b8a6); color: white;
+          box-shadow: 0 4px 16px rgba(13,148,136,0.35);
+          transition: all 0.25s;
+        }
+        .vd-meteor-start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(13,148,136,0.45); }
+        .vd-meteor-start-btn:active { transform: scale(0.97); }
+        .vd-meteor-stats {
+          display: flex; gap: 20px; justify-content: center; margin: 4px 0 8px;
+        }
+        .vd-meteor-stat {
+          text-align: center;
+        }
+        .vd-meteor-stat-val {
+          font-size: 22px; font-weight: 900; color: #5eead4;
+        }
+        .vd-meteor-stat-label {
+          font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase;
+          letter-spacing: 0.5px; font-weight: 600;
+        }
 
         @media (max-width: 640px) {
           .vd-page { padding: 16px; }
@@ -537,6 +678,15 @@ function FlashcardMode({ words, topicSlug }: { words: VocabWord[]; topicSlug: st
   });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Load learned words from API on mount
+  useEffect(() => {
+    fetchAllLearnedWordsAPI().then(data => {
+      if (data[topicSlug]) {
+        setLearnedWords(new Set(data[topicSlug]));
+      }
+    });
+  }, [topicSlug]);
+
   const w = words[idx];
   const prev = () => { setFlipped(false); setIdx((idx - 1 + words.length) % words.length); };
   const next = () => { setFlipped(false); setIdx((idx + 1) % words.length); };
@@ -590,8 +740,8 @@ function FlashcardMode({ words, topicSlug }: { words: VocabWord[]; topicSlug: st
             background: learnedWords.has(w.word) ? "rgba(34,197,94,0.1)" : "var(--bg-interactive)",
             color: learnedWords.has(w.word) ? "#15803d" : "var(--text-secondary)",
           }}
-          onClick={() => {
-            const updated = toggleLearnedWord(topicSlug, w.word);
+          onClick={async () => {
+            const updated = await toggleLearnedWordAPI(topicSlug, w.word);
             setLearnedWords(new Set(updated));
           }}
         >
@@ -613,12 +763,13 @@ interface QuizQ {
   pos: string;
   correctAnswer: string; // meaning (en_to_vi) or word (vi_to_en)
   options: string[];
+  optionWords: VocabWord[]; // full word data for showing meanings after answer
   correctIdx: number;
   audioWord: VocabWord;  // for audio playback
 }
 
 function QuizMode({ words }: { words: VocabWord[] }) {
-  const [subMode, setSubMode] = useState<"quiz" | "match">("quiz");
+  const [subMode, setSubMode] = useState<"quiz" | "match" | "meteor">("quiz");
 
   return (
     <div>
@@ -629,8 +780,11 @@ function QuizMode({ words }: { words: VocabWord[] }) {
         <button className={`vd-quiz-subtab ${subMode === "match" ? "active" : ""}`} onClick={() => setSubMode("match")}>
           🧩 Ghép từ
         </button>
+        <button className={`vd-quiz-subtab ${subMode === "meteor" ? "active" : ""}`} onClick={() => setSubMode("meteor")}>
+          ☄️ Thiên thạch
+        </button>
       </div>
-      {subMode === "quiz" ? <QuizQuestions words={words} /> : <MatchMode words={words} />}
+      {subMode === "quiz" ? <QuizQuestions words={words} /> : subMode === "match" ? <MatchMode words={words} /> : <MeteorMode words={words} />}
     </div>
   );
 }
@@ -652,6 +806,7 @@ function QuizQuestions({ words }: { words: VocabWord[] }) {
           pos: w.pos,
           correctAnswer: w.meaning,
           options: options.map(o => o.meaning),
+          optionWords: options,
           correctIdx: options.findIndex(o => o.meaning === w.meaning),
           audioWord: w,
         };
@@ -665,6 +820,7 @@ function QuizQuestions({ words }: { words: VocabWord[] }) {
           pos: w.pos,
           correctAnswer: w.word,
           options: options.map(o => o.word),
+          optionWords: options,
           correctIdx: options.findIndex(o => o.word === w.word),
           audioWord: w,
         };
@@ -772,7 +928,10 @@ function QuizQuestions({ words }: { words: VocabWord[] }) {
           return (
             <button key={j} className={cls} onClick={() => handleSelect(j)} disabled={selected !== null}>
               <span className={keyCls}>{String.fromCharCode(65 + j)}</span>
-              {opt}
+              <span>{opt}</span>
+              {selected !== null && q.type === "vi_to_en" && (
+                <span style={{ marginLeft: 6, fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)', fontStyle: 'italic' }}>{q.optionWords[j]?.meaning}</span>
+              )}
             </button>
           );
         })}
@@ -932,8 +1091,299 @@ function MatchMode({ words }: { words: VocabWord[] }) {
               onClick={() => handleTileClick(tile)}
               disabled={isMatched}
             >
-              <span className="vd-match-tag">{tile.type === "en" ? "EN" : "VI"}</span>
               {tile.text}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Meteor Game Mode ─────────────────────────────── */
+interface MeteorRock {
+  id: number;
+  word: VocabWord;
+  x: number;
+  y: number;
+  speed: number;
+  exploding: boolean;
+  options: string[]; // 4 English word choices
+  correctIdx: number;
+}
+
+function MeteorMode({ words }: { words: VocabWord[] }) {
+  const MAX_LIVES = 3;
+  const BASE_SPEED = 0.006;
+  const SPAWN_INTERVAL_BASE = 2500; // faster spawning
+
+  const [started, setStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [level, setLevel] = useState(1);
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(MAX_LIVES);
+  const [rocks, setRocks] = useState<MeteorRock[]>([]);
+  const [destroyed, setDestroyed] = useState(0);
+  const [choiceFeedback, setChoiceFeedback] = useState<{ rockId: number; idx: number; correct: boolean } | null>(null);
+
+  const rocksRef = useRef<MeteorRock[]>([]);
+  const livesRef = useRef(MAX_LIVES);
+  const frameRef = useRef<number>(0);
+  const lastTimeRef = useRef(0);
+  const spawnTimerRef = useRef(0);
+  const nextIdRef = useRef(0);
+  const levelRef = useRef(1);
+  const destroyedRef = useRef(0);
+  const scoreRef = useRef(0);
+  const gameOverRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const wordsRef = useRef(shuffle([...words]));
+  const wordIdxRef = useRef(0);
+
+  const getNextWord = useCallback((): VocabWord => {
+    const w = wordsRef.current[wordIdxRef.current % wordsRef.current.length];
+    wordIdxRef.current++;
+    if (wordIdxRef.current >= wordsRef.current.length) {
+      wordsRef.current = shuffle([...words]);
+      wordIdxRef.current = 0;
+    }
+    return w;
+  }, [words]);
+
+  const spawnRock = useCallback(() => {
+    // Only spawn if no active (non-exploding) rocks
+    if (rocksRef.current.some(r => !r.exploding)) return;
+    const word = getNextWord();
+    const speed = BASE_SPEED + (levelRef.current - 1) * 0.001;
+    // Generate 4 options
+    const wrongWords = shuffle(words.filter(w => w.word !== word.word)).slice(0, 3);
+    const allOptions = shuffle([word, ...wrongWords]);
+    const newRock: MeteorRock = {
+      id: nextIdRef.current++,
+      word,
+      x: 15 + Math.random() * 55,
+      y: -8,
+      speed: speed + Math.random() * 0.002,
+      exploding: false,
+      options: allOptions.map(w => w.word),
+      correctIdx: allOptions.findIndex(w => w.word === word.word),
+    };
+    rocksRef.current = [...rocksRef.current, newRock];
+    setRocks([...rocksRef.current]);
+  }, [getNextWord, words]);
+
+  const gameLoop = useCallback((timestamp: number) => {
+    if (gameOverRef.current) return;
+
+    const dt = lastTimeRef.current ? timestamp - lastTimeRef.current : 16;
+    lastTimeRef.current = timestamp;
+
+    // Spawn new rocks
+    spawnTimerRef.current += dt;
+    const spawnInterval = Math.max(2000, SPAWN_INTERVAL_BASE - (levelRef.current - 1) * 400);
+    if (spawnTimerRef.current >= spawnInterval) {
+      spawnTimerRef.current = 0;
+      spawnRock();
+    }
+
+    // Move rocks
+    const updated = rocksRef.current
+      .map(r => {
+        if (r.exploding) return r;
+        const newY = r.y + r.speed * dt;
+        if (newY >= 92) {
+          // Hit ground!
+          livesRef.current--;
+          setLives(livesRef.current);
+          if (livesRef.current <= 0) {
+            gameOverRef.current = true;
+            setGameOver(true);
+          }
+          return null;
+        }
+        return { ...r, y: newY };
+      })
+      .filter(Boolean) as MeteorRock[];
+
+    rocksRef.current = updated;
+    setRocks([...updated]);
+
+    if (!gameOverRef.current) {
+      frameRef.current = requestAnimationFrame(gameLoop);
+    }
+  }, [spawnRock]);
+
+  const startGame = useCallback(() => {
+    setStarted(true);
+    setGameOver(false);
+    gameOverRef.current = false;
+    setLevel(1);
+    levelRef.current = 1;
+    setScore(0);
+    scoreRef.current = 0;
+    setLives(MAX_LIVES);
+    livesRef.current = MAX_LIVES;
+    setRocks([]);
+    rocksRef.current = [];
+    setDestroyed(0);
+    destroyedRef.current = 0;
+    setChoiceFeedback(null);
+    lastTimeRef.current = 0;
+    spawnTimerRef.current = 0;
+    wordsRef.current = shuffle([...words]);
+    wordIdxRef.current = 0;
+    nextIdRef.current = 0;
+
+    setTimeout(() => {
+      spawnRock();
+      frameRef.current = requestAnimationFrame(gameLoop);
+    }, 500);
+  }, [words, gameLoop, spawnRock]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    };
+  }, []);
+
+  const handleChoice = (rock: MeteorRock, chosenIdx: number) => {
+    if (rock.exploding) return;
+    const isCorrect = chosenIdx === rock.correctIdx;
+
+    setChoiceFeedback({ rockId: rock.id, idx: chosenIdx, correct: isCorrect });
+
+    if (isCorrect) {
+      playWordAudio(rock.word, audioRef);
+      rocksRef.current = rocksRef.current.map(r =>
+        r.id === rock.id ? { ...r, exploding: true } : r
+      );
+      setRocks([...rocksRef.current]);
+
+      setTimeout(() => {
+        rocksRef.current = rocksRef.current.filter(r => r.id !== rock.id);
+        setRocks([...rocksRef.current]);
+        setChoiceFeedback(null);
+        // Trigger next rock immediately
+        spawnTimerRef.current = 99999;
+      }, 400);
+
+      destroyedRef.current++;
+      setDestroyed(destroyedRef.current);
+      const points = 10 * levelRef.current;
+      scoreRef.current += points;
+      setScore(scoreRef.current);
+
+      if (destroyedRef.current > 0 && destroyedRef.current % 5 === 0) {
+        levelRef.current++;
+        setLevel(levelRef.current);
+      }
+    } else {
+      // Wrong answer — just shake, no life lost
+      setTimeout(() => setChoiceFeedback(null), 600);
+    }
+  };
+
+  // Active rock for choices
+  const activeRock = rocks.find(r => !r.exploding);
+
+  // Game over screen
+  if (gameOver) {
+    return (
+      <div className="vd-meteor-wrap">
+        <div className="vd-meteor-field" style={{ height: 280 }}>
+          <div className="vd-meteor-stars" />
+          <div className="vd-meteor-start-wrap">
+            <div style={{ fontSize: 48, marginBottom: 4 }}>{score >= 200 ? "🏆" : score >= 100 ? "🎉" : score >= 50 ? "👍" : "💪"}</div>
+            <div className="vd-meteor-start-title">Game Over!</div>
+            <div className="vd-meteor-stats">
+              <div className="vd-meteor-stat">
+                <div className="vd-meteor-stat-val">{score}</div>
+                <div className="vd-meteor-stat-label">Điểm</div>
+              </div>
+              <div className="vd-meteor-stat">
+                <div className="vd-meteor-stat-val">{destroyed}</div>
+                <div className="vd-meteor-stat-label">Từ phá</div>
+              </div>
+              <div className="vd-meteor-stat">
+                <div className="vd-meteor-stat-val">{level}</div>
+                <div className="vd-meteor-stat-label">Cấp</div>
+              </div>
+            </div>
+            <button className="vd-meteor-start-btn" onClick={startGame}>🔄 Chơi lại</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!started) {
+    return (
+      <div className="vd-meteor-wrap">
+        <div className="vd-meteor-field" style={{ height: 260 }}>
+          <div className="vd-meteor-stars" />
+          <div className="vd-meteor-start-wrap">
+            <div style={{ fontSize: 44 }}>☄️</div>
+            <div className="vd-meteor-start-title">Thiên thạch</div>
+            <div className="vd-meteor-start-sub">
+              Nghĩa tiếng Việt rơi xuống — chọn từ tiếng Anh đúng trước khi chạm đất!
+            </div>
+            <button className="vd-meteor-start-btn" onClick={startGame}>🚀 Bắt đầu</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const LABELS = ["A", "B", "C", "D"];
+
+  return (
+    <div className="vd-meteor-wrap">
+      <div className="vd-meteor-hud">
+        <span className="vd-meteor-level">Cấp {level}</span>
+        <div className="vd-meteor-hearts">
+          {Array.from({ length: MAX_LIVES }).map((_, i) => (
+            <span key={i} className={i < MAX_LIVES - lives ? "lost" : ""}>❤️</span>
+          ))}
+        </div>
+        <span className="vd-meteor-score">{score} điểm</span>
+      </div>
+
+      <div className="vd-meteor-field">
+        <div className="vd-meteor-stars" />
+        {rocks.map(rock => (
+          <div
+            key={rock.id}
+            className={`vd-meteor-rock ${rock.exploding ? "explode" : ""}`}
+            style={{
+              left: `${rock.x}%`,
+              top: `${rock.y}%`,
+            }}
+          >
+            {rock.word.meaning}
+          </div>
+        ))}
+        <div className="vd-meteor-ground" />
+      </div>
+
+      <div className="vd-meteor-choices">
+        {activeRock && activeRock.options.map((opt, i) => {
+          let cls = "vd-meteor-choice";
+          if (choiceFeedback && choiceFeedback.rockId === activeRock.id) {
+            if (i === choiceFeedback.idx) {
+              cls += choiceFeedback.correct ? " correct" : " wrong";
+            }
+          }
+          return (
+            <button
+              key={i}
+              className={cls}
+              onClick={() => handleChoice(activeRock, i)}
+              disabled={!!choiceFeedback}
+            >
+              <span className="vd-meteor-choice-label">{LABELS[i]}</span>
+              {opt}
             </button>
           );
         })}

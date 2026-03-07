@@ -28,6 +28,9 @@ export default function UserModal() {
   const handleLangToggle = useCallback(async (newLang: "jp" | "en") => {
     setLang(newLang);
     localStorage.setItem("df_study_lang", newLang);
+    // Sync to server
+    const { setUserPref } = await import("@/lib/user-prefs");
+    setUserPref("study_lang", newLang).catch(() => {});
     try {
       await fetch("/api/set-language/", {
         method: "POST",

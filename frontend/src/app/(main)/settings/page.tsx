@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
 import { apiFetch, apiUrl } from "@/lib/api";
 import Link from "next/link";
+import { getUserPrefSync, setUserPref } from "@/lib/user-prefs";
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
@@ -38,13 +39,13 @@ export default function SettingsPage() {
     { id: "mplus-rounded", label: "M PLUS Rounded 1c", family: "'M PLUS Rounded 1c', sans-serif", desc: "Tròn hiện đại, dễ đọc" },
   ];
   const [jpFont, setJpFont] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("df-jp-font") || "noto-sans";
+    if (typeof window !== "undefined") return getUserPrefSync<string>("jp_font") || localStorage.getItem("df-jp-font") || "noto-sans";
     return "noto-sans";
   });
 
   const handleFontChange = (fontId: string) => {
     setJpFont(fontId);
-    localStorage.setItem("df-jp-font", fontId);
+    setUserPref("jp_font", fontId).catch(() => {});
     const font = JP_FONTS.find(f => f.id === fontId);
     if (font) document.documentElement.style.setProperty("--font-jp-user", font.family);
   };

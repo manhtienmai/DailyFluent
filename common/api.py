@@ -90,3 +90,37 @@ def _to_out(r: QuizResult) -> dict:
         "answers_detail": r.answers_detail,
         "completed_at": r.completed_at.isoformat() if r.completed_at else "",
     }
+
+
+# ── User Preferences ─────────────────────────────────────────
+
+from common.models import UserPreference
+
+
+class PrefIn(Schema):
+    value: dict | list | str | int | bool | None
+
+
+@router.get("/user-prefs", response=dict)
+def get_user_prefs(request):
+    """Get all user preferences as {key: value}."""
+    prefs = UserPreference.objects.filter(user=request.user)
+    return {p.key: p.value for p in prefs}
+
+
+@router.put("/user-prefs/{key}", response=dict)
+def set_user_pref(request, key: str, payload: PrefIn):
+    """Upsert a single preference."""
+    pref, _ = UserPreference.objects.update_or_create(
+        user=request.user,
+        key=key,
+        defaults={"value": payload.value},
+    )
+    return {"key": pref.key, "value": pref.value}
+
+
+@router.delete("/user-prefs/{key}", response=dict)
+def delete_user_pref(request, key: str):
+    """Delete a single preference."""
+    UserPreference.objects.filter(user=request.user, key=key).delete()
+    return {"ok": True}

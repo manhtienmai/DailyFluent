@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getLearnedWords } from "@/lib/vocab-progress";
+import { fetchLearnedCountsAPI } from "@/lib/vocab-progress";
 
 interface VocabTopic {
   slug: string;
@@ -22,14 +22,11 @@ export default function VocabularyPage() {
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/exam/english/vocab-topics`)
       .then(r => r.json())
-      .then(data => {
+      .then(async (data) => {
         const list = Array.isArray(data) ? data : [];
         setTopics(list);
-        // Read learned counts from localStorage
-        const counts: Record<string, number> = {};
-        for (const t of list) {
-          counts[t.slug] = getLearnedWords(t.slug).length;
-        }
+        // Fetch learned counts from API
+        const counts = await fetchLearnedCountsAPI(list.map((t: VocabTopic) => t.slug));
         setLearnedCounts(counts);
       })
       .catch(() => {});

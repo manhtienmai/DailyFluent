@@ -38,3 +38,27 @@ class QuizResult(models.Model):
 
     def __str__(self):
         return f"{self.user} — {self.quiz_type}/{self.quiz_id} — {self.correct_count}/{self.total_questions}"
+
+
+class UserPreference(models.Model):
+    """
+    Generic key-value store for user preferences and progress.
+    Replaces localStorage for cross-device sync.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="preferences",
+    )
+    key = models.CharField(max_length=100, db_index=True)
+    value = models.JSONField(default=dict)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "key")
+        verbose_name = "User Preference"
+        verbose_name_plural = "User Preferences"
+
+    def __str__(self):
+        return f"{self.user} — {self.key}"

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useSidebar } from "@/hooks/useSidebar";
+import { getUserPrefSync, setUserPref } from "@/lib/user-prefs";
 
 /* ── Types ── */
 interface Choice { key: string; text: string; }
@@ -24,8 +25,7 @@ interface ReviewData {
   items: ReviewItem[]; total: number; types: string[];
 }
 
-/* ── localStorage helpers ── */
-const REVIEW_KEY = (slug: string) => `en10_review_${slug}`;
+/* ── review progress helpers ── */
 interface ReviewProgress {
   activeType: string | null;
   currentIdx: number;
@@ -33,10 +33,10 @@ interface ReviewProgress {
   score: { correct: number; total: number };
 }
 function loadReviewProgress(slug: string): ReviewProgress | null {
-  try { const r = localStorage.getItem(REVIEW_KEY(slug)); return r ? JSON.parse(r) : null; } catch { return null; }
+  return getUserPrefSync<ReviewProgress>(`review-progress-${slug}`);
 }
 function saveReviewProgress(slug: string, p: ReviewProgress) {
-  try { localStorage.setItem(REVIEW_KEY(slug), JSON.stringify(p)); } catch {}
+  setUserPref(`review-progress-${slug}`, p).catch(() => {});
 }
 
 const TYPE_LABELS: Record<string, { label: string; icon: string; desc: string }> = {

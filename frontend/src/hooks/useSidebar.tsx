@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { setUserPref } from "@/lib/user-prefs";
 
 interface SidebarContextType {
   collapsed: boolean;
@@ -82,6 +83,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => {
       const next = prev === "dark" ? "light" : "dark";
       localStorage.setItem("theme", next);
+      setUserPref("theme", next).catch(() => {});
       return next;
     });
   }, []);

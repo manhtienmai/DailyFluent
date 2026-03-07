@@ -10,6 +10,7 @@ import { SidebarProvider, useSidebar } from "@/hooks/useSidebar";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { LanguageModeProvider } from "@/hooks/useLanguageMode";
 import { NotificationProvider } from "@/hooks/useNotifications";
+import { migrateLocalStorage } from "@/lib/user-prefs";
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -18,6 +19,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login");
+    }
+    // One-time migration of localStorage → DB
+    if (!loading && user) {
+      migrateLocalStorage().catch(() => {});
     }
   }, [loading, user, router]);
 

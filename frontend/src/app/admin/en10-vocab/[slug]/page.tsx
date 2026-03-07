@@ -65,7 +65,12 @@ export default function AdminEN10VocabDetailPage() {
       );
       if (res.ok) {
         message.success(`Đã xóa "${word}"`);
-        fetchTopic();
+        // Update state locally without reload
+        setTopic((prev) => {
+          if (!prev) return prev;
+          const updatedWords = prev.words.filter((w) => w.word !== word);
+          return { ...prev, words: updatedWords, word_count: updatedWords.length };
+        });
       } else {
         const data = await res.json().catch(() => ({}));
         message.error(data.detail || "Không thể xóa từ này");

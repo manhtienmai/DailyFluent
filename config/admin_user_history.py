@@ -140,19 +140,25 @@ def user_learning_history(request, user_id: int):
     )
 
     # ── EN10 Vocab Topics ──────────────────────────────────
+    from exam.models import EN10VocabProgress
+
     mastered_vocab_ids = set(
         FsrsCardStateEn.objects.filter(user=target_user, state=2)
         .values_list("vocab_id", flat=True)
     )
+    # Also get progress from EN10VocabProgress (flashcard "Đã thuộc")
+    vocab_progress_map = {}
+    for vp in EN10VocabProgress.objects.filter(user=target_user).select_related('topic'):
+        vocab_progress_map[vp.topic.slug] = len(vp.learned_words) if vp.learned_words else 0
+
     en10_vocab_topics = []
     for topic in EN10VocabTopic.objects.filter(is_active=True).order_by("order"):
         topic_vocab_ids = set(topic.vocabularies.values_list("id", flat=True))
         total_words = len(topic.words) if topic.words else 0
-        # If topic has linked Vocabulary records, use those for mastery count
-        if topic_vocab_ids:
-            words_mastered = len(topic_vocab_ids & mastered_vocab_ids)
-        else:
-            words_mastered = 0
+        # Combine FSRS mastery + EN10VocabProgress counts (take the max)
+        fsrs_mastered = len(topic_vocab_ids & mastered_vocab_ids) if topic_vocab_ids else 0
+        progress_mastered = vocab_progress_map.get(topic.slug, 0)
+        words_mastered = max(fsrs_mastered, progress_mastered)
         en10_vocab_topics.append(EN10VocabTopicOut(
             topic_id=topic.slug,
             title=topic.title,

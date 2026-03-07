@@ -1,7 +1,8 @@
 /**
- * Saved Grammar — localStorage helper for persisting grammar patterns
- * that users save from bunpou quiz questions.
+ * Saved Grammar — persists grammar patterns to server API with localStorage cache.
  */
+
+import { getUserPrefSync, setUserPref } from "@/lib/user-prefs";
 
 export interface SavedGrammar {
   id: string;               // unique key (grammar_point text)
@@ -14,22 +15,12 @@ export interface SavedGrammar {
   savedAt: string;           // ISO datetime
 }
 
-const STORAGE_KEY = "saved_grammar_list";
-
 function readList(): SavedGrammar[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
+  return getUserPrefSync<SavedGrammar[]>("saved-grammar") || [];
 }
 
 function writeList(list: SavedGrammar[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch { /* ignore */ }
+  setUserPref("saved-grammar", list).catch(() => {});
 }
 
 export function getSavedGrammarList(): SavedGrammar[] {
@@ -46,7 +37,6 @@ export function isGrammarSaved(grammarPoint: string): boolean {
 
 export function saveGrammar(item: Omit<SavedGrammar, "id" | "savedAt">): SavedGrammar {
   const list = readList();
-  // Deduplicate by grammar_point
   const existing = list.find((g) => g.grammar_point === item.grammar_point);
   if (existing) return existing;
 
@@ -66,9 +56,7 @@ export function removeGrammar(grammarPoint: string) {
 }
 
 export function clearAllGrammar() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch { /* ignore */ }
+  setUserPref("saved-grammar", []).catch(() => {});
 }
 
 /** Returns count of saved grammar per JLPT level */
@@ -84,22 +72,13 @@ export function getSavedGrammarStats(): Record<string, number> {
 
 // ── Dismissed grammar ──────────────────────────────────────
 
-const DISMISSED_KEY = "dismissed_grammar_set";
-
 function readDismissed(): Set<string> {
-  try {
-    const raw = localStorage.getItem(DISMISSED_KEY);
-    if (!raw) return new Set();
-    return new Set(JSON.parse(raw));
-  } catch {
-    return new Set();
-  }
+  const arr = getUserPrefSync<string[]>("saved-grammar-dismissed");
+  return new Set(arr || []);
 }
 
 function writeDismissed(set: Set<string>) {
-  try {
-    localStorage.setItem(DISMISSED_KEY, JSON.stringify([...set]));
-  } catch { /* ignore */ }
+  setUserPref("saved-grammar-dismissed", [...set]).catch(() => {});
 }
 
 export function dismissGrammar(grammarPoint: string) {

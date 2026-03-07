@@ -691,17 +691,23 @@ def en10_vocab_topic_detail(request, slug: str):
         raise HttpError(404, "Vocabulary topic not found")
 
     # Build word list from M2M → WordEntry → WordDefinition
+    # Only take the first WordEntry per Vocabulary to avoid duplicates
     vocab_ids = t.vocabularies.values_list("id", flat=True)
     entries = (
         WordEntry.objects
         .filter(vocab_id__in=vocab_ids)
         .select_related("vocab")
         .prefetch_related("definitions")
-        .order_by("vocab__word")
+        .order_by("vocab__word", "id")
     )
 
     words = []
+    seen_vocab_ids = set()
     for entry in entries:
+        # Skip duplicate entries for the same vocabulary word
+        if entry.vocab_id in seen_vocab_ids:
+            continue
+        seen_vocab_ids.add(entry.vocab_id)
         # Get first definition's meaning
         defn = entry.definitions.first()
         meaning = defn.meaning if defn else ""

@@ -2809,5 +2809,315 @@
         "explanation": "Trước N cần Adj: wise."
       }
     ]
+  },
+  {
+    "topic_id": "prepositions",
+    "emoji": "📌",
+    "title": "Prepositions",
+    "title_vi": "Giới từ IN, ON, AT",
+    "description": "Giới từ chỉ địa điểm (location) và thời gian (time): in, on, at.",
+    "difficulty": "easy",
+    "order": 16,
+    "sections": [
+      {
+        "heading": "1. Tổng quan (General)",
+        "content": "Ba giới từ **in**, **on**, **at** đi từ **tổng quát → cụ thể**:\n\n• **IN** — phạm vi lớn: in Hanoi (ở Hà Nội), in a car (trong xe ô tô), in April (vào tháng Tư), in summer (vào mùa hè)\n• **ON** — trên bề mặt / ngày cụ thể: on KC Avenue (trên đại lộ KC), on a bus (ở trên xe buýt), on Monday (vào thứ Hai), on June 1st (vào mồng 1 tháng Sáu)\n• **AT** — điểm cụ thể: at 30 Wesh Street (ở số 30 phố Wesh), at the bus stop (ở bến xe buýt), at 8:30 a.m. (vào 8:30 sáng), at dawn (vào lúc bình minh)"
+      },
+      {
+        "heading": "2. Giới từ chỉ địa điểm — IN (trong, ở trong)",
+        "content": "**IN** dùng khi nói đến **không gian bao quanh**, phạm vi lớn:\n\n**Phương tiện đóng kín:**\n• in a car (trong xe hơi)\n• in a taxi (trong xe taxi)\n\n**Tên phố (Anh – Anh):**\n• in Jeremy Street (ở phố Jeremy)\n\n**Thị trấn, thành phố:**\n• in the town of Vinci (ở thị trấn Vinci)\n• in Hanoi (ở Hà Nội)\n\n**Quốc gia, vùng miền lớn:**\n• in the countryside (ở nông thôn)\n• in the North (ở miền Bắc) / in the South (ở miền Nam)\n• in Vietnam (ở Việt Nam) / in Japan (ở Nhật Bản)\n• in the world (trên thế giới)"
+      },
+      {
+        "heading": "3. Giới từ chỉ địa điểm — ON (trên, ở trên)",
+        "content": "**ON** dùng khi nói đến **bề mặt** hoặc **phương tiện công cộng**:\n\n**Phương tiện giao thông công cộng:**\n• on a bus / train / plane, etc.\n• (trên xe buýt, tàu hỏa, máy bay)\n\n**Tên phố (Anh – Mỹ):**\n• on Wyoming Street (ở phố Wyoming)\n\n**Tên đại lộ:**\n• on Thang Long Avenue (ở đại lộ Thăng Long)"
+      },
+      {
+        "heading": "4. Giới từ chỉ địa điểm — AT (ở, tại vị trí)",
+        "content": "**AT** dùng cho **vị trí chung chung** hoặc **địa chỉ cụ thể**:\n\n**Vị trí chung chung:**\n• at home (ở nhà)\n• at school (ở trường)\n• at the bus stop (ở trạm xe buýt)\n\n**Địa chỉ cụ thể:**\n• at 30 Kimberley Street (ở số 30 phố Kimberley)"
+      },
+      {
+        "heading": "5. Giới từ chỉ thời gian — IN",
+        "content": "**IN** dùng với **khoảng thời gian dài hoặc không xác định cụ thể**:\n\n| Loại | Ví dụ |\n|------|-------|\n| Thế kỷ | in the 17th century (vào thế kỉ 17) |\n| Thập niên | in the 1990s / 90s (vào những năm 1990) |\n| Năm | in 1991 (vào năm 1991) |\n| Mùa | in spring / summer / autumn / winter |\n| Tháng | in April / May / June, etc. |\n| Buổi trong ngày | in the morning / in the afternoon / in the evening |\n| Khoảng thời gian tương lai | in 20 minutes (trong 20 phút nữa) / in a week (trong 1 tuần nữa) |"
+      },
+      {
+        "heading": "6. Giới từ chỉ thời gian — ON",
+        "content": "**ON** dùng với **ngày cụ thể** hoặc **dịp gắn với ngày**:\n\n| Loại | Ví dụ |\n|------|-------|\n| Ngày lễ | on the International Women's Day |\n| Ngày trong tháng | on the first of July / on July 1st |\n| Thứ trong tuần | on Monday / Tuesday / Wednesday, etc. |\n| Buổi cụ thể của ngày | on Sunday morning / on Monday night |"
+      },
+      {
+        "heading": "7. Giới từ chỉ thời gian — AT",
+        "content": "**AT** dùng với **thời điểm cụ thể** hoặc **kỳ nghỉ lễ**:\n\n| Loại | Ví dụ |\n|------|-------|\n| Kỳ nghỉ lễ | at Christmas / New Year's (vào lễ Giáng Sinh / Năm Mới) |\n| Thời điểm trong ngày | at dawn / noon / dusk / night / midnight |\n| Mốc thời gian chính xác | at midday / at 12:00 / at half past six / at 4:30 p.m. / at 8:30 a.m. |\n| Một số cụm từ | at the moment (lúc này), at present, at the same time, at once, at first, at last |"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "IN — Địa điểm",
+        "formula": "in + thành phố / quốc gia / phương tiện đóng kín",
+        "example": "in Hanoi, in a car, in Vietnam",
+        "exampleVi": "ở Hà Nội, trong xe hơi, ở Việt Nam"
+      },
+      {
+        "name": "ON — Địa điểm",
+        "formula": "on + phương tiện công cộng / tên phố (Mỹ)",
+        "example": "on a bus, on Wyoming Street",
+        "exampleVi": "trên xe buýt, ở phố Wyoming"
+      },
+      {
+        "name": "AT — Địa điểm",
+        "formula": "at + vị trí chung / địa chỉ cụ thể",
+        "example": "at home, at school, at 30 Kimberley St",
+        "exampleVi": "ở nhà, ở trường, ở số 30 phố Kimberley"
+      },
+      {
+        "name": "IN — Thời gian",
+        "formula": "in + tháng / mùa / năm / thế kỷ / buổi",
+        "example": "in April, in summer, in 1991, in the morning",
+        "exampleVi": "vào tháng Tư, vào mùa hè, vào năm 1991, vào buổi sáng"
+      },
+      {
+        "name": "ON — Thời gian",
+        "formula": "on + thứ / ngày cụ thể",
+        "example": "on Monday, on July 1st, on Sunday morning",
+        "exampleVi": "vào thứ Hai, vào ngày 1 tháng 7, vào sáng Chủ Nhật"
+      },
+      {
+        "name": "AT — Thời gian",
+        "formula": "at + giờ / thời điểm cụ thể / kỳ nghỉ",
+        "example": "at 8:30, at midnight, at Christmas",
+        "exampleVi": "vào lúc 8:30, vào nửa đêm, vào lễ Giáng Sinh"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "The use of cell phone is prohibited ___ airplanes.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Phương tiện công cộng (airplane) → on."
+      },
+      {
+        "question": "My mother is working ___ the farm.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Trên trang trại (bề mặt) → on the farm."
+      },
+      {
+        "question": "I am standing ___ the crossroad.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 2,
+        "explanation": "Vị trí cụ thể (ngã tư) → at the crossroad."
+      },
+      {
+        "question": "When he studied ___ university, he was an excellent student.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 2,
+        "explanation": "Vị trí chung (trường đại học) → at university."
+      },
+      {
+        "question": "My grandparents live ___ 456 Mountain Street ___ Australia.",
+        "options": ["at / in", "in / on", "on / at", "in / at"],
+        "correct": 0,
+        "explanation": "Địa chỉ cụ thể → at 456 Mountain St; Quốc gia → in Australia."
+      },
+      {
+        "question": "There is a funny cartoon ___ TV now.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Trên TV (bề mặt, phương tiện) → on TV."
+      },
+      {
+        "question": "At present, I am ___ home while my friends are ___ school.",
+        "options": ["at / at", "in / in", "on / at", "at / in"],
+        "correct": 0,
+        "explanation": "Vị trí chung → at home, at school."
+      },
+      {
+        "question": "Everyone, open your book ___ page 111 and we'll start the lesson.",
+        "options": ["in", "on", "at", "to"],
+        "correct": 3,
+        "explanation": "Mở trang sách → (open) to page 111. Tuy nhiên 'at page 111' cũng dùng: at dùng cho điểm cụ thể."
+      },
+      {
+        "question": "The Internet was invented ___ the 20th century.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Thế kỷ → in the 20th century."
+      },
+      {
+        "question": "Let's meet ___ two hours.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Khoảng thời gian tương lai → in two hours."
+      },
+      {
+        "question": "Do you want to go there ___ the morning?",
+        "options": ["in", "on", "at", "to"],
+        "correct": 0,
+        "explanation": "Buổi trong ngày → in the morning."
+      },
+      {
+        "question": "I always go to the beach ___ the summer.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Mùa → in the summer."
+      },
+      {
+        "question": "He was born ___ 1991.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Năm → in 1991."
+      },
+      {
+        "question": "There is always snow ___ the winter.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Mùa → in the winter."
+      },
+      {
+        "question": "Henrique's birthday is ___ December.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 0,
+        "explanation": "Tháng → in December."
+      },
+      {
+        "question": "I always enjoy the parade ___ the Independence Day.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Ngày lễ cụ thể → on the Independence Day."
+      },
+      {
+        "question": "I have to leave ___ 9 o'clock.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 2,
+        "explanation": "Giờ cụ thể → at 9 o'clock."
+      },
+      {
+        "question": "Justin Bieber was born ___ March 1st, 1994.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Ngày cụ thể → on March 1st, 1994."
+      },
+      {
+        "question": "We have finished the marathon ___ the same time.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 2,
+        "explanation": "Cụm từ cố định → at the same time."
+      },
+      {
+        "question": "My friends love to go to the cinema ___ Saturdays.",
+        "options": ["in", "on", "at", "by"],
+        "correct": 1,
+        "explanation": "Thứ trong tuần → on Saturdays."
+      }
+    ]
+  },
+  {
+    "topic_id": "word-stress",
+    "emoji": "🎯",
+    "title": "Word Stress",
+    "title_vi": "Trọng âm từ",
+    "description": "Quy tắc trọng âm với hậu tố -ful, -less và các quy tắc nhận biết trọng âm.",
+    "difficulty": "easy",
+    "order": 17,
+    "sections": [
+      {
+        "heading": "1. Hậu tố -ful & -less",
+        "content": "Khi thêm hậu tố **-ful** hoặc **-less**, trọng âm của từ **không bị thay đổi**.\n\n• 'colour → 'colour**ful** (trọng âm vẫn ở âm tiết 1)\n• 'talent → 'talent**less** (trọng âm vẫn ở âm tiết 1)\n• 'beauty → 'beauti**ful** (trọng âm vẫn ở âm tiết 1)\n• 'help → 'help**ful** / 'help**less**\n• 'care → 'care**ful** / 'care**less**"
+      },
+      {
+        "heading": "2. Quy tắc trọng âm cơ bản",
+        "content": "**Từ 2 âm tiết:**\n• Hầu hết **danh từ** và **tính từ** có trọng âm ở **âm tiết 1**: 'student, 'happy, 'table\n• Hầu hết **động từ** có trọng âm ở **âm tiết 2**: be'gin, de'cide, en'joy\n\n**Từ 3 âm tiết trở lên:**\n• Trọng âm thường rơi vào **âm tiết thứ 3 từ cuối**: 'beautiful, 'comfortable, 'recognize\n\n**Các hậu tố KHÔNG thay đổi trọng âm:**\n• -ful, -less, -ment, -ness, -ly\n• VD: 'careful, 'careless, a'greement, 'happy → 'happiness → 'happily"
+      },
+      {
+        "heading": "3. Các hậu tố thay đổi trọng âm",
+        "content": "**Trọng âm rơi ngay trước hậu tố:**\n• -tion / -sion: edu'cation, de'cision\n• -ic / -ical: aca'demic, po'litical\n• -ity: uni'versity, na'tionality\n• -ious / -eous: am'bitious, gor'geous\n\n**Trọng âm rơi ngay trên hậu tố:**\n• -ee: refu'gee, employ'ee\n• -eer: volun'teer, engi'neer\n• -ese: Japa'nese, Vietna'mese"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Hậu tố -ful / -less",
+        "formula": "Trọng âm KHÔNG đổi khi thêm -ful / -less",
+        "example": "'colour → 'colourful, 'talent → 'talentless",
+        "exampleVi": "Trọng âm giữ nguyên ở âm tiết gốc"
+      },
+      {
+        "name": "Danh từ / Tính từ 2 âm tiết",
+        "formula": "Trọng âm thường ở âm tiết 1",
+        "example": "'student, 'happy, 'table",
+        "exampleVi": "sinh viên, vui vẻ, bàn"
+      },
+      {
+        "name": "Động từ 2 âm tiết",
+        "formula": "Trọng âm thường ở âm tiết 2",
+        "example": "be'gin, de'cide, en'joy",
+        "exampleVi": "bắt đầu, quyết định, thưởng thức"
+      },
+      {
+        "name": "Hậu tố -tion/-sion/-ic/-ity",
+        "formula": "Trọng âm rơi ngay trước hậu tố",
+        "example": "edu'cation, aca'demic, uni'versity",
+        "exampleVi": "giáo dục, học thuật, đại học"
+      }
+    ],
+    "exercises": [
+      {
+        "question": "Chọn từ có trọng âm khác: A. beautiful, B. fabulous, C. pagoda, D. comedy",
+        "options": ["beautiful", "fabulous", "pagoda", "comedy"],
+        "correct": 2,
+        "explanation": "pagoda: pa'goda (trọng âm 2). Còn lại trọng âm 1: 'beautiful, 'fabulous, 'comedy."
+      },
+      {
+        "question": "Chọn từ có trọng âm khác: A. adventure, B. advantage, C. develop, D. introduce",
+        "options": ["adventure", "advantage", "develop", "introduce"],
+        "correct": 3,
+        "explanation": "introduce: intro'duce (trọng âm 3). Còn lại trọng âm 2: ad'venture, ad'vantage, de'velop."
+      },
+      {
+        "question": "Chọn từ có trọng âm khác: A. introduce, B. recommend, C. entertain, D. effortless",
+        "options": ["introduce", "recommend", "entertain", "effortless"],
+        "correct": 3,
+        "explanation": "effortless: 'effortless (trọng âm 1). Còn lại trọng âm 3: intro'duce, recom'mend, enter'tain."
+      },
+      {
+        "question": "Chọn từ có trọng âm khác: A. popular, B. atmosphere, C. successful, D. positive",
+        "options": ["popular", "atmosphere", "successful", "positive"],
+        "correct": 2,
+        "explanation": "successful: suc'cessful (trọng âm 2). Còn lại trọng âm 1: 'popular, 'atmosphere, 'positive."
+      },
+      {
+        "question": "Chọn từ có trọng âm khác: A. colourful, B. company, C. technical, D. important",
+        "options": ["colourful", "company", "technical", "important"],
+        "correct": 3,
+        "explanation": "important: im'portant (trọng âm 2). Còn lại trọng âm 1: 'colourful, 'company, 'technical."
+      },
+      {
+        "question": "Chọn từ có trọng âm khác: A. attitude, B. favourite, C. tobacco, D. comedy",
+        "options": ["attitude", "favourite", "tobacco", "comedy"],
+        "correct": 2,
+        "explanation": "tobacco: to'bacco (trọng âm 2). Còn lại trọng âm 1: 'attitude, 'favourite, 'comedy."
+      },
+      {
+        "question": "Từ 'beautiful' có trọng âm ở âm tiết thứ mấy?",
+        "options": ["Âm tiết 1", "Âm tiết 2", "Âm tiết 3", "Âm tiết 4"],
+        "correct": 0,
+        "explanation": "'beautiful — trọng âm ở âm tiết 1."
+      },
+      {
+        "question": "Từ 'education' có trọng âm ở âm tiết thứ mấy?",
+        "options": ["Âm tiết 1", "Âm tiết 2", "Âm tiết 3", "Âm tiết 4"],
+        "correct": 2,
+        "explanation": "edu'cation — trọng âm ở âm tiết 3 (trước hậu tố -tion)."
+      },
+      {
+        "question": "Khi thêm -ful vào 'colour', trọng âm ___.",
+        "options": ["dịch sang âm tiết 2", "không thay đổi", "dịch sang âm tiết cuối", "biến mất"],
+        "correct": 1,
+        "explanation": "Hậu tố -ful không làm thay đổi trọng âm: 'colour → 'colourful."
+      },
+      {
+        "question": "Khi thêm -less vào 'talent', trọng âm ___.",
+        "options": ["dịch sang cuối", "không thay đổi", "dịch sang giữa", "thêm trọng âm phụ"],
+        "correct": 1,
+        "explanation": "Hậu tố -less không làm thay đổi trọng âm: 'talent → 'talentless."
+      }
+    ]
   }
 ]

@@ -1,7 +1,9 @@
 /**
- * Quiz Progress — localStorage helper for persisting quiz state.
+ * Quiz Progress — persists quiz state to server API with localStorage cache.
  * Reusable for any quiz type (usage, grammar, etc.)
  */
+
+import { getUserPrefSync, setUserPref, deleteUserPref } from "@/lib/user-prefs";
 
 export interface QuizProgress {
   answers: Record<string, string>;   // questionId → selected key
@@ -13,26 +15,16 @@ export interface QuizProgress {
 const EMPTY: QuizProgress = { answers: {}, revealed: [], bookmarked: [], lastQuestion: null };
 
 export function getQuizProgress(quizType: string, level: string = ""): QuizProgress {
-  try {
-    const key = `quiz_${quizType}_${level || "all"}`;
-    const raw = localStorage.getItem(key);
-    if (!raw) return { ...EMPTY };
-    return JSON.parse(raw);
-  } catch {
-    return { ...EMPTY };
-  }
+  const key = `quiz-progress-${quizType}_${level || "all"}`;
+  return getUserPrefSync<QuizProgress>(key) || { ...EMPTY };
 }
 
 export function saveQuizProgress(quizType: string, level: string, progress: QuizProgress) {
-  try {
-    const key = `quiz_${quizType}_${level || "all"}`;
-    localStorage.setItem(key, JSON.stringify(progress));
-  } catch { /* ignore */ }
+  const key = `quiz-progress-${quizType}_${level || "all"}`;
+  setUserPref(key, progress).catch(() => {});
 }
 
 export function resetQuizProgress(quizType: string, level: string = "") {
-  try {
-    const key = `quiz_${quizType}_${level || "all"}`;
-    localStorage.removeItem(key);
-  } catch { /* ignore */ }
+  const key = `quiz-progress-${quizType}_${level || "all"}`;
+  deleteUserPref(key).catch(() => {});
 }

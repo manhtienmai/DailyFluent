@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getUserPref } from "@/lib/user-prefs";
 
 interface GrammarTopic {
   topic_id: string;
@@ -26,14 +27,23 @@ const DIFF_LABEL: Record<string, string> = { easy: "Cơ bản", medium: "Trung b
 export default function GrammarTopicsPage() {
   const [mounted, setMounted] = useState(false);
   const [topics, setTopics] = useState<GrammarTopic[]>([]);
+  const [visited, setVisited] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/exam/english/grammar-topics`)
       .then(r => r.json())
       .then(data => setTopics(Array.isArray(data) ? data : []))
       .catch(() => {});
+    // Load visited topics from API (falls back to localStorage)
+    getUserPref<string[]>("grammar_visited").then(v => {
+      if (v && Array.isArray(v)) setVisited(new Set(v));
+    });
     setTimeout(() => setMounted(true), 50);
   }, []);
+
+  const hasVisited = visited.size > 0;
+  const displayTopics = (!hasVisited || showAll) ? topics : topics.filter(t => visited.has(t.topic_id));
 
   return (
     <div className="gr-page" style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.5s" }}>
@@ -46,38 +56,59 @@ export default function GrammarTopicsPage() {
       <div className="gr-header">
         <h1 className="gr-title">📐 Ngữ pháp tiếng Anh</h1>
         <div className="gr-stats">
-          <span className="gr-chip" style={{ background: "rgba(99,102,241,.08)", color: "#6366f1" }}>📚 {topics.length} chủ đề</span>
-          <span className="gr-chip" style={{ background: "rgba(34,197,94,.08)", color: "#16a34a" }}>✏️ {topics.reduce((s, t) => s + t.question_count, 0)} câu</span>
-          <span className="gr-chip" style={{ background: "rgba(168,85,247,.08)", color: "#9333ea" }}>🎯 3 cấp độ</span>
+          {hasVisited && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              style={{
+                padding: "4px 12px", borderRadius: 99, fontSize: 12, fontWeight: 600,
+                border: "1px solid var(--border-default)", background: showAll ? "var(--text-primary)" : "var(--bg-surface)",
+                color: showAll ? "white" : "var(--text-secondary)", cursor: "pointer", transition: "all 0.2s",
+              }}
+            >
+              {showAll ? `Đang học (${visited.size})` : `Tất cả (${topics.length})`}
+            </button>
+          )}
+          <span className="gr-chip" style={{ background: "rgba(34,197,94,.08)", color: "#16a34a" }}>✏️ {displayTopics.reduce((s, t) => s + t.question_count, 0)} câu</span>
         </div>
       </div>
 
-      <div className="gr-topics">
-        {topics.map((topic, idx) => (
-          <Link
-            key={topic.topic_id}
-            href={`/exam/english/grammar/${topic.topic_id}`}
-            className="gr-topic-card"
-            style={{ animationDelay: `${idx * 0.04}s` }}
-          >
-            <div className="gr-topic-emoji">{topic.emoji}</div>
-            <div className="gr-topic-body">
-              <div className="gr-topic-header">
-                <h3 className="gr-topic-title">{topic.title}</h3>
-                <span className="gr-topic-badge" style={{ background: DIFF_COLORS[topic.difficulty], color: DIFF_TEXT[topic.difficulty] }}>
-                  {DIFF_LABEL[topic.difficulty]}
-                </span>
+      {displayTopics.length === 0 && hasVisited && !showAll ? (
+        <div style={{ textAlign: "center", padding: "40px 16px", color: "var(--text-tertiary)" }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>📚</div>
+          <p style={{ fontSize: 14, marginBottom: 12 }}>Chưa học chủ đề nào</p>
+          <button onClick={() => setShowAll(true)} style={{
+            padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+            border: "1px solid var(--border-default)", background: "var(--bg-surface)", color: "var(--text-primary)", cursor: "pointer",
+          }}>Xem tất cả chủ đề</button>
+        </div>
+      ) : (
+        <div className="gr-topics">
+          {displayTopics.map((topic, idx) => (
+            <Link
+              key={topic.topic_id}
+              href={`/exam/english/grammar/${topic.topic_id}`}
+              className="gr-topic-card"
+              style={{ animationDelay: `${idx * 0.04}s` }}
+            >
+              <div className="gr-topic-emoji">{topic.emoji}</div>
+              <div className="gr-topic-body">
+                <div className="gr-topic-header">
+                  <h3 className="gr-topic-title">{topic.title}</h3>
+                  <span className="gr-topic-badge" style={{ background: DIFF_COLORS[topic.difficulty], color: DIFF_TEXT[topic.difficulty] }}>
+                    {DIFF_LABEL[topic.difficulty]}
+                  </span>
+                </div>
+                <p className="gr-topic-vi">{topic.title_vi}</p>
+                <p className="gr-topic-desc">{topic.description}</p>
               </div>
-              <p className="gr-topic-vi">{topic.title_vi}</p>
-              <p className="gr-topic-desc">{topic.description}</p>
-            </div>
-            <div className="gr-topic-right">
-              <div className="gr-topic-count">{topic.question_count} câu</div>
-              <div className="gr-topic-arrow">→</div>
-            </div>
-          </Link>
-        ))}
-      </div>
+              <div className="gr-topic-right">
+                <div className="gr-topic-count">{topic.question_count} câu</div>
+                <div className="gr-topic-arrow">→</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       <style jsx global>{`
         .gr-page { max-width: 100%; margin: 0 auto; padding: 24px 24px; }

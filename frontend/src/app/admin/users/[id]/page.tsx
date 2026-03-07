@@ -168,13 +168,41 @@ function StatCard({
 // ── Bar chart (premium CSS) ──────────────────
 
 function StudyChart({ data }: { data: { date: string; minutes_studied: number }[] }) {
+  const [period, setPeriod] = useState<"today" | "7d" | "30d">("30d");
+
   if (!data.length) return <Empty description="Chưa có dữ liệu" />;
 
-  const maxVal = Math.max(...data.map((d) => d.minutes_studied), 1);
-  const last30 = data.slice(-30);
+  const today = new Date().toISOString().split("T")[0];
+  const filtered = period === "today"
+    ? data.filter(d => d.date === today)
+    : period === "7d"
+      ? data.slice(-7)
+      : data.slice(-30);
+
+  const maxVal = Math.max(...filtered.map((d) => d.minutes_studied), 1);
+
+  const periodLabel = period === "today" ? "Hôm nay" : period === "7d" ? "7 ngày" : "30 ngày";
 
   return (
     <div style={{ padding: "12px 0" }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        {(["today", "7d", "30d"] as const).map(p => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            style={{
+              padding: "4px 14px", borderRadius: 8, border: "1px solid",
+              borderColor: period === p ? "#6366f1" : "#e2e8f0",
+              background: period === p ? "rgba(99,102,241,0.08)" : "transparent",
+              color: period === p ? "#6366f1" : "#64748b",
+              fontSize: 12, fontWeight: 700, cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            {p === "today" ? "Hôm nay" : p === "7d" ? "7 ngày" : "30 ngày"}
+          </button>
+        ))}
+      </div>
       <div style={{
         display: "flex",
         alignItems: "flex-end",
@@ -192,7 +220,7 @@ function StudyChart({ data }: { data: { date: string; minutes_studied: number }[
             pointerEvents: "none",
           }} />
         ))}
-        {last30.map((d, i) => {
+        {filtered.map((d, i) => {
           const h = Math.max((d.minutes_studied / maxVal) * 100, 3);
           const isActive = d.minutes_studied > 0;
           return (
@@ -231,10 +259,10 @@ function StudyChart({ data }: { data: { date: string; minutes_studied: number }[
         marginTop: 8, padding: "0 4px",
       }}>
         <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>
-          {last30.length > 0 && new Date(last30[0].date).toLocaleDateString("vi-VN")}
+          {filtered.length > 0 && new Date(filtered[0].date).toLocaleDateString("vi-VN")}
         </Text>
         <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>
-          {last30.length > 0 && new Date(last30[last30.length - 1].date).toLocaleDateString("vi-VN")}
+          {filtered.length > 0 && new Date(filtered[filtered.length - 1].date).toLocaleDateString("vi-VN")}
         </Text>
       </div>
     </div>
@@ -309,7 +337,7 @@ export default function UserDetailPage() {
       key: "result",
       width: 140,
       render: (_, r) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <Text strong style={{ color: scoreColor(r.score_percent) }}>
             {r.correct_count}/{r.total_questions} ({r.score_percent}%)
           </Text>
@@ -358,7 +386,7 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.total_words > 0 ? Math.round((r.words_mastered / r.total_words) * 100) : 0;
         return (
-          <Space direction="vertical" size={0} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={0} style={{ width: "100%" }}>
             <Text style={{ fontSize: 12 }}>
               {r.words_mastered}/{r.total_words} từ
               {pct === 100 && <CheckCircleFilled style={{ color: "#22c55e", marginLeft: 6 }} />}
@@ -397,7 +425,7 @@ export default function UserDetailPage() {
       render: (_, r) => {
         const pct = r.words_total > 0 ? Math.round((r.words_learned / r.words_total) * 100) : 0;
         return (
-          <Space direction="vertical" size={0}>
+          <Space orientation="vertical" size={0}>
             <Text style={{ fontSize: 12 }}>{r.words_learned}/{r.words_total}</Text>
             <Progress percent={pct} size="small" showInfo={false} strokeColor="#10b981" />
           </Space>
@@ -419,7 +447,7 @@ export default function UserDetailPage() {
 
   return (
     <div>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         {/* ── Header ── */}
         <div style={{
           display: "flex", alignItems: "center", gap: 16,
@@ -491,15 +519,15 @@ export default function UserDetailPage() {
         </Card>
 
         {/* ── EN10 Vocab Topics ── */}
-        {data.en10_vocab_topics.length > 0 && (
+        {data.en10_vocab_topics.filter(t => t.words_mastered > 0).length > 0 && (
           <Card
-            title={<span style={{ fontWeight: 800 }}>📚 Từ vựng Tiếng Anh 10</span>}
+            title={<span style={{ fontWeight: 800 }}>📚 Tiếng Anh 9 lên 10</span>}
             size="small"
             style={{ borderRadius: 16, border: "1px solid #e2e8f0" }}
           >
             <Table
               columns={vocabTopicCols}
-              dataSource={data.en10_vocab_topics}
+              dataSource={data.en10_vocab_topics.filter(t => t.words_mastered > 0)}
               rowKey="topic_id"
               size="small"
               pagination={false}
@@ -573,7 +601,7 @@ export default function UserDetailPage() {
             <Table
               columns={vocabSetCols}
               dataSource={data.vocab_set_progress}
-              rowKey={(_, i) => String(i)}
+              rowKey={(r) => `${r.set_title}-${r.collection_name}`}
               size="small"
               pagination={{ pageSize: 10, showSizeChanger: false }}
             />

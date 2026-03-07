@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { submitQuizResult, getLatestResult, type QuizResultResponse } from "@/lib/api-quiz-result";
+import { getUserPref, setUserPref } from "@/lib/user-prefs";
 
 /* ─── TYPES ────────────────────────────────────────────── */
 interface GrammarLesson {
@@ -46,6 +47,14 @@ export default function GrammarDetailPage() {
             formulas: data.formulas || [],
             exercises: data.exercises || [],
           });
+          // Track visited grammar topics via API
+          getUserPref<string[]>("grammar_visited").then(async (arr) => {
+            const visited: string[] = Array.isArray(arr) ? arr : [];
+            if (!visited.includes(topicId)) {
+              visited.push(topicId);
+              await setUserPref("grammar_visited", visited);
+            }
+          }).catch(() => {});
         }
       })
       .catch(() => {})
