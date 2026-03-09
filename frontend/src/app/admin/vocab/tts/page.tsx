@@ -73,6 +73,19 @@ export default function TtsPage() {
   const [en10Loading, setEN10Loading] = useState(false);
   const [en10Audio, setEN10Audio] = useState<string | null>(null);
 
+  // Grammar TTS
+  interface GrammarTopic { topic_id: string; title: string; title_vi: string; exercise_count: number; total_words: number; words_with_audio: number; }
+  const [grammarTopics, setGrammarTopics] = useState<GrammarTopic[]>([]);
+  const [selectedGrammarTopic, setSelectedGrammarTopic] = useState<string>("");
+  const [grammarGenerating, setGrammarGenerating] = useState(false);
+  const [grammarResult, setGrammarResult] = useState<{ success: boolean; message: string; generated?: number; errors?: number; total_words?: number } | null>(null);
+
+  const fetchGrammarTopics = useCallback(() => {
+    adminGet<{ items: GrammarTopic[] }>("/crud/tts/grammar-topics/")
+      .then((d) => setGrammarTopics(d.items || []))
+      .catch(() => {});
+  }, []);
+
   const fetchStats = useCallback(() => {
     adminGet<Stats>(`/crud/tts/stats/?language=${language}`)
       .then(setStats)
@@ -111,7 +124,8 @@ export default function TtsPage() {
     fetchStats();
     fetchMissing();
     fetchVoices();
-  }, [fetchStats, fetchMissing, fetchVoices]);
+    fetchGrammarTopics();
+  }, [fetchStats, fetchMissing, fetchVoices, fetchGrammarTopics]);
 
   // Poll progress while batch is running
   useEffect(() => {
@@ -202,6 +216,30 @@ export default function TtsPage() {
       message.error("Lỗi khi synthesize");
     } finally {
       setEN10Loading(false);
+    }
+  };
+
+  const generateGrammarTts = async () => {
+    if (!selectedGrammarTopic) { message.warning("Chọn topic trước"); return; }
+    setGrammarGenerating(true);
+    setGrammarResult(null);
+    try {
+      const accent = selectedVoiceUS.startsWith("en-GB") ? "en-GB" : "en-US";
+      const resp = await adminPost<{ success: boolean; message: string; generated?: number; errors?: number; total_words?: number; error_list?: string[] }>(
+        "/crud/tts/grammar-batch-synthesize/",
+        { topic_id: selectedGrammarTopic, voice_name: selectedVoiceUS, language_code: accent, speaking_rate: speakingRate }
+      );
+      setGrammarResult(resp);
+      if (resp.success) {
+        message.success(resp.message);
+        fetchGrammarTopics();
+      } else {
+        message.error(resp.message);
+      }
+    } catch {
+      message.error("Lỗi khi tạo Grammar TTS");
+    } finally {
+      setGrammarGenerating(false);
     }
   };
 
@@ -390,6 +428,84 @@ export default function TtsPage() {
               )}
             </div>
           </div>
+        </Card>
+
+        {/* ── Grammar TTS Section ── */}
+        <Card size="small" title="📝 Grammar Exercises TTS" style={{ borderColor: "#a78bfa" }}>
+          <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 12 }}>
+            Tạo audio phát âm cho các từ trong bài tập trọng âm / pronunciation. Học viên sẽ nghe được phát âm ngay trên trang bài tập.
+          </Text>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <Select
+              placeholder="Chọn Grammar Topic"
+              value={selectedGrammarTopic || undefined}
+              onChange={setSelectedGrammarTopic}
+              style={{ minWidth: 280 }}
+              options={grammarTopics.map(t => ({
+                value: t.topic_id,
+                label: `${t.title} — ${t.exercise_count} bài, ${t.total_words} từ (${t.words_with_audio} có audio)`,
+              }))}
+            />
+            <Button
+              type="primary"
+              icon={<SoundOutlined />}
+              onClick={generateGrammarTts}
+              loading={grammarGenerating}
+              disabled={!selectedGrammarTopic || grammarGenerating}
+              style={{ background: "#7c3aed" }}
+            >
+              Generate Audio
+            </Button>
+            <Button
+              icon={<ReloadOutlined />}
+              size="small"
+              onClick={fetchGrammarTopics}
+            >
+              Refresh
+            </Button>
+          </div>
+
+          {/* Grammar coverage table */}
+          {grammarTopics.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
+                    <th style={{ textAlign: "left", padding: "6px 8px", color: "#6b7280" }}>Topic</th>
+                    <th style={{ textAlign: "center", padding: "6px 8px", color: "#6b7280", width: 80 }}>Bài tập</th>
+                    <th style={{ textAlign: "center", padding: "6px 8px", color: "#6b7280", width: 80 }}>Tổng từ</th>
+                    <th style={{ textAlign: "center", padding: "6px 8px", color: "#6b7280", width: 100 }}>Có Audio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grammarTopics.map(t => {
+                    const pct = t.total_words > 0 ? Math.round(t.words_with_audio / t.total_words * 100) : 0;
+                    return (
+                      <tr key={t.topic_id} style={{ borderBottom: "1px solid #f3f4f6", cursor: "pointer", background: selectedGrammarTopic === t.topic_id ? "#f5f3ff" : undefined }} onClick={() => setSelectedGrammarTopic(t.topic_id)}>
+                        <td style={{ padding: "6px 8px", fontWeight: 500 }}>{t.title} <span style={{ color: "#9ca3af" }}>({t.title_vi})</span></td>
+                        <td style={{ textAlign: "center", padding: "6px 8px" }}>{t.exercise_count}</td>
+                        <td style={{ textAlign: "center", padding: "6px 8px" }}>{t.total_words}</td>
+                        <td style={{ textAlign: "center", padding: "6px 8px" }}>
+                          <Tag color={pct === 100 ? "success" : pct > 0 ? "processing" : "default"}>
+                            {t.words_with_audio}/{t.total_words} ({pct}%)
+                          </Tag>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Generation result */}
+          {grammarResult && (
+            <div style={{ marginTop: 12, padding: 12, borderRadius: 8, background: grammarResult.success ? "#f0fdf4" : "#fef2f2", border: `1px solid ${grammarResult.success ? "#bbf7d0" : "#fecaca"}` }}>
+              <Text strong style={{ color: grammarResult.success ? "#15803d" : "#dc2626", fontSize: 13 }}>
+                {grammarResult.success ? "✅" : "❌"} {grammarResult.message}
+              </Text>
+            </div>
+          )}
         </Card>
 
         {/* Stats */}

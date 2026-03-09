@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { submitQuizResult, getLatestResult, type QuizResultResponse } from "@/lib/api-quiz-result";
@@ -13,7 +13,7 @@ interface GrammarLesson {
   emoji: string;
   sections: { heading: string; content: string }[];
   formulas: { name: string; formula: string; example: string; exampleVi: string }[];
-  exercises: { question: string; options: string[]; correct: number; explanation: string }[];
+  exercises: { question: string; options: string[]; correct: number; explanation: string; audio_urls?: Record<string, string> }[];
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
@@ -27,10 +27,14 @@ export default function GrammarDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showExercise, setShowExercise] = useState(false);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [checked, setChecked] = useState(false);
+  const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [lastResult, setLastResult] = useState<QuizResultResponse | null>(null);
+
+  // TTS audio playback (must be before any early returns)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingWord, setPlayingWord] = useState<string | null>(null);
 
   // Load lesson from API
   useEffect(() => {
@@ -66,6 +70,28 @@ export default function GrammarDetailPage() {
     getLatestResult("grammar", topicId).then(r => setLastResult(r));
   }, [topicId]);
 
+  // Auto-submit when all questions answered
+  const allAnswered = lesson ? Object.keys(answers).length === lesson.exercises.length && revealed.size === lesson.exercises.length : false;
+  useEffect(() => {
+    if (!allAnswered || !lesson || saved) return;
+    (async () => {
+      setSaving(true);
+      const cc = lesson.exercises.filter((ex, i) => answers[i] === ex.correct).length;
+      const s10 = lesson.exercises.length > 0 ? Math.round(cc / lesson.exercises.length * 100) / 10 : 0;
+      const detail = lesson.exercises.map((ex, i) => ({
+        q: i, selected: answers[i] ?? -1, correct: ex.correct, is_correct: answers[i] === ex.correct,
+      }));
+      const res = await submitQuizResult({
+        quiz_type: "grammar", quiz_id: topicId,
+        total_questions: lesson.exercises.length, correct_count: cc,
+        score: s10, answers_detail: detail,
+      });
+      setSaving(false);
+      if (res) { setSaved(true); setLastResult(res); }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allAnswered]);
+
   if (loading) {
     return (
       <div className="gd-page" style={{ textAlign: "center", paddingTop: 48 }}>
@@ -86,8 +112,26 @@ export default function GrammarDetailPage() {
     );
   }
 
-  const correctCount = checked ? lesson.exercises.filter((ex, i) => answers[i] === ex.correct).length : 0;
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = lesson.exercises.filter((ex, i) => answers[i] === ex.correct).length;
   const score10 = lesson.exercises.length > 0 ? Math.round(correctCount / lesson.exercises.length * 100) / 10 : 0;
+
+  const handleSelectAnswer = (qIdx: number, optIdx: number) => {
+    if (revealed.has(qIdx)) return; // already answered
+    setAnswers(prev => ({ ...prev, [qIdx]: optIdx }));
+    setRevealed(prev => new Set(prev).add(qIdx));
+  };
+
+  // TTS audio playback helper
+  const playAudio = (url: string, word: string) => {
+    if (audioRef.current) { audioRef.current.pause(); }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    setPlayingWord(word);
+    audio.onended = () => setPlayingWord(null);
+    audio.onerror = () => setPlayingWord(null);
+    audio.play();
+  };
 
   return (
     <div className="gd-page">
@@ -163,10 +207,18 @@ export default function GrammarDetailPage() {
         <div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>✍️ Bài tập</h2>
-            <button className="gd-hide-btn" onClick={() => setShowExercise(false)}>Ẩn bài tập</button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {answeredCount > 0 && (
+                <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+                  {correctCount}/{answeredCount} đúng
+                </span>
+              )}
+              <button className="gd-hide-btn" onClick={() => setShowExercise(false)}>Ẩn bài tập</button>
+            </div>
           </div>
 
-          {checked && (
+          {/* Score box when all done */}
+          {allAnswered && (
             <div className="gd-score-box">
               <div className="gd-score-num" style={{ color: score10 >= 8 ? "#10b981" : score10 >= 6 ? "#f59e0b" : "#ef4444" }}>
                 {score10}<span style={{ fontSize: 20, color: "var(--text-tertiary)" }}>/10</span>
@@ -178,32 +230,45 @@ export default function GrammarDetailPage() {
           <div className="gd-content">
             {lesson.exercises.map((ex, i) => {
               const selected = answers[i];
+              const isRevealed = revealed.has(i);
               const isCorrect = selected === ex.correct;
               return (
                 <div key={i} className="gd-ex-item">
                   <div className="gd-ex-header">
-                    <span className={`gd-ex-num ${checked ? (isCorrect ? "correct" : "wrong") : ""}`}>{i + 1}</span>
+                    <span className={`gd-ex-num ${isRevealed ? (isCorrect ? "correct" : "wrong") : ""}`}>{i + 1}</span>
                     <p className="gd-ex-question">{ex.question}</p>
                   </div>
                   <div className="gd-ex-options">
                     {ex.options.map((opt, j) => {
                       let cls = "gd-ex-opt";
-                      if (checked) {
+                      if (isRevealed) {
                         if (j === ex.correct) cls += " correct";
                         else if (j === selected) cls += " wrong";
                         else cls += " dim";
                       } else if (j === selected) cls += " selected";
+                      const audioUrl = ex.audio_urls?.[opt];
                       return (
-                        <button key={j} onClick={() => !checked && setAnswers(prev => ({ ...prev, [i]: j }))} disabled={checked} className={cls}>
-                          <span className={`gd-ex-key ${checked && j === ex.correct ? "correct" : checked && j === selected ? "wrong" : j === selected ? "selected" : ""}`}>
-                            {String.fromCharCode(65 + j)}
-                          </span>
-                          {opt}
-                        </button>
+                        <div key={j} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <button onClick={() => handleSelectAnswer(i, j)} disabled={isRevealed} className={cls} style={{ flex: 1 }}>
+                            <span className={`gd-ex-key ${isRevealed && j === ex.correct ? "correct" : isRevealed && j === selected ? "wrong" : j === selected ? "selected" : ""}`}>
+                              {String.fromCharCode(65 + j)}
+                            </span>
+                            {opt}
+                          </button>
+                          {audioUrl && (
+                            <button
+                              className="gd-audio-btn"
+                              onClick={(e) => { e.stopPropagation(); playAudio(audioUrl, opt); }}
+                              title={`Nghe phát âm: ${opt}`}
+                            >
+                              {playingWord === opt ? "🔊" : "🔈"}
+                            </button>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
-                  {checked && (
+                  {isRevealed && (
                     <div className="gd-ex-explain">💡 {ex.explanation}</div>
                   )}
                 </div>
@@ -212,28 +277,8 @@ export default function GrammarDetailPage() {
           </div>
 
           <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 20, alignItems: "center" }}>
-            {!checked ? (
-              <button className="gd-check-btn" onClick={async () => {
-                setChecked(true);
-                setSaving(true);
-                const cc = lesson.exercises.filter((ex, i) => answers[i] === ex.correct).length;
-                const s10 = lesson.exercises.length > 0 ? Math.round(cc / lesson.exercises.length * 100) / 10 : 0;
-                const detail = lesson.exercises.map((ex, i) => ({
-                  q: i, selected: answers[i] ?? -1, correct: ex.correct, is_correct: answers[i] === ex.correct,
-                }));
-                const res = await submitQuizResult({
-                  quiz_type: "grammar", quiz_id: topicId,
-                  total_questions: lesson.exercises.length, correct_count: cc,
-                  score: s10, answers_detail: detail,
-                });
-                setSaving(false);
-                if (res) { setSaved(true); setLastResult(res); }
-              }} disabled={Object.keys(answers).length < lesson.exercises.length}
-                style={{ opacity: Object.keys(answers).length < lesson.exercises.length ? 0.4 : 1 }}>
-                Kiểm tra ({Object.keys(answers).length}/{lesson.exercises.length})
-              </button>
-            ) : (
-              <button className="gd-retry-btn" onClick={() => { setAnswers({}); setChecked(false); setSaved(false); }}>
+            {allAnswered && (
+              <button className="gd-retry-btn" onClick={() => { setAnswers({}); setRevealed(new Set()); setSaved(false); }}>
                 🔄 Làm lại
               </button>
             )}
@@ -307,6 +352,9 @@ export default function GrammarDetailPage() {
 
         .gd-ex-explain { margin-left: 36px; margin-top: 8px; font-size: 12px; color: #15803d; padding: 6px 0; }
         @media (max-width: 480px) { .gd-ex-explain { margin-left: 0; } }
+
+        .gd-audio-btn { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-default); background: var(--bg-surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+        .gd-audio-btn:hover { border-color: var(--action-primary); background: var(--bg-interactive); transform: scale(1.1); }
 
         @keyframes gdScaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}</style>

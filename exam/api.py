@@ -759,6 +759,129 @@ def en10_vocab_topic_remove_word(request, slug: str, word: str):
     return {"ok": True, "word": word, "slug": slug}
 
 
+# ── EN9 Vocabulary endpoints (reuse EN10VocabTopic with en9- prefix) ──
+
+@router.get("/english/en9-vocab-topics", auth=None)
+def en9_vocab_topics_list(request):
+    """List all EN9 vocabulary topics (for the topics grid page)."""
+    from exam.models import EN10VocabTopic
+
+    topics = EN10VocabTopic.objects.filter(is_active=True, slug__startswith="en9-").order_by("order")
+    return [
+        {
+            "slug": t.slug,
+            "title": t.title,
+            "title_vi": t.title_vi,
+            "emoji": t.emoji,
+            "word_count": t.word_count,
+        }
+        for t in topics
+    ]
+
+
+@router.get("/english/en9-vocab-topics/{slug}", auth=None)
+def en9_vocab_topic_detail(request, slug: str):
+    """Get EN9 vocabulary topic with full word list from Vocabulary + WordEntry."""
+    from exam.models import EN10VocabTopic
+    from vocab.models import WordEntry, WordDefinition
+
+    try:
+        t = EN10VocabTopic.objects.get(slug=slug, is_active=True, slug__startswith="en9-")
+    except EN10VocabTopic.DoesNotExist:
+        raise HttpError(404, "Vocabulary topic not found")
+
+    # Build word list from M2M → WordEntry → WordDefinition
+    vocab_ids = t.vocabularies.values_list("id", flat=True)
+    entries = (
+        WordEntry.objects
+        .filter(vocab_id__in=vocab_ids)
+        .select_related("vocab")
+        .prefetch_related("definitions")
+        .order_by("vocab__word", "id")
+    )
+
+    words = []
+    seen_vocab_ids = set()
+    for entry in entries:
+        if entry.vocab_id in seen_vocab_ids:
+            continue
+        seen_vocab_ids.add(entry.vocab_id)
+        defn = entry.definitions.first()
+        meaning = defn.meaning if defn else ""
+        words.append({
+            "word": entry.vocab.word,
+            "pos": entry.part_of_speech,
+            "ipa": entry.ipa,
+            "meaning": meaning,
+            "audio_us": entry.audio_us,
+            "audio_uk": entry.audio_uk,
+        })
+
+    return {
+        "slug": t.slug,
+        "title": t.title,
+        "title_vi": t.title_vi,
+        "emoji": t.emoji,
+        "word_count": len(words),
+        "words": words,
+    }
+
+
+@router.get("/english/en9-vocab-progress")
+def en9_vocab_progress_all(request):
+    """Get all learned words for all EN9 vocab topics for the authenticated user."""
+    from exam.models import EN10VocabProgress
+
+    progress = EN10VocabProgress.objects.filter(
+        user=request.user,
+        topic__slug__startswith="en9-",
+    ).select_related('topic')
+
+    result = {}
+    for p in progress:
+        result[p.topic.slug] = p.learned_words or []
+    return result
+
+
+class EN9VocabProgressIn(Schema):
+    word: str
+
+
+@router.post("/english/en9-vocab-progress/{slug}")
+def en9_vocab_progress_toggle(request, slug: str, payload: EN9VocabProgressIn):
+    """Toggle a word's learned status for an EN9 vocab topic."""
+    from exam.models import EN10VocabTopic, EN10VocabProgress
+
+    try:
+        topic = EN10VocabTopic.objects.get(slug=slug, is_active=True, slug__startswith="en9-")
+    except EN10VocabTopic.DoesNotExist:
+        raise HttpError(404, "Topic not found")
+
+    progress, _ = EN10VocabProgress.objects.get_or_create(
+        user=request.user,
+        topic=topic,
+        defaults={'learned_words': []},
+    )
+
+    words = progress.learned_words or []
+    word = payload.word
+    if word in words:
+        words.remove(word)
+    else:
+        words.append(word)
+
+    progress.learned_words = words
+    progress.save(update_fields=['learned_words', 'updated_at'])
+
+    return {
+        "slug": slug,
+        "word": word,
+        "learned": word in words,
+        "learned_words": words,
+        "total_learned": len(words),
+    }
+
+
 @router.get("/english/vocab-progress")
 def en10_vocab_progress_all(request):
     """Get all learned words for all vocab topics for the authenticated user."""

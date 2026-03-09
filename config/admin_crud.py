@@ -2966,6 +2966,134 @@ def tts_en10_synthesize(request, payload: TtsEN10SynthesizeIn):
         return {"success": False, "message": str(e)}
 
 
+@router.get("/tts/grammar-topics/")
+def tts_grammar_topics(request):
+    """List grammar topics with exercise count and audio status."""
+    if not staff_required(request):
+        return {"items": []}
+
+    from exam.models import EN10GrammarTopic
+
+    topics = EN10GrammarTopic.objects.filter(is_active=True).order_by("order")
+    items = []
+    for t in topics:
+        exercises = t.exercises or []
+        total_words = set()
+        words_with_audio = set()
+        for ex in exercises:
+            for opt in ex.get("options", []):
+                total_words.add(opt)
+                audio_urls = ex.get("audio_urls", {})
+                if audio_urls.get(opt):
+                    words_with_audio.add(opt)
+        items.append({
+            "topic_id": t.topic_id,
+            "title": f"{t.emoji} {t.title}",
+            "title_vi": t.title_vi,
+            "exercise_count": len(exercises),
+            "total_words": len(total_words),
+            "words_with_audio": len(words_with_audio),
+        })
+    return {"items": items}
+
+
+class GrammarTtsBatchIn(Schema):
+    topic_id: str
+    voice_name: str = "en-US-Studio-Q"
+    language_code: str = "en-US"
+    speaking_rate: float = 0.92
+
+
+@router.post("/tts/grammar-batch-synthesize/")
+def tts_grammar_batch_synthesize(request, payload: GrammarTtsBatchIn):
+    """Batch generate TTS for all unique option words in a grammar topic's exercises."""
+    if not staff_required(request):
+        return {"success": False, "message": "Forbidden"}
+
+    from exam.models import EN10GrammarTopic
+    from vocab.tts_service import synthesize_word, upload_to_azure
+    import base64
+
+    try:
+        topic = EN10GrammarTopic.objects.get(topic_id=payload.topic_id)
+    except EN10GrammarTopic.DoesNotExist:
+        return {"success": False, "message": "Topic not found"}
+
+    exercises = topic.exercises or []
+    if not exercises:
+        return {"success": False, "message": "No exercises in this topic"}
+
+    # Collect unique words across all exercises
+    unique_words = set()
+    for ex in exercises:
+        for opt in ex.get("options", []):
+            word = opt.strip()
+            if word and len(word) < 50:  # Skip long sentences
+                unique_words.add(word)
+
+    if not unique_words:
+        return {"success": False, "message": "No words to synthesize"}
+
+    # Check existing audio to skip
+    existing_audio = {}
+    for ex in exercises:
+        audio_urls = ex.get("audio_urls", {})
+        existing_audio.update(audio_urls)
+
+    words_to_generate = [w for w in unique_words if not existing_audio.get(w)]
+
+    success_count = 0
+    error_count = 0
+    errors = []
+    audio_map = dict(existing_audio)  # Keep existing
+
+    for word in words_to_generate:
+        try:
+            audio_bytes = synthesize_word(
+                word,
+                payload.language_code,
+                payload.voice_name,
+                payload.speaking_rate,
+            )
+            # Upload to Azure
+            safe_name = word.lower().replace(" ", "-").replace("'", "")[:30]
+            blob_path = f"grammar-tts/{payload.topic_id}/{safe_name}.mp3"
+            url = upload_to_azure(audio_bytes, blob_path)
+            audio_map[word] = url
+            success_count += 1
+        except Exception as e:
+            error_count += 1
+            errors.append(f"{word}: {str(e)[:100]}")
+
+    # Save audio_urls back into exercises JSON
+    updated_exercises = []
+    for ex in exercises:
+        ex_copy = dict(ex)
+        options = ex_copy.get("options", [])
+        audio_urls = {}
+        for opt in options:
+            if opt in audio_map:
+                audio_urls[opt] = audio_map[opt]
+        if audio_urls:
+            ex_copy["audio_urls"] = audio_urls
+        updated_exercises.append(ex_copy)
+
+    topic.exercises = updated_exercises
+    topic.save(update_fields=["exercises"])
+
+    result = {
+        "success": True,
+        "message": f"Generated {success_count}/{len(words_to_generate)} audio files ({len(existing_audio)} existing, {error_count} errors)",
+        "topic_id": payload.topic_id,
+        "generated": success_count,
+        "skipped": len(existing_audio),
+        "errors": error_count,
+        "total_words": len(unique_words),
+    }
+    if errors:
+        result["error_list"] = errors[:10]
+    return result
+
 # =============================================
 #  EXAM LOCK / PUBLIC MANAGEMENT
 # =============================================
@@ -3048,3 +3176,212 @@ def admin_bulk_toggle_exams(request):
         "updated": updated,
         "message": f"Đã {'mở công khai' if action == 'public' else 'khóa VIP'} {updated} đề.",
     }
+
+
+# ═══════════════════════════════════════════════════════════
+# ── KANJI: PDF Upload & AI Extraction ──
+# ═══════════════════════════════════════════════════════════
+
+@router.post("/kanji-pdf/upload/")
+def kanji_pdf_upload(request):
+    """Upload a PDF file, convert pages to images, return thumbnails."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    pdf_file = request.FILES.get("pdf_file")
+    if not pdf_file:
+        return {"success": False, "message": "No PDF file uploaded"}
+
+    if not pdf_file.name.lower().endswith(".pdf"):
+        return {"success": False, "message": "File must be a PDF"}
+
+    from kanji.services.pdf_extractor import save_pdf, get_page_thumbnails
+
+    try:
+        file_bytes = pdf_file.read()
+        session_id, page_count = save_pdf(file_bytes)
+        thumbnails = get_page_thumbnails(session_id, page_count)
+
+        # Save session info for persistence
+        import os, json
+        from datetime import datetime
+        session_dir = os.path.join("media", "kanji_pdf", session_id)
+        session_info = {
+            "session_id": session_id,
+            "filename": pdf_file.name,
+            "page_count": page_count,
+            "created_at": datetime.now().isoformat(),
+        }
+        with open(os.path.join(session_dir, "session_info.json"), "w", encoding="utf-8") as f:
+            json.dump(session_info, f, ensure_ascii=False)
+
+        return {
+            "success": True,
+            "session_id": session_id,
+            "page_count": page_count,
+            "thumbnails": thumbnails,
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error processing PDF: {str(e)}"}
+
+
+class KanjiPdfExtractPageIn(Schema):
+    session_id: str
+    page_index: int
+
+
+@router.post("/kanji-pdf/extract-page/")
+def kanji_pdf_extract_page(request, payload: KanjiPdfExtractPageIn):
+    """Extract kanji from a single PDF page using Gemini AI."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    from kanji.services.pdf_extractor import extract_kanji_from_page, get_page_image_base64
+
+    try:
+        data = extract_kanji_from_page(payload.session_id, payload.page_index)
+        page_image = get_page_image_base64(payload.session_id, payload.page_index)
+        return {
+            "success": True,
+            "page_index": payload.page_index,
+            "page_image": page_image,
+            "data": data,
+        }
+    except FileNotFoundError:
+        return {"success": False, "message": "Session not found or expired"}
+    except Exception as e:
+        return {"success": False, "message": f"Extraction error: {str(e)}"}
+
+
+class KanjiPdfImportIn(Schema):
+    jlpt_level: str = "N3"
+    starting_lesson: int = 1
+    pages_data: list  # list of {kanji_list: [...], topic: "..."}
+    session_id: str = ""  # for cleanup
+
+
+@router.post("/kanji-pdf/import/")
+def kanji_pdf_import(request, payload: KanjiPdfImportIn):
+    """Import reviewed kanji data from PDF extraction into DB."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    from kanji.admin import _import_kanji_json
+    from kanji.services.pdf_extractor import cleanup_session
+
+    # Build the import data in the format expected by _import_kanji_json
+    import_data = []
+    for i, page_data in enumerate(payload.pages_data):
+        kanji_list = page_data.get("kanji_list", [])
+        if not kanji_list:
+            continue
+        import_data.append({
+            "jlpt_level": payload.jlpt_level,
+            "lesson_id": payload.starting_lesson + i,
+            "topic": page_data.get("topic", f"Bài {payload.starting_lesson + i}"),
+            "kanji_list": kanji_list,
+        })
+
+    if not import_data:
+        return {"success": False, "message": "No kanji data to import"}
+
+    try:
+        stats = _import_kanji_json(import_data, replace=True)
+
+        # Cleanup temporary PDF files
+        if payload.session_id:
+            cleanup_session(payload.session_id)
+
+        return {
+            "success": True,
+            "message": f"Imported {stats['kanji']} kanji, {stats['vocab']} vocab across {stats['lessons']} lessons",
+            "stats": stats,
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Import error: {str(e)}"}
+
+
+@router.get("/kanji-pdf/load-extracted/{session_id}/")
+def kanji_pdf_load_extracted(request, session_id: str):
+    """Load extracted.json written by Antigravity directly to disk."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    import os
+    extracted_path = os.path.join("media", "kanji_pdf", session_id, "extracted.json")
+
+    if not os.path.exists(extracted_path):
+        return {"success": False, "message": "Chưa có dữ liệu. Hãy nói với Antigravity để trích xuất."}
+
+    try:
+        with open(extracted_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return {"success": True, "data": data}
+    except Exception as e:
+        return {"success": False, "message": f"Lỗi đọc file: {str(e)}"}
+
+
+@router.get("/kanji-pdf/sessions/")
+def kanji_pdf_list_sessions(request):
+    """List all saved PDF sessions."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    import os
+    base_dir = os.path.join("media", "kanji_pdf")
+    sessions = []
+
+    if not os.path.exists(base_dir):
+        return {"success": True, "sessions": []}
+
+    for session_id in sorted(os.listdir(base_dir), reverse=True):
+        info_path = os.path.join(base_dir, session_id, "session_info.json")
+        if os.path.exists(info_path):
+            try:
+                with open(info_path, "r", encoding="utf-8") as f:
+                    info = json.load(f)
+                # Check if extracted.json exists
+                info["has_extracted"] = os.path.exists(
+                    os.path.join(base_dir, session_id, "extracted.json")
+                )
+                sessions.append(info)
+            except Exception:
+                pass
+
+    return {"success": True, "sessions": sessions}
+
+
+@router.get("/kanji-pdf/session/{session_id}/")
+def kanji_pdf_load_session(request, session_id: str):
+    """Reload a previous session with thumbnails."""
+    if not staff_required(request):
+        return {"success": False, "message": "Unauthorized"}
+
+    import os
+    from kanji.services.pdf_extractor import get_page_thumbnails
+
+    session_dir = os.path.join("media", "kanji_pdf", session_id)
+    info_path = os.path.join(session_dir, "session_info.json")
+
+    if not os.path.exists(info_path):
+        return {"success": False, "message": "Session không tồn tại"}
+
+    try:
+        with open(info_path, "r", encoding="utf-8") as f:
+            info = json.load(f)
+
+        page_count = info["page_count"]
+        thumbnails = get_page_thumbnails(session_id, page_count)
+
+        return {
+            "success": True,
+            "session_id": session_id,
+            "page_count": page_count,
+            "thumbnails": thumbnails,
+            "filename": info.get("filename", ""),
+            "has_extracted": os.path.exists(
+                os.path.join(session_dir, "extracted.json")
+            ),
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Lỗi: {str(e)}"}

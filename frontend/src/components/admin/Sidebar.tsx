@@ -37,6 +37,7 @@ import {
   LockOutlined,
   BarChartOutlined,
   ScheduleOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -82,6 +83,7 @@ const MENU_ITEMS: MenuItem[] = [
       item(<Link href="/admin/vocab/import-jp">Import JP</Link>, "/admin/vocab/import-jp", ci(ImportOutlined, "#ef4444")),
       item(<Link href="/admin/vocab/quiz-generate">Quiz Generator</Link>, "/admin/vocab/quiz-generate", ci(BuildOutlined, "#8b5cf6")),
       item(<Link href="/admin/kanji/quiz-generate">Kanji Quiz</Link>, "/admin/kanji/quiz-generate", ci(BuildOutlined, "#ec4899")),
+      item(<Link href="/admin/kanji/pdf-import">Kanji PDF Import</Link>, "/admin/kanji/pdf-import", ci(FilePdfOutlined, "#ef4444")),
       item(<Link href="/admin/vocab/choukai-tool">Choukai Tool</Link>, "/admin/vocab/choukai-tool", ci(AudioOutlined, "#06b6d4")),
       item(<Link href="/admin/vocab/tts">TTS Generator</Link>, "/admin/vocab/tts", ci(SoundOutlined, "#10b981")),
       item(<Link href="/admin/exam/dokkai-editor">Dokkai Tool</Link>, "/admin/exam/dokkai-editor", ci(EditOutlined, "#10b981")),
@@ -131,7 +133,7 @@ const ALL_KEYS = [
   "/admin/exam/import-usage", "/admin/exam/import-grammar",
   "/admin/exam/import-sentence-order", "/admin/exam/import-english", "/admin/exam/upload-images",
   "/admin/vocab/tts",
-  "/admin/kanji", "/admin/kanji/quiz-generate",
+  "/admin/kanji", "/admin/kanji/quiz-generate", "/admin/kanji/pdf-import",
   "/admin/grammar", "/admin/videos", "/admin/books", "/admin/courses",
   "/admin/teacher-dashboard", "/admin/assignments",
   "/admin/placement", "/admin/users", "/admin/vip", "/admin/exams", "/admin/payment", "/admin/wallet",

@@ -123,6 +123,18 @@ const navItems: NavItem[] = [
     lang: "jp",
   },
   {
+    href: "/jlpt/n1/vocabulary",
+    label: "JLPT N1",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 6h16M4 10h16M4 14h10M4 18h12" />
+      </svg>
+    ),
+    iconClass: "df-icon-jlpt",
+    matchPaths: ["/jlpt"],
+    lang: "jp",
+  },
+  {
     href: "/grammar",
     label: "Ngữ pháp",
     icon: (

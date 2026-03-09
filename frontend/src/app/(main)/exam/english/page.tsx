@@ -106,6 +106,11 @@ export default function EnglishExamListPage() {
               <div className="text-sm font-bold group-hover:text-blue-500 transition-colors" style={{ color: 'var(--text-primary)' }}>Từ vựng</div>
               <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>19 chủ đề, 285 từ</div>
             </Link>
+            <Link href="/exam/english/en9-vocabulary" className="group rounded-xl border p-4 no-underline transition-all duration-300 hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-default)' }}>
+              <div className="text-2xl mb-2 transition-transform duration-300 group-hover:scale-110">📚</div>
+              <div className="text-sm font-bold group-hover:text-blue-500 transition-colors" style={{ color: 'var(--text-primary)' }}>Từ vựng lớp 9</div>
+              <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>10 units SGK</div>
+            </Link>
           </div>
         </div>
 
@@ -151,12 +156,13 @@ export default function EnglishExamListPage() {
       {/* ── Từ vựng Tiếng Anh 10 – Vocab Topics Section ── */}
       {vocabTopics.length > 0 && (
         <div className="en9-section" style={{ animation: 'slideUp 0.5s ease-out 0.3s both' }}>
-          <div className="en9-header">
+          {/* Gradient header */}
+          <div className="en9-gradient-header">
             <div className="en9-header-left">
               <span className="en9-icon">📚</span>
               <div>
                 <h2 className="en9-title">Tiếng Anh 9 lên 10</h2>
-                <p className="en9-subtitle">{vocabTopics.length} chủ đề · {totalWords} từ vựng · Đã thuộc {totalLearned}/{totalWords}</p>
+                <p className="en9-subtitle">{vocabTopics.length} chủ đề · {totalWords} từ vựng</p>
               </div>
             </div>
             <Link href="/exam/english/vocabulary" className="en9-view-all">
@@ -167,8 +173,18 @@ export default function EnglishExamListPage() {
           {/* Progress bar */}
           {totalWords > 0 && (
             <div className="en9-progress">
+              <div className="en9-progress-info">
+                <span className="en9-progress-label">Đã thuộc {totalLearned}/{totalWords} từ</span>
+                {totalLearned > 0 && (
+                  <span className="en9-motivation">
+                    {Math.round((totalLearned / totalWords) * 100) >= 80 ? '🏆 Xuất sắc!' :
+                     Math.round((totalLearned / totalWords) * 100) >= 50 ? '🔥 Tiến bộ tuyệt vời!' :
+                     Math.round((totalLearned / totalWords) * 100) >= 20 ? '💪 Tiếp tục nhé!' : '🌱 Khởi đầu tốt!'}
+                  </span>
+                )}
+              </div>
               <div className="en9-progress-bar">
-                <div className="en9-progress-fill" style={{ width: `${Math.round((totalLearned / totalWords) * 100)}%` }} />
+                <div className={`en9-progress-fill ${Math.round((totalLearned / totalWords) * 100) >= 50 ? 'en9-glow' : ''}`} style={{ width: `${Math.round((totalLearned / totalWords) * 100)}%` }} />
               </div>
               <span className="en9-progress-pct">{Math.round((totalLearned / totalWords) * 100)}%</span>
             </div>
@@ -178,16 +194,20 @@ export default function EnglishExamListPage() {
             {vocabTopics.map((topic, idx) => {
               const learned = learnedCounts[topic.slug] || 0;
               const pct = topic.word_count > 0 ? Math.round((learned / topic.word_count) * 100) : 0;
+              const isComplete = pct === 100;
               return (
                 <Link
                   key={topic.slug}
                   href={`/exam/english/vocabulary/${topic.slug}`}
-                  className="en9-topic-card"
+                  className={`en9-topic-card ${isComplete ? 'en9-topic-complete' : ''}`}
                   style={{ animationDelay: `${0.4 + idx * 0.03}s` }}
                 >
                   <div className="en9-topic-emoji">{topic.emoji}</div>
                   <div className="en9-topic-info">
-                    <h3 className="en9-topic-title">{topic.title}</h3>
+                    <h3 className="en9-topic-title">
+                      {topic.title}
+                      {isComplete && <span className="en9-check"> ✓</span>}
+                    </h3>
                     <p className="en9-topic-vi">{topic.title_vi}</p>
                   </div>
                   <div className="en9-topic-right">
@@ -217,17 +237,19 @@ export default function EnglishExamListPage() {
         /* ── Tiếng anh 9 Section ── */
         .en9-section {
           margin-top: 40px;
-          padding: 24px;
           border-radius: 16px;
           background: var(--bg-surface);
           border: 1px solid var(--border-default);
           box-shadow: var(--shadow-sm);
+          overflow: hidden;
         }
-        .en9-header {
+        .en9-gradient-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 16px;
+          padding: 20px 24px;
+          background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%);
+          border-bottom: 1px solid rgba(99,102,241,0.08);
           flex-wrap: wrap;
           gap: 12px;
         }
@@ -244,7 +266,8 @@ export default function EnglishExamListPage() {
           align-items: center;
           justify-content: center;
           border-radius: 14px;
-          background: rgba(99, 102, 241, 0.08);
+          background: rgba(99, 102, 241, 0.12);
+          box-shadow: 0 2px 8px rgba(99,102,241,0.1);
         }
         .en9-title {
           font-size: 18px;
@@ -260,27 +283,43 @@ export default function EnglishExamListPage() {
         .en9-view-all {
           font-size: 13px;
           font-weight: 600;
-          color: var(--action-primary);
+          color: white;
           text-decoration: none;
           transition: all 0.2s;
-          padding: 6px 14px;
-          border-radius: 8px;
-          background: rgba(99, 102, 241, 0.06);
+          padding: 8px 16px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          box-shadow: 0 2px 8px rgba(99,102,241,0.25);
         }
         .en9-view-all:hover {
-          background: rgba(99, 102, 241, 0.12);
-          transform: translateX(2px);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(99,102,241,0.35);
         }
 
         /* Progress */
         .en9-progress {
+          padding: 12px 24px 0;
+          margin-bottom: 8px;
+        }
+        .en9-progress-info {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
+          justify-content: space-between;
+          margin-bottom: 8px;
         }
+        .en9-progress-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--text-secondary);
+        }
+        .en9-motivation {
+          font-size: 12px;
+          font-weight: 700;
+          color: #f59e0b;
+          animation: motivPulse 2s ease-in-out infinite;
+        }
+        @keyframes motivPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .en9-progress-bar {
-          flex: 1;
           height: 6px;
           border-radius: 99px;
           background: var(--bg-interactive);
@@ -292,19 +331,32 @@ export default function EnglishExamListPage() {
           background: linear-gradient(90deg, #22c55e, #16a34a);
           transition: width 0.8s ease-out;
         }
+        .en9-progress-fill.en9-glow {
+          box-shadow: 0 0 8px rgba(34,197,94,0.4);
+        }
         .en9-progress-pct {
+          display: block;
+          text-align: right;
           font-size: 11px;
           font-weight: 800;
           color: #22c55e;
-          min-width: 32px;
-          text-align: right;
+          margin-top: 4px;
+        }
+        .en9-check {
+          color: #22c55e;
+          font-weight: 800;
+        }
+        .en9-topic-complete {
+          border-color: rgba(34,197,94,0.2) !important;
+          background: linear-gradient(135deg, var(--bg-surface), rgba(34,197,94,0.03)) !important;
         }
 
         /* Topics grid */
         .en9-topics-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 6px;
+          gap: 4px;
+          padding: 12px 24px 24px;
         }
         .en9-topic-card {
           display: flex;
@@ -393,9 +445,11 @@ export default function EnglishExamListPage() {
         @media (max-width: 640px) {
           .en9-section {
             margin-top: 28px;
-            padding: 16px;
             border-radius: 14px;
           }
+          .en9-gradient-header { padding: 16px; }
+          .en9-progress { padding: 10px 16px 0; }
+          .en9-topics-grid { padding: 8px 16px 16px; }
           .en9-icon { width: 40px; height: 40px; font-size: 22px; border-radius: 10px; }
           .en9-title { font-size: 16px; }
           .en9-topic-emoji { width: 32px; height: 32px; font-size: 18px; border-radius: 8px; }

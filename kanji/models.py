@@ -35,7 +35,7 @@ class KanjiLesson(models.Model):
 class Kanji(models.Model):
     """Một Hán tự đơn."""
 
-    char = models.CharField("Hán tự", max_length=1, unique=True)
+    char = models.CharField("Hán tự", max_length=10, unique=True)
     lesson = models.ForeignKey(
         KanjiLesson,
         on_delete=models.SET_NULL,

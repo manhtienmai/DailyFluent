@@ -106,14 +106,21 @@ export async function adminDelete<T = unknown>(path: string): Promise<T> {
   return adminFetch<T>(path, { method: "DELETE" });
 }
 
-/** Upload file(s) via FormData — does NOT set Content-Type (browser handles boundary). */
+/** Upload file(s) via FormData — uses fetch directly to avoid apiFetch's Content-Type: application/json default. */
 export async function adminUpload<T = unknown>(
   path: string,
   formData: FormData
 ): Promise<T> {
-  return apiFetch<T>(adminUrl(path), {
+  const url = adminUrl(path);
+  const res = await fetch(url, {
     method: "POST",
     body: formData,
-    headers: {}, // override Content-Type so browser sets multipart boundary
+    credentials: "include",
+    // Do NOT set Content-Type — browser auto-sets multipart/form-data with boundary
   });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`API POST ${url} failed (${res.status}): ${text}`);
+  }
+  return res.json();
 }

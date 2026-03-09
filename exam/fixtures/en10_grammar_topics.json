@@ -2208,149 +2208,421 @@
         ],
         "correct": 1,
         "explanation": "Mệnh lệnh phủ định → told + O + not to + V."
+      },
+      {
+        "question": "\"I have never been to Japan.\" -> She said that she ___ to Japan.",
+        "options": [
+          "has never been",
+          "had never been",
+          "have never been",
+          "never was"
+        ],
+        "correct": 1,
+        "explanation": "Present Perfect -> Past Perfect: have never been -> had never been."
+      },
+      {
+        "question": "\"My brother will travel to France next month.\" -> Tom said that his brother ___ to France the following month.",
+        "options": [
+          "will travel",
+          "travelled",
+          "would travel",
+          "had travelled"
+        ],
+        "correct": 2,
+        "explanation": "will -> would; 'next month' -> 'the following month'."
+      },
+      {
+        "question": "\"I finished my project yesterday.\" -> He told me that he ___ his project the day before.",
+        "options": [
+          "finished",
+          "had finished",
+          "was finishing",
+          "would finish"
+        ],
+        "correct": 1,
+        "explanation": "Past Simple -> Past Perfect: finished -> had finished."
+      },
+      {
+        "question": "\"Did you see the movie last night?\" -> She asked me ___ the movie the night before.",
+        "options": [
+          "did I see",
+          "if I had seen",
+          "if I saw",
+          "that I had seen"
+        ],
+        "correct": 1,
+        "explanation": "Cau hoi Yes/No dung if/whether + lui thi: Did you see -> if I had seen."
+      },
+      {
+        "question": "\"Why are you late?\" -> The teacher asked me why I ___ late.",
+        "options": [
+          "am",
+          "was",
+          "have been",
+          "had been"
+        ],
+        "correct": 1,
+        "explanation": "Cau hoi Wh- + lui thi: are -> was."
+      },
+      {
+        "question": "\"Will you come to my birthday party?\" -> Anna asked me ___ to her birthday party.",
+        "options": [
+          "will I come",
+          "if I would come",
+          "that I would come",
+          "if I will come"
+        ],
+        "correct": 1,
+        "explanation": "Cau hoi Yes/No: Will you -> if I would."
+      },
+      {
+        "question": "\"Please be quiet.\" -> The librarian told us ___.",
+        "options": [
+          "being quiet",
+          "be quiet",
+          "to be quiet",
+          "to being quiet"
+        ],
+        "correct": 2,
+        "explanation": "Cau menh lenh: told + O + to + V -> to be quiet."
+      },
+      {
+        "question": "Tim loi sai: \"She asked me where was my school.\"",
+        "options": [
+          "asked",
+          "me",
+          "where was my school",
+          "my school"
+        ],
+        "correct": 2,
+        "explanation": "Cau hoi tuong thuat phai dung trat tu cau tran thuat: 'where was my school' -> 'where my school was'."
+      },
+      {
+        "question": "Tim loi sai: \"He told her that he don't want to go out that night.\"",
+        "options": [
+          "told her",
+          "that",
+          "don't want",
+          "that night"
+        ],
+        "correct": 2,
+        "explanation": "Phai lui thi: don't want -> didn't want."
+      },
+      {
+        "question": "\"I'm sorry for being late.\" -> Anna ___ her teacher for being late.",
+        "options": [
+          "said to",
+          "told",
+          "apologized to",
+          "asked"
+        ],
+        "correct": 2,
+        "explanation": "Loi xin loi dung 'apologized to + O + for + V-ing'."
+      },
+      {
+        "question": "\"You should get more exercise.\" -> The trainer ___ me to get more exercise.",
+        "options": [
+          "said",
+          "told",
+          "advised",
+          "promised"
+        ],
+        "correct": 2,
+        "explanation": "Loi khuyen dung 'advised + O + to V'."
+      },
+      {
+        "question": "\"I will call you as soon as I arrive.\" -> She ___ to call me as soon as she arrived.",
+        "options": [
+          "said",
+          "told",
+          "suggested",
+          "promised"
+        ],
+        "correct": 3,
+        "explanation": "Loi hua dung 'promised + to V'."
       }
     ]
   },
   {
     "topic_id": "conditionals",
     "emoji": "🔀",
-    "title": "Conditionals",
+    "title": "Conditional Sentences",
     "title_vi": "Câu điều kiện",
-    "description": "If Type 0, 1, 2, 3 và câu điều kiện hỗn hợp.",
-    "difficulty": "hard",
+    "description": "4 loại câu điều kiện (0, 1, 2, 3): công thức, cách dùng, lưu ý chia động từ và bài tập trắc nghiệm.",
+    "difficulty": "medium",
     "order": 11,
     "sections": [
       {
-        "heading": "1. Loại 0 — Sự thật hiển nhiên",
-        "content": "**If + S + V(s), S + V(s)**\nVD: If you heat water to 100°C, it boils."
+        "heading": "1. Khái niệm câu điều kiện",
+        "content": "Câu điều kiện (Conditional sentences) dùng để nêu ra giả thuyết khi có một điều kiện nhất định xảy ra hoặc không xảy ra, dẫn đến một kết quả nào đó.\n\nGồm 2 mệnh đề:\n• **Mệnh đề If** (mệnh đề điều kiện): diễn tả điều kiện\n• **Mệnh đề chính**: diễn tả kết quả\n\n⚠️ Thứ tự không thay đổi ý nghĩa:\n• If the weather is nice, we will go. = We will go if the weather is nice.\n• Nếu mệnh đề If đứng trước → dùng dấu phẩy. Nếu mệnh đề chính đứng trước → không cần dấu phẩy."
       },
       {
-        "heading": "2. Loại 1 — Có thể xảy ra",
-        "content": "**If + S + V(s), S + will + V**\nVD: If it rains, I will stay home."
+        "heading": "2. Câu điều kiện loại 0 (Zero Conditional)",
+        "content": "Dùng để diễn tả **sự thật luôn đúng**, thói quen, hoặc quy tắc.\n\n**Công thức:** If + S + V(s/es), S + V(s/es)\n**(Thì hiện tại đơn, thì hiện tại đơn)**\n\n**Cách dùng:**\n• Sự thật hiển nhiên: If we mix yellow and red, we get orange.\n• Thói quen: If you don't wear a helmet, you can be injured.\n• Lời đề nghị/chỉ dẫn: If David calls, tell him to meet me."
       },
       {
-        "heading": "3. Loại 2 — Không có thật ở hiện tại",
-        "content": "**If + S + V-ed, S + would + V**\nVD: If I were you, I would study harder.\n⚠️ Với \"be\" luôn dùng **were**."
+        "heading": "3. Câu điều kiện loại 1 (First Conditional)",
+        "content": "Dùng để diễn tả sự việc **có thể xảy ra** trong hiện tại hoặc tương lai.\n\n**Công thức:** If + S + V(s/es), S + **will** + V(nguyên mẫu)\n**(Thì hiện tại đơn, thì tương lai đơn)**\n\n**Cách dùng:**\n• Kết quả có thể xảy ra: If I have more money, I will choose the most luxurious hotel.\n• Sự đồng tình/cho phép (may/can): If it's rainy, you may play badminton inside.\n• Lời khuyên (should/must): If you want good health, you must exercise hard.\n\n⚠️ **Lưu ý:** Mệnh đề If không dùng \"will\". If I **have** (✓) / If I **will have** (✗)"
       },
       {
-        "heading": "4. Loại 3 — Không có thật ở quá khứ",
-        "content": "**If + S + had V3, S + would have V3**\nVD: If I had studied harder, I would have passed."
+        "heading": "4. Câu điều kiện loại 2 (Second Conditional)",
+        "content": "Dùng để diễn tả sự việc **không có thật/khó xảy ra** ở hiện tại.\n\n**Công thức:** If + S + V(ed/V2), S + **would** + V(nguyên mẫu)\n**(Thì quá khứ đơn, Would + động từ nguyên mẫu)**\n\n**Cách dùng:**\n• Sự việc không có thật: If he were here, I would give him a sweet gift.\n• Lời khuyên: If I were you, I would study abroad in Canada.\n\n⚠️ **Lưu ý quan trọng:** Với động từ \"to be\" → luôn dùng **\"were\"** cho tất cả chủ ngữ (kể cả I, he, she, it).\nIf I **were** (✓) / If I **was** (✗)"
+      },
+      {
+        "heading": "5. Câu điều kiện loại 3 (Third Conditional)",
+        "content": "Dùng để diễn tả sự việc **không xảy ra trong quá khứ** (mang hàm ý nuối tiếc).\n\n**Công thức:** If + S + **had** + V(pp), S + **would have** + V(pp)\n**(Thì quá khứ hoàn thành, Would have + quá khứ phân từ)**\n\n**Ví dụ:**\n• If I had left early, I wouldn't have gotten stuck in traffic.\n• If she had studied harder, she would have passed the exam.\n\n⚠️ Có thể dùng **\"could have\"** thay \"would have\" để nhấn mạnh khả năng:\nYou could have made your family proud if you had practiced harder."
+      },
+      {
+        "heading": "6. Lưu ý khi làm bài tập",
+        "content": "**Cách xác định loại câu điều kiện:**\n\n1️⃣ **Dựa vào thì của câu:**\n• Thì hiện tại → Loại 0, 1, hoặc 2\n• Thì quá khứ → Loại 3\n\n2️⃣ **Dựa vào ngữ nghĩa:**\n• Sự thật luôn đúng → **Loại 0**\n• Có thể xảy ra → **Loại 1**\n• Không có thật ở hiện tại → **Loại 2**\n• Không xảy ra ở quá khứ → **Loại 3**\n\n3️⃣ **Nhớ chia đúng thì động từ:**\n• Loại 0: V(s/es) ... V(s/es)\n• Loại 1: V(s/es) ... will + V\n• Loại 2: V(ed) ... would + V\n• Loại 3: had + V(pp) ... would have + V(pp)"
       }
     ],
     "formulas": [
       {
-        "name": "Type 0",
-        "formula": "If + V(s), S + V(s)",
-        "example": "If ice melts, it becomes water.",
-        "exampleVi": "Nếu đá tan, nó thành nước."
+        "name": "Loại 0 (Sự thật)",
+        "formula": "If + S + V(s/es), S + V(s/es)",
+        "example": "If you heat ice, it melts.",
+        "exampleVi": "Nếu bạn đun nóng đá, nó tan."
       },
       {
-        "name": "Type 1",
-        "formula": "If + V(s), S + will + V",
-        "example": "If you study, you will pass.",
-        "exampleVi": "Nếu bạn học, bạn sẽ đậu."
+        "name": "Loại 1 (Có thể xảy ra)",
+        "formula": "If + S + V(s/es), S + will + V",
+        "example": "If it rains, I will stay home.",
+        "exampleVi": "Nếu trời mưa, tôi sẽ ở nhà."
       },
       {
-        "name": "Type 2",
-        "formula": "If + V-ed, S + would + V",
-        "example": "If I had money, I would travel.",
-        "exampleVi": "Nếu tôi có tiền, tôi sẽ du lịch."
+        "name": "Loại 2 (Không có thật)",
+        "formula": "If + S + V(ed), S + would + V",
+        "example": "If I were you, I would study harder.",
+        "exampleVi": "Nếu tôi là bạn, tôi sẽ học chăm hơn."
       },
       {
-        "name": "Type 3",
-        "formula": "If + had V3, S + would have V3",
-        "example": "If she had come, she would have seen.",
-        "exampleVi": "Nếu cô ấy đến, cô ấy đã thấy."
+        "name": "Loại 3 (Quá khứ)",
+        "formula": "If + S + had + V(pp), S + would have + V(pp)",
+        "example": "If I had studied, I would have passed.",
+        "exampleVi": "Nếu tôi đã học, tôi đã đỗ."
       }
     ],
     "exercises": [
       {
-        "question": "If it rains, we ___ at home.",
+        "question": "If you ___ too many sweets, you have weight problems. (Loai 0)",
         "options": [
-          "stay",
-          "stayed",
-          "will stay",
-          "would stay"
+          "eat",
+          "eats",
+          "will eat",
+          "ate"
         ],
-        "correct": 2,
-        "explanation": "Loại 1: will + V."
+        "correct": 0,
+        "explanation": "Loai 0: ca 2 menh de deu dung thi hien tai don. Chu ngu 'you' -> 'eat'."
       },
       {
-        "question": "If I ___ you, I would apologize.",
+        "question": "If we mix yellow and red, we ___ orange. (Loai 0)",
         "options": [
-          "am",
+          "will get",
+          "get",
+          "got",
+          "would get"
+        ],
+        "correct": 1,
+        "explanation": "Loai 0: su that hien nhien -> V(s/es) o ca 2 menh de."
+      },
+      {
+        "question": "We ___ surprised if Jane enjoys this type of film. (Loai 1)",
+        "options": [
+          "won't be",
+          "wouldn't be",
+          "aren't",
+          "weren't"
+        ],
+        "correct": 0,
+        "explanation": "Loai 1: menh de If dung hien tai don (enjoys) -> menh de chinh dung will + V -> won't be."
+      },
+      {
+        "question": "If you ___ in detail, you will take that big prize. (Loai 1)",
+        "options": [
+          "will analyze",
+          "analyzed",
+          "analyze",
+          "would analyze"
+        ],
+        "correct": 2,
+        "explanation": "Loai 1: menh de If dung hien tai don -> 'analyze'. KHONG dung 'will' trong menh de If."
+      },
+      {
+        "question": "If I ___ abroad in Canada, I will send you a local gift. (Loai 1)",
+        "options": [
+          "will study",
+          "studied",
+          "study",
+          "would study"
+        ],
+        "correct": 2,
+        "explanation": "Loai 1: menh de If dung hien tai don -> 'study'."
+      },
+      {
+        "question": "If we ___ this round, we will reach the final game. (Loai 1)",
+        "options": [
+          "will win",
+          "win",
+          "won",
+          "would win"
+        ],
+        "correct": 1,
+        "explanation": "Loai 1: menh de If KHONG dung 'will' -> 'win'."
+      },
+      {
+        "question": "If I had enough money, I would ___ abroad to improve my skills. (Loai 2)",
+        "options": [
+          "would study",
+          "should study",
+          "will study",
+          "study"
+        ],
+        "correct": 3,
+        "explanation": "Loai 2: would + V (nguyen mau). Da co 'would' truoc -> chi can 'study'."
+      },
+      {
+        "question": "If I ___ you, I'd keep all of your souvenirs. (Loai 2)",
+        "options": [
+          "be",
           "was",
-          "were",
-          "be"
-        ],
-        "correct": 2,
-        "explanation": "Loại 2: dùng 'were'."
-      },
-      {
-        "question": "If she had studied, she ___ the exam.",
-        "options": [
-          "will pass",
-          "would pass",
-          "would have passed",
-          "passes"
-        ],
-        "correct": 2,
-        "explanation": "Loại 3: would have + V3."
-      },
-      {
-        "question": "If you heat ice, it ___.",
-        "options": [
-          "melt",
-          "melts",
-          "will melt",
-          "would melt"
-        ],
-        "correct": 1,
-        "explanation": "Loại 0: V(s) cả 2 vế."
-      },
-      {
-        "question": "If I ___ a bird, I would fly.",
-        "options": [
           "am",
-          "was",
-          "were",
-          "be"
+          "were"
         ],
-        "correct": 2,
-        "explanation": "Loại 2: If + were."
+        "correct": 3,
+        "explanation": "Loai 2: dong tu 'to be' trong menh de If LUON dung 'were' voi moi chu ngu."
       },
       {
-        "question": "If he ___ earlier, he wouldn't have missed the bus.",
+        "question": "If I were in your position, I ___ the entire time traveling. (Loai 2)",
         "options": [
-          "woke",
-          "wakes",
-          "had woken",
-          "would wake"
-        ],
-        "correct": 2,
-        "explanation": "Loại 3: If + had V3."
-      },
-      {
-        "question": "I ___ call you if I have time.",
-        "options": [
-          "would",
-          "will",
-          "can",
-          "could"
+          "will enjoy",
+          "would enjoy",
+          "enjoyed",
+          "had enjoyed"
         ],
         "correct": 1,
-        "explanation": "Loại 1: will + V."
+        "explanation": "Loai 2: menh de chinh dung 'would + V' -> 'would enjoy'."
       },
       {
-        "question": "If we ___ more trees, the air would be cleaner.",
+        "question": "If they took the 6:00 bus, they ___ too early. (Loai 2)",
         "options": [
-          "plant",
-          "planted",
-          "had planted",
-          "will plant"
+          "would arrived",
+          "would arrive",
+          "arrived",
+          "will arrive"
         ],
         "correct": 1,
-        "explanation": "Loại 2: If + V-ed."
+        "explanation": "Loai 2: would + V (nguyen mau) -> 'would arrive'. KHONG dung 'would arrived'."
+      },
+      {
+        "question": "What would you want to buy if you ___ 5 billion dollars? (Loai 2)",
+        "options": [
+          "would win",
+          "won",
+          "had won",
+          "win"
+        ],
+        "correct": 1,
+        "explanation": "Loai 2: menh de If dung qua khu don -> 'won'."
+      },
+      {
+        "question": "What would happen if your manager ___ to work tomorrow? (Loai 2)",
+        "options": [
+          "don't go",
+          "won't go",
+          "didn't go",
+          "wouldn't go"
+        ],
+        "correct": 2,
+        "explanation": "Loai 2: menh de If dung qua khu don -> 'didn't go'."
+      },
+      {
+        "question": "If we had seen the professor, we ___ to talk to him. (Loai 3)",
+        "options": [
+          "would come",
+          "would have come",
+          "will come",
+          "came"
+        ],
+        "correct": 1,
+        "explanation": "Loai 3: menh de If dung 'had + V(pp)' -> menh de chinh dung 'would have + V(pp)' -> 'would have come'."
+      },
+      {
+        "question": "If I ___ Tracy was alone, I would have gone to see her. (Loai 3)",
+        "options": [
+          "knew",
+          "know",
+          "had known",
+          "would know"
+        ],
+        "correct": 2,
+        "explanation": "Loai 3: menh de If dung 'had + V(pp)' -> 'had known'."
+      },
+      {
+        "question": "He ___ the window if his neighbor had not disturbed him. (Loai 3)",
+        "options": [
+          "wouldn't close",
+          "wouldn't have closed",
+          "won't close",
+          "didn't close"
+        ],
+        "correct": 1,
+        "explanation": "Loai 3: menh de chinh dung 'would have + V(pp)' -> 'wouldn't have closed'."
+      },
+      {
+        "question": "If they had given a correct address, I ___ him much easier. (Loai 3)",
+        "options": [
+          "would find",
+          "will find",
+          "would have found",
+          "found"
+        ],
+        "correct": 2,
+        "explanation": "Loai 3: 'had given' -> 'would have found'."
+      },
+      {
+        "question": "\"I didn't study hard so I failed.\" -> If I ___ hard, I wouldn't have failed.",
+        "options": [
+          "studied",
+          "had studied",
+          "study",
+          "would study"
+        ],
+        "correct": 1,
+        "explanation": "Viet lai cau dung loai 3: su viec khong xay ra o qua khu -> had + V(pp) -> 'had studied'."
+      },
+      {
+        "question": "If she ___ (work) harder, she wouldn't make so many mistakes. (Xac dinh loai)",
+        "options": [
+          "works",
+          "worked",
+          "had worked",
+          "will work"
+        ],
+        "correct": 1,
+        "explanation": "Menh de chinh dung 'wouldn't make' (would + V) -> Loai 2 -> menh de If dung qua khu don -> 'worked'."
+      },
+      {
+        "question": "Cau nao sau day la cau dieu kien loai 1?",
+        "options": [
+          "If I were rich, I would travel.",
+          "If you heat water, it boils.",
+          "If it rains, we will stay home.",
+          "If I had known, I would have told you."
+        ],
+        "correct": 2,
+        "explanation": "Loai 1 dung: If + hien tai don (rains), S + will + V (will stay). Cac cau khac: A = loai 2, B = loai 0, D = loai 3."
+      },
+      {
+        "question": "Dieu kien nao DUNG ve cau dieu kien loai 2?",
+        "options": [
+          "Menh de If dung thi hien tai don",
+          "Dong tu 'to be' trong menh de If luon dung 'were'",
+          "Menh de chinh dung 'will + V'",
+          "Dien ta su viec da xay ra trong qua khu"
+        ],
+        "correct": 1,
+        "explanation": "Loai 2: dong tu 'to be' LUON dung 'were' du chu ngu la gi. A = loai 0/1, C = loai 1, D = loai 3."
       }
     ]
   },
@@ -2889,121 +3161,221 @@
     "exercises": [
       {
         "question": "The use of cell phone is prohibited ___ airplanes.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Phương tiện công cộng (airplane) → on."
       },
       {
         "question": "My mother is working ___ the farm.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Trên trang trại (bề mặt) → on the farm."
       },
       {
         "question": "I am standing ___ the crossroad.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 2,
         "explanation": "Vị trí cụ thể (ngã tư) → at the crossroad."
       },
       {
         "question": "When he studied ___ university, he was an excellent student.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 2,
         "explanation": "Vị trí chung (trường đại học) → at university."
       },
       {
         "question": "My grandparents live ___ 456 Mountain Street ___ Australia.",
-        "options": ["at / in", "in / on", "on / at", "in / at"],
+        "options": [
+          "at / in",
+          "in / on",
+          "on / at",
+          "in / at"
+        ],
         "correct": 0,
         "explanation": "Địa chỉ cụ thể → at 456 Mountain St; Quốc gia → in Australia."
       },
       {
         "question": "There is a funny cartoon ___ TV now.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Trên TV (bề mặt, phương tiện) → on TV."
       },
       {
         "question": "At present, I am ___ home while my friends are ___ school.",
-        "options": ["at / at", "in / in", "on / at", "at / in"],
+        "options": [
+          "at / at",
+          "in / in",
+          "on / at",
+          "at / in"
+        ],
         "correct": 0,
         "explanation": "Vị trí chung → at home, at school."
       },
       {
         "question": "Everyone, open your book ___ page 111 and we'll start the lesson.",
-        "options": ["in", "on", "at", "to"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "to"
+        ],
         "correct": 3,
         "explanation": "Mở trang sách → (open) to page 111. Tuy nhiên 'at page 111' cũng dùng: at dùng cho điểm cụ thể."
       },
       {
         "question": "The Internet was invented ___ the 20th century.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Thế kỷ → in the 20th century."
       },
       {
         "question": "Let's meet ___ two hours.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Khoảng thời gian tương lai → in two hours."
       },
       {
         "question": "Do you want to go there ___ the morning?",
-        "options": ["in", "on", "at", "to"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "to"
+        ],
         "correct": 0,
         "explanation": "Buổi trong ngày → in the morning."
       },
       {
         "question": "I always go to the beach ___ the summer.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Mùa → in the summer."
       },
       {
         "question": "He was born ___ 1991.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Năm → in 1991."
       },
       {
         "question": "There is always snow ___ the winter.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Mùa → in the winter."
       },
       {
         "question": "Henrique's birthday is ___ December.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 0,
         "explanation": "Tháng → in December."
       },
       {
         "question": "I always enjoy the parade ___ the Independence Day.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Ngày lễ cụ thể → on the Independence Day."
       },
       {
         "question": "I have to leave ___ 9 o'clock.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 2,
         "explanation": "Giờ cụ thể → at 9 o'clock."
       },
       {
         "question": "Justin Bieber was born ___ March 1st, 1994.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Ngày cụ thể → on March 1st, 1994."
       },
       {
         "question": "We have finished the marathon ___ the same time.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 2,
         "explanation": "Cụm từ cố định → at the same time."
       },
       {
         "question": "My friends love to go to the cinema ___ Saturdays.",
-        "options": ["in", "on", "at", "by"],
+        "options": [
+          "in",
+          "on",
+          "at",
+          "by"
+        ],
         "correct": 1,
         "explanation": "Thứ trong tuần → on Saturdays."
       }
@@ -3014,109 +3386,1365 @@
     "emoji": "🎯",
     "title": "Word Stress",
     "title_vi": "Trọng âm từ",
-    "description": "Quy tắc trọng âm với hậu tố -ful, -less và các quy tắc nhận biết trọng âm.",
-    "difficulty": "easy",
+    "description": "11 quy tắc đánh trọng âm: danh từ, tính từ, động từ 2 âm tiết; hậu tố -tion/-ic/-ee/-ese; tiền tố không nhận trọng âm.",
+    "difficulty": "medium",
     "order": 17,
     "sections": [
       {
-        "heading": "1. Hậu tố -ful & -less",
-        "content": "Khi thêm hậu tố **-ful** hoặc **-less**, trọng âm của từ **không bị thay đổi**.\n\n• 'colour → 'colour**ful** (trọng âm vẫn ở âm tiết 1)\n• 'talent → 'talent**less** (trọng âm vẫn ở âm tiết 1)\n• 'beauty → 'beauti**ful** (trọng âm vẫn ở âm tiết 1)\n• 'help → 'help**ful** / 'help**less**\n• 'care → 'care**ful** / 'care**less**"
+        "heading": "1. Từ có 2 âm tiết",
+        "content": "**Quy tắc 1:** Danh từ và tính từ thường có trọng âm rơi vào **âm tiết thứ 1**. Động từ thường có trọng âm rơi vào **âm tiết thứ 2**.\n• Danh từ: 'table, 'photo, 'record\n• Tính từ: 'careful, 'easy, 'legal\n• Động từ: pre'pare, com'plete, ex'pect\n\n⚠️ Có nhiều ngoại lệ, cần tra từ điển.\n\n**Quy tắc 2:** Nguyên âm đôi (ea, ee, oo) thường nhận trọng âm.\n• car'toon, in'crease\n\n**Quy tắc 3:** Không nhấn trọng âm vào hai âm /ə/ và /ɪ/.\n• 'enter — âm thứ 2 là /ə/ nên mặc dù là động từ nhưng trọng âm ở âm tiết 1.\n\n**Quy tắc 4:** Danh từ/tính từ có âm tiết thứ 2 là nguyên âm dài → trọng âm rơi vào âm tiết đó.\n• be'lief, di'verse, po'lice\n\n**Quy tắc 5:** Số đếm kết thúc bằng **-teen** → nhấn trọng âm vào -teen. Kết thúc bằng **-ty** → trọng âm ở âm tiết 1.\n• four'teen — 'forty\n• six'teen — 'sixty"
       },
       {
-        "heading": "2. Quy tắc trọng âm cơ bản",
-        "content": "**Từ 2 âm tiết:**\n• Hầu hết **danh từ** và **tính từ** có trọng âm ở **âm tiết 1**: 'student, 'happy, 'table\n• Hầu hết **động từ** có trọng âm ở **âm tiết 2**: be'gin, de'cide, en'joy\n\n**Từ 3 âm tiết trở lên:**\n• Trọng âm thường rơi vào **âm tiết thứ 3 từ cuối**: 'beautiful, 'comfortable, 'recognize\n\n**Các hậu tố KHÔNG thay đổi trọng âm:**\n• -ful, -less, -ment, -ness, -ly\n• VD: 'careful, 'careless, a'greement, 'happy → 'happiness → 'happily"
+        "heading": "2. Hậu tố nhận trọng âm (QT6)",
+        "content": "**Quy tắc 6:** Những từ kết thúc bằng các đuôi sau thì trọng âm rơi **trên chính nó**:\n\n• **-ee**: refu'gee, employ'ee — *Ngoại lệ: com'mittee*\n• **-eer**: volun'teer, engi'neer\n• **-ese**: Japa'nese, Vietna'mese\n• **-esque**: pictu'resque\n• **-ique**: tech'nique\n• **-oo**: bam'boo\n• **-oon**: bal'loon\n• **-ain**: enter'tain\n• **-mental**: ele'mental\n• **-ternal**: ex'ternal"
       },
       {
-        "heading": "3. Các hậu tố thay đổi trọng âm",
-        "content": "**Trọng âm rơi ngay trước hậu tố:**\n• -tion / -sion: edu'cation, de'cision\n• -ic / -ical: aca'demic, po'litical\n• -ity: uni'versity, na'tionality\n• -ious / -eous: am'bitious, gor'geous\n\n**Trọng âm rơi ngay trên hậu tố:**\n• -ee: refu'gee, employ'ee\n• -eer: volun'teer, engi'neer\n• -ese: Japa'nese, Vietna'mese"
+        "heading": "3. Trọng âm rơi vào âm tiết ngay trước hậu tố (QT7)",
+        "content": "**Quy tắc 7:** Những từ kết thúc bằng các đuôi sau thì trọng âm rơi vào **âm tiết ngay trước hậu tố**:\n\n• **-tion / -sion**: edu'cation, re'ligion\n• **-ic / -ical**: eco'nomic, 'magical\n• **-ial**: in'dustrial\n• **-ian**: mu'sician\n• **-ity**: di'versity, uni'versity\n• **-ious / -eous**: re'ligious, cou'rageous\n• **-logy**: tech'nology\n• **-graphy / -grapher**: ge'ography, pho'tographer"
+      },
+      {
+        "heading": "4. Trọng âm rơi vào âm tiết thứ 3 từ cuối (QT8-9)",
+        "content": "**Quy tắc 8:** Những từ kết thúc bằng các đuôi sau thì trọng âm rơi vào **âm tiết thứ 3 từ cuối**:\n• **-ite**: 'satellite\n• **-ate**: in'vestigate\n• **-ute**: 'parachute\n• **-ide**: 'pesticide\n• **-ude**: 'gratitude\n\n**Quy tắc 9:** Từ kết thúc bằng **-how, -what, -where** → trọng âm ở **âm tiết 1**.\n• 'anywhere, 'somehow"
+      },
+      {
+        "heading": "5. Tiền tố KHÔNG nhận trọng âm (QT10)",
+        "content": "**Quy tắc 10:** Các tiền tố sau **KHÔNG nhận trọng âm**:\n• **im-**: im'patient\n• **in-**: incon'venient\n• **en-**: e'nable\n• **un-**: un'countable\n• **non-**: non'profit\n\nVí dụ: im'possible, un'happy"
+      },
+      {
+        "heading": "6. Hậu tố KHÔNG thay đổi trọng âm (QT11)",
+        "content": "**Quy tắc 11:** Các hậu tố sau **KHÔNG làm thay đổi trọng âm** của từ gốc:\n• **-ing**: 'purchasing\n• **-ive**: in'formative\n• **-able**: 'comfortable\n• **-ful / -less**: for'getful, 'meaningless\n• **-ment**: 'government\n• **-ness**: 'silliness\n• **-ly**: 'personally\n\nVD: 'colour → 'colourful, 'talent → 'talentless, a'gree → a'greement"
       }
     ],
     "formulas": [
       {
-        "name": "Hậu tố -ful / -less",
-        "formula": "Trọng âm KHÔNG đổi khi thêm -ful / -less",
-        "example": "'colour → 'colourful, 'talent → 'talentless",
-        "exampleVi": "Trọng âm giữ nguyên ở âm tiết gốc"
-      },
-      {
-        "name": "Danh từ / Tính từ 2 âm tiết",
-        "formula": "Trọng âm thường ở âm tiết 1",
+        "name": "QT1: Danh/Tinh tu 2 am tiet",
+        "formula": "Trong am thuong o am tiet 1",
         "example": "'student, 'happy, 'table",
-        "exampleVi": "sinh viên, vui vẻ, bàn"
+        "exampleVi": "sinh vien, vui ve, ban"
       },
       {
-        "name": "Động từ 2 âm tiết",
-        "formula": "Trọng âm thường ở âm tiết 2",
-        "example": "be'gin, de'cide, en'joy",
-        "exampleVi": "bắt đầu, quyết định, thưởng thức"
+        "name": "QT1: Dong tu 2 am tiet",
+        "formula": "Trong am thuong o am tiet 2",
+        "example": "pre'pare, com'plete, ex'pect",
+        "exampleVi": "chuan bi, hoan thanh, mong doi"
       },
       {
-        "name": "Hậu tố -tion/-sion/-ic/-ity",
-        "formula": "Trọng âm rơi ngay trước hậu tố",
-        "example": "edu'cation, aca'demic, uni'versity",
-        "exampleVi": "giáo dục, học thuật, đại học"
+        "name": "QT6: Hau to nhan trong am",
+        "formula": "-ee, -eer, -ese, -ique -> trong am tren hau to",
+        "example": "employ'ee, engi'neer, Japa'nese",
+        "exampleVi": "nhan vien, ky su, tieng Nhat"
+      },
+      {
+        "name": "QT7: Trong am truoc hau to",
+        "formula": "-tion, -ic, -ity, -ious -> trong am ngay truoc hau to",
+        "example": "edu'cation, eco'nomic, uni'versity",
+        "exampleVi": "giao duc, kinh te, dai hoc"
+      },
+      {
+        "name": "QT10: Tien to khong nhan trong am",
+        "formula": "im-, in-, en-, un-, non- -> KHONG nhan",
+        "example": "im'patient, un'happy",
+        "exampleVi": "thieu kien nhan, khong vui"
+      },
+      {
+        "name": "QT11: Hau to khong doi trong am",
+        "formula": "-ful, -less, -ment, -ness, -ly -> giu nguyen",
+        "example": "'colour -> 'colourful",
+        "exampleVi": "Trong am giu nguyen vi tri goc"
       }
     ],
     "exercises": [
       {
-        "question": "Chọn từ có trọng âm khác: A. beautiful, B. fabulous, C. pagoda, D. comedy",
-        "options": ["beautiful", "fabulous", "pagoda", "comedy"],
-        "correct": 2,
-        "explanation": "pagoda: pa'goda (trọng âm 2). Còn lại trọng âm 1: 'beautiful, 'fabulous, 'comedy."
-      },
-      {
-        "question": "Chọn từ có trọng âm khác: A. adventure, B. advantage, C. develop, D. introduce",
-        "options": ["adventure", "advantage", "develop", "introduce"],
+        "question": "Chon tu co trong am khac: A. persuade, B. reduce, C. increase, D. offer",
+        "options": [
+          "persuade",
+          "reduce",
+          "increase",
+          "offer"
+        ],
         "correct": 3,
-        "explanation": "introduce: intro'duce (trọng âm 3). Còn lại trọng âm 2: ad'venture, ad'vantage, de'velop."
+        "explanation": "QT1: 'offer la danh tu 2 am tiet -> trong am 1. Con lai la dong tu -> trong am 2: per'suade, re'duce, in'crease."
       },
       {
-        "question": "Chọn từ có trọng âm khác: A. introduce, B. recommend, C. entertain, D. effortless",
-        "options": ["introduce", "recommend", "entertain", "effortless"],
+        "question": "Chon tu co trong am khac: A. beauty, B. easy, C. lazy, D. reply",
+        "options": [
+          "beauty",
+          "easy",
+          "lazy",
+          "reply"
+        ],
         "correct": 3,
-        "explanation": "effortless: 'effortless (trọng âm 1). Còn lại trọng âm 3: intro'duce, recom'mend, enter'tain."
+        "explanation": "QT1: re'ply la dong tu -> trong am 2. Con lai la tinh tu/danh tu -> trong am 1."
       },
       {
-        "question": "Chọn từ có trọng âm khác: A. popular, B. atmosphere, C. successful, D. positive",
-        "options": ["popular", "atmosphere", "successful", "positive"],
-        "correct": 2,
-        "explanation": "successful: suc'cessful (trọng âm 2). Còn lại trọng âm 1: 'popular, 'atmosphere, 'positive."
-      },
-      {
-        "question": "Chọn từ có trọng âm khác: A. colourful, B. company, C. technical, D. important",
-        "options": ["colourful", "company", "technical", "important"],
-        "correct": 3,
-        "explanation": "important: im'portant (trọng âm 2). Còn lại trọng âm 1: 'colourful, 'company, 'technical."
-      },
-      {
-        "question": "Chọn từ có trọng âm khác: A. attitude, B. favourite, C. tobacco, D. comedy",
-        "options": ["attitude", "favourite", "tobacco", "comedy"],
-        "correct": 2,
-        "explanation": "tobacco: to'bacco (trọng âm 2). Còn lại trọng âm 1: 'attitude, 'favourite, 'comedy."
-      },
-      {
-        "question": "Từ 'beautiful' có trọng âm ở âm tiết thứ mấy?",
-        "options": ["Âm tiết 1", "Âm tiết 2", "Âm tiết 3", "Âm tiết 4"],
+        "question": "Chon tu co trong am khac: A. polite, B. easy, C. happy, D. crazy",
+        "options": [
+          "polite",
+          "easy",
+          "happy",
+          "crazy"
+        ],
         "correct": 0,
-        "explanation": "'beautiful — trọng âm ở âm tiết 1."
+        "explanation": "QT4: po'lite co am tiet 2 la nguyen am dai -> trong am 2. Con lai trong am 1."
       },
       {
-        "question": "Từ 'education' có trọng âm ở âm tiết thứ mấy?",
-        "options": ["Âm tiết 1", "Âm tiết 2", "Âm tiết 3", "Âm tiết 4"],
+        "question": "Chon tu co trong am khac: A. disease, B. humor, C. cancer, D. cattle",
+        "options": [
+          "disease",
+          "humor",
+          "cancer",
+          "cattle"
+        ],
+        "correct": 0,
+        "explanation": "QT2: di'sease co nguyen am doi 'ea' nhan trong am -> trong am 2. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. fourteen, B. forty, C. sixty, D. thirty",
+        "options": [
+          "fourteen",
+          "forty",
+          "sixty",
+          "thirty"
+        ],
+        "correct": 0,
+        "explanation": "QT5: four'teen ket thuc -teen -> trong am 2. Con lai -ty -> trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. committee, B. referee, C. employee, D. refugee",
+        "options": [
+          "committee",
+          "referee",
+          "employee",
+          "refugee"
+        ],
+        "correct": 0,
+        "explanation": "QT6: com'mittee la ngoai le, trong am 2. Con lai -ee nhan trong am cuoi."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. climate, B. attractive, C. graduate, D. company",
+        "options": [
+          "climate",
+          "attractive",
+          "graduate",
+          "company"
+        ],
+        "correct": 1,
+        "explanation": "a'ttractive trong am 2. Con lai trong am 1: 'climate, 'graduate, 'company."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. dangerous, B. successful, C. physical, D. gravity",
+        "options": [
+          "dangerous",
+          "successful",
+          "physical",
+          "gravity"
+        ],
+        "correct": 1,
+        "explanation": "suc'cessful trong am 2. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. cancel, B. suggest, C. pollute, D. collect",
+        "options": [
+          "cancel",
+          "suggest",
+          "pollute",
+          "collect"
+        ],
+        "correct": 0,
+        "explanation": "QT1: 'cancel trong am 1 (ngoai le). Con lai dong tu -> trong am 2."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. travel, B. enrol, C. become, D. allow",
+        "options": [
+          "travel",
+          "enrol",
+          "become",
+          "allow"
+        ],
+        "correct": 0,
+        "explanation": "QT1: 'travel trong am 1 (ngoai le). Con lai trong am 2."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. energy, B. window, C. energetic, D. exercise",
+        "options": [
+          "energy",
+          "window",
+          "energetic",
+          "exercise"
+        ],
         "correct": 2,
-        "explanation": "edu'cation — trọng âm ở âm tiết 3 (trước hậu tố -tion)."
+        "explanation": "QT7: ener'getic co hau to -ic -> trong am roi ngay truoc -ic -> trong am 3. Con lai trong am 1."
       },
       {
-        "question": "Khi thêm -ful vào 'colour', trọng âm ___.",
-        "options": ["dịch sang âm tiết 2", "không thay đổi", "dịch sang âm tiết cuối", "biến mất"],
-        "correct": 1,
-        "explanation": "Hậu tố -ful không làm thay đổi trọng âm: 'colour → 'colourful."
+        "question": "Chon tu co trong am khac: A. interview, B. community, C. vocational, D. idea",
+        "options": [
+          "interview",
+          "community",
+          "vocational",
+          "idea"
+        ],
+        "correct": 0,
+        "explanation": "'interview trong am 1. Con lai trong am 2."
       },
       {
-        "question": "Khi thêm -less vào 'talent', trọng âm ___.",
-        "options": ["dịch sang cuối", "không thay đổi", "dịch sang giữa", "thêm trọng âm phụ"],
+        "question": "Chon tu co trong am khac: A. afternoon, B. necessary, C. compliment, D. serious",
+        "options": [
+          "afternoon",
+          "necessary",
+          "compliment",
+          "serious"
+        ],
+        "correct": 0,
+        "explanation": "QT2: after'noon co nguyen am doi 'oo' nhan trong am -> trong am 3. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. gender, B. woman, C. swimming, D. suggest",
+        "options": [
+          "gender",
+          "woman",
+          "swimming",
+          "suggest"
+        ],
+        "correct": 3,
+        "explanation": "QT1: sug'gest la dong tu -> trong am 2. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. traffic, B. local, C. become, D. challenge",
+        "options": [
+          "traffic",
+          "local",
+          "become",
+          "challenge"
+        ],
+        "correct": 2,
+        "explanation": "QT1: be'come la dong tu -> trong am 2. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. volunteer, B. interesting, C. comfortable, D. internet",
+        "options": [
+          "volunteer",
+          "interesting",
+          "comfortable",
+          "internet"
+        ],
+        "correct": 0,
+        "explanation": "QT6: volun'teer co hau to -eer -> trong am tren hau to -> trong am 3. Con lai trong am 1."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. reduce, B. suggest, C. conserve, D. tumble",
+        "options": [
+          "reduce",
+          "suggest",
+          "conserve",
+          "tumble"
+        ],
+        "correct": 3,
+        "explanation": "'tumble trong am 1. Con lai trong am 2: re'duce, sug'gest, con'serve."
+      },
+      {
+        "question": "Chon tu co trong am khac: A. erupt, B. collapse, C. gather, D. occur",
+        "options": [
+          "erupt",
+          "collapse",
+          "gather",
+          "occur"
+        ],
+        "correct": 2,
+        "explanation": "QT3: 'gather co am tiet 2 la am /a/ nen trong am 1. Con lai trong am 2."
+      },
+      {
+        "question": "Khi them -ful vao 'colour', trong am ___.",
+        "options": [
+          "dich sang am tiet 2",
+          "khong thay doi",
+          "dich sang am tiet cuoi",
+          "bien mat"
+        ],
         "correct": 1,
-        "explanation": "Hậu tố -less không làm thay đổi trọng âm: 'talent → 'talentless."
+        "explanation": "QT11: Hau to -ful khong lam thay doi trong am: 'colour -> 'colourful."
+      },
+      {
+        "question": "Tu 'education' co trong am o am tiet thu may?",
+        "options": [
+          "Am tiet 1",
+          "Am tiet 2",
+          "Am tiet 3",
+          "Am tiet 4"
+        ],
+        "correct": 2,
+        "explanation": "QT7: edu'cation -- hau to -tion -> trong am roi ngay truoc no -> am tiet 3."
+      }
+    ]
+  },
+  {
+    "topic_id": "present-continuous",
+    "emoji": "🔄",
+    "title": "Present Continuous",
+    "title_vi": "Thì hiện tại tiếp diễn",
+    "description": "Cấu trúc, cách dùng, dấu hiệu nhận biết thì hiện tại tiếp diễn.",
+    "difficulty": "easy",
+    "order": 18,
+    "sections": [
+      {
+        "content": "Thì hiện tại tiếp diễn được tạo bởi **to be (am/is/are) + V-ing**.\n\n**(+) Câu khẳng định (Affirmative):**\n• I **am** + V-ing\n• We / You / They **are** + V-ing\n• He / She / It **is** + V-ing\nVD: He **is studying** English. (Anh ấy đang học tiếng Anh.)\n\n**(-) Câu phủ định (Negative):**\n• I **am not** + V-ing\n• We / You / They **are not** + V-ing\n• He / She / It **is not** + V-ing\nVD: He **isn't studying** at the moment. (Anh ấy đang không học bài.)\n\n**(?) Câu nghi vấn (Interrogative):**\n• **Am** I + V-ing?\n• **Are** we/you/they + V-ing?\n• **Is** he/she/it + V-ing?\nVD: **Are you playing** tennis? — Yes, I am. / No, I'm not.\nVD: **Is** your father **cooking** in the kitchen? — No, he isn't.",
+        "heading": "1. Cấu trúc (Structures)"
+      },
+      {
+        "content": "• am = **'m** → I'm playing\n• is = **'s** → He's studying\n• are = **'re** → They're working\n• am not = **'m not** → I'm not sleeping\n• is not = **isn't** → She isn't eating\n• are not = **aren't** → We aren't watching TV",
+        "heading": "2. Dạng rút gọn (Short forms)"
+      },
+      {
+        "content": "**Quy tắc 1:** Động từ kết thúc bằng **phụ âm + nguyên âm + phụ âm** (và được nhấn trọng âm vào âm cuối) → **nhân đôi phụ âm cuối** và thêm -ing.\n• swim → swimming, commit → committing, run → running, sit → sitting\n\n**Quy tắc 2:** Động từ tận cùng là **-e** → **bỏ -e**, thêm -ing.\n• make → making, write → writing, come → coming\n\n**Quy tắc 3:** Động từ tận cùng là **-ie** → **thay -ie bằng -y**, thêm -ing.\n• lie → lying, tie → tying, die → dying\n\n**Quy tắc 4:** Các động từ còn lại → thêm **-ing** bình thường.\n• go → going, watch → watching, study → studying, play → playing",
+        "heading": "3. Cách thêm -ing vào động từ"
+      },
+      {
+        "content": "**Dùng 1:** Diễn tả hành động **đang xảy ra tại thời điểm nói**.\n• We're playing volleyball right now. (Chúng tôi đang chơi bóng chuyền ngay bây giờ.)\n• She is cooking dinner at the moment. (Cô ấy đang nấu bữa tối lúc này.)\n\n**Dùng 2:** Diễn tả hành động đang xảy ra **xung quanh thời điểm nói** (không nhất thiết ngay lúc nói).\n• I'm reading a very interesting book. (Tôi đang đọc một quyển sách rất thú vị.)\n\n**Dùng 3:** Diễn tả **kế hoạch chắc chắn trong tương lai gần**.\n• She's going to London at 8 p.m. tonight. (Cô ấy sẽ tới Luân Đôn lúc 8 giờ tối nay.)\n• We are visiting Tokyo next week. (Chúng tôi sẽ thăm Tokyo tuần tới.)",
+        "heading": "4. Cách dùng (Usage)"
+      },
+      {
+        "content": "Các động từ chỉ **trạng thái** thường **KHÔNG dùng** ở thì hiện tại tiếp diễn. Các động từ trạng thái thường liên quan đến cảm xúc, cảm giác, sự sở hữu, suy nghĩ.\n\nVD: Today, I **feel** so unpleasant. (✓) — KHÔNG dùng: I am feeling...\n• He **has** a girlfriend now. (✓)\n• I **want** a new jacket for Tet. (✓)\n\n**Một số động từ trạng thái thường gặp:**\n• **Nhận thức:** know (biết), believe (tin là), forget (quên), remember (nhớ), understand (hiểu)\n• **Cảm xúc:** like (thích), want (muốn), hate (ghét), prefer (thích hơn)\n• **Sở hữu:** possess (sở hữu), own (sở hữu), belong (thuộc về)\n• **Khác:** seem (dường như), sound (nghe có vẻ), look like (trông có vẻ), disagree (không đồng ý), promise (hứa), agree (đồng ý)",
+        "heading": "5. Động từ trạng thái (Stative verbs)"
+      },
+      {
+        "content": "**Đi cùng các câu mệnh lệnh:**\n• **Look!** The car is going so fast. (Nhìn kìa! Chiếc ô tô đang lao đi rất nhanh.)\n• **Silent!** My father is sleeping. (Giữ im lặng! Cha tôi đang ngủ.)\n\n**Đi cùng các trạng từ chỉ thời gian:**\n• **now** (bây giờ)\n• **right now** (ngay bây giờ)\n• **at the moment** (ở thời điểm này)\n• **at present** (hiện tại)\n• **today** (hôm nay), **this week** (tuần này), **this month** (tháng này), **these days** (ngày nay)\n\nVD: I'm doing my homework **at the moment**. (Tôi đang làm bài tập ở thời điểm này.)",
+        "heading": "6. Dấu hiệu nhận biết (Signals)"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Khẳng định (+)",
+        "example": "He is studying English.",
+        "formula": "S + am/is/are + V-ing",
+        "exampleVi": "Anh ấy đang học tiếng Anh."
+      },
+      {
+        "name": "Phủ định (-)",
+        "example": "They aren't playing football.",
+        "formula": "S + am/is/are + not + V-ing",
+        "exampleVi": "Họ không đang chơi bóng đá."
+      },
+      {
+        "name": "Nghi vấn (?)",
+        "example": "Are you listening to music?",
+        "formula": "Am/Is/Are + S + V-ing?",
+        "exampleVi": "Bạn đang nghe nhạc phải không?"
+      },
+      {
+        "name": "Thêm -ing",
+        "example": "make → making, lie → lying, swim → swimming",
+        "formula": "V-e → bỏ e + ing | V-ie → y + ing | CVC → gấp đôi + ing",
+        "exampleVi": "làm → đang làm, nói dối → đang nói dối, bơi → đang bơi"
+      }
+    ],
+    "exercises": [
+      {
+        "correct": 1,
+        "options": [
+          "plays",
+          "is playing",
+          "play",
+          "are playing"
+        ],
+        "question": "She ___ (play) the piano right now.",
+        "explanation": "'She' đi với 'is' + V-ing. 'right now' là dấu hiệu của thì hiện tại tiếp diễn."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "visit",
+          "visits",
+          "are visiting",
+          "is visiting"
+        ],
+        "question": "They ___ (visit) Tokyo next week.",
+        "explanation": "Thì hiện tại tiếp diễn dùng cho kế hoạch tương lai gần. 'They' đi với 'are' + V-ing."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "does",
+          "do",
+          "is doing",
+          "are doing"
+        ],
+        "question": "He ___ (do) homework at the moment.",
+        "explanation": "'He' đi với 'is' + V-ing. 'at the moment' là dấu hiệu thì hiện tại tiếp diễn."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "don't play",
+          "am not playing",
+          "isn't playing",
+          "not playing"
+        ],
+        "question": "I ___ (not - play) video games now.",
+        "explanation": "Phủ định: I + am not + V-ing. → I am not playing."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "mends",
+          "is mending",
+          "are mending",
+          "mend"
+        ],
+        "question": "My father ___ (mend) his sewing machine.",
+        "explanation": "'My father' = He → 'is' + V-ing. Hành động đang xảy ra."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "is going",
+          "goes",
+          "go",
+          "are going"
+        ],
+        "question": "He usually ___ (go) to work late.",
+        "explanation": "'usually' là trạng từ chỉ tần suất → dùng thì hiện tại đơn. He + goes."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "is buying",
+          "buy",
+          "buys",
+          "are buying"
+        ],
+        "question": "My mom often ___ (buy) meat from that butcher.",
+        "explanation": "'often' là trạng từ chỉ tần suất → dùng thì hiện tại đơn. She + buys."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "don't drink",
+          "doesn't drink",
+          "aren't drinking",
+          "isn't drinking"
+        ],
+        "question": "My brothers ___ (not - drink) coffee at the moment.",
+        "explanation": "'My brothers' = They → 'are not drinking'. 'at the moment' → hiện tại tiếp diễn."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "climb",
+          "climbs",
+          "are climbing",
+          "is climbing"
+        ],
+        "question": "Look! Those people ___ (climb) the mountain so fast.",
+        "explanation": "'Look!' là dấu hiệu thì hiện tại tiếp diễn. 'Those people' → 'are climbing'."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "cries",
+          "is crying",
+          "cry",
+          "are crying"
+        ],
+        "question": "That girl ___ (cry) loudly at the party now.",
+        "explanation": "'That girl' = She → 'is crying'. 'now' là dấu hiệu hiện tại tiếp diễn."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "are wearing",
+          "wear",
+          "wears",
+          "is wearing"
+        ],
+        "question": "These students always ___ (wear) warm clothes in summer.",
+        "explanation": "'always' dùng với hiện tại đơn cho thói quen. 'These students' = They → wear."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "am eating",
+          "eat",
+          "eats",
+          "eating"
+        ],
+        "question": "I never ___ (eat) potatoes.",
+        "explanation": "'never' là trạng từ chỉ tần suất → dùng hiện tại đơn. I + eat."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "play",
+          "run",
+          "know",
+          "swim"
+        ],
+        "question": "Động từ nào KHÔNG thể dùng ở thì hiện tại tiếp diễn?",
+        "explanation": "'know' là động từ trạng thái (stative verb), không dùng với thì tiếp diễn."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "makeing",
+          "making",
+          "makking",
+          "mading"
+        ],
+        "question": "Chọn dạng đúng: make → ___",
+        "explanation": "Động từ tận cùng -e: bỏ -e, thêm -ing → make → making."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "swiming",
+          "swimming",
+          "swimmming",
+          "swimeing"
+        ],
+        "question": "Chọn dạng đúng: swim → ___",
+        "explanation": "Động từ CVC (phụ âm + nguyên âm + phụ âm): nhân đôi phụ âm cuối → swim → swimming."
+      }
+    ]
+  },
+  {
+    "topic_id": "past-simple",
+    "emoji": "⏪",
+    "title": "Past Simple",
+    "title_vi": "Thì quá khứ đơn",
+    "description": "Cấu trúc, cách dùng, dấu hiệu nhận biết, used to, cách phát âm -ed.",
+    "difficulty": "easy",
+    "order": 19,
+    "sections": [
+      {
+        "content": "**(+) Câu khẳng định:**\n• I / He / She / It + **was**\n• We / You / They + **were**\nVD: She **was** in London last winter. (Cô ấy đã ở Luân Đôn vào mùa đông năm ngoái.)\n\n**(-) Câu phủ định:**\n• I / He / She / It + **was not (wasn't)**\n• We / You / They + **were not (weren't)**\nVD: We **weren't** satisfied with the poor quality of your products.\n\n**(?) Câu nghi vấn:**\n• **Was** + I/he/she/it + ...?\n• **Were** + we/you/they + ...?\nVD: **Were** you at the conference yesterday? — No, I **wasn't**.\nVD: **Was** he at home this morning? — Yes, he **was**.",
+        "heading": "1. Cấu trúc với \"to be\" (was/were)"
+      },
+      {
+        "content": "**(+) Câu khẳng định:**\n• S + **V-ed** (động từ có quy tắc) hoặc **V2** (động từ bất quy tắc)\nVD: My brother **bought** a new laptop last month. (Anh trai tôi đã mua một chiếc máy tính xách tay mới vào tháng trước.)\n\n**(-) Câu phủ định:**\n• S + **did not (didn't)** + V (nguyên thể)\nVD: They **didn't sell** their old car. (Họ đã không bán chiếc xe cũ.)\n\n**(?) Câu nghi vấn:**\n• **Did** + S + V (nguyên thể) + ...?\nVD: **Did** you discuss this problem in the meeting last week? — Yes, I **did**.\nVD: **Did** he break up with her? — No, he **didn't**.",
+        "heading": "2. Cấu trúc với động từ thường"
+      },
+      {
+        "content": "**Dùng 1:** Diễn tả một sự việc, hành động, tình trạng **đã xảy ra và chấm dứt** trong quá khứ.\n• My mother **was** a nurse five years ago. (Mẹ tôi đã là một y tá cách đây 5 năm.)\n\n**Dùng 2:** Diễn tả **thói quen, tình cảm, sở thích và nhận thức** trong quá khứ.\n• I did exercise every morning when I **was** a child. (Tôi đã từng tập thể dục mỗi sáng khi còn nhỏ.)\n\n**Dùng 3:** Diễn tả hai hay nhiều hành động, sự việc **xảy ra liên tiếp nhau** trong quá khứ.\n• When Jane went home, he **had** a bath and then **played** with his children. (Khi Jane về nhà, anh ấy đã tắm và sau đó chơi với các con.)",
+        "heading": "3. Cách dùng (Usage)"
+      },
+      {
+        "content": "**Trạng từ chỉ thời gian trong quá khứ:**\n• **in the past**, in the old days (trong quá khứ)\n• **in** + mốc thời gian: in 1997, in 2007, in the 19th century\n• **yesterday** (hôm qua), yesterday morning/afternoon/evening\n• **last** + thời gian: last night (đêm qua), last week (tuần trước), last month (tháng trước)\n• khoảng thời gian + **ago**: ten minutes ago (mười phút trước), four hours ago (bốn giờ trước), three days ago (ba ngày trước)",
+        "heading": "4. Dấu hiệu nhận biết (Signals)"
+      },
+      {
+        "content": "**Quy tắc 1:** Động từ thường → thêm **-ed**\n• expect → expected, listen → listened\n\n**Quy tắc 2:** Động từ tận cùng bằng **-e** → thêm **-d**\n• behave → behaved, arrive → arrived\n\n**Quy tắc 3:** Động từ tận cùng bằng **phụ âm + y** → bỏ y, thêm **-ied**\n• study → studied, carry → carried\n\n**Quy tắc 4:** Động từ tận cùng bằng **nguyên âm + y** → thêm **-ed** bình thường\n• enjoy → enjoyed, destroy → destroyed\n\n**Quy tắc 5:** Động từ CVC (phụ âm + nguyên âm + phụ âm) → **gấp đôi phụ âm cuối** rồi thêm -ed\n• prefer → preferred, stop → stopped",
+        "heading": "5. Cách thêm \"-ed\" vào động từ có quy tắc"
+      },
+      {
+        "content": "• bring → **brought**, buy → **bought**, come → **came**, do → **did**\n• drink → **drank**, drive → **drove**, eat → **ate**, find → **found**\n• forget → **forgot**, get → **got**, give → **gave**, go → **went**\n• have → **had**, know → **knew**, leave → **left**, lose → **lost**\n• make → **made**, meet → **met**, put → **put**, read → **read**\n• run → **ran**, see → **saw**, shut → **shut**, swim → **swam**\n• take → **took**, teach → **taught**, tell → **told**, think → **thought**\n• understand → **understood**, write → **wrote**",
+        "heading": "6. Bảng động từ bất quy tắc thường gặp"
+      },
+      {
+        "content": "**(+) S + used to + V** — diễn tả thói quen, trạng thái hoặc tình trạng trong quá khứ (nay không còn nữa).\n• She **used to** work for this company. (Cô ấy đã từng làm việc cho công ty này.)\n• My mother **used to** be a vegetarian but now she isn't any more.\n\n**(-) S + didn't use to + V**\n• I **didn't use to** like him when we were at school.\n• I **didn't use to** get up early when I was at high school.\n\n**(?) Did + S + use to + V?**",
+        "heading": "7. Used to (Đã từng...)"
+      },
+      {
+        "content": "**Phát âm /ɪd/:** khi động từ có tận cùng được phát âm là **/t/** hoặc **/d/**\n• succeeded, provided, needed, wanted, invited, decided\n\n**Phát âm /t/:** khi động từ có tận cùng là phụ âm vô thanh **/p/, /k/, /f/, /s/, /ʃ/, /tʃ/**\n• helped, sniffed, looked, kissed, washed, watched\n\n**Phát âm /d/:** khi động từ có tận cùng là nguyên âm và các phụ âm hữu thanh\n• cancelled, enclosed, delivered, stayed, filled, followed",
+        "heading": "8. Cách phát âm đuôi -ed"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "To be (+)",
+        "example": "She was in London last winter.",
+        "formula": "S + was/were",
+        "exampleVi": "Cô ấy đã ở Luân Đôn mùa đông năm ngoái."
+      },
+      {
+        "name": "Động từ thường (+)",
+        "example": "They visited Tokyo last year.",
+        "formula": "S + V-ed / V2 (bất quy tắc)",
+        "exampleVi": "Họ đã đến thăm Tokyo năm ngoái."
+      },
+      {
+        "name": "Phủ định (-)",
+        "example": "He didn't go to school yesterday.",
+        "formula": "S + didn't + V (nguyên thể)",
+        "exampleVi": "Anh ấy đã không đi học hôm qua."
+      },
+      {
+        "name": "Nghi vấn (?)",
+        "example": "Did you finish your homework?",
+        "formula": "Did + S + V (nguyên thể)?",
+        "exampleVi": "Bạn đã làm xong bài tập chưa?"
+      },
+      {
+        "name": "Used to",
+        "example": "She used to work here.",
+        "formula": "S + used to + V (nguyên thể)",
+        "exampleVi": "Cô ấy đã từng làm việc ở đây."
+      }
+    ],
+    "exercises": [
+      {
+        "correct": 1,
+        "options": [
+          "tries",
+          "is trying",
+          "tried",
+          "will try"
+        ],
+        "question": "Look! A man ___ to steal Paul's wallet.",
+        "explanation": "'Look!' là dấu hiệu thì hiện tại tiếp diễn. → A man is trying."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "took - buy",
+          "take - bought",
+          "took - bought",
+          "take - buy"
+        ],
+        "question": "Yesterday, I ___ my younger brother to the park and ___ him an ice-cream.",
+        "explanation": "'Yesterday' → quá khứ đơn. take → took, buy → bought."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "goes",
+          "go",
+          "will go",
+          "is going"
+        ],
+        "question": "He ___ home to see his parents every month.",
+        "explanation": "'every month' → thói quen ở hiện tại → hiện tại đơn. He + goes."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "isn't driving",
+          "doesn't drive",
+          "didn't drive",
+          "don't drive"
+        ],
+        "question": "Last Thursday, Thomas ___ to work because he suffered from headaches.",
+        "explanation": "'Last Thursday' → quá khứ đơn phủ định. S + didn't + V → didn't drive."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "works",
+          "work",
+          "worked",
+          "working"
+        ],
+        "question": "My father used to ___ as a taxi driver five years ago.",
+        "explanation": "'used to' + V nguyên thể → used to work."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "don't catch",
+          "weren't catch",
+          "didn't catch",
+          "not catch"
+        ],
+        "question": "They ___ the bus yesterday morning because they got up late.",
+        "explanation": "'yesterday morning' → quá khứ đơn phủ định. S + didn't + V → didn't catch."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "meet",
+          "met",
+          "meeted",
+          "meeting"
+        ],
+        "question": "I (meet) ___ my grandparents last weekend.",
+        "explanation": "'last weekend' → quá khứ đơn. meet là động từ bất quy tắc: meet → met."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "is",
+          "was",
+          "were",
+          "been"
+        ],
+        "question": "The weather (be) ___ strangely fine yesterday.",
+        "explanation": "'yesterday' → quá khứ đơn. 'The weather' = it → was."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "does - do",
+          "did - do",
+          "were - do",
+          "did - does"
+        ],
+        "question": "What ___ you ___ five days ago?",
+        "explanation": "'five days ago' → quá khứ đơn. Câu hỏi: Did + S + V? → Did you do?"
+      },
+      {
+        "correct": 2,
+        "options": [
+          "Do",
+          "Will",
+          "Did",
+          "Does"
+        ],
+        "question": "___ you replace the broken faucet last Sunday?",
+        "explanation": "'last Sunday' → quá khứ đơn. Câu hỏi dùng Did."
+      },
+      {
+        "correct": 3,
+        "options": [
+          "use",
+          "am using",
+          "will use",
+          "used"
+        ],
+        "question": "We ___ to go sailing on the lake last summer holiday.",
+        "explanation": "'last summer holiday' → quá khứ đơn. 'used' trong ngữ cảnh này là quá khứ đơn."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "helped",
+          "watched",
+          "wanted",
+          "kissed"
+        ],
+        "question": "Từ nào có đuôi -ed phát âm là /ɪd/?",
+        "explanation": "'wanted' có tận cùng là /t/ (want) → -ed phát âm /ɪd/. Các từ còn lại phát âm /t/."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "invited",
+          "needed",
+          "liked",
+          "decided"
+        ],
+        "question": "Từ nào có đuôi -ed phát âm khác các từ còn lại?",
+        "explanation": "'liked' phát âm /t/ (vì tận cùng /k/). Các từ còn lại phát âm /ɪd/ (tận cùng /t/ hoặc /d/)."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "studyed",
+          "studied",
+          "studdied",
+          "studying"
+        ],
+        "question": "Chọn dạng quá khứ đúng: study → ___",
+        "explanation": "Động từ tận cùng phụ âm + y: bỏ y, thêm -ied → study → studied."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "stoped",
+          "stopped",
+          "stoppied",
+          "stopping"
+        ],
+        "question": "Chọn dạng quá khứ đúng: stop → ___",
+        "explanation": "Động từ CVC: gấp đôi phụ âm cuối + ed → stop → stopped."
+      }
+    ]
+  },
+  {
+    "topic_id": "present-perfect",
+    "emoji": "✅",
+    "title": "Present Perfect",
+    "title_vi": "Thì hiện tại hoàn thành",
+    "description": "Cấu trúc, cách dùng, dấu hiệu nhận biết thì hiện tại hoàn thành.",
+    "difficulty": "medium",
+    "order": 20,
+    "sections": [
+      {
+        "content": "Thì hiện tại hoàn thành được tạo bởi **have/has + past participle (V3)**.\n\n**(+) Câu khẳng định:**\n• I / You / We / They + **have** + past participle\n• He / She / It + **has** + past participle\nVD: They **have seen** that movie three times. (Họ đã xem bộ phim đó ba lần.)\nVD: I **have taught** English for five years. (Tôi đã dạy tiếng Anh được 5 năm.)\n\n**(-) Câu phủ định:**\n• I / You / We / They + **have not (haven't)** + past participle\n• He / She / It + **has not (hasn't)** + past participle\nVD: Linda **hasn't done** her homework yet. (Linda chưa làm bài tập về nhà.)\n\n**(?) Câu nghi vấn:**\n• **Have** + I/you/we/they + past participle?\n• **Has** + he/she/it + past participle?\nVD: **Have** they finished the work? — Yes, they **have**.\nVD: **Has** she checked her mail yet? — No, she **hasn't**.",
+        "heading": "1. Cấu trúc (Structures)"
+      },
+      {
+        "content": "**Dùng 1:** Diễn tả hành động đã xảy ra trong quá khứ nhưng **không xác định thời gian cụ thể**.\n• I **have visited** Paris. (Tôi đã đến Paris — không nói khi nào.)\n\n**Dùng 2:** Diễn tả hành động bắt đầu trong quá khứ và **kéo dài đến hiện tại** (thường dùng với **for** / **since**).\n• She **has worked** on the farm for 18 years. (Cô ấy đã làm việc ở nông trại được 18 năm.)\n• They **have been** married for fifty years. (Họ đã kết hôn được 50 năm.)\n\n**Dùng 3:** Diễn tả hành động vừa mới xảy ra, có **kết quả liên quan đến hiện tại**.\n• My hands are dirty now because I **have done** the gardening. (Tay tôi bẩn vì tôi vừa làm vườn.)\n• I can't get into my house. I **have lost** my keys. (Tôi không vào nhà được. Tôi đã làm mất chìa khóa.)\n\n**Dùng 4:** Diễn tả **kinh nghiệm, trải nghiệm** (thường dùng với **ever**, **never**).\n• I **have seen** this film six times. (Tôi đã xem phim này sáu lần.)\n• **Have** you **ever** been to America? (Bạn đã bao giờ đến Mỹ chưa?)",
+        "heading": "2. Cách dùng (Usage)"
+      },
+      {
+        "content": "**for** + khoảng thời gian:\n• for three hours (được ba giờ), for two days (được hai ngày), for six months (được sáu tháng)\n\n**since** + mốc thời gian:\n• since last Sunday (kể từ Chủ nhật trước), since 2005 (kể từ năm 2005), since I was a child (kể từ tôi còn nhỏ)\n\n**already** (đã rồi): dùng trong câu khẳng định\n• The train has **already** left!\n\n**yet** (vẫn chưa): dùng trong câu phủ định và nghi vấn\n• She hasn't arrived **yet**.\n\n**just** (vừa mới):\n• He has **just** come back.\n\n**Trạng từ chỉ tần suất:**\n• **never** (không bao giờ), **ever** (từng), **once** (1 lần), **twice** (2 lần), **three times** (3 lần),...\n\n**recently, lately** (gần đây):\n• I haven't seen him **recently**.",
+        "heading": "3. Dấu hiệu nhận biết (Signals)"
+      },
+      {
+        "content": "**Past Simple** — hành động đã xảy ra và **kết thúc** tại một thời điểm **xác định** trong quá khứ.\n• We **visited** Singapore four years ago. (→ 'four years ago' = thời điểm cụ thể)\n• She **lived** in Paris in 1998. (→ 'in 1998' = thời điểm cụ thể)\n\n**Present Perfect** — hành động xảy ra trong quá khứ nhưng **không xác định thời gian**, hoặc **kéo dài đến hiện tại**.\n• He **has learned** English for 7 years. (→ vẫn đang học)\n• John **has not studied** Japanese since he graduated. (→ từ khi tốt nghiệp đến nay)\n\n⚠️ **Không dùng** Present Perfect với các trạng từ chỉ thời gian quá khứ cụ thể: yesterday, last week, in 1999, ... ago.\n✅ Dùng Present Perfect với: for, since, already, yet, just, ever, never, recently, lately.",
+        "heading": "4. Phân biệt Past Simple và Present Perfect"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Khẳng định (+)",
+        "example": "She has worked here for 10 years.",
+        "formula": "S + have/has + V3 (past participle)",
+        "exampleVi": "Cô ấy đã làm việc ở đây được 10 năm."
+      },
+      {
+        "name": "Phủ định (-)",
+        "example": "They haven't finished yet.",
+        "formula": "S + have/has + not + V3",
+        "exampleVi": "Họ vẫn chưa hoàn thành."
+      },
+      {
+        "name": "Nghi vấn (?)",
+        "example": "Have you ever been to Japan?",
+        "formula": "Have/Has + S + V3?",
+        "exampleVi": "Bạn đã bao giờ đến Nhật chưa?"
+      },
+      {
+        "name": "For vs Since",
+        "example": "for 3 years / since 2020",
+        "formula": "for + khoảng thời gian | since + mốc thời gian",
+        "exampleVi": "được 3 năm / kể từ năm 2020"
+      }
+    ],
+    "exercises": [
+      {
+        "correct": 1,
+        "options": [
+          "already",
+          "yet",
+          "never",
+          "for"
+        ],
+        "question": "She hasn't arrived ___.",
+        "explanation": "'yet' dùng trong câu phủ định và nghi vấn ở thì hiện tại hoàn thành."
+      },
+      {
+        "correct": 3,
+        "options": [
+          "since",
+          "just",
+          "in",
+          "for"
+        ],
+        "question": "My mother has been a nurse ___ ten years.",
+        "explanation": "'ten years' là khoảng thời gian → dùng 'for'. 'since' dùng với mốc thời gian."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "does",
+          "did",
+          "has done",
+          "will do"
+        ],
+        "question": "She ___ this type of project many times before.",
+        "explanation": "'many times before' → kinh nghiệm, trải nghiệm → hiện tại hoàn thành: has done."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "come",
+          "came",
+          "have come",
+          "will come"
+        ],
+        "question": "They ___ up with a plan for running their own business in 2017.",
+        "explanation": "'in 2017' là mốc thời gian cụ thể trong quá khứ → dùng Past Simple: came."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "for",
+          "in",
+          "since",
+          "already"
+        ],
+        "question": "Scott hasn't come back his hometown ___ 1991.",
+        "explanation": "'1991' là mốc thời gian → dùng 'since'."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "Did you play",
+          "Do you play",
+          "Have you played",
+          "Are you playing"
+        ],
+        "question": "___ the piano since you were a child?",
+        "explanation": "'since you were a child' → hiện tại hoàn thành. Have you played...?"
+      },
+      {
+        "correct": 0,
+        "options": [
+          "is going to publish",
+          "has published",
+          "published",
+          "publishes"
+        ],
+        "question": "He has written three books, and he ___ a new one next month.",
+        "explanation": "'next month' → tương lai. 'is going to publish' diễn tả kế hoạch tương lai."
+      },
+      {
+        "correct": 3,
+        "options": [
+          "Do - travel",
+          "Are - travelling",
+          "Did - travel",
+          "Have - travelled"
+        ],
+        "question": "___ you ever ___ to America?",
+        "explanation": "'ever' → kinh nghiệm → hiện tại hoàn thành. Have you ever travelled...?"
+      },
+      {
+        "correct": 0,
+        "options": [
+          "already",
+          "yet",
+          "ever",
+          "for"
+        ],
+        "question": "The train has ___ left! What are we going to do?",
+        "explanation": "'already' dùng trong câu khẳng định hiện tại hoàn thành, nghĩa là 'đã rồi'."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "have visited",
+          "visited",
+          "visit",
+          "are visiting"
+        ],
+        "question": "We (visit) ___ Singapore four years ago.",
+        "explanation": "'four years ago' → thời điểm cụ thể trong quá khứ → Past Simple: visited."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "didn't study",
+          "doesn't study",
+          "hasn't studied",
+          "isn't studying"
+        ],
+        "question": "John (not - study) ___ Japanese since he graduated from university.",
+        "explanation": "'since he graduated' → kéo dài từ quá khứ đến hiện tại → Present Perfect: hasn't studied."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "have cancelled",
+          "cancelled",
+          "cancel",
+          "are cancelling"
+        ],
+        "question": "They (cancel) ___ the quarterly meeting yesterday because of the severe storm.",
+        "explanation": "'yesterday' → thời điểm cụ thể → Past Simple: cancelled."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "see",
+          "saw",
+          "have seen",
+          "am seeing"
+        ],
+        "question": "I (see) ___ this film six times.",
+        "explanation": "'six times' → kinh nghiệm, không nói thời gian cụ thể → Present Perfect: have seen."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "learns",
+          "learned",
+          "has learned",
+          "is learning"
+        ],
+        "question": "He (learn) ___ English for 7 years.",
+        "explanation": "'for 7 years' → kéo dài đến hiện tại → Present Perfect: has learned."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "have eaten",
+          "ate",
+          "eat",
+          "are eating"
+        ],
+        "question": "We (eat) ___ Thai food last weekend.",
+        "explanation": "'last weekend' → thời điểm cụ thể trong quá khứ → Past Simple: ate."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "have finished",
+          "has finished",
+          "finished",
+          "am finishing"
+        ],
+        "question": "I ___ (finish) my homework already.",
+        "explanation": "'already' → dấu hiệu hiện tại hoàn thành. Chủ ngữ 'I' → have finished."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "visited",
+          "has visited",
+          "have visited",
+          "visits"
+        ],
+        "question": "She ___ (visit) London three times.",
+        "explanation": "'three times' → kinh nghiệm, trải nghiệm. Chủ ngữ 'She' → has visited."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "have not seen / yet",
+          "has not seen / yet",
+          "did not see / already",
+          "have not saw / yet"
+        ],
+        "question": "They ___ (not see) that movie ___.",
+        "explanation": "Chủ ngữ 'They' → have not seen. Câu phủ định dùng 'yet'."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "already",
+          "yet",
+          "since",
+          "for"
+        ],
+        "question": "He has ___ completed his project.",
+        "explanation": "'just' vừa mới hoàn thành. Ở đây 'already' phù hợp nhất vì nói hành động đã hoàn thành rồi."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "already",
+          "yet",
+          "ever",
+          "never"
+        ],
+        "question": "Have you ___ tried sushi?",
+        "explanation": "'ever' dùng trong câu hỏi kinh nghiệm: Have you ever tried...?"
+      },
+      {
+        "correct": 1,
+        "options": [
+          "He",
+          "have",
+          "finished",
+          "his homework"
+        ],
+        "question": "Tìm lỗi sai: \"He have finished his homework.\"",
+        "explanation": "Chủ ngữ 'He' ngôi thứ 3 số ít → dùng 'has', không phải 'have'."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "I",
+          "have saw",
+          "that film",
+          "before"
+        ],
+        "question": "Tìm lỗi sai: \"I have saw that film before.\"",
+        "explanation": "Sau have/has phải dùng quá khứ phân từ (V3): saw → seen. Đúng: have seen."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "have been",
+          "friends",
+          "since",
+          "ten years"
+        ],
+        "question": "Tìm lỗi sai: \"We have been friends since ten years.\"",
+        "explanation": "'ten years' là khoảng thời gian → dùng 'for', không phải 'since'. since dùng với mốc thời gian."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "has",
+          "not",
+          "ate",
+          "his breakfast"
+        ],
+        "question": "Tìm lỗi sai: \"He has not ate his breakfast.\"",
+        "explanation": "Sau has not phải là quá khứ phân từ (V3): ate → eaten. Đúng: has not eaten."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "been",
+          "gone",
+          "went",
+          "go"
+        ],
+        "question": "Where is Lan? — She has ___ to the market.",
+        "explanation": "'gone' = đã đi và đang ở đó (chưa về). 'been' = đã đi và đã quay về."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "gone",
+          "been",
+          "went",
+          "go"
+        ],
+        "question": "I have ___ to Japan twice. I love it there.",
+        "explanation": "'been' = đã từng đến và đã quay về. 'twice' → kinh nghiệm."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "worked in Hanoi for 2 years.",
+          "worked in Hanoi since 2 years.",
+          "work in Hanoi for 2 years.",
+          "been work in Hanoi for 2 years."
+        ],
+        "question": "Viết lại: \"Emily started to work in Hanoi 2 years ago.\" → Emily has ___",
+        "explanation": "'2 years ago' → khoảng thời gian → dùng 'for': has worked in Hanoi for 2 years."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "worked in Vietnam for he was 22.",
+          "worked in Vietnam since he was 22.",
+          "work in Vietnam since he was 22.",
+          "been working in Vietnam for he was 22."
+        ],
+        "question": "Viết lại: \"He began to work in Vietnam when he was 22.\" → He has ___",
+        "explanation": "'when he was 22' = mốc thời gian → dùng 'since': has worked in Vietnam since he was 22."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "has just arrived",
+          "just arrived",
+          "have just arrived",
+          "is just arriving"
+        ],
+        "question": "She ___ (just / arrive). She is still at the door.",
+        "explanation": "'just' → hành động vừa mới xảy ra → Present Perfect. Chủ ngữ 'She' → has just arrived."
+      }
+    ]
+  },
+  {
+    "topic_id": "this-is-the-first-time",
+    "emoji": "🥇",
+    "title": "This is the first time",
+    "title_vi": "Cấu trúc This is the first time",
+    "description": "Cấu trúc 'This is the first time' và các cách viết lại câu tương đương: S + have/has + never + PII, S + haven't/hasn't + PII + before.",
+    "difficulty": "medium",
+    "order": 21,
+    "sections": [
+      {
+        "content": "**This is the first time** có nghĩa là \"Đây là lần đầu tiên\".\n\nCấu trúc này dùng khi người nói muốn đề cập đến **một trải nghiệm lần đầu tiên** của bản thân hoặc của ai đó.\n\nVí dụ:\n• This is the first time I **have tried** sushi. (Đây là lần đầu tiên tôi ăn thử sushi.)\n• This is the first time she **has visited** Hanoi. (Đây là lần đầu tiên cô ấy đến Hà Nội.)",
+        "heading": "1. Ý nghĩa"
+      },
+      {
+        "content": "**Công thức:**\n\n**This/It is the first time (that) + S + have/has + V(PII)**\n\n⚠️ Sau \"This is the first time\" luôn dùng **thì hiện tại hoàn thành** vì sự việc xảy ra lần đầu tiên, chưa từng xuất hiện trước đó.\n\nVí dụ:\n• This is the first time I **have gone** abroad. (Đây là lần đầu tiên tôi ra nước ngoài.)\n• It is the first time he **has driven** a car. (Đây là lần đầu tiên anh ấy lái xe ô tô.)\n• This is the first time they **have eaten** such spicy food. (Đây là lần đầu tiên họ ăn đồ ăn cay như vậy.)\n\n📌 Có thể thay \"first\" bằng **second, third**... để nói lần thứ hai, thứ ba,...\n• This is the **second** time I have been here. (Đây là lần thứ hai tôi ở đây.)",
+        "heading": "2. Công thức chính"
+      },
+      {
+        "content": "**Cấu trúc 1: S + haven't/hasn't + V(PII) + ... + before**\n(Ai đó chưa từng làm điều gì đó trước đây)\n\nĐây là cách nói ngược lại: thay vì khẳng định \"lần đầu tiên\", ta nói \"chưa từng trước đây\".\n\nVí dụ:\n• I **haven't seen** this movie before. (Tôi chưa từng xem bộ phim này trước đây.)\n→ This is the first time I **have seen** this movie.\n\n• She **hasn't met** her uncle before. (Cô ấy chưa từng gặp bác trước đây.)\n→ This is the first time she **has met** her uncle.\n\n📌 **Cách chuyển đổi:** Bỏ \"before\", đổi động từ từ **phủ định** → **khẳng định**, thêm \"This is the first time\" ở đầu câu.",
+        "heading": "3. Cấu trúc tương đương với BEFORE"
+      },
+      {
+        "content": "**Cấu trúc 2: S + have/has + never + V(PII) + ... + (before)**\n(Ai đó chưa bao giờ làm điều gì đó)\n\nCấu trúc này nhấn mạnh hơn tính chất \"chưa bao giờ\" nhờ từ **never**.\n\nVí dụ:\n• He **has never eaten** such spicy food before. (Anh ấy chưa bao giờ ăn đồ ăn cay như vậy.)\n→ This is the first time he **has eaten** such spicy food.\n\n• I **have never been** to Japan. (Tôi chưa bao giờ đến Nhật Bản.)\n→ This is the first time I **have been** to Japan.\n\n📌 **Cách chuyển đổi:** Bỏ \"never\" và \"before\", thêm \"This is the first time\" ở đầu câu.",
+        "heading": "4. Cấu trúc tương đương với NEVER... BEFORE"
+      },
+      {
+        "content": "**Ba cấu trúc tương đương:**\n\n① **This is the first time + S + have/has + PII**\n→ This is the first time I have eaten durian.\n\n② **S + have/has + never + PII + (before)**\n→ I have never eaten durian before.\n\n③ **S + haven't/hasn't + PII + before**\n→ I haven't eaten durian before.\n\n**Cả 3 câu đều có nghĩa:** Đây là lần đầu tiên tôi ăn sầu riêng. / Tôi chưa từng ăn sầu riêng trước đây.",
+        "heading": "5. Bảng tổng hợp viết lại câu"
+      },
+      {
+        "content": "⚠️ **Lưu ý 1**: Nếu câu gốc ở **quá khứ**, ta đổi \"This is\" thành **\"It was\"** và dùng **quá khứ hoàn thành (had + PII)**.\n• It **was** the first time she **had flown** by plane. (Đó là lần đầu tiên cô ấy đi máy bay.)\n\n⚠️ **Lưu ý 2**: Có thể dùng \"That\" nối: This is the first time **that** I have... (\"That\" có thể lược bỏ.)\n\n⚠️ **Lưu ý 3**: Không dùng thì **hiện tại đơn** sau \"This is the first time\".\n• ❌ This is the first time I **go** abroad.\n• ✅ This is the first time I **have gone** abroad.",
+        "heading": "6. Lưu ý quan trọng"
+      }
+    ],
+    "formulas": [
+      {
+        "name": "Cấu trúc chính",
+        "example": "This is the first time I have eaten sushi.",
+        "formula": "This/It is the first time + S + have/has + PII",
+        "exampleVi": "Đây là lần đầu tiên tôi ăn sushi."
+      },
+      {
+        "name": "Tương đương (haven't + before)",
+        "example": "I haven't eaten sushi before.",
+        "formula": "S + haven't/hasn't + PII + before",
+        "exampleVi": "Tôi chưa từng ăn sushi trước đây."
+      },
+      {
+        "name": "Tương đương (never + before)",
+        "example": "I have never eaten sushi before.",
+        "formula": "S + have/has + never + PII + (before)",
+        "exampleVi": "Tôi chưa bao giờ ăn sushi."
+      },
+      {
+        "name": "Dạng quá khứ",
+        "example": "It was the first time he had seen snow.",
+        "formula": "It was the first time + S + had + PII",
+        "exampleVi": "Đó là lần đầu tiên anh ấy nhìn thấy tuyết."
+      }
+    ],
+    "exercises": [
+      {
+        "correct": 1,
+        "options": [
+          "eat",
+          "have eaten",
+          "ate",
+          "am eating"
+        ],
+        "question": "This is the first time I ___ Japanese food.",
+        "explanation": "Sau 'This is the first time' dùng thì hiện tại hoàn thành → have eaten."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "goes",
+          "went",
+          "has been",
+          "is going"
+        ],
+        "question": "This is the first time she ___ to London.",
+        "explanation": "Sau 'This is the first time' + S + has/have + PII → has been."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "see",
+          "saw",
+          "seen",
+          "seeing"
+        ],
+        "question": "I have never ___ such a beautiful sunset before.",
+        "explanation": "have/has + never + PII → seen (quá khứ phân từ của 'see')."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "try",
+          "tried",
+          "tries",
+          "trying"
+        ],
+        "question": "She hasn't ___ durian before.",
+        "explanation": "hasn't + PII + before → tried (quá khứ phân từ của 'try')."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "visit",
+          "visited",
+          "have visited",
+          "are visiting"
+        ],
+        "question": "This is the first time they ___ a foreign country.",
+        "explanation": "Sau 'This is the first time' dùng hiện tại hoàn thành → have visited."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "the first time I play tennis.",
+          "the first time I have played tennis.",
+          "the first time I played tennis.",
+          "the first time I am playing tennis."
+        ],
+        "question": "Viết lại: \"I have never played tennis before.\" → This is ___",
+        "explanation": "S + have never + PII → This is the first time + S + have/has + PII → have played."
+      },
+      {
+        "correct": 3,
+        "options": [
+          "the first time he drives a car.",
+          "the first time he drove a car.",
+          "the first time he is driving a car.",
+          "the first time he has driven a car."
+        ],
+        "question": "Viết lại: \"He hasn't driven a car before.\" → This is ___",
+        "explanation": "S + hasn't + PII + before → This is the first time + S + has + PII → has driven."
+      },
+      {
+        "correct": 0,
+        "options": [
+          "never been to Da Nang before.",
+          "been to Da Nang before.",
+          "never go to Da Nang.",
+          "not go to Da Nang before."
+        ],
+        "question": "Viết lại: \"This is the first time we have been to Da Nang.\" → We have ___",
+        "explanation": "This is the first time + S + have + PII → S + have never + PII + before → have never been to Da Nang before."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "cook pasta before.",
+          "cooked pasta before.",
+          "cooking pasta before.",
+          "cooks pasta before."
+        ],
+        "question": "Viết lại: \"This is the first time Mai has cooked pasta.\" → Mai hasn't ___",
+        "explanation": "This is the first time + S + has + PII → S + hasn't + PII + before → hasn't cooked pasta before."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "is",
+          "was",
+          "has been",
+          "were"
+        ],
+        "question": "It ___ the first time she had flown by plane.",
+        "explanation": "Câu dùng quá khứ hoàn thành (had flown) → dùng 'was' thay cho 'is'."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "This is",
+          "the first time",
+          "go",
+          "to this restaurant"
+        ],
+        "question": "Tìm lỗi sai: \"This is the first time I go to this restaurant.\"",
+        "explanation": "Sau 'This is the first time' phải dùng hiện tại hoàn thành: go → have gone."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "This is",
+          "the first time",
+          "has meet",
+          "his pen pal"
+        ],
+        "question": "Tìm lỗi sai: \"This is the first time he has meet his pen pal.\"",
+        "explanation": "Sau has phải dùng PII: meet → met (has met)."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "ever",
+          "never",
+          "already",
+          "just"
+        ],
+        "question": "He has ___ been abroad before. This is his first trip.",
+        "explanation": "Chưa bao giờ đi nước ngoài → never. 'never... before' = chưa bao giờ... trước đây."
+      },
+      {
+        "correct": 2,
+        "options": [
+          "the first time I see snow.",
+          "the first time I saw snow.",
+          "the first time I have seen snow.",
+          "the first time I had seen snow."
+        ],
+        "question": "Viết lại: \"I have never seen snow.\" → This is ___",
+        "explanation": "S + have never + PII → This is the first time + S + have + PII → have seen."
+      },
+      {
+        "correct": 1,
+        "options": [
+          "never failed the exam before.",
+          "failed the exam once before.",
+          "not failed the exam before.",
+          "failed the exam already."
+        ],
+        "question": "Viết lại: \"This is the second time he has failed the exam.\" → He has ___",
+        "explanation": "Đây là lần thứ hai anh ấy trượt → Anh ấy đã trượt một lần trước đây (once before)."
       }
     ]
   }

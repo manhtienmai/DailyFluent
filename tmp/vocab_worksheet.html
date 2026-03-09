@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Vocabulary Worksheet - Unit: Traditional Crafts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A4;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: #1a1a1a;
+    background: #fff;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 6mm;
+    border-bottom: 2.5px solid #2c3e50;
+    padding-bottom: 4mm;
+  }
+
+  .header h1 {
+    font-size: 17pt;
+    font-weight: 700;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2mm;
+  }
+
+  .header .subtitle {
+    font-size: 11.5pt;
+    color: #555;
+    font-weight: 500;
+  }
+
+  .header .info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3mm;
+    font-size: 10pt;
+  }
+
+  .header .info span {
+    border-bottom: 1px dotted #999;
+    min-width: 120px;
+    display: inline-block;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #fff;
+    background: #2c3e50;
+    padding: 2mm 5mm;
+    margin: 5mm 0 3mm 0;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+  }
+
+  .section-title .icon {
+    font-size: 13pt;
+  }
+
+  .section-subtitle {
+    font-size: 9.5pt;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 2.5mm;
+  }
+
+  /* Vocabulary Table */
+  .vocab-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin-bottom: 3mm;
+  }
+
+  .vocab-table th {
+    background: #34495e;
+    color: #fff;
+    padding: 1.5mm 2.5mm;
+    text-align: left;
+    font-weight: 600;
+    font-size: 8.5pt;
+  }
+
+  .vocab-table td {
+    padding: 1.2mm 2.5mm;
+    border-bottom: 0.5px solid #ddd;
+    vertical-align: middle;
+  }
+
+  .vocab-table tr:nth-child(even) {
+    background: #f8f9fa;
+  }
+
+  .vocab-table .col-stt { width: 5%; text-align: center; }
+  .vocab-table .col-word { width: 28%; font-weight: 600; color: #111; }
+  .vocab-table .col-phon { width: 24%; font-family: 'Noto Serif', serif; font-style: italic; color: #666; font-size: 8.5pt; }
+  .vocab-table .col-mean { width: 43%; }
+
+  /* Multiple Choice */
+  .mc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5mm 8mm;
+  }
+
+  .mc-question {
+    padding: 1.5mm 0;
+    border-bottom: 0.5px dotted #ccc;
+  }
+
+  .mc-question .q-num {
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  .mc-question .q-word {
+    font-weight: 700;
+    font-style: italic;
+    text-decoration: underline;
+    color: #111;
+  }
+
+  .mc-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5mm 4mm;
+    margin-top: 0.5mm;
+    padding-left: 5mm;
+    font-size: 9.5pt;
+  }
+
+  .mc-options label {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5mm;
+  }
+
+  .mc-options .opt-letter {
+    font-weight: 600;
+    color: #34495e;
+    min-width: 10px;
+  }
+
+  /* Fill in the blank */
+  .word-bank {
+    background: #f0f4f8;
+    border: 1.5px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 2.5mm 4mm;
+    margin-bottom: 3mm;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5mm 4mm;
+    justify-content: center;
+  }
+
+  .word-bank .bank-word {
+    font-weight: 600;
+    color: #2c3e50;
+    background: #fff;
+    border: 1px solid #95a5a6;
+    border-radius: 3px;
+    padding: 0.8mm 2.5mm;
+    font-size: 9.5pt;
+  }
+
+  .fill-questions {
+    list-style: none;
+    padding: 0;
+  }
+
+  .fill-questions li {
+    padding: 2mm 0;
+    border-bottom: 0.5px dotted #ccc;
+    font-size: 10pt;
+    line-height: 1.6;
+  }
+
+  .fill-questions .q-num {
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 1.5px solid #2c3e50;
+    margin: 0 2px;
+    text-align: center;
+  }
+
+  /* Answer key */
+  .answer-section {
+    margin-top: 4mm;
+    padding: 3mm;
+    border: 1px dashed #aaa;
+    border-radius: 4px;
+    background: #fafafa;
+  }
+
+  .answer-section h3 {
+    font-size: 10.5pt;
+    color: #2c3e50;
+    margin-bottom: 2mm;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1mm;
+  }
+
+  .answer-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1mm 3mm;
+    font-size: 9pt;
+  }
+
+  .answer-grid span {
+    font-weight: 500;
+  }
+
+  /* Answer full sentences */
+  .answer-full-list {
+    list-style: none;
+    padding: 0;
+    font-size: 9pt;
+    line-height: 1.5;
+  }
+
+  .answer-full-list li {
+    padding: 1.5mm 0;
+    border-bottom: 0.5px dotted #e0e0e0;
+  }
+
+  .answer-full-list .ans-eng {
+    color: #1a1a1a;
+  }
+
+  .answer-full-list .ans-word {
+    font-weight: 700;
+    text-decoration: underline;
+    color: #111;
+  }
+
+  .answer-full-list .ans-vi {
+    color: #555;
+    font-style: italic;
+    margin-left: 3mm;
+    display: block;
+    font-size: 8.5pt;
+  }
+
+  /* Page break controls */
+  .page-break {
+    page-break-before: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  @media print {
+    body { font-size: 10pt; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== VOCABULARY LIST ==================== -->
+<div class="header">
+  <h1>📘 English Vocabulary Worksheet</h1>
+  <div class="subtitle">Unit: Traditional Crafts &amp; Village Life</div>
+  <div class="info">
+    <div>Name: <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div>Class: <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div>Date: <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+  </div>
+</div>
+
+<div class="section-title"><span class="icon">📋</span> PART 1: Vocabulary List (Danh sách từ vựng)</div>
+
+<table class="vocab-table">
+  <thead>
+    <tr>
+      <th class="col-stt">#</th>
+      <th class="col-word">Word</th>
+      <th class="col-phon">Pronunciation</th>
+      <th class="col-mean">Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="col-stt">1</td><td class="col-word">artefact <i>(n)</i></td><td class="col-phon">/'ɑːtɪfækt/</td><td class="col-mean">đồ tạo tác</td></tr>
+    <tr><td class="col-stt">2</td><td class="col-word">artisan <i>(n)</i></td><td class="col-phon">/ɑːtɪ'zæn/</td><td class="col-mean">thợ thủ công</td></tr>
+    <tr><td class="col-stt">3</td><td class="col-word">attraction <i>(n)</i></td><td class="col-phon">/ə'trækʃn/</td><td class="col-mean">điểm hấp dẫn</td></tr>
+    <tr><td class="col-stt">4</td><td class="col-word">authenticity <i>(n)</i></td><td class="col-phon">/ɔːθen'tɪsəti/</td><td class="col-mean">tính chân thật</td></tr>
+    <tr><td class="col-stt">5</td><td class="col-word">carve <i>(v)</i></td><td class="col-phon">/kɑːv/</td><td class="col-mean">chạm khắc</td></tr>
+    <tr><td class="col-stt">6</td><td class="col-word">cast <i>(v)</i></td><td class="col-phon">/kɑːst/</td><td class="col-mean">đúc (kim loại)</td></tr>
+    <tr><td class="col-stt">7</td><td class="col-word">charcoal <i>(n)</i></td><td class="col-phon">/'tʃɑːkəʊl/</td><td class="col-mean">than, chì</td></tr>
+    <tr><td class="col-stt">8</td><td class="col-word">close down <i>(phr.v)</i></td><td class="col-phon">/kləʊz daʊn/</td><td class="col-mean">đóng cửa, ngừng hoạt động</td></tr>
+    <tr><td class="col-stt">9</td><td class="col-word">conical hat <i>(n)</i></td><td class="col-phon">/ˈkɒnɪkl hæt/</td><td class="col-mean">nón lá</td></tr>
+    <tr><td class="col-stt">10</td><td class="col-word">craft <i>(n)</i></td><td class="col-phon">/krɑːft/</td><td class="col-mean">nghề thủ công</td></tr>
+    <tr><td class="col-stt">11</td><td class="col-word">craftsman <i>(n)</i></td><td class="col-phon">/'krɑːftsmən/</td><td class="col-mean">thợ làm đồ thủ công</td></tr>
+    <tr><td class="col-stt">12</td><td class="col-word">deal with <i>(phr.v)</i></td><td class="col-phon">/diːl wɪð/</td><td class="col-mean">giải quyết</td></tr>
+    <tr><td class="col-stt">13</td><td class="col-word">drumhead <i>(n)</i></td><td class="col-phon">/drʌmhed/</td><td class="col-mean">mặt trống</td></tr>
+    <tr><td class="col-stt">14</td><td class="col-word">face up to <i>(phr.v)</i></td><td class="col-phon">/feɪs ʌp tuː/</td><td class="col-mean">đối mặt với</td></tr>
+    <tr><td class="col-stt">15</td><td class="col-word">frame <i>(n)</i></td><td class="col-phon">/freɪm/</td><td class="col-mean">khung</td></tr>
+    <tr><td class="col-stt">16</td><td class="col-word">get on with <i>(phr.v)</i></td><td class="col-phon">/ɡet ɒn wɪð/</td><td class="col-mean">có quan hệ tốt với (ai đó)</td></tr>
+    <tr><td class="col-stt">17</td><td class="col-word">handicraft <i>(n)</i></td><td class="col-phon">/'hændikrɑːft/</td><td class="col-mean">sản phẩm thủ công</td></tr>
+    <tr><td class="col-stt">18</td><td class="col-word">knit <i>(v)</i></td><td class="col-phon">/nɪt/</td><td class="col-mean">đan (len)</td></tr>
+    <tr><td class="col-stt">19</td><td class="col-word">lacquerware <i>(n)</i></td><td class="col-phon">/'lækəweə(r)/</td><td class="col-mean">đồ sơn mài</td></tr>
+    <tr><td class="col-stt">20</td><td class="col-word">layer <i>(n)</i></td><td class="col-phon">/'leɪə(r)/</td><td class="col-mean">lớp</td></tr>
+    <tr><td class="col-stt">21</td><td class="col-word">live on <i>(phr.v)</i></td><td class="col-phon">/lɪv ɒn/</td><td class="col-mean">sống dựa vào</td></tr>
+    <tr><td class="col-stt">22</td><td class="col-word">look forward to <i>(phr.v)</i></td><td class="col-phon">/lʊk ˈfɔːwəd tuː/</td><td class="col-mean">trông mong</td></tr>
+    <tr><td class="col-stt">23</td><td class="col-word">loom <i>(n)</i></td><td class="col-phon">/luːm/</td><td class="col-mean">khung cửi</td></tr>
+    <tr><td class="col-stt">24</td><td class="col-word">marble sculpture <i>(n)</i></td><td class="col-phon">/ˈmɑːbl ˈskʌlptʃər/</td><td class="col-mean">điêu khắc đá</td></tr>
+    <tr><td class="col-stt">25</td><td class="col-word">minority ethnic <i>(n)</i></td><td class="col-phon">/maɪˈnɒrəti ˈeθnɪk/</td><td class="col-mean">dân tộc thiểu số</td></tr>
+    <tr><td class="col-stt">26</td><td class="col-word">mould <i>(v)</i></td><td class="col-phon">/məʊld/</td><td class="col-mean">tạo khuôn</td></tr>
+    <tr><td class="col-stt">27</td><td class="col-word">numerous <i>(adj)</i></td><td class="col-phon">/'njuːmərəs/</td><td class="col-mean">nhiều, đông đảo</td></tr>
+    <tr><td class="col-stt">28</td><td class="col-word">pass down <i>(phr.v)</i></td><td class="col-phon">/pɑːs daʊn/</td><td class="col-mean">truyền lại (cho thế hệ sau)</td></tr>
+    <tr><td class="col-stt">29</td><td class="col-word">pottery <i>(n)</i></td><td class="col-phon">/ˈpɒtəri/</td><td class="col-mean">đồ gốm</td></tr>
+    <tr><td class="col-stt">30</td><td class="col-word">preserve <i>(v)</i></td><td class="col-phon">/prɪ'zɜːv/</td><td class="col-mean">bảo tồn</td></tr>
+    <tr><td class="col-stt">31</td><td class="col-word">sculpture <i>(n)</i></td><td class="col-phon">/'skʌlptʃə(r)/</td><td class="col-mean">điêu khắc, đồ điêu khắc</td></tr>
+    <tr><td class="col-stt">32</td><td class="col-word">set off <i>(phr.v)</i></td><td class="col-phon">/set ɒf/</td><td class="col-mean">khởi hành</td></tr>
+    <tr><td class="col-stt">33</td><td class="col-word">set up <i>(phr.v)</i></td><td class="col-phon">/set ʌp/</td><td class="col-mean">thành lập, tạo dựng</td></tr>
+    <tr><td class="col-stt">34</td><td class="col-word">stage <i>(n)</i></td><td class="col-phon">/steɪdʒ/</td><td class="col-mean">bước, giai đoạn</td></tr>
+    <tr><td class="col-stt">35</td><td class="col-word">surface <i>(n)</i></td><td class="col-phon">/'sɜːfɪs/</td><td class="col-mean">bề mặt</td></tr>
+    <tr><td class="col-stt">36</td><td class="col-word">take over <i>(phr.v)</i></td><td class="col-phon">/teɪk ˈəʊvə/</td><td class="col-mean">tiếp quản, nối nghiệp</td></tr>
+    <tr><td class="col-stt">37</td><td class="col-word">team-building <i>(n)</i></td><td class="col-phon">/'tiːm bɪldɪŋ/</td><td class="col-mean">tinh thần đồng đội</td></tr>
+    <tr><td class="col-stt">38</td><td class="col-word">thread <i>(n)</i></td><td class="col-phon">/θred/</td><td class="col-mean">sợi, chỉ</td></tr>
+    <tr><td class="col-stt">39</td><td class="col-word">treat <i>(v)</i></td><td class="col-phon">/triːt/</td><td class="col-mean">xử lý</td></tr>
+    <tr><td class="col-stt">40</td><td class="col-word">tug of war <i>(n)</i></td><td class="col-phon">/tʌɡ əv wɔː(r)/</td><td class="col-mean">trò chơi kéo co</td></tr>
+    <tr><td class="col-stt">41</td><td class="col-word">turn down <i>(phr.v)</i></td><td class="col-phon">/tɜːn daʊn/</td><td class="col-mean">từ chối</td></tr>
+    <tr><td class="col-stt">42</td><td class="col-word">turn up <i>(phr.v)</i></td><td class="col-phon">/tɜːn ʌp/</td><td class="col-mean">xuất hiện, đến</td></tr>
+    <tr><td class="col-stt">43</td><td class="col-word">versatile <i>(adj)</i></td><td class="col-phon">/'vɜːsətaɪl/</td><td class="col-mean">đa năng</td></tr>
+    <tr><td class="col-stt">44</td><td class="col-word">weave <i>(v)</i></td><td class="col-phon">/wiːv/</td><td class="col-mean">đan, dệt</td></tr>
+    <tr><td class="col-stt">45</td><td class="col-word">willow <i>(n)</i></td><td class="col-phon">/'wɪləʊ/</td><td class="col-mean">cây liễu</td></tr>
+    <tr><td class="col-stt">46</td><td class="col-word">workshop <i>(n)</i></td><td class="col-phon">/'wɜːkʃɒp/</td><td class="col-mean">công xưởng</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== MULTIPLE CHOICE ==================== -->
+<div class="page-break"></div>
+<div class="section-title"><span class="icon">✅</span> PART 2: Multiple Choice (Chọn đáp án đúng)</div>
+<p class="section-subtitle">Choose the best answer A, B, C, or D that matches the meaning of the underlined word.</p>
+
+<div class="mc-grid">
+  <div class="mc-question">
+    <p><span class="q-num">1.</span> The word <span class="q-word">"artefact"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> thợ thủ công</label>
+      <label><span class="opt-letter">B.</span> đồ tạo tác</label>
+      <label><span class="opt-letter">C.</span> đồ gốm</label>
+      <label><span class="opt-letter">D.</span> đồ sơn mài</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">2.</span> The word <span class="q-word">"carve"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đúc kim loại</label>
+      <label><span class="opt-letter">B.</span> đan len</label>
+      <label><span class="opt-letter">C.</span> chạm khắc</label>
+      <label><span class="opt-letter">D.</span> dệt vải</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">3.</span> <span class="q-word">"Lacquerware"</span> is:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đồ gốm</label>
+      <label><span class="opt-letter">B.</span> đồ sơn mài</label>
+      <label><span class="opt-letter">C.</span> nón lá</label>
+      <label><span class="opt-letter">D.</span> khung cửi</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">4.</span> To <span class="q-word">"preserve"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> phá hủy</label>
+      <label><span class="opt-letter">B.</span> bảo tồn</label>
+      <label><span class="opt-letter">C.</span> khởi hành</label>
+      <label><span class="opt-letter">D.</span> từ chối</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">5.</span> <span class="q-word">"Versatile"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> chân thật</label>
+      <label><span class="opt-letter">B.</span> nhiều, đông đảo</label>
+      <label><span class="opt-letter">C.</span> đa năng</label>
+      <label><span class="opt-letter">D.</span> truyền thống</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">6.</span> <span class="q-word">"Pass down"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đối mặt với</label>
+      <label><span class="opt-letter">B.</span> giải quyết</label>
+      <label><span class="opt-letter">C.</span> tiếp quản</label>
+      <label><span class="opt-letter">D.</span> truyền lại</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">7.</span> A <span class="q-word">"loom"</span> is:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> sợi chỉ</label>
+      <label><span class="opt-letter">B.</span> khung cửi</label>
+      <label><span class="opt-letter">C.</span> bề mặt</label>
+      <label><span class="opt-letter">D.</span> lớp</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">8.</span> <span class="q-word">"Turn down"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> xuất hiện</label>
+      <label><span class="opt-letter">B.</span> khởi hành</label>
+      <label><span class="opt-letter">C.</span> từ chối</label>
+      <label><span class="opt-letter">D.</span> thành lập</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">9.</span> <span class="q-word">"Pottery"</span> refers to:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đồ gốm</label>
+      <label><span class="opt-letter">B.</span> đồ sơn mài</label>
+      <label><span class="opt-letter">C.</span> đồ tạo tác</label>
+      <label><span class="opt-letter">D.</span> điêu khắc đá</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">10.</span> <span class="q-word">"Set up"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đóng cửa</label>
+      <label><span class="opt-letter">B.</span> thành lập</label>
+      <label><span class="opt-letter">C.</span> sống dựa vào</label>
+      <label><span class="opt-letter">D.</span> trông mong</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">11.</span> An <span class="q-word">"artisan"</span> is a person who:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> làm đồ tạo tác</label>
+      <label><span class="opt-letter">B.</span> làm thủ công</label>
+      <label><span class="opt-letter">C.</span> bảo tồn di tích</label>
+      <label><span class="opt-letter">D.</span> điêu khắc đá</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">12.</span> <span class="q-word">"Face up to"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> trông mong</label>
+      <label><span class="opt-letter">B.</span> có quan hệ tốt với</label>
+      <label><span class="opt-letter">C.</span> đối mặt với</label>
+      <label><span class="opt-letter">D.</span> sống dựa vào</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">13.</span> To <span class="q-word">"cast"</span> metal means to:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> chạm khắc</label>
+      <label><span class="opt-letter">B.</span> xử lý</label>
+      <label><span class="opt-letter">C.</span> tạo khuôn</label>
+      <label><span class="opt-letter">D.</span> đúc kim loại</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">14.</span> <span class="q-word">"Numerous"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> ít ỏi</label>
+      <label><span class="opt-letter">B.</span> đa năng</label>
+      <label><span class="opt-letter">C.</span> chân thật</label>
+      <label><span class="opt-letter">D.</span> nhiều, đông đảo</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">15.</span> <span class="q-word">"Take over"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> truyền lại</label>
+      <label><span class="opt-letter">B.</span> tiếp quản</label>
+      <label><span class="opt-letter">C.</span> khởi hành</label>
+      <label><span class="opt-letter">D.</span> giải quyết</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">16.</span> <span class="q-word">"Conical hat"</span> refers to:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> khung cửi</label>
+      <label><span class="opt-letter">B.</span> nón lá</label>
+      <label><span class="opt-letter">C.</span> mặt trống</label>
+      <label><span class="opt-letter">D.</span> cây liễu</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">17.</span> To <span class="q-word">"weave"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> đan, dệt</label>
+      <label><span class="opt-letter">B.</span> đan len</label>
+      <label><span class="opt-letter">C.</span> chạm khắc</label>
+      <label><span class="opt-letter">D.</span> tạo khuôn</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">18.</span> <span class="q-word">"Close down"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> thành lập</label>
+      <label><span class="opt-letter">B.</span> tiếp quản</label>
+      <label><span class="opt-letter">C.</span> đóng cửa</label>
+      <label><span class="opt-letter">D.</span> xuất hiện</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">19.</span> <span class="q-word">"Authenticity"</span> means:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> điểm hấp dẫn</label>
+      <label><span class="opt-letter">B.</span> tính chân thật</label>
+      <label><span class="opt-letter">C.</span> tinh thần đồng đội</label>
+      <label><span class="opt-letter">D.</span> giai đoạn</label>
+    </div>
+  </div>
+  <div class="mc-question">
+    <p><span class="q-num">20.</span> A <span class="q-word">"craftsman"</span> is:</p>
+    <div class="mc-options">
+      <label><span class="opt-letter">A.</span> thợ thủ công</label>
+      <label><span class="opt-letter">B.</span> nghề thủ công</label>
+      <label><span class="opt-letter">C.</span> sản phẩm thủ công</label>
+      <label><span class="opt-letter">D.</span> công xưởng</label>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FILL IN THE BLANKS ==================== -->
+<div class="page-break"></div>
+<div class="section-title"><span class="icon">✏️</span> PART 3: Fill in the Blanks (Điền từ vào chỗ trống)</div>
+<p class="section-subtitle">Use the words from the box below to complete the sentences. Each word is used ONCE only.</p>
+
+<div class="word-bank">
+  <span class="bank-word">pottery</span>
+  <span class="bank-word">craftsman</span>
+  <span class="bank-word">preserve</span>
+  <span class="bank-word">weave</span>
+  <span class="bank-word">lacquerware</span>
+  <span class="bank-word">workshop</span>
+  <span class="bank-word">carve</span>
+  <span class="bank-word">thread</span>
+  <span class="bank-word">mould</span>
+  <span class="bank-word">handicraft</span>
+  <span class="bank-word">loom</span>
+  <span class="bank-word">versatile</span>
+</div>
+
+<ol class="fill-questions">
+  <li><span class="q-num">1.</span> Bat Trang village is famous for its beautiful <span class="blank">&nbsp;</span>. Tourists come here to see how clay pots and vases are made.</li>
+  <li><span class="q-num">2.</span> The old <span class="blank">&nbsp;</span> has been making traditional drums for over 40 years. He learned the skill from his grandfather.</li>
+  <li><span class="q-num">3.</span> We should <span class="blank">&nbsp;</span> traditional craft villages so that future generations can learn about our culture.</li>
+  <li><span class="q-num">4.</span> The women in the village use a <span class="blank">&nbsp;</span> to <span class="blank">&nbsp;</span> beautiful silk fabrics with colorful patterns.</li>
+  <li><span class="q-num">5.</span> Vietnamese <span class="blank">&nbsp;</span> is well-known around the world for its shiny, smooth finish and delicate designs.</li>
+  <li><span class="q-num">6.</span> The artisans <span class="blank">&nbsp;</span> intricate patterns on the wooden surface using special tools.</li>
+  <li><span class="q-num">7.</span> She bought a beautiful <span class="blank">&nbsp;</span> made by local artisans as a souvenir from the trip.</li>
+  <li><span class="q-num">8.</span> The artist uses thin <span class="blank">&nbsp;</span> to embroider flowers on the fabric.</li>
+  <li><span class="q-num">9.</span> The potter carefully <span class="blank">&nbsp;</span> the wet clay into the shape of a bowl on the spinning wheel.</li>
+  <li><span class="q-num">10.</span> Bamboo is a <span class="blank">&nbsp;</span> material that can be used to make many different products.</li>
+  <li><span class="q-num">11.</span> The children visited a <span class="blank">&nbsp;</span> where artisans demonstrated how to make paper lanterns.</li>
+</ol>
+
+<div style="margin-top: 5mm;"></div>
+
+<div class="section-title"><span class="icon">📝</span> PART 4: Fill in the Blanks – Phrasal Verbs (Điền cụm động từ)</div>
+<p class="section-subtitle">Use the phrasal verbs from the box below to complete the sentences. Each phrasal verb is used ONCE only.</p>
+
+<div class="word-bank">
+  <span class="bank-word">close down</span>
+  <span class="bank-word">deal with</span>
+  <span class="bank-word">face up to</span>
+  <span class="bank-word">get on with</span>
+  <span class="bank-word">live on</span>
+  <span class="bank-word">look forward to</span>
+  <span class="bank-word">pass down</span>
+  <span class="bank-word">set off</span>
+  <span class="bank-word">set up</span>
+  <span class="bank-word">take over</span>
+  <span class="bank-word">turn down</span>
+  <span class="bank-word">turn up</span>
+</div>
+
+<ol class="fill-questions">
+  <li><span class="q-num">1.</span> The traditional craft has been <span class="blank">&nbsp;</span> from generation to generation for hundreds of years.</li>
+  <li><span class="q-num">2.</span> Many old workshops had to <span class="blank">&nbsp;</span> because they couldn't compete with modern factories.</li>
+  <li><span class="q-num">3.</span> We <span class="blank">&nbsp;</span> early in the morning to visit the craft village before it got too crowded.</li>
+  <li><span class="q-num">4.</span> The young man decided to <span class="blank">&nbsp;</span> his father's pottery business after finishing university.</li>
+  <li><span class="q-num">5.</span> The villagers have to <span class="blank">&nbsp;</span> the challenge of keeping their traditional crafts alive.</li>
+  <li><span class="q-num">6.</span> Most artisans in this village <span class="blank">&nbsp;</span> making and selling handicrafts.</li>
+  <li><span class="q-num">7.</span> She was offered a job in the city, but she <span class="blank">&nbsp;</span> the offer to stay and help her family's workshop.</li>
+  <li><span class="q-num">8.</span> He <span class="blank">&nbsp;</span> a small business selling handmade jewelry online.</li>
+  <li><span class="q-num">9.</span> The manager knows how to <span class="blank">&nbsp;</span> difficult customers professionally.</li>
+  <li><span class="q-num">10.</span> I <span class="blank">&nbsp;</span> visiting the ancient craft village during our school trip next month.</li>
+  <li><span class="q-num">11.</span> He didn't <span class="blank">&nbsp;</span> at the meeting, so we started without him.</li>
+  <li><span class="q-num">12.</span> She <span class="blank">&nbsp;</span> all her colleagues very well; everyone likes working with her.</li>
+</ol>
+
+<!-- ==================== ANSWER KEY ==================== -->
+<div class="page-break"></div>
+<div class="section-title"><span class="icon">🔑</span> ANSWER KEY (Đáp án)</div>
+
+<div class="answer-section">
+  <h3>Part 2 – Multiple Choice</h3>
+  <div class="answer-grid">
+    <span>1. B</span><span>2. C</span><span>3. B</span><span>4. B</span><span>5. C</span>
+    <span>6. D</span><span>7. B</span><span>8. C</span><span>9. A</span><span>10. B</span>
+    <span>11. B</span><span>12. C</span><span>13. D</span><span>14. D</span><span>15. B</span>
+    <span>16. B</span><span>17. A</span><span>18. C</span><span>19. B</span><span>20. A</span>
+  </div>
+</div>
+
+<div class="answer-section">
+  <h3>Part 3 – Fill in the Blanks (Vocabulary)</h3>
+  <ol class="answer-full-list">
+    <li>
+      <span class="ans-eng">Bat Trang village is famous for its beautiful <span class="ans-word">pottery</span> (đồ gốm). Tourists come here to see how clay pots and vases are made.</span>
+      <span class="ans-vi">→ Làng Bát Tràng nổi tiếng với đồ gốm đẹp. Du khách đến đây để xem cách làm bình và lọ đất sét.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The old <span class="ans-word">craftsman</span> (thợ thủ công) has been making traditional drums for over 40 years. He learned the skill from his grandfather.</span>
+      <span class="ans-vi">→ Người thợ thủ công già đã làm trống truyền thống hơn 40 năm. Ông ấy học nghề từ ông nội.</span>
+    </li>
+    <li>
+      <span class="ans-eng">We should <span class="ans-word">preserve</span> (bảo tồn) traditional craft villages so that future generations can learn about our culture.</span>
+      <span class="ans-vi">→ Chúng ta nên bảo tồn các làng nghề truyền thống để thế hệ tương lai có thể tìm hiểu về văn hóa của chúng ta.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The women in the village use a <span class="ans-word">loom</span> (khung cửi) to <span class="ans-word">weave</span> (đan, dệt) beautiful silk fabrics with colorful patterns.</span>
+      <span class="ans-vi">→ Những người phụ nữ trong làng sử dụng khung cửi để dệt những tấm vải lụa đẹp với hoa văn đầy màu sắc.</span>
+    </li>
+    <li>
+      <span class="ans-eng">Vietnamese <span class="ans-word">lacquerware</span> (đồ sơn mài) is well-known around the world for its shiny, smooth finish and delicate designs.</span>
+      <span class="ans-vi">→ Đồ sơn mài Việt Nam nổi tiếng khắp thế giới nhờ lớp bóng mịn và thiết kế tinh xảo.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The artisans <span class="ans-word">carve</span> (chạm khắc) intricate patterns on the wooden surface using special tools.</span>
+      <span class="ans-vi">→ Các nghệ nhân chạm khắc những hoa văn tinh xảo trên bề mặt gỗ bằng các dụng cụ đặc biệt.</span>
+    </li>
+    <li>
+      <span class="ans-eng">She bought a beautiful <span class="ans-word">handicraft</span> (sản phẩm thủ công) made by local artisans as a souvenir from the trip.</span>
+      <span class="ans-vi">→ Cô ấy mua một sản phẩm thủ công đẹp do nghệ nhân địa phương làm để làm quà lưu niệm.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The artist uses thin <span class="ans-word">thread</span> (sợi chỉ) to embroider flowers on the fabric.</span>
+      <span class="ans-vi">→ Nghệ nhân sử dụng sợi chỉ mỏng để thêu hoa trên vải.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The potter carefully <span class="ans-word">moulds</span> (tạo khuôn) the wet clay into the shape of a bowl on the spinning wheel.</span>
+      <span class="ans-vi">→ Người thợ gốm cẩn thận tạo khuôn đất sét ướt thành hình chiếc bát trên bàn xoay.</span>
+    </li>
+    <li>
+      <span class="ans-eng">Bamboo is a <span class="ans-word">versatile</span> (đa năng) material that can be used to make many different products.</span>
+      <span class="ans-vi">→ Tre là một vật liệu đa năng có thể được sử dụng để làm nhiều sản phẩm khác nhau.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The children visited a <span class="ans-word">workshop</span> (công xưởng) where artisans demonstrated how to make paper lanterns.</span>
+      <span class="ans-vi">→ Các em nhỏ đã đến thăm một công xưởng nơi các nghệ nhân trình diễn cách làm đèn lồng giấy.</span>
+    </li>
+  </ol>
+</div>
+
+<div class="answer-section">
+  <h3>Part 4 – Fill in the Blanks (Phrasal Verbs)</h3>
+  <ol class="answer-full-list">
+    <li>
+      <span class="ans-eng">The traditional craft has been <span class="ans-word">passed down</span> (truyền lại) from generation to generation for hundreds of years.</span>
+      <span class="ans-vi">→ Nghề thủ công truyền thống đã được truyền lại từ đời này sang đời khác trong hàng trăm năm.</span>
+    </li>
+    <li>
+      <span class="ans-eng">Many old workshops had to <span class="ans-word">close down</span> (đóng cửa) because they couldn't compete with modern factories.</span>
+      <span class="ans-vi">→ Nhiều xưởng cũ đã phải đóng cửa vì không thể cạnh tranh với các nhà máy hiện đại.</span>
+    </li>
+    <li>
+      <span class="ans-eng">We <span class="ans-word">set off</span> (khởi hành) early in the morning to visit the craft village before it got too crowded.</span>
+      <span class="ans-vi">→ Chúng tôi khởi hành sớm vào buổi sáng để đến thăm làng nghề trước khi quá đông.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The young man decided to <span class="ans-word">take over</span> (tiếp quản) his father's pottery business after finishing university.</span>
+      <span class="ans-vi">→ Chàng trai trẻ quyết định tiếp quản cơ sở gốm của cha sau khi tốt nghiệp đại học.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The villagers have to <span class="ans-word">face up to</span> (đối mặt với) the challenge of keeping their traditional crafts alive.</span>
+      <span class="ans-vi">→ Dân làng phải đối mặt với thách thức giữ gìn nghề thủ công truyền thống.</span>
+    </li>
+    <li>
+      <span class="ans-eng">Most artisans in this village <span class="ans-word">live on</span> (sống dựa vào) making and selling handicrafts.</span>
+      <span class="ans-vi">→ Hầu hết nghệ nhân trong làng sống dựa vào việc làm và bán sản phẩm thủ công.</span>
+    </li>
+    <li>
+      <span class="ans-eng">She was offered a job in the city, but she <span class="ans-word">turned down</span> (từ chối) the offer to stay and help her family's workshop.</span>
+      <span class="ans-vi">→ Cô ấy được mời làm việc ở thành phố, nhưng cô ấy từ chối lời đề nghị để ở lại giúp xưởng gia đình.</span>
+    </li>
+    <li>
+      <span class="ans-eng">He <span class="ans-word">set up</span> (thành lập) a small business selling handmade jewelry online.</span>
+      <span class="ans-vi">→ Anh ấy thành lập một doanh nghiệp nhỏ bán trang sức thủ công trực tuyến.</span>
+    </li>
+    <li>
+      <span class="ans-eng">The manager knows how to <span class="ans-word">deal with</span> (giải quyết) difficult customers professionally.</span>
+      <span class="ans-vi">→ Quản lý biết cách giải quyết các khách hàng khó tính một cách chuyên nghiệp.</span>
+    </li>
+    <li>
+      <span class="ans-eng">I <span class="ans-word">look forward to</span> (trông mong) visiting the ancient craft village during our school trip next month.</span>
+      <span class="ans-vi">→ Tôi rất trông mong được đến thăm làng nghề cổ trong chuyến đi dã ngoại tháng tới.</span>
+    </li>
+    <li>
+      <span class="ans-eng">He didn't <span class="ans-word">turn up</span> (xuất hiện) at the meeting, so we started without him.</span>
+      <span class="ans-vi">→ Anh ấy không xuất hiện tại cuộc họp, nên chúng tôi bắt đầu mà không có anh ấy.</span>
+    </li>
+    <li>
+      <span class="ans-eng">She <span class="ans-word">gets on with</span> (có quan hệ tốt với) all her colleagues very well; everyone likes working with her.</span>
+      <span class="ans-vi">→ Cô ấy có quan hệ tốt với tất cả đồng nghiệp; mọi người đều thích làm việc với cô ấy.</span>
+    </li>
+  </ol>
+</div>
+
+</body>
+</html>

@@ -125,6 +125,46 @@ class RemoveFromStudyOut(Schema):
 
 # ── Endpoints ──────────────────────────────────────────────
 
+
+class N1VocabItemOut(Schema):
+    id: int
+    char: str
+    sino_vi: str
+    onyomi: str
+    kunyomi: str
+    meaning_vi: str
+    order: int
+    lesson_number: int
+    lesson_topic: str
+
+
+@router.get("/n1-vocab", response=list[dict], auth=None)
+def n1_vocab_list(request):
+    """Return all N1 vocabulary grouped by lesson for the /jlpt/n1/vocabulary page."""
+    lessons = (
+        KanjiLesson.objects
+        .filter(jlpt_level="N1")
+        .prefetch_related("kanjis")
+        .order_by("lesson_number")
+    )
+    result = []
+    global_order = 1
+    for lesson in lessons:
+        for k in lesson.kanjis.order_by("order", "id"):
+            result.append({
+                "id": k.id,
+                "stt": global_order,
+                "char": k.char,
+                "onyomi": k.onyomi,
+                "kunyomi": k.kunyomi,
+                "sino_vi": k.sino_vi,
+                "meaning_vi": k.meaning_vi,
+                "lesson_number": lesson.lesson_number,
+                "lesson_topic": lesson.topic,
+            })
+            global_order += 1
+    return result
+
 @router.get("/levels", response=List[JLPTGroupOut], auth=None)
 def kanji_levels(request):
     """Return all JLPT levels grouped with their lessons and kanji characters."""
