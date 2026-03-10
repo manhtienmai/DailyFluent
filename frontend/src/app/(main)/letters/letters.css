@@ -1,0 +1,283 @@
+.letters-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── Header ── */
+.letters-header {
+  text-align: center;
+  padding: 40px 0 32px;
+}
+
+.letters-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.letters-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--text-tertiary);
+}
+
+.letters-count {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+
+/* ── Grid ── */
+.letters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 40px;
+}
+
+/* ── Card ── */
+.letter-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-light, rgba(0,0,0,0.06));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.letter-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.letter-num {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.letter-num.warm { background: linear-gradient(135deg, #f97316, #ef4444); }
+.letter-num.encouraging { background: linear-gradient(135deg, #10b981, #06b6d4); }
+.letter-num.reflective { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+.letter-num.hopeful { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+.letter-num.grateful { background: linear-gradient(135deg, #f59e0b, #f97316); }
+.letter-num.brave { background: linear-gradient(135deg, #ef4444, #ec4899); }
+
+.letter-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.letter-title-vi {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--text-primary);
+}
+
+.letter-title-sub {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 12px;
+}
+
+.letter-arrow {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.letter-card:hover .letter-arrow {
+  opacity: 1;
+  color: #6366f1;
+}
+
+/* ── Detail page ── */
+.letter-detail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 60px;
+}
+
+.letter-detail-header {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+
+.letter-detail-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.letter-detail-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+}
+
+.letter-detail-title-en {
+  font-size: 1rem;
+  color: var(--text-tertiary);
+  margin: 0 0 4px;
+}
+
+.letter-detail-title-ja {
+  font-size: 1rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Language tabs ── */
+.letter-lang-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-secondary, #f1f5f9);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.letter-lang-tab {
+  flex: 1;
+  max-width: 140px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.letter-lang-tab.active {
+  background: var(--bg-card, #fff);
+  color: #6366f1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* ── Content ── */
+.letter-content-box {
+  background: var(--bg-card, #fff);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border-light, rgba(0,0,0,0.06));
+  line-height: 1.85;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  min-height: 200px;
+}
+
+.letter-content-box.ja {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 1.1rem;
+  line-height: 2;
+}
+
+.ja-paragraph {
+  margin-bottom: 12px;
+}
+
+.ja-reading {
+  display: block;
+  font-size: 0.78rem;
+  color: #6366f1;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Navigation ── */
+.letter-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.letter-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light, rgba(0,0,0,0.1));
+  background: var(--bg-card, #fff);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.letter-nav-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.letter-nav-btn.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ── Tags ── */
+.letter-tags {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.letter-tag {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+}
+
+@media (max-width: 640px) {
+  .letters-header h1 { font-size: 1.4rem; }
+  .letter-card { padding: 14px 16px; gap: 12px; }
+  .letter-num { width: 38px; height: 38px; font-size: 0.95rem; border-radius: 10px; }
+  .letter-title-vi { font-size: 0.92rem; }
+  .letter-content-box { padding: 20px; font-size: 0.98rem; }
+  .letter-detail-title { font-size: 1.25rem; }
+}

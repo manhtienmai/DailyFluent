@@ -17,6 +17,8 @@ from .models import Kanji, KanjiLesson, KanjiVocab, UserKanjiProgress
 router = Router()
 
 JLPT_ORDER = ["N5", "N4", "N3", "N2", "N1", "BT"]
+# N1 entries are multi-character vocabulary, not single kanji → exclude from kanji grid
+KANJI_LEVELS_ORDER = ["N5", "N4", "N3", "N2", "BT"]
 
 
 # ── Schemas ────────────────────────────────────────────────
@@ -170,7 +172,7 @@ def kanji_levels(request):
     """Return all JLPT levels grouped with their lessons and kanji characters."""
     from django.core.cache import cache
 
-    cache_key = "kanji_levels_v1"
+    cache_key = "kanji_levels_v2"
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -181,7 +183,7 @@ def kanji_levels(request):
         .order_by("jlpt_level", "order", "lesson_number")
     )
 
-    grouped: dict[str, list] = {lvl: [] for lvl in JLPT_ORDER}
+    grouped: dict[str, list] = {lvl: [] for lvl in KANJI_LEVELS_ORDER}
     for lesson in lessons:
         if lesson.jlpt_level in grouped:
             grouped[lesson.jlpt_level].append(lesson)
@@ -211,7 +213,7 @@ def kanji_levels(request):
             ],
             total_kanji=sum(len(lesson.kanjis.all()) for lesson in grouped[lvl]),
         )
-        for lvl in JLPT_ORDER
+        for lvl in KANJI_LEVELS_ORDER
         if grouped[lvl]
     ]
     cache.set(cache_key, result, 3600)  # 1 hour

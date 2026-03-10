@@ -936,6 +936,73 @@ def en10_vocab_progress_toggle(request, slug: str, payload: VocabProgressIn):
     }
 
 
+# ── 999 Letters endpoints ─────────────────────────────────
+
+@router.get("/letters", auth=None)
+@router.get("/letters/", auth=None)
+def letters_list(request):
+    """List all 999 letters (titles only)."""
+    import json
+    from pathlib import Path
+    from django.core.cache import cache
+
+    cache_key = "letters_999_list"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    fixture = Path(__file__).parent / "fixtures" / "letters_999.json"
+    if not fixture.exists():
+        return {"letters": [], "total": 0}
+
+    data = json.loads(fixture.read_text(encoding="utf-8"))
+    letters = [
+        {
+            "number": item["number"],
+            "title": item["title"],
+            "tags": item.get("tags", []),
+            "mood": item.get("mood", "warm"),
+        }
+        for item in data
+    ]
+
+    result = {"letters": letters, "total": len(letters)}
+    cache.set(cache_key, result, 3600)
+    return result
+
+
+@router.get("/letters/{number}", auth=None)
+def letter_detail(request, number: int):
+    """Get a single letter with full content in 3 languages."""
+    import json
+    from pathlib import Path
+    from django.core.cache import cache
+
+    cache_key = f"letter_999_{number}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    fixture = Path(__file__).parent / "fixtures" / "letters_999.json"
+    if not fixture.exists():
+        raise HttpError(404, "Letters data not found")
+
+    data = json.loads(fixture.read_text(encoding="utf-8"))
+    letter = next((item for item in data if item["number"] == number), None)
+    if not letter:
+        raise HttpError(404, f"Letter #{number} not found")
+
+    # Get prev/next
+    numbers = sorted(item["number"] for item in data)
+    idx = numbers.index(number)
+    prev_num = numbers[idx - 1] if idx > 0 else None
+    next_num = numbers[idx + 1] if idx < len(numbers) - 1 else None
+
+    result = {**letter, "prev": prev_num, "next": next_num, "total": len(data)}
+    cache.set(cache_key, result, 3600)
+    return result
+
+
 # ── English 10th Grade Exam endpoints ─────────────────────
 # NOTE: Must appear BEFORE the catch-all /{slug} route
 

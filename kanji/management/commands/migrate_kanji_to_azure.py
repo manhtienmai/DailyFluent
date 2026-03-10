@@ -10,6 +10,7 @@ Usage:
 """
 
 import sys
+import time
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.db import connections
@@ -57,13 +58,23 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO(f"{'=' * 60}"))
 
     def _ok(self, msg):
-        self.stdout.write(self.style.SUCCESS(f"  ✓ {msg}"))
+        self.stdout.write(self.style.SUCCESS(f"  [OK] {msg}"))
 
     def _skip(self, msg):
-        self.stdout.write(self.style.WARNING(f"  ⏭ {msg}"))
+        self.stdout.write(self.style.WARNING(f"  [SKIP] {msg}"))
 
     def _err(self, msg):
-        self.stdout.write(self.style.ERROR(f"  ✗ {msg}"))
+        self.stdout.write(self.style.ERROR(f"  [ERR] {msg}"))
+
+    def _progress(self, current, total, label=""):
+        pct = int(current / total * 100) if total else 100
+        bar_len = 30
+        filled = int(bar_len * current / total) if total else bar_len
+        bar = '#' * filled + '-' * (bar_len - filled)
+        sys.stdout.write(f"\r  [{bar}] {pct:3d}% ({current}/{total}) {label}")
+        sys.stdout.flush()
+        if current >= total:
+            sys.stdout.write("\n")
 
     # ── main ──────────────────────────────────────────────
 
@@ -159,8 +170,10 @@ class Command(BaseCommand):
         id_map = {}  # old_id → new_id
         lessons = list(KanjiLesson.objects.using("default").all())
 
-        for lesson in lessons:
+        total = len(lessons)
+        for i, lesson in enumerate(lessons, 1):
             old_id = lesson.pk
+            self._progress(i, total, f"{lesson.jlpt_level} Bai {lesson.lesson_number}")
             try:
                 existing = KanjiLesson.objects.using(AZURE_DB).filter(
                     jlpt_level=lesson.jlpt_level,
@@ -191,7 +204,7 @@ class Command(BaseCommand):
                 self._err(f"KanjiLesson {lesson}: {e}")
                 stats["errors"] += 1
 
-        self._ok(f"Processed {len(lessons)} lessons, mapped {len(id_map)} IDs.")
+        self._ok(f"Processed {total} lessons, mapped {len(id_map)} IDs.")
         return id_map
 
     def _migrate_kanjis(self, lesson_id_map, batch_size, force_update, stats):
@@ -201,8 +214,10 @@ class Command(BaseCommand):
         id_map = {}  # old_id → new_id
         kanjis = list(Kanji.objects.using("default").select_related("lesson").all())
 
-        for kanji in kanjis:
+        total = len(kanjis)
+        for i, kanji in enumerate(kanjis, 1):
             old_id = kanji.pk
+            self._progress(i, total, kanji.char)
             try:
                 existing = Kanji.objects.using(AZURE_DB).filter(char=kanji.char).first()
 
@@ -245,7 +260,7 @@ class Command(BaseCommand):
                 self._err(f"Kanji {kanji.char}: {e}")
                 stats["errors"] += 1
 
-        self._ok(f"Processed {len(kanjis)} kanji, mapped {len(id_map)} IDs.")
+        self._ok(f"Processed {total} kanji, mapped {len(id_map)} IDs.")
         return id_map
 
     def _migrate_kanji_vocabs(self, kanji_id_map, batch_size, force_update, stats):
@@ -259,10 +274,11 @@ class Command(BaseCommand):
         )
         processed = 0
 
-        for vocab in vocabs:
+        total = len(vocabs)
+        for i, vocab in enumerate(vocabs, 1):
+            self._progress(i, total, vocab.word)
             new_kanji_id = kanji_id_map.get(vocab.kanji_id)
             if not new_kanji_id:
-                self._err(f"KanjiVocab '{vocab.word}': kanji_id {vocab.kanji_id} not in map.")
                 stats["errors"] += 1
                 continue
 
@@ -278,7 +294,6 @@ class Command(BaseCommand):
                         existing.meaning = vocab.meaning
                         existing.priority = vocab.priority
                         existing.jlpt_level = vocab.jlpt_level
-                        # Note: vocabulary FK skipped (cross-app reference)
                         existing.save(using=AZURE_DB)
                         stats["updated"] += 1
                     else:
@@ -291,7 +306,6 @@ class Command(BaseCommand):
                         meaning=vocab.meaning,
                         priority=vocab.priority,
                         jlpt_level=vocab.jlpt_level,
-                        # vocabulary FK is left null (cross-app, will be linked later)
                     )
                     new.save(using=AZURE_DB)
                     stats["created"] += 1
@@ -300,7 +314,7 @@ class Command(BaseCommand):
                 self._err(f"KanjiVocab '{vocab.word}': {e}")
                 stats["errors"] += 1
 
-        self._ok(f"Processed {processed}/{len(vocabs)} vocab entries.")
+        self._ok(f"Processed {processed}/{total} vocab entries.")
 
     def _migrate_quiz_questions(self, kanji_id_map, batch_size, force_update, stats):
         """Migrate KanjiQuizQuestion (FK → Kanji)."""
@@ -313,10 +327,11 @@ class Command(BaseCommand):
         )
         processed = 0
 
-        for qq in questions:
+        total = len(questions)
+        for i, qq in enumerate(questions, 1):
+            self._progress(i, total, f"{qq.kanji.char} {qq.question_type}")
             new_kanji_id = kanji_id_map.get(qq.kanji_id)
             if not new_kanji_id:
-                self._err(f"QuizQuestion for kanji_id {qq.kanji_id}: not in map.")
                 stats["errors"] += 1
                 continue
 
@@ -348,7 +363,7 @@ class Command(BaseCommand):
                 self._err(f"QuizQuestion kanji={qq.kanji.char} type={qq.question_type}: {e}")
                 stats["errors"] += 1
 
-        self._ok(f"Processed {processed}/{len(questions)} quiz questions.")
+        self._ok(f"Processed {processed}/{total} quiz questions.")
 
     def _migrate_user_progress(self, kanji_id_map, batch_size, force_update, stats):
         """Migrate UserKanjiProgress (FK → Kanji, FK → User)."""
@@ -396,7 +411,9 @@ class Command(BaseCommand):
                     self._err(f"Failed to create user '{email}' on Azure: {e}")
 
         processed = 0
-        for entry in progress_entries:
+        total = len(progress_entries)
+        for i, entry in enumerate(progress_entries, 1):
+            self._progress(i, total, f"{entry.kanji.char}")
             new_kanji_id = kanji_id_map.get(entry.kanji_id)
             azure_user_id = azure_users.get(entry.user.email) if entry.user else None
 
@@ -434,4 +451,4 @@ class Command(BaseCommand):
                 self._err(f"UserKanjiProgress user={entry.user.email} kanji={entry.kanji.char}: {e}")
                 stats["errors"] += 1
 
-        self._ok(f"Processed {processed}/{len(progress_entries)} progress entries.")
+        self._ok(f"Processed {processed}/{total} progress entries.")

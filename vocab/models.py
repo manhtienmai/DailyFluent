@@ -271,6 +271,7 @@ class ExampleSentence(models.Model):
         TOEIC_990 = 'toeic_990', 'TOEIC 990'
         MIMIKARA_N2 = 'mimikara_n2', 'Mimikara N2'
         OXFORD = 'oxford', 'Oxford'
+        GEMINI = 'gemini', 'Gemini AI'
         USER = 'user', 'User'
         OTHER = 'other', 'Other'
 

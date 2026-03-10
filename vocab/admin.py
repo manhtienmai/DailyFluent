@@ -121,6 +121,9 @@ class VocabularyAdmin(ChoukaiToolMixin, nested_admin.NestedModelAdmin):
             path('quiz-generate/batch-api/', self.admin_site.admin_view(self.quiz_generate_batch_api), name='vocab_vocabulary_quiz_generate_batch_api'),
             path('quiz-generate/load-set/', self.admin_site.admin_view(self.quiz_load_set_api), name='vocab_vocabulary_quiz_load_set'),
             path('quiz-generate/collection-sets/', self.admin_site.admin_view(self.quiz_collection_sets_api), name='vocab_vocabulary_quiz_collection_sets'),
+            # Example Generation (Gemini)
+            path('example-generate/load-set/', self.admin_site.admin_view(self.example_load_set_api), name='vocab_vocabulary_example_load_set'),
+            path('example-generate/generate/', self.admin_site.admin_view(self.example_generate_api), name='vocab_vocabulary_example_generate'),
         ]
         return custom_urls + urls
 
@@ -1216,6 +1219,88 @@ class VocabularyAdmin(ChoukaiToolMixin, nested_admin.NestedModelAdmin):
             lesson_count=len(lessons),
         )
         return render(request, "admin/vocab/vocabulary/distribute_jp.html", context)
+
+    # ═══════════════════════════════════════════════════════════
+    # Example Generation (Gemini) API
+    # ═══════════════════════════════════════════════════════════
+
+    def example_load_set_api(self, request):
+        """Load items in a VocabularySet with example sentence counts."""
+        set_id = request.GET.get('set_id')
+        if not set_id:
+            return JsonResponse({'error': 'set_id required'}, status=400)
+
+        items = SetItem.objects.filter(
+            vocabulary_set_id=set_id
+        ).select_related(
+            'definition__entry__vocab'
+        ).prefetch_related(
+            'definition__examples'
+        ).order_by('display_order')
+
+        result = []
+        for item in items:
+            defn = item.definition
+            vocab = defn.entry.vocab
+            extra = vocab.extra_data or {}
+            example_count = defn.examples.count()
+            gemini_count = defn.examples.filter(source='gemini').count()
+            usage = (defn.extra_data or {}).get('usage', '')
+
+            result.append({
+                'id': item.id,
+                'definition_id': defn.id,
+                'word': vocab.word,
+                'reading': extra.get('reading', ''),
+                'meaning': defn.meaning,
+                'example_count': example_count,
+                'gemini_count': gemini_count,
+                'has_examples': example_count > 0,
+                'usage': usage,
+            })
+
+        return JsonResponse({'items': result})
+
+    def example_generate_api(self, request):
+        """Generate example sentences for a single WordDefinition via Gemini."""
+        if request.method != 'POST':
+            return JsonResponse({'status': 'error', 'message': 'POST required'}, status=405)
+
+        try:
+            data = json.loads(request.body)
+            definition_id = data.get('definition_id')
+            model_name = data.get('model', 'gemini-2.5-flash')
+
+            if not definition_id:
+                return JsonResponse({'status': 'error', 'message': 'definition_id required'}, status=400)
+
+            from .services.example_generator import generate_and_save_for_definition
+            saved_count, error = generate_and_save_for_definition(definition_id, model_name=model_name)
+
+            if error:
+                return JsonResponse({'status': 'error', 'message': error})
+
+            # Return fresh data
+            defn = WordDefinition.objects.select_related('entry__vocab').get(pk=definition_id)
+            examples = list(defn.examples.filter(source='gemini').values(
+                'sentence', 'translation', 'order'
+            ))
+            usage = (defn.extra_data or {}).get('usage', '')
+            gemini_examples = (defn.extra_data or {}).get('gemini_examples', [])
+
+            return JsonResponse({
+                'status': 'success',
+                'word': defn.entry.vocab.word,
+                'saved_count': saved_count,
+                'usage': usage,
+                'examples': examples,
+                'gemini_examples': gemini_examples,
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
 @admin.register(WordEntry)

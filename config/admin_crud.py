@@ -1936,6 +1936,94 @@ def quiz_load_set(request, set_id: int = 0):
     except Exception as e:
         return {"items": [], "error": str(e)}
 
+# ═══════════════════════════════════════════════════════════
+# ── VOCAB EXAMPLE GENERATION (Gemini) ──
+# ═══════════════════════════════════════════════════════════
+
+@router.get("/vocab/example/load-set/")
+def example_load_set(request, set_id: int = 0):
+    """Load words in a VocabularySet with example sentence counts."""
+    if not staff_required(request):
+        return {"items": []}
+    if not set_id:
+        return {"items": []}
+    try:
+        from vocab.models import SetItem
+        items = SetItem.objects.filter(
+            vocabulary_set_id=set_id,
+        ).select_related(
+            'definition__entry__vocab'
+        ).prefetch_related(
+            'definition__examples'
+        ).order_by('display_order', 'id')
+
+        result = []
+        for item in items:
+            defn = item.definition
+            vocab = defn.entry.vocab
+            extra = vocab.extra_data or {}
+            example_count = defn.examples.count()
+            gemini_count = defn.examples.filter(source='gemini').count()
+            usage = (defn.extra_data or {}).get('usage', '')
+            gemini_examples = (defn.extra_data or {}).get('gemini_examples', [])
+
+            result.append({
+                'id': item.id,
+                'definition_id': defn.id,
+                'word': vocab.word,
+                'reading': extra.get('reading', ''),
+                'meaning': defn.meaning,
+                'example_count': example_count,
+                'gemini_count': gemini_count,
+                'has_examples': example_count > 0,
+                'usage': usage,
+                'gemini_examples': gemini_examples,
+            })
+        return {"items": result}
+    except Exception as e:
+        return {"items": [], "error": str(e)}
+
+
+@router.post("/vocab/example/generate/")
+def example_generate(request):
+    """Generate example sentences for a single WordDefinition via Gemini."""
+    if not staff_required(request):
+        return {"status": "error", "message": "Unauthorized"}
+    try:
+        import json as _json
+        data = _json.loads(request.body)
+        definition_id = data.get('definition_id')
+        model_name = data.get('model', 'gemini-2.5-flash')
+
+        if not definition_id:
+            return {"status": "error", "message": "definition_id required"}
+
+        from vocab.services.example_generator import generate_and_save_for_definition
+        saved_count, error = generate_and_save_for_definition(definition_id, model_name=model_name)
+
+        if error:
+            return {"status": "error", "message": error}
+
+        # Return fresh data
+        from vocab.models import WordDefinition
+        defn = WordDefinition.objects.select_related('entry__vocab').get(pk=definition_id)
+        examples = list(defn.examples.filter(source='gemini').values(
+            'sentence', 'translation', 'order'
+        ))
+        usage = (defn.extra_data or {}).get('usage', '')
+        gemini_examples = (defn.extra_data or {}).get('gemini_examples', [])
+
+        return {
+            "status": "success",
+            "word": defn.entry.vocab.word,
+            "saved_count": saved_count,
+            "usage": usage,
+            "examples": examples,
+            "gemini_examples": gemini_examples,
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 
 # ═══════════════════════════════════════════════════════════
 # ── KANJI QUIZ GENERATION ──

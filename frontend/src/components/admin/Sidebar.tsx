@@ -82,6 +82,7 @@ const MENU_ITEMS: MenuItem[] = [
       item(<Link href="/admin/vocab/bulk-add">Thêm từ hàng loạt</Link>, "/admin/vocab/bulk-add", ci(ThunderboltOutlined, "#f59e0b")),
       item(<Link href="/admin/vocab/import-jp">Import JP</Link>, "/admin/vocab/import-jp", ci(ImportOutlined, "#ef4444")),
       item(<Link href="/admin/vocab/quiz-generate">Quiz Generator</Link>, "/admin/vocab/quiz-generate", ci(BuildOutlined, "#8b5cf6")),
+      item(<Link href="/admin/vocab/example-generate">Sinh ví dụ JP</Link>, "/admin/vocab/example-generate", ci(RobotOutlined, "#10b981")),
       item(<Link href="/admin/kanji/quiz-generate">Kanji Quiz</Link>, "/admin/kanji/quiz-generate", ci(BuildOutlined, "#ec4899")),
       item(<Link href="/admin/kanji/pdf-import">Kanji PDF Import</Link>, "/admin/kanji/pdf-import", ci(FilePdfOutlined, "#ef4444")),
       item(<Link href="/admin/vocab/choukai-tool">Choukai Tool</Link>, "/admin/vocab/choukai-tool", ci(AudioOutlined, "#06b6d4")),
@@ -127,7 +128,7 @@ const MENU_ITEMS: MenuItem[] = [
 const ALL_KEYS = [
   "/admin/dashboard",
   "/admin/vocab", "/admin/vocab/sets", "/admin/vocab/bulk-add",
-  "/admin/vocab/import-jp", "/admin/vocab/quiz-generate", "/admin/vocab/choukai-tool",
+  "/admin/vocab/import-jp", "/admin/vocab/quiz-generate", "/admin/vocab/example-generate", "/admin/vocab/choukai-tool",
   "/admin/exam/templates", "/admin/exam/books", "/admin/exam/questions",
   "/admin/exam/dokkai-editor", "/admin/exam/import-toeic",
   "/admin/exam/import-usage", "/admin/exam/import-grammar",

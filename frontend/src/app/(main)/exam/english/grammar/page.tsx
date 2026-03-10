@@ -118,8 +118,6 @@ export default function GrammarTopicsPage() {
                 className="gr-topic-card"
                 style={{ animationDelay: `${idx * 0.06}s` }}
               >
-                {/* Accent strip */}
-                <div className="gr-accent-strip" style={{ background: DIFF_ACCENT[topic.difficulty] }} />
                 <div className="gr-topic-emoji">{topic.emoji}</div>
                 <div className="gr-topic-body">
                   <div className="gr-topic-header">
@@ -209,17 +207,11 @@ export default function GrammarTopicsPage() {
           position: relative;
           display: flex; align-items: center; gap: 14px;
           border-radius: 14px; border: 1px solid var(--border-default); background: var(--bg-surface);
-          padding: 14px 16px 14px 20px; text-decoration: none; transition: all 0.25s;
+          padding: 14px 16px; text-decoration: none; transition: all 0.25s;
           animation: grSlideUp 0.35s ease-out both;
           overflow: hidden;
         }
         .gr-topic-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); border-color: var(--action-primary); }
-
-        /* Accent strip */
-        .gr-accent-strip {
-          position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-          border-radius: 14px 0 0 14px;
-        }
 
         .gr-topic-emoji { font-size: 32px; flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg-interactive); border-radius: 12px; transition: transform 0.3s; }
         .gr-topic-card:hover .gr-topic-emoji { transform: scale(1.08) rotate(4deg); }
